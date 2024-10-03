@@ -31,7 +31,8 @@ export default [
       'react/react-in-jsx-scope': 'off'
      },
     },
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
+    pluginJs.configs.recommended,
+    ...tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
 ];
+

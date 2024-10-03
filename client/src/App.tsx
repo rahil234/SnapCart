@@ -1,50 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useEffect } from 'react';
+import { fetchItems } from './api/endpoints';
 
 interface ApiResponse {
-  id: number;
-  name: string;
+  message: string;
 }
 
 const App: React.FC = () => {
-  const [data, setData] = useState<ApiResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [response, setResponse] = React.useState<ApiResponse>();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get<ApiResponse>('/api/user');
-        setData(response.data);
-      } catch (err: unknown) { 
-        if (axios.isAxiosError(err)) {
-          setError(err.message);
-        } else if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError('An unknown error occurred');
-        }
-      } finally {
-        setLoading(false);
-      }
+    const getData = async () => {
+      const res = await fetchItems();
+      setResponse(res.data);
     };
-
-    fetchData();
+    getData();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  return (
-    <div>
-      {data && <div>{JSON.stringify(data)}</div>}
-    </div>
-  );
+  return <>{response && <div>{response.message}</div>}</>;
 };
 
 export default App;
