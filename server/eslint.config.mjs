@@ -19,7 +19,7 @@ export default [
       // '@typescript-eslint/explicit-function-return-type': ['warn'],
 
       // General ESLint rules
-      'no-console': 'warn',
+      // 'no-console': 'warn',
       'no-unused-vars': 'off', // Disable the base rule to avoid conflicts with TypeScript rule
 
       // Additional Recommended Rules

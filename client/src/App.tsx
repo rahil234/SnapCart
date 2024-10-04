@@ -1,22 +1,31 @@
-import React, { useEffect } from 'react';
-import { fetchItems } from './api/endpoints';
+import React from 'react';
+import Home from '@/pages/user/HomePage';
+import NavBar from '@/components/user/NavBar';
+import Footer from '@/components/user/Footer';
 
-interface ApiResponse {
-  message: string;
-}
+import {
+  createBrowserRouter,
+  RouterProvider,
+  // Route,
+} from 'react-router-dom';
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: (
+      <>
+        <NavBar />
+        <div className="pt-[63px]">
+          <Home />
+        </div>
+        <Footer />
+      </>
+    ),
+  }
+]);
 
 const App: React.FC = () => {
-  const [response, setResponse] = React.useState<ApiResponse>();
-
-  useEffect(() => {
-    const getData = async () => {
-      const res = await fetchItems();
-      setResponse(res.data);
-    };
-    getData();
-  }, []);
-
-  return <>{response && <div>{response.message}</div>}</>;
+  return <RouterProvider router={router} />;
 };
 
 export default App;

@@ -130,6 +130,7 @@ dist
 .DS_Store
 .AppleDouble
 .LSOverride
+snapcart.pem
 
 # Icon must end with two \r
 Icon
