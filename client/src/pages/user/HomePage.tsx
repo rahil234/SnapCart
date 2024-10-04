@@ -34,18 +34,22 @@ export default function Component() {
         </div>
         {data.map(category => (
           <section key={category.catogeryName} className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">{category.catogeryName}</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              {category.catogeryName}
+            </h2>
             <div className="flex gap-[20px] overflow-scroll hide-scroll">
               {category.products.map((product, index) => (
                 <div
                   key={index}
                   className="bg-white rounded-lg object-center shadow p-2 min-w-[170px] flex flex-col "
                 >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="object-cover  h-[170px] mb-2"
-                  />
+                  <div className=''>
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="object-cover  h-[170px] mb-2"
+                    />
+                  </div>
                   <h3 className="font-semibold">{product.name}</h3>
                   <h3 className="text-xs">{product.quantity}</h3>
                   <div className="flex items-center justify-between">
@@ -64,5 +68,5 @@ export default function Component() {
         ))}
       </main>
     </div>
-      );
-    }
+  );
+}

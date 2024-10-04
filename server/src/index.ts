@@ -32,13 +32,13 @@ app.use('/api/admin', sellerRoute);
 app.use('/api/admin', adminRoute);
 // app.get('/api/admin', deliveryRoute);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 443;
 
 const connectToDatabaseAndStartServer = async () => {
   try {
     const DATABASE_URL =
       process.env.MONGODB_URI || 'mongodb://localhost:27017/SnapCart';
-    // await mongoose.connect(DATABASE_URL);
+    await mongoose.connect(DATABASE_URL);
     console.log('Database ✅: Connected to MongoDB');
 
     app.listen(PORT, () => {
