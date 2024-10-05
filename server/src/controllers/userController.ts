@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-// import { Category } from '@/types';
+// import { Category } from 'shared/types';
 
 const login = (req: Request, res: Response) => {
   res.json({ message: 'Hello from login controller' });

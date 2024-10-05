@@ -6,6 +6,7 @@
     "shared"
   ],
   "scripts": {
-    "build:shared": "npm run build --prefix shared"
+    "build:shared": "npm run build --prefix shared",
+    "build": "npm run build:shared && npm install --prefix client && npm install --prefix server"
   }
 }

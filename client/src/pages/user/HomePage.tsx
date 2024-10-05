@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { fetchProducts } from '@/api/adminEndpoints';
-
-// interface Data {
-//   name: string;
-//   price: number;
-//   image: string;
-// }
+import { Category } from 'shared/types';
 
 export default function Component() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<Category[]>([]);
 
   useEffect(() => {
     fetchProducts().then(response => {
@@ -33,9 +28,9 @@ export default function Component() {
           ))}
         </div>
         {data.map(category => (
-          <section key={category.catogeryName} className="mb-8">
+          <section key={category.categoryName} className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">
-              {category.catogeryName}
+              {category.categoryName}
             </h2>
             <div className="flex gap-[20px] overflow-scroll hide-scroll">
               {category.products.map((product, index) => (
