@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiUrl = (import.meta as any).env.VITE_API_URL as string;
-const token = "YOUR_API_TOKEN"
+const token = 'YOUR_API_TOKEN';
 
 console.log(apiUrl);
 
@@ -9,26 +9,30 @@ const axiosInstance = axios.create({
   baseURL: apiUrl,
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`, // Add Authorization if needed
-    'X-Requested-With': 'XMLHttpRequest', // Custom header example
-    'Access-Control-Allow-Origin': '*', // Example for CORS (use specific origin if needed)
+    Authorization: `Bearer ${token}`,
+    'X-Requested-With': 'XMLHttpRequest',
+    'Access-Control-Allow-Origin': 'https://www.snapcart.website',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers':
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+    'Access-Control-Allow-Credentials': 'true',
   },
 });
 
 axiosInstance.interceptors.request.use(
-  (config) => {
+  config => {
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => {
+  response => {
     return response;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
