@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-import mongoose from 'mongoose';
+// import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
@@ -44,8 +44,8 @@ const PORT = process.env.PORT || 3001;
 
 const connectToDatabaseAndStartServer = async () => {
   try {
-    const DATABASE_URL =
-      process.env.MONGODB_URI || 'mongodb://localhost:27017/SnapCart';
+    // const DATABASE_URL =
+    //   process.env.MONGODB_URI || 'mongodb://localhost:27017/SnapCart';
     // await mongoose.connect(DATABASE_URL);
     console.log('Database ✅: Connected to MongoDB');
 
