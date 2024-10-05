@@ -12,7 +12,15 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+// Configure CORS to allow requests from your frontend domain
+app.use(
+  cors({
+    origin: 'https://www.snapcart.website', // Allow only this origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
+    credentials: true, // Allow cookies and authorization headers
+  })
+);
+
 app.use(express.json());
 
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -36,8 +44,8 @@ const PORT = process.env.PORT || 3001;
 
 const connectToDatabaseAndStartServer = async () => {
   try {
-    // const DATABASE_URL =
-    //   process.env.MONGODB_URI || 'mongodb://localhost:27017/SnapCart';
+    const DATABASE_URL =
+      process.env.MONGODB_URI || 'mongodb://localhost:27017/SnapCart';
     // await mongoose.connect(DATABASE_URL);
     console.log('Database ✅: Connected to MongoDB');
 
