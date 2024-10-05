@@ -36,9 +36,9 @@ const PORT = process.env.PORT || 3001;
 
 const connectToDatabaseAndStartServer = async () => {
   try {
-    const DATABASE_URL =
-      process.env.MONGODB_URI || 'mongodb://localhost:27017/SnapCart';
-    await mongoose.connect(DATABASE_URL);
+    // const DATABASE_URL =
+    //   process.env.MONGODB_URI || 'mongodb://localhost:27017/SnapCart';
+    // await mongoose.connect(DATABASE_URL);
     console.log('Database ✅: Connected to MongoDB');
 
     app.listen(PORT, () => {
