@@ -10,12 +10,6 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${token}`,
-    'X-Requested-With': 'XMLHttpRequest',
-    'Access-Control-Allow-Origin': 'https://www.snapcart.website',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers':
-      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-    'Access-Control-Allow-Credentials': 'true',
   },
 });
 

@@ -15,9 +15,7 @@ const app = express();
 // Configure CORS to allow requests from your frontend domain
 app.use(
   cors({
-    origin: 'https://www.snapcart.website', // Allow only this origin
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
-    credentials: true, // Allow cookies and authorization headers
+    origin: '*',
   })
 );
 
@@ -40,7 +38,7 @@ app.use('/api/admin', sellerRoute);
 app.use('/api/admin', adminRoute);
 // app.get('/api/admin', deliveryRoute);
 
-const PORT = process.env.PORT || 3001;
+const PORT = 3001;
 
 const connectToDatabaseAndStartServer = async () => {
   try {

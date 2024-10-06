@@ -9,5 +9,5 @@ export const adminSignup = (data: object) => {
 };
 
 export const fetchProducts = () => {
-  return axiosInstance.get('/api/user/products');
+  return axiosInstance.get('/');
 };
