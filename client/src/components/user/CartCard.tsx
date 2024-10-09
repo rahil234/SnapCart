@@ -54,7 +54,7 @@ export const MyCart = (): JSX.Element => {
         </div>
       </div>
       <div className="flex h-[70px] items-center justify-center gap-2.5 p-2.5 relative self-stretch w-full">
-        <Button size="md" type="button" variant="primary">
+        <Button type="button">
           Order Now
         </Button>
         <Button size="sm" variant="secondary">

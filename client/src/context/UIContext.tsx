@@ -9,14 +9,16 @@ import React, {
 interface UIContextProps {
   isLoginOverlayOpen: boolean;
   activeTab: string;
-  setActiveTab: (tab: 'login' | 'signup') => void;
+  setActiveTab: (
+    tab: 'login' | 'signup' | 'forgotPassword' | 'verifyOtp'
+  ) => void;
   showLoginOverlay: () => void;
   hideLoginOverlay: () => void;
 }
 
 export const UIContext = createContext<UIContextProps>({
   isLoginOverlayOpen: false,
-  activeTab: 'signup',
+  activeTab: 'login',
   setActiveTab: () => {},
   showLoginOverlay: () => {},
   hideLoginOverlay: () => {},
@@ -28,7 +30,8 @@ interface UIProviderProps {
 
 export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
   const [isLoginOverlayOpen, setIsLoginOverlayOpen] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
+  const [activeTab, setActiveTab] = useState<
+    'login' | 'signup' | 'forgotPassword' | 'verifyOtp'>('login');
 
   const showLoginOverlay = useCallback(() => {
     setIsLoginOverlayOpen(true);

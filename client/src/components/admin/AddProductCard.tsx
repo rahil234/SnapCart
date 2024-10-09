@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Plus, X, Image as ImageIcon } from 'lucide-react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DndContext, useDroppable, useDraggable, closestCenter } from '@dnd-kit/core';
+import { SortableContext, sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import ImageCropper from './ImageCropper';
 import { Area } from 'react-easy-crop/types';
 
@@ -16,6 +17,35 @@ interface ProductImage {
   id: string;
   file: File;
   preview: string;
+}
+
+function Draggable(props) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useDraggable({
+    id: props.id,
+  });
+
+  const style = {
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transition,
+  };
+
+  return (
+    <li ref={setNodeRef} style={style} {...listeners} {...attributes}>
+      {props.children}
+    </li>
+  );
+}
+
+function Droppable(props) {
+  const { setNodeRef } = useDroppable({
+    id: props.id,
+  });
+
+  return (
+    <ul ref={setNodeRef} className="space-y-2">
+      {props.children}
+    </ul>
+  );
 }
 
 const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -83,10 +113,14 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       pixelCrop.height
     );
 
-    return new Promise<File>((resolve) => {
-      canvas.toBlob((blob) => {
+    return new Promise<File>(resolve => {
+      canvas.toBlob(blob => {
         if (blob) {
-          resolve(new File([blob], `cropped_image_${Date.now()}.jpg`, { type: 'image/jpeg' }));
+          resolve(
+            new File([blob], `cropped_image_${Date.now()}.jpg`, {
+              type: 'image/jpeg',
+            })
+          );
         }
       }, 'image/jpeg');
     });
@@ -139,22 +173,19 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     handleImageUpload(files);
   }, []);
 
-  const onDragEnd = (result: DropResult) => {
-    
-    if (!result.destination) {
-      return;
+  const handleDragEnd = ({ active, over }) => {
+    if (over && active.id !== over.id) {
+      setProductImages((prevImages) => {
+        const oldIndex = prevImages.findIndex((image) => image.id === active.id);
+        const newIndex = prevImages.findIndex((image) => image.id === over.id);
+        return arrayMove(prevImages, oldIndex, newIndex);
+      });
     }
-
-    const items = Array.from(productImages);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setProductImages(items);
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
+      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto overflow-hidden">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Add Product</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -250,41 +281,34 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </div>
           {productImages.length > 0 && (
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId="productImages">
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-                    {productImages.map((image, index) => (
-                      <Draggable key={image.id} draggableId={image.id} index={index}>
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="flex items-center bg-gray-100 p-2 rounded-md"
+            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={productImages.map(image => image.id)} strategy={sortableKeyboardCoordinates}>
+                <Droppable id="droppable">
+                  {productImages.map((image, index) => (
+                    <Draggable key={image.id} id={image.id}>
+                      <div className="flex items-center bg-gray-100 p-2 rounded-md">
+                        <img src={image.preview} alt={`Product ${index + 1}`} className="w-16 h-16 object-cover rounded mr-2" />
+                        <div className="flex-grow">
+                          <p className="text-sm font-medium">Image {index + 1}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeImage(image.id);
+                            }}
+                            className="text-red-500 hover:text-red-700"
                           >
-                            <img src={image.preview} alt={`Product ${index + 1}`} className="w-16 h-16 object-cover rounded mr-2" />
-                            <div className="flex-grow">
-                              <p className="text-sm font-medium">Image {index + 1}</p>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <button
-                                type="button"
-                                onClick={() => removeImage(image.id)}
-                                className="text-red-500 hover:text-red-700"
-                              >
-                                <X size={16} />
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </Draggable>
+                  ))}
+                </Droppable>
+              </SortableContext>
+            </DndContext>
           )}
           <div className="flex justify-end">
             <button

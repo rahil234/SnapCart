@@ -1,15 +1,15 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import giftBoxTopOpenBackgroundRemoved1 from '@/assets/gift-box-top-open-background-removed-1.png';
 import giftBoxTopOpen2BackgroundRemoved1 from '@/assets/gift-box-top-open2-background-removed-1.png';
-import LoginButton from '@/components/ui/LoginButton';
-import InputField from '@/components/ui/InputField';
 // import { Card, CardContent, CardActions } from '@mui/material';
 // import React, { useState, useContext } from 'react';
 // // import SignUpOverlay from './SignUp';
-import { useDispatch } from 'react-redux';
-import { userLogin } from '@/api/userEndpoints';
-import { login } from '@/features/auth/authSlice';
 import { UIContext } from '@/context/UIContext';
+
+import LoginCard from '@/components/user/Login/LoginCard';
+import SignUpCard from '@/components/user/Login/SignUpCard';
+import VerifyOTPCard from '@/components/user/Login/VerifyOTPCard';
+
 // // import Login from './Login';
 // // import VerifyOtp from './anima';
 // import {LoginBg} from './LoginBg';
@@ -17,7 +17,7 @@ import { UIContext } from '@/context/UIContext';
 
 const LoginMain = (): JSX.Element => {
   return (
-    <div className="bg-black fixed w-screen p-7 bg-opacity-50 h-screen overflow-hidden">
+    <div className="bg-black fixed w-screen p-7 bg-opacity-55 h-screen overflow-hidden">
       <div className="relative top-1/2 flex left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[900px] h-[522px] rounded-3xl overflow-hidden">
         <div className="bg-[#FFDB00] flex-1">
           <div className="absolute left-1/4 -translate-x-1/2 top-11 w-[229px] h-[53px] mx-auto text-center">
@@ -56,54 +56,30 @@ const LoginMain = (): JSX.Element => {
 };
 
 function LoginController() {
-  const { activeTab, hideLoginOverlay } = useContext(UIContext);
-  const dispatch = useDispatch();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = async () => {
-    try {
-      const response = await userLogin({ email, password });
-      console.log('data', response.data);
-      dispatch(login({ user: 'user', token: response.data.token }));
-      hideLoginOverlay();
-    } catch (error) {
-      console.error('error', error);
-    }
-  };
+  const { activeTab, setActiveTab, hideLoginOverlay } = useContext(UIContext);
 
   switch (activeTab) {
     case 'login':
       return (
-        <div className="p-3 flex flex-col justify-center items-center h-full">
-          <h1 className="text-3xl font-bold">Verify OTP</h1>
-          <div className="flex gap-4">
-            <InputField
-              placeholder=""
-              type="number"
-              className="w-12 h-12 border border-gray-400 rounded"
-            />
-            <InputField
-              placeholder=""
-              type="number"
-              className="w-12 h-12 border border-gray-400 rounded"
-            />
-            <InputField
-              placeholder=""
-              type="number"
-              className="w-12 h-12 border border-gray-400 rounded"
-            />
-            <InputField
-              placeholder=""
-              type="number"
-              className="w-12 h-12 border border-gray-400 rounded"
-            />
-          </div>
-          <LoginButton value={'verify '}></LoginButton>
-        </div>
+        <LoginCard
+          setActiveTab={setActiveTab}
+          hideLoginOverlay={hideLoginOverlay}
+        />
       );
     case 'signup':
-      return <>signup</>;
+      return (
+        <SignUpCard
+          setActiveTab={setActiveTab}
+          hideLoginOverlay={hideLoginOverlay}
+        />
+      );
+
+    case 'verifyOtp':
+      return <VerifyOTPCard />;
+
+    case 'forgotPassword':
+      return <>forgotPassword</>;
+
     default:
       return null;
   }

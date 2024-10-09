@@ -3,16 +3,16 @@ import React from 'react';
 interface LoginButtonProps {
   label: string;
   className?: string;
-  onLogin: () => void;
+  onClick?: () => void;
 }
 
 const LoginButton: React.FC<LoginButtonProps> = ({
-  onLogin,
+  onClick: onClick,
   label,
   className,
 }) => {
   return (
-    <button onClick={onLogin} className={className}>
+    <button onClick={onClick} className={className}>
       {label}
     </button>
   );

@@ -1,28 +1,26 @@
 import mongoose, { Schema, Document, ObjectId } from 'mongoose';
 export interface IUsers extends Document {
   _id: ObjectId;
-  FirstName: string;
-  CreatedAt: Date;
-  LastName: string | null;
+  firstName: string;
+  lastName: string | null;
   DOB: Date;
-  PhoneNo: number | null;
-  Email: string;
-  UpdatedAt: Date;
+  phoneNo: number | null;
+  email: string;
   Password: string;
 }
 
 const UsersSchema: Schema = new Schema(
   {
-    FirstName: String,
-    LastName: String,
+    firstName: String,
+    lastNameastName: String,
     DOB: Date,
-    PhoneNo: Number,
-    Email: { type: String, required: true, unique: true },
-    Password: { type: String, required: true },
+    phoneNo: Number,
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
   },
   { timestamps: true }
 );
 
-const Users = mongoose.model<IUsers>('Users', UsersSchema);
+const userModel = mongoose.model<IUsers>('Users', UsersSchema);
 
-export default Users;
+export default userModel;

@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import otpModel from '../models/otpModel';
+import userModel from '../models/userModel';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -153,24 +155,42 @@ const products = [
   },
 ];
 
-const login = (req: Request, res: Response) => {
+const login = async (req: Request, res: Response) => {
   try {
     console.log(req.body);
 
     if (!req.body.email || !req.body.password) {
       res.status(401).json({ message: 'Email and password required' });
     } else {
-      res
-        .status(200)
-        .json({ token: 'JWTToken', message: 'success', ...req.body });
+      const user = await userModel.findOne({
+        email: req.body.email,
+        password: req.body.password,
+      });
+      console.log(user);
+      if (!user) {
+        res.status(401).json({ message: 'Invalid email or password' });
+      }
+      res.status(200).json({ token: 'JWTToken', message: 'success', user });
     }
   } catch (err) {
     console.log(err);
   }
 };
 
-const signup = (req: Request, res: Response) => {
-  res.json({ message: 'Hello from signup controller' });
+const signup = async (req: Request, res: Response) => {
+  try {
+    const user = await userModel.create(req.body);
+    user.save();
+
+    const token = jwt.sign({ email: user.email }, 'sdfthsgffgh');
+
+    res.status(201).json({ token, message: 'User created successfully' });
+  } catch (err) {
+    console.log(err);
+    res.status(404).json({ message: err });
+  }
+
+  // res.json({ message: 'Hello from signup controller' });
 };
 
 const getProducts = (req: Request, res: Response) => {

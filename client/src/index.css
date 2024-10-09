@@ -8,8 +8,7 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-
-*{
+* {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
@@ -20,12 +19,15 @@ input::-webkit-inner-spin-button {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 }
 
-.no-scroll{
+.no-scroll {
   overflow: hidden;
 }
 
-.hide-scroll::-webkit-scrollbar{
+.hide-scroll::-webkit-scrollbar {
   display: none;
 }

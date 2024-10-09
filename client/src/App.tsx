@@ -1,7 +1,6 @@
 import React from 'react';
 import Home from '@/pages/user/HomePage';
 import ProductPage from '@/pages/user/ProductPage';
-
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminProducts from '@/pages/admin/AdminProducts';
 import AdminCategory from '@/pages/admin/AdminCategory';

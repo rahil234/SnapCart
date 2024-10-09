@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(['', '', '', '']);
 
-  const handleChange = (index, value) => {
+  const handleChange = (index: number, value : string) => {
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);

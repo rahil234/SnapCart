@@ -1,35 +1,24 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
-interface InputFieldProps {
-  placeholder?: string;
+interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  placeholder: string;
   className?: string;
-  type?: string;
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const InputField: React.FC<InputFieldProps> = ({
-  placeholder,
-  className,
-  type = 'text',
-  value,
-  onChange,
-}) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(e);
-  };
+const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
+  ({ placeholder, className, ...props }, ref) => {
+    return (
+      <input
+        ref={ref}
+        placeholder={placeholder}
+        className={className}
+        {...props}
+      />
+    );
+  }
+);
 
-  return (
-    <input
-      type={type}
-      placeholder={placeholder}
-      className={className}
-      value={value}
-      onChange={handleChange}
-      maxLength={1}
-           
-    />
-  );
-};
+InputField.displayName = 'InputField';
 
 export default InputField;
+
