@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document, ObjectId } from 'mongoose';
-
 export interface IUsers extends Document {
   _id: ObjectId;
   FirstName: string;
@@ -12,16 +11,17 @@ export interface IUsers extends Document {
   Password: string;
 }
 
-const UsersSchema: Schema = new Schema({
-  FirstName: { type: String, required: true },
-  CreatedAt: { type: Date, required: true },
-  LastName: { type: String },
-  DOB: { type: Date, required: true },
-  PhoneNo: { type: Number },
-  Email: { type: String, required: true, unique: true },
-  UpdatedAt: { type: Date, required: true },
-  Password: { type: String, required: true },
-});
+const UsersSchema: Schema = new Schema(
+  {
+    FirstName: String,
+    LastName: String,
+    DOB: Date,
+    PhoneNo: Number,
+    Email: { type: String, required: true, unique: true },
+    Password: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 
 const Users = mongoose.model<IUsers>('Users', UsersSchema);
 

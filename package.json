@@ -10,6 +10,13 @@
     "build": "npm run build:shared && npm install --prefix client && npm install --prefix server"
   },
   "dependencies": {
-    "express": "^4.21.0"
+    "@types/react-easy-crop": "^1.16.0",
+    "express": "^4.21.0",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-easy-crop": "^5.0.8",
+    "react-image-crop": "^11.0.7"
+  },
+  "devDependencies": {
+    "@types/eslint__js": "^8.42.3"
   }
 }

@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
 *{
   padding: 0;
   margin: 0;
@@ -13,6 +20,10 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.no-scroll{
+  overflow: hidden;
 }
 
 .hide-scroll::-webkit-scrollbar{

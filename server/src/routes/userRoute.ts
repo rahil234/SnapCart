@@ -1,11 +1,18 @@
 import { Router } from 'express';
 import user from '../controllers/userController';
+
 const userRoute = Router();
 
-userRoute.get('/login', user.login);
+userRoute.post('/login', user.login);
 
-userRoute.get('/signup', user.signup);
+userRoute.post('/signup', user.signup);
 
 userRoute.get('/products', user.getProducts);
+
+userRoute.get('/products/:productId', user.getProduct);
+
+userRoute.get('/send-otp', user.sendOtp);
+
+userRoute.post('/verify-otp', user.verifyOtp);
 
 export default userRoute;

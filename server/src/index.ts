@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-// import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
@@ -38,13 +38,13 @@ app.use('/api/admin', sellerRoute);
 app.use('/api/admin', adminRoute);
 // app.get('/api/admin', deliveryRoute);
 
-const PORT = 3001;
+const PORT = 3000;
 
 const connectToDatabaseAndStartServer = async () => {
   try {
-    // const DATABASE_URL =
-    //   process.env.MONGODB_URI || 'mongodb://localhost:27017/SnapCart';
-    // await mongoose.connect(DATABASE_URL);
+    const DATABASE_URL =
+      process.env.MONGODB_URI || 'mongodb://mongo:27017/snapcart';
+    await mongoose.connect(DATABASE_URL);
     console.log('Database ✅: Connected to MongoDB');
 
     app.listen(PORT, () => {

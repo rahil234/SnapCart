@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { fetchProducts } from '@/api/adminEndpoints';
+import { fetchProducts } from '@/api/userEndpoints';
 import { Category } from 'shared/types';
 
 export default function Component() {
@@ -14,49 +15,48 @@ export default function Component() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-[76vh] bg-gray-100">
       <main className="px-4 mx-auto py-8">
-        <div className="flex justify-between gap-4 mb-8">
-          {[1, 2, 3, 4].map(banner => (
+        <div className="flex gap-1 mb-8">
+          {[1, 2, 3, 4].map((banner, index) => (
             <div
-              key={banner}
-              className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg p-6 text-white"
+              key={index}
+              className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg p-6 text-white w-full"
             >
               <h2 className="text-lg font-semibold mb-2">Special Offer</h2>
               <p className="text-sm">Save big on selected items!</p>
             </div>
           ))}
         </div>
-        {data.map(category => (
-          <section key={category.categoryName} className="mb-8">
+        {data.map((category, index) => (
+          <section key={index} className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">
               {category.categoryName}
             </h2>
-            <div className="flex gap-[20px] overflow-scroll hide-scroll">
-              {category.products.map((product, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-lg object-center shadow p-2 min-w-[170px] flex flex-col "
-                >
-                  <div className=''>
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="object-cover  h-[170px] mb-2"
-                    />
+            <div className="flex gap-2 overflow-scroll hide-scroll">
+              {category.products.map(product => (
+                <Link key={product.id} to={'/product/' + product.id}>
+                  <div className="bg-white rounded-lg object-center shadow p-2 min-w-[170px] flex flex-col ">
+                    <div className="">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="object-cover  h-[170px] mb-2"
+                      />
+                    </div>
+                    <h3 className="font-semibold">{product.name}</h3>
+                    <h3 className="text-xs">{product.quantity}</h3>
+                    <div className="flex items-center justify-between">
+                      <p className="text-gray-600">₹{product.price}</p>
+                      <Button
+                        className="border border-[#318615] text-[#318615]"
+                        size="sm"
+                      >
+                        Add
+                      </Button>
+                    </div>
                   </div>
-                  <h3 className="font-semibold">{product.name}</h3>
-                  <h3 className="text-xs">{product.quantity}</h3>
-                  <div className="flex items-center justify-between">
-                    <p className="text-gray-600">₹{product.price}</p>
-                    <Button
-                      className="border border-[#318615] text-[#318615]"
-                      size="sm"
-                    >
-                      Add
-                    </Button>
-                  </div>
-                </div>
+                </Link>
               ))}
             </div>
           </section>

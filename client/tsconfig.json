@@ -1,11 +1,13 @@
-// "references": [
-//   { "path": "./tsconfig.app.json" },
-//   { "path": "./tsconfig.node.json" }
-// ],
-// "files": [],
+// {
+//   "references": [
+//     { "path": "./tsconfig.app.json" },
+//     { "path": "./tsconfig.node.json" }
+//   ],
+//   "files": []
+// }
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2020",
 
     "lib": ["dom", "dom.iterable", "esnext"],
 
@@ -35,10 +37,10 @@
 
     "jsx": "react-jsx",
 
-    "baseUrl": ".",
+    "baseUrl": "src",
 
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["*"],
       "shared/*": ["../../shared/dist/*"]
     }
   },
