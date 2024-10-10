@@ -7,9 +7,12 @@ import App from './App';
 import store from './app/store';
 import './index.css';
 
+const googleOAuthClientId = import.meta.env.VITE_googleOAuthClientId;
+// const googleOAuthClientId = '834717821423-ctb8oim33m226fq8ucmghq9jrhr75ev2.apps.googleusercontent.com';
+
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId='834717821423-q5q8p6u26fne4ip0dgq453saf6om0qut.apps.googleusercontent.com'>
+    <GoogleOAuthProvider clientId={googleOAuthClientId}>
       <Provider store={store}>
         <UIProvider>
           <App />
