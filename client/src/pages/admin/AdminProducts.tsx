@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+//@ts-nocheck
+import React, { useEffect, useState } from 'react';
 import {
   Search,
   ChevronDown,
@@ -7,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+// import { getProducts } from '@/api/userEnpoints';
 import AddProductCard from '@/components/admin/AddProductCard';
 import EditProductCard from '@/components/admin/EditProductCard';
 
@@ -91,92 +93,10 @@ export default function AdminProducts() {
   const [showEditProduct, setShowEditProduct] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const products = [
-    {
-      productId: '1',
-      id: '1',
-      productName: 'Lite chawda',
-      image: 'uploads/image1.webp',
-      name: 'Lite chawda',
-      category: 'Snacks',
-      price: 45,
-      piece: 63,
-      images: [
-        { file: new File([], 'placeholder1'), preview: 'https://via.placeholder.com/150' },
-        { file: new File([], 'placeholder2'), preview: 'https://via.placeholder.com/150' },
-      ],
-    },
-    {
-      productId: '2',
-      id: '2',
-      productName: 'Amul Cheese',
-      image: '/placeholder.svg?height=48&width=48',
-      name: 'Amul Cheese',
-      category: 'Diary',
-      price: 35,
-      piece: 13,
-      images: [
-        { file: new File([], 'placeholder'), preview: 'https://via.placeholder.com/150' },
-        { file: new File([], 'placeholder'), preview: 'https://via.placeholder.com/150' },
-      ],
-    },
-    {
-      productId: '3',
-      id: '3',
-      productName: 'Milkymist Paneer',
-      image: '/placeholder.svg?height=48&width=48',
-      name: 'Milkymist Paneer',
-      category: 'Diary',
-      price: 45,
-      piece: 635,
-      images: [
-        { file: null, preview: 'https://via.placeholder.com/150' },
-        { file: null, preview: 'https://via.placeholder.com/150' },
-      ],
-    },
-    {
-      productId: '4',
-      id: '4',
-      productName: 'Homemade Lemonade',
-      image: '/placeholder.svg?height=48&width=48',
-      name: 'Homemade Lemonade',
-      category: 'Drinks',
-      price: 30,
-      piece: 67,
-      images: [
-        { file: null, preview: 'https://via.placeholder.com/150' },
-        { file: null, preview: 'https://via.placeholder.com/150' },
-      ],
-    },
-    {
-      productId: '5',
-      id: '5',
-      productName: 'Doritos',
-      image: '/placeholder.svg?height=48&width=48',
-      name: 'Doritos',
-      category: 'Snacks',
-      price: 30,
-      piece: 52,
-      images: [
-        { file: null, preview: 'https://via.placeholder.com/150' },
-        { file: null, preview: 'https://via.placeholder.com/150' },
-      ],
-    },
-    {
-      productId: '6',
-      id: '6',
-      productName: 'Doritos 2 in 1',
-      image: '/placeholder.svg?height=48&width=48',
-      name: 'Doritos 2 in 1',
-      category: 'Snacks',
-      price: 45,
-      piece: 13,
-      images: [
-        { file: null, preview: 'https://via.placeholder.com/150' },
-        { file: null, preview: 'https://via.placeholder.com/150' },
-      ],
-    },
-  ];
+  // useEffect(() => { 
+  //   getProducts()
+  //  }, []);
+
 
   const handleEditProduct = (product: Product) => {
     setSelectedProduct(product);

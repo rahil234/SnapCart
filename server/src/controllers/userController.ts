@@ -1,8 +1,13 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import otpModel from '../models/otpModel';
 import userModel from '../models/userModel';
+import productModel from '../models/productModel';
+import categoryModel from '../models/categoryModel'; // Import the category model
+
+const createJWT = (data: object) => jwt.sign(data, 'sdfthsgffgh');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -12,165 +17,24 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const products = [
-  {
-    categoryName: 'Drinks',
-    categoryId: '1',
-    products: [
-      {
-        id: '1',
-        name: 'Milk',
-        price: 70,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/sliding_images/jpeg/0be0d49a-4dae-408a-8786-afae1dd05cb1.jpg?ts=1707312314',
-      },
-      {
-        id: '2',
-        name: 'Chips',
-        price: 35,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=225/layout-engine/2022-11/Slice-9_3.png',
-      },
-      {
-        id: '3',
-        name: 'Soda',
-        price: 109,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/sliding_images/jpeg/6807f54d-f711-49ca-9635-514ac9b72d7f.jpg?ts=1724850859',
-      },
-      {
-        id: '4',
-        name: 'Milk',
-        price: 15,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/sliding_images/jpeg/10b8b01a-8b71-4448-becb-16d4247ef05c.jpg?ts=1707312326',
-      },
-      {
-        id: '5',
-        name: 'Pepsi',
-        price: 70,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/sliding_images/jpeg/0be0d49a-4dae-408a-8786-afae1dd05cb1.jpg?ts=1707312314',
-      },
-      {
-        id: '6',
-        name: 'Milk',
-        price: 70,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/sliding_images/jpeg/0be0d49a-4dae-408a-8786-afae1dd05cb1.jpg?ts=1707312314',
-      },
-      {
-        id: '7',
-        name: 'Cookies',
-        price: 234,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/sliding_images/jpeg/ff0e79ab-f334-48f1-9c49-8ce74c4e2908.jpg?ts=1710154018',
-      },
-      {
-        id: '8',
-        name: 'Juice',
-        price: 10,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/363211a.jpg?ts=1690813897',
-      },
-      {
-        id: '9',
-        name: 'Yogurt',
-        price: 70,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/sliding_images/jpeg/0be0d49a-4dae-408a-8786-afae1dd05cb1.jpg?ts=1707312314',
-      },
-    ],
-  },
-  {
-    categoryName: 'Dairy',
-    categoryId: '2',
-    products: [
-      {
-        id: '10',
-        name: 'Soda',
-        price: 109,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/sliding_images/jpeg/6807f54d-f711-49ca-9635-514ac9b72d7f.jpg?ts=1724850859',
-      },
-      {
-        id: '11',
-        name: 'Chips',
-        price: 35,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=225/layout-engine/2022-11/Slice-9_3.png',
-      },
-      {
-        id: '12',
-        name: 'Cookies',
-        price: 234,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/sliding_images/jpeg/ff0e79ab-f334-48f1-9c49-8ce74c4e2908.jpg?ts=1710154018',
-      },
-      {
-        id: '13',
-        name: 'Juice',
-        price: 10,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/images/products/sliding_image/363211a.jpg?ts=1690813897',
-      },
-      {
-        id: '14',
-        name: 'Pepsi',
-        price: 70,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/sliding_images/jpeg/0be0d49a-4dae-408a-8786-afae1dd05cb1.jpg?ts=1707312314',
-      },
-      {
-        id: '15',
-        name: 'Milk',
-        price: 15,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/sliding_images/jpeg/10b8b01a-8b71-4448-becb-16d4247ef05c.jpg?ts=1707312326',
-      },
-      {
-        id: '16',
-        name: 'Yogurt',
-        price: 70,
-        quantity: '100g',
-        image:
-          'https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=70,metadata=none,w=270/app/assets/products/sliding_images/jpeg/0be0d49a-4dae-408a-8786-afae1dd05cb1.jpg?ts=1707312314',
-      },
-    ],
-  },
-];
-
 const login = async (req: Request, res: Response) => {
   try {
-    console.log(req.body);
+    const hashedPasword = await bcrypt.hash(req.body.password, 10);
 
     if (!req.body.email || !req.body.password) {
       res.status(401).json({ message: 'Email and password required' });
     } else {
       const user = await userModel.findOne({
         email: req.body.email,
-        password: req.body.password,
+        password: hashedPasword,
       });
-      console.log(user);
+
       if (!user) {
         res.status(401).json({ message: 'Invalid email or password' });
+      } else {
+        const token = createJWT({ email: user.email });
+        res.status(200).json({ token, message: 'success', user });
       }
-      res.status(200).json({ token: 'JWTToken', message: 'success', user });
     }
   } catch (err) {
     console.log(err);
@@ -182,38 +46,68 @@ const signup = async (req: Request, res: Response) => {
     const user = await userModel.create(req.body);
     user.save();
 
-    const token = jwt.sign({ email: user.email }, 'sdfthsgffgh');
-
+    const token = createJWT({ email: user.email });
     res.status(201).json({ token, message: 'User created successfully' });
   } catch (err) {
     console.log(err);
     res.status(404).json({ message: err });
   }
-
-  // res.json({ message: 'Hello from signup controller' });
 };
 
-const getProducts = (req: Request, res: Response) => {
-  res.json(products);
+const getProducts = async (req: Request, res: Response) => {
+  try {
+    // Step 1: Find the first three categories
+    const categories = await categoryModel.find().limit(3);
+
+    // Log the categories to verify
+    console.log('Categories:', categories);
+
+    // Step 2: For each category, find up to 10 products
+    const categoryProducts = await Promise.all(
+      categories.map(async (category) => {
+        // Log the category ID to verify
+        console.log('Category ID:', category._id);
+
+        const products = await productModel
+          .find({ categoryId: category._id })
+          .limit(10);
+
+        // Log the products to verify
+        console.log('Products for category:', category.name, products);
+
+        return {
+          categoryId: category._id,
+          category: category.name,
+          products,
+        };
+      })
+    );
+
+    // Step 3: Send the combined results in the response
+    res.json(categoryProducts);
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(404).json({ message: err });
+  }
 };
 
 const getProduct = (req: Request, res: Response) => {
-  const productId = req.params.productId;
-  let foundProduct = null;
+  // const productId = req.params.productId;
+  // let foundProduct = null;
 
-  products.forEach((category) =>
-    category.products.forEach((product) => {
-      if (product.id === productId) {
-        foundProduct = product;
-      }
-    })
-  );
+  // products.forEach((category) =>
+  //   category.products.forEach((product) => {
+  //     if (product.id === productId) {
+  //       foundProduct = product;
+  //     }
+  //   })
+  // );
 
-  if (foundProduct) {
-    res.json(foundProduct);
-  } else {
-    res.status(404).json({ message: 'Product not found' });
-  }
+  // if (foundProduct) {
+  //   res.json('foundProduct');
+  // } else {
+  res.status(404).json({ message: 'Product not found' });
+  // }
 };
 
 const sendOtp = async (req: Request, res: Response) => {

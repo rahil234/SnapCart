@@ -1,4 +1,5 @@
-import React from 'react';
+//@ts-nocheck
+import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { X } from 'lucide-react';
@@ -7,6 +8,7 @@ import InputField from '@/components/ui/InputField';
 import { userLogin } from '@/api/userEndpoints';
 import { login } from '@/features/auth/authSlice';
 import { useGoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 
 interface LoginFormInputs {
   email: string;
@@ -30,6 +32,8 @@ const LoginCard: React.FC<LoginCardProps> = ({
     formState: { errors },
   } = useForm<LoginFormInputs>();
   const dispatch = useDispatch();
+  const [user, setUser] = useState([]);
+  // const [profile, setProfile] = useState([]);
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
     try {
@@ -42,13 +46,34 @@ const LoginCard: React.FC<LoginCardProps> = ({
     }
   };
 
+
   const handleGoogleLoginSuccess = async (tokenResponse: object) => {
     console.log('Google login success:', tokenResponse);
-    // Handle Google login success (e.g., send the token to your server)
-    // Example:
-    // const response = await userGoogleLogin(tokenResponse);
-    // dispatch(login({ user: response.data.user, token: response.data.token }));
-    // hideLoginOverlay();
+    setUser(tokenResponse.data);
+
+    useEffect(
+      () => {
+        if (user) {
+          axios
+            .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
+              headers: {
+                Authorization: `Bearer ${user.access_token}`,
+                Accept: 'application/json'
+              }
+            })
+            .then((res) => {
+              console.log(`Google login success:`, res.data);
+
+              // dispatch(login({ user: res.data, token: user.access_token }));
+            })
+            .catch((err) => console.log(err));
+        }
+      },
+      [user]
+    );
+
+    dispatch(login({ user: response.data.user, token: response.data.token }));
+    hideLoginOverlay();
   };
 
   const handleGoogleLoginError = () => {

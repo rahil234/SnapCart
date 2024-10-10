@@ -1,29 +1,42 @@
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { X } from 'lucide-react';
+import { editCatogories } from '@/api/adminEnpoints'
 
-interface AddCategoryFormInputs {
-  categoryName: string;
+interface EditCategoryFormInputs {
+  catName: string;
+  name: string;
   subCategories: string;
   status: 'Active' | 'Blocked';
 }
 
-const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+interface EditCategoryCardProps {
+  _id: string
+  onClose: () => void;
+  editData: EditCategoryFormInputs;
+}
+
+const EditCategoryCard: React.FC<EditCategoryCardProps> = ({ onClose, editData }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<AddCategoryFormInputs>();
+  } = useForm<EditCategoryFormInputs>({
+    defaultValues: editData,
+  });
 
-  const onSubmit: SubmitHandler<AddCategoryFormInputs> = data => {
-    console.log(data);
+  console.log(editData);
+  
+  const onSubmit: SubmitHandler<EditCategoryFormInputs> = data => {
+    editCatogories(data)
+    // onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Add Category</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Edit Category</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -35,7 +48,7 @@ const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="mb-4">
             <label className="block text-gray-700">Category Name</label>
             <input
-              {...register('categoryName', {
+              {...register('catName', {
                 required: 'Category name is required',
                 pattern: {
                   value: /\S+/,
@@ -44,16 +57,16 @@ const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               })}
               className="w-full px-3 py-2 border rounded-lg"
             />
-            {errors.categoryName && (
+            {errors.catName && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.categoryName.message}
+                {errors.catName.message}
               </p>
             )}
           </div>
           <div className="mb-4">
             <label className="block text-gray-700">Subcategories</label>
             <input
-              {...register('subCategories', {
+              {...register('name', {
                 required: 'Subcategories are required',
                 pattern: {
                   value: /\S+/,
@@ -62,9 +75,9 @@ const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               })}
               className="w-full px-3 py-2 border rounded-lg"
             />
-            {errors.subCategories && (
+            {errors.name && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.subCategories.message}
+                {errors.name.message}
               </p>
             )}
           </div>
@@ -73,7 +86,7 @@ const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               type="submit"
               className="bg-blue-500 text-white px-4 py-2 rounded-lg"
             >
-              Add Category
+              Save Changes
             </button>
           </div>
         </form>
@@ -82,4 +95,4 @@ const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   );
 };
 
-export default AddCategoryCard;
+export default EditCategoryCard;

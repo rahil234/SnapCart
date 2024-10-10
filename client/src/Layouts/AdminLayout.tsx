@@ -1,9 +1,17 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { Outlet, NavLink } from 'react-router-dom';
 import { Search, Bell, ChevronDown } from 'lucide-react';
+import { logout } from '@/features/auth/authSlice';
 
 
-const Sidebar = () => (
+interface SidebarProps {
+  adminLogout: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ adminLogout }) => (
+
   <div className="w-84 bg-white h-screen p-4 flex flex-col">
     <h1 className="text-2xl font-bold mb-8">
       <span className="text-yellow-400">Snap</span>
@@ -26,10 +34,9 @@ const Sidebar = () => (
           key={item.name}
           to={item.path}
           className={({ isActive }) =>
-            `py-2 px-4 rounded-lg ${
-              isActive
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-600 hover:bg-gray-100'
+            `py-2 px-4 rounded-lg ${isActive
+              ? 'bg-blue-500 text-white'
+              : 'text-gray-600 hover:bg-gray-100'
             }`
           }
         >
@@ -37,7 +44,8 @@ const Sidebar = () => (
         </NavLink>
       ))}
     </nav>
-    <div className="mt-auto text-gray-600 hover:bg-gray-100 py-2 px-4 rounded-lg">
+    <div className="mt-auto text-gray-600 hover:bg-gray-100 py-2 px-4 rounded-lg"
+      onClick={adminLogout}>
       Logout
     </div>
   </div>
@@ -88,9 +96,18 @@ const Header = () => (
 );
 
 function AdminLayout() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const adminLogout = () => {
+    console.log('Admin logout');
+    navigate('/admin/login');
+    dispatch(logout());
+  };
+
   return (
     <div className="flex bg-gray-100 h-screen overflow-hidden">
-      <Sidebar />
+      <Sidebar adminLogout={adminLogout} />
       <div className="flex-1 flex flex-col">
         <Header />
         <div className="flex-1 overflow-auto">

@@ -1,7 +1,7 @@
 // shared/types/index.ts
 
 export interface Product {
-  id: string;
+  _id: string;
   name: string;
   price: number;
   quantity: string;
@@ -9,7 +9,7 @@ export interface Product {
 }
 
 export interface Category {
-  categoryName: string;
+  category: string;
   categoryId: string;
   products: Product[];
 }

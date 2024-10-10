@@ -1,14 +1,19 @@
-import { Request, Response, Router } from 'express';
+import { Router } from 'express';
+import {
+  adminLogin,
+  editCategories,
+  getCategories,
+  addProduct,
+} from '../controllers/adminController';
 
 const adminRoute = Router();
 
-adminRoute.get('/', (req: Request, res: Response) => {
-  res.send('admin Route');
-});
+adminRoute.post('/login', adminLogin);
 
-adminRoute.post('/login', (req: Request, res: Response) => {
-  console.log(req.body);
-  res.send('admin Route');
-});
+adminRoute.get('/get-categories', getCategories);
+
+adminRoute.patch('/edit-categories', editCategories);
+
+adminRoute.post('/add-product', addProduct);
 
 export default adminRoute;

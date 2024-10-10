@@ -1,3 +1,4 @@
+//@ts-nocheck
 import React, { useState, useCallback } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Plus, X, Image as ImageIcon } from 'lucide-react';
@@ -5,6 +6,7 @@ import { DndContext, useDroppable, useDraggable, closestCenter } from '@dnd-kit/
 import { SortableContext, sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import ImageCropper from './ImageCropper';
 import { Area } from 'react-easy-crop/types';
+import { addProduct } from '@/api/adminEnpoints';
 
 interface AddProductFormInputs {
   productName: string;
@@ -19,14 +21,18 @@ interface ProductImage {
   preview: string;
 }
 
-function Draggable(props) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useDraggable({
-    id: props.id,
+interface Props {
+  id: number;
+  children: React.ReactNode;
+}
+
+function Draggable(props: Props) {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: props.id
   });
 
   const style = {
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-    transition,
   };
 
   return (
@@ -36,7 +42,7 @@ function Draggable(props) {
   );
 }
 
-function Droppable(props) {
+function Droppable(props: Props) {
   const { setNodeRef } = useDroppable({
     id: props.id,
   });
@@ -60,9 +66,13 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       alert('Please add at least 3 images');
       return;
     }
+
     // Here you would typically handle the product addition logic
+
+    addProduct({ ...data, images: productImages });
+
     console.log({ ...data, images: productImages });
-    onClose();
+    // onClose();
   };
 
   const handleImageUpload = (files: File[]) => {
@@ -248,9 +258,8 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div>
             <label className="block text-sm font-medium text-gray-700">Product Images (3-6 images required)</label>
             <div
-              className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md ${
-                isDragging ? 'border-blue-500 bg-blue-50' : ''
-              }`}
+              className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md ${isDragging ? 'border-blue-500 bg-blue-50' : ''
+                }`}
               onDragEnter={handleDragEnter}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}

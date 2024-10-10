@@ -9,12 +9,12 @@ import ComingSoon from '@/pages/admin/ComingSoon';
 import AdminLayout from '@/Layouts/AdminLayout';
 import AdminLogin from '@/pages/admin/AdminLogin';
 import UserLayout from '@/Layouts/UserLayout';
-import TestUI from '@/pages/TestUI';
 import {
   createBrowserRouter,
   Navigate,
   RouterProvider,
 } from 'react-router-dom';
+
 
 const router = createBrowserRouter([
   {
@@ -53,9 +53,6 @@ const router = createBrowserRouter([
         ],
       },
     ],
-  },{
-    path: '/test',
-    element: <TestUI />,
   }
 ]);
 

@@ -2,6 +2,12 @@ import { createSlice } from '@reduxjs/toolkit';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '@/api/axiosInstance';
 
+interface BuilderState {
+  status: string;
+  error: string | null;
+  user: object | null;
+}
+
 export const fetchUserDetails = createAsyncThunk(
   'auth/fetchUserDetails',
   async (_, { getState, rejectWithValue }) => {
@@ -15,7 +21,7 @@ export const fetchUserDetails = createAsyncThunk(
         },
       });
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(error.response.data);
     }
   }
@@ -48,14 +54,14 @@ const authSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchUserDetails.pending, state => {
+      .addCase(fetchUserDetails.pending,(state: any) => {
         state.status = 'loading';
       })
-      .addCase(fetchUserDetails.fulfilled, (state, action) => {
+      .addCase(fetchUserDetails.fulfilled, (state: any, action) => {
         state.status = 'succeeded';
         state.user = action.payload;
       })
-      .addCase(fetchUserDetails.rejected, (state, action) => {
+      .addCase(fetchUserDetails.rejected, (state: any, action) => {
         state.status = 'failed';
         state.error = action.payload;
       });

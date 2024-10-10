@@ -34,7 +34,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use('/api/user', userRoute);
-app.use('/api/admin', sellerRoute);
+app.use('/api/seller', sellerRoute);
 app.use('/api/admin', adminRoute);
 // app.get('/api/admin', deliveryRoute);
 
