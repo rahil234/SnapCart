@@ -1,5 +1,4 @@
-//@ts-nocheck
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Search,
   ChevronDown,
@@ -8,7 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-// import { getProducts } from '@/api/userEnpoints';
+import { getProducts } from '@/api/adminEnpoints';
 import AddProductCard from '@/components/admin/AddProductCard';
 import EditProductCard from '@/components/admin/EditProductCard';
 
@@ -54,11 +53,11 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit }) => (
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-200">
-        {products.map((product: Product) => (
-          <tr key={product.productId}>
+        {products.map((product: Product,index: number) => (
+          <tr key={index}>
             <td className="px-6 py-4 whitespace-nowrap">
               <img
-                src={product.image}
+                src={`https://localhost/`+product.images[0]}
                 alt={product.name}
                 className="w-12 h-12 object-cover rounded"
               />
@@ -92,10 +91,15 @@ export default function AdminProducts() {
   const [showAddProduct, setShowAddProduct] = useState<boolean>(false);
   const [showEditProduct, setShowEditProduct] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  // useEffect(() => { 
-  //   getProducts()
-  //  }, []);
+  useEffect(() => {
+    const request = async () => {
+      const { data } = await getProducts();
+      setProducts(data);
+    };
+    request()
+  }, []);
 
 
   const handleEditProduct = (product: Product) => {
@@ -144,6 +148,7 @@ export default function AdminProducts() {
           </div>
         </div>
       </div>
+
       <ProductsTable products={products} onEdit={handleEditProduct} />
       <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
         <span>Showing 1-09 of 78</span>

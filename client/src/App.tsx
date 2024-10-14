@@ -1,19 +1,20 @@
 import React from 'react';
-import Home from '@/pages/user/HomePage';
-import ProductPage from '@/pages/user/ProductPage';
-import AdminDashboard from '@/pages/admin/AdminDashboard';
-import AdminProducts from '@/pages/admin/AdminProducts';
-import AdminCategory from '@/pages/admin/AdminCategory';
-import AdminUserManagement from '@/pages/admin/AdminUserManagement';
-import ComingSoon from '@/pages/admin/ComingSoon';
-import AdminLayout from '@/Layouts/AdminLayout';
-import AdminLogin from '@/pages/admin/AdminLogin';
-import UserLayout from '@/Layouts/UserLayout';
 import {
   createBrowserRouter,
   Navigate,
   RouterProvider,
 } from 'react-router-dom';
+import ProtectedRoute from './components/user/ProtectedRoute/ProtectedRoute';
+import Home from '@/pages/user/HomePage';
+import ProductPage from '@/pages/user/ProductPage';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import AdminProducts from '@/pages/admin/AdminProducts';
+import AdminCategory from '@/pages/admin/AdminCategory';
+import AdminUsers from '@/pages/admin/AdminUsers';
+import ComingSoon from '@/pages/admin/ComingSoon';
+import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLogin from '@/pages/admin/AdminLogin';
+import UserLayout from '@/Layouts/UserLayout';
 
 
 const router = createBrowserRouter([
@@ -37,7 +38,10 @@ const router = createBrowserRouter([
       { path: 'login', element: <AdminLogin /> },
       {
         path: '',
-        element: <AdminLayout />,
+        element:
+          <ProtectedRoute requiredRoles={['admin']}>
+            <AdminLayout />
+          </ProtectedRoute>,
         children: [
           { path: '', element: <Navigate to="/admin/dashboard" /> },
           { path: 'dashboard', element: <AdminDashboard /> },
@@ -47,12 +51,18 @@ const router = createBrowserRouter([
           { path: 'categories', element: <AdminCategory /> },
           { path: 'offers', element: <ComingSoon /> },
           { path: 'order-lists', element: <ComingSoon /> },
-          { path: 'user-management', element: <AdminUserManagement /> },
+          { path: 'user-management', element: <AdminUsers /> },
           { path: 'inbox', element: <ComingSoon /> },
           { path: 'settings', element: <ComingSoon /> },
         ],
       },
     ],
+  },
+  {
+    path: '/not-authorized', element: <>403</>
+  },
+  {
+    path: '*', element: <>404</>
   }
 ]);
 

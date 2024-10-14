@@ -33,7 +33,7 @@ const LoginCard: React.FC<LoginCardProps> = ({
   } = useForm<LoginFormInputs>();
   const dispatch = useDispatch();
   const [user, setUser] = useState([]);
-  // const [profile, setProfile] = useState([]);
+  const [profile, setProfile] = useState([]);
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
     try {
@@ -47,43 +47,51 @@ const LoginCard: React.FC<LoginCardProps> = ({
   };
 
 
-  const handleGoogleLoginSuccess = async (tokenResponse: object) => {
-    console.log('Google login success:', tokenResponse);
-    setUser(tokenResponse.data);
+  //   const login = useGoogleLogin({
+  //     onSuccess: (codeResponse) => setUser(codeResponse),
+  //     onError: (error) => console.log('Login Failed:', error)
+  // });  
 
-    useEffect(
-      () => {
-        if (user) {
-          axios
-            .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
-              headers: {
-                Authorization: `Bearer ${user.access_token}`,
-                Accept: 'application/json'
-              }
-            })
-            .then((res) => {
-              console.log(`Google login success:`, res.data);
 
-              // dispatch(login({ user: res.data, token: user.access_token }));
-            })
-            .catch((err) => console.log(err));
-        }
-      },
-      [user]
-    );
+  useEffect(
+    () => {
+      if (user) {
+        axios
+          .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
+            headers: {
+              Authorization: `Bearer ${user.access_token}`,
+              Accept: 'application/json'
+            }
+          })
+          .then((res) => {
+            setProfile(res.data);
+            dispatch(login({ user: res.data, token: "456789087656" }));
+            console.log(res.data);
+            hideLoginOverlay();
+          })
+          .catch((err) => console.log(err));
+      }
+    },
+    [user]
+  );
 
-    dispatch(login({ user: response.data.user, token: response.data.token }));
-    hideLoginOverlay();
-  };
+  // const handleGoogleLoginSuccess = async (tokenResponse: object) => {
+  //   console.log('Google login success:', tokenResponse);
+  //   setUser(tokenResponse.data);
 
-  const handleGoogleLoginError = () => {
-    console.error('Google login failed');
-  };
+
+  //   dispatch(login({ user: response.data.user, token: response.data.token }));
+  //   hideLoginOverlay();
+  // };
+
+  // const handleGoogleLoginError = () => {
+  //   console.error('Google login failed');
+  // };
 
   const googleLogin = useGoogleLogin({
-    onSuccess: handleGoogleLoginSuccess,
-    onError: handleGoogleLoginError,
-  });
+    onSuccess: (codeResponse) => setUser(codeResponse),
+    onError: (error) => console.log('Login Failed:', error)
+});
 
   return (
     <div className="flex w-full h-full flex-col justify-between items-center gap-8 p-8">

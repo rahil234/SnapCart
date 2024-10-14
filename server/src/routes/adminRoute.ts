@@ -1,9 +1,12 @@
 import { Router } from 'express';
+import upload from '../middleware/upload';
 import {
   adminLogin,
   editCategories,
   getCategories,
   addProduct,
+  getProducts,
+  getUsers,
 } from '../controllers/adminController';
 
 const adminRoute = Router();
@@ -14,6 +17,12 @@ adminRoute.get('/get-categories', getCategories);
 
 adminRoute.patch('/edit-categories', editCategories);
 
-adminRoute.post('/add-product', addProduct);
+adminRoute.get('/get-products', getProducts);
+
+adminRoute.post('/upload', upload.array('images', 10), addProduct);
+
+adminRoute.post('/add-product', upload.array('images', 6), addProduct);
+
+adminRoute.get('/get-users', getUsers);
 
 export default adminRoute;

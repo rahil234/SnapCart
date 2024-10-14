@@ -57,7 +57,7 @@ const signup = async (req: Request, res: Response) => {
 const getProducts = async (req: Request, res: Response) => {
   try {
     // Step 1: Find the first three categories
-    const categories = await categoryModel.find().limit(3);
+    const categories = await categoryModel.find().limit(5);
 
     // Log the categories to verify
     console.log('Categories:', categories);

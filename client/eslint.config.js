@@ -26,9 +26,10 @@ export default [
       },
     },
     rules: {
+      "@typescript-eslint/no-explicit-any": "off",
       'react/jsx-uses-react': 'error',
       'react/jsx-uses-vars': 'error',
-      'react/react-in-jsx-scope': 'off'
+      'react/react-in-jsx-scope': 'error'
      },
     },
     pluginJs.configs.recommended,

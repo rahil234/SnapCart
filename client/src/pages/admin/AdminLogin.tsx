@@ -1,9 +1,10 @@
-//@ts-nocheck
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
 import { adminLogin } from '@/api/adminEnpoints';
+import { login } from '@/features/auth/authSlice';
 
 interface LoginFormInputs {
   email: string;
@@ -12,6 +13,7 @@ interface LoginFormInputs {
 
 const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
+const dispatch = useDispatch()
 
   const {
     register,
@@ -24,6 +26,7 @@ const AdminLogin: React.FC = () => {
   const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
     try {
       const response = await adminLogin(data);
+      dispatch(login(response.data))
       navigate('/admin/dashboard');
       console.log(response.data);
     } catch (error) {

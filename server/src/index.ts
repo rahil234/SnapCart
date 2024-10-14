@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+// import fs from 'fs';
 
 import userRoute from './routes/userRoute';
 import sellerRoute from './routes/sellerRoute';
@@ -15,11 +16,13 @@ const app = express();
 // Configure CORS to allow requests from your frontend domain
 app.use(
   cors({
-    origin: '*',
+    origin: 'http://localhost:5173',
   })
 );
 
 app.use(express.json());
+
+app.use(express.static('/uploads'));
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   const currentTime =
@@ -30,6 +33,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   const url = req.url;
 
   console.log(`${currentTime} ${method}: ${url}`);
+
   next();
 });
 

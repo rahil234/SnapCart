@@ -12,6 +12,18 @@ export const editCatogories = (data: object) => {
   return axiosInstance.patch('/api/admin/edit-categories', data);
 };
 
-export const addProduct = (data: object) => {
-  axiosInstance.post('/api/admin/add-product', data);
+export const getProducts = () => {
+  return axiosInstance.get('/api/admin/get-products');
+};
+
+export const addProduct = (data: FormData) => {
+  return axiosInstance.post('/api/admin/add-product', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
+  });
+};
+
+export const getUsers = () => {
+  return axiosInstance.get('/api/admin/get-users');
 };

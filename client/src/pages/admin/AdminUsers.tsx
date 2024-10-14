@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getUsers } from '@/api/adminEnpoints';
 import {
   Ban,
   ChevronLeft,
@@ -15,52 +16,64 @@ interface User {
   status: 'Active' | 'Blocked';
 }
 
-const users: User[] = [
-  {
-    name: 'Christine Brooks',
-    email: '123@gmail.com',
-    phone: '9897969591',
-    gender: 'Male',
-    status: 'Active',
-  },
-  {
-    name: 'Christine Brooks',
-    email: '123@gmail.com',
-    phone: '9897969591',
-    gender: 'Male',
-    status: 'Active',
-  },
-  {
-    name: 'Christine Brooks',
-    email: '123@gmail.com',
-    phone: '9897969591',
-    gender: 'Male',
-    status: 'Active',
-  },
-  {
-    name: 'Christine Brooks',
-    email: '123@gmail.com',
-    phone: '9897969591',
-    gender: 'Male',
-    status: 'Blocked',
-  },
-  {
-    name: 'Christine Brooks',
-    email: '123@gmail.com',
-    phone: '9897969591',
-    gender: 'Male',
-    status: 'Active',
-  },
-  {
-    name: 'Christine Brooks',
-    email: '123@gmail.com',
-    phone: '9897969591',
-    gender: 'Male',
-    status: 'Active',
-  },
-];
+// const users: User[] = [
+//   {
+//     name: 'Christine Brooks',
+//     email: '123@gmail.com',
+//     phone: '9897969591',
+//     gender: 'Male',
+//     status: 'Active',
+//   },
+//   {
+//     name: 'Christine Brooks',
+//     email: '123@gmail.com',
+//     phone: '9897969591',
+//     gender: 'Male',
+//     status: 'Active',
+//   },
+//   {
+//     name: 'Christine Brooks',
+//     email: '123@gmail.com',
+//     phone: '9897969591',
+//     gender: 'Male',
+//     status: 'Active',
+//   },
+//   {
+//     name: 'Christine Brooks',
+//     email: '123@gmail.com',
+//     phone: '9897969591',
+//     gender: 'Male',
+//     status: 'Blocked',
+//   },
+//   {
+//     name: 'Christine Brooks',
+//     email: '123@gmail.com',
+//     phone: '9897969591',
+//     gender: 'Male',
+//     status: 'Active',
+//   },
+//   {
+//     name: 'Christine Brooks',
+//     email: '123@gmail.com',
+//     phone: '9897969591',
+//     gender: 'Male',
+//     status: 'Active',
+//   },
+// ];
 
-export default function UserManagement() {
+const AdminUsers = () => {
+
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    const request = async () => {
+      const { data } = await getUsers();
+      console.log(users);
+      setUsers(data);
+    }
+    request();
+  }, []);
+
   return (
     <div className="bg-gray-50 h-full p-8">
       <div className="flex justify-between items-center mb-6">
@@ -114,11 +127,10 @@ export default function UserManagement() {
                 <td className="px-6 py-4 whitespace-nowrap">{user.gender}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.status === 'Active'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'Active'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-red-100 text-red-800'
+                      }`}
                   >
                     {user.status}
                   </span>
@@ -153,3 +165,5 @@ export default function UserManagement() {
     </div>
   );
 }
+
+export default AdminUsers;

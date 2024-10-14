@@ -8,10 +8,17 @@ export interface Product {
   image: string;
 }
 
+export interface Subcategory {
+  subcategory: string;
+  subcategoryId: string;
+  products: Product[];
+}
+
 export interface Category {
   category: string;
   categoryId: string;
   products: Product[];
+  subcategories: Subcategory[];
 }
 
 export type UserRole = 'admin' | 'user' | 'seller';
@@ -33,4 +40,12 @@ export interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
+}
+
+interface ImportMetaEnv {
+  readonly VITE_googleOAuthClientId: string;
+}
+
+export interface ImportMeta {
+  readonly env: ImportMetaEnv;
 }

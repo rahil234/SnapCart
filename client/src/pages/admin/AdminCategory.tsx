@@ -1,4 +1,3 @@
-//@ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { Edit, Archive, ArchiveXIcon } from 'lucide-react';
 import AddCategoryCard from '@/components/admin/AddCategoryCard';
@@ -9,7 +8,10 @@ import { getCategories } from '@/api/adminEnpoints';
 type SubCategory = {
   _id: string;
   name: string;
-  status: string;
+  status: 'Active' | 'Blocked';
+  catId: string;
+  catName: string;
+  subCategories: string;
 };
 
 type Category = {
@@ -116,7 +118,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
   );
 };
 
-export default function AdminCategory() {
+const AdminCategory = () => {
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
 
@@ -143,3 +145,5 @@ export default function AdminCategory() {
     </main>
   );
 }
+
+export default AdminCategory;

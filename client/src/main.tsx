@@ -6,9 +6,9 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import App from './App';
 import store from './app/store';
 import './index.css';
+import { ImportMeta } from 'shared/types';
 
-const googleOAuthClientId = (import.meta as any).env.VITE_googleOAuthClientId;
-// const googleOAuthClientId = '834717821423-ctb8oim33m226fq8ucmghq9jrhr75ev2.apps.googleusercontent.com';
+const googleOAuthClientId = (import.meta as unknown as ImportMeta).env.VITE_googleOAuthClientId;
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

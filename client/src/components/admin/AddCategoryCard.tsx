@@ -1,4 +1,3 @@
-//@ts-nocheck
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { X } from 'lucide-react';

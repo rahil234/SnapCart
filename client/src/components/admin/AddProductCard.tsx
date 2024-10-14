@@ -1,18 +1,17 @@
-//@ts-nocheck
-import React, { useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Plus, X, Image as ImageIcon } from 'lucide-react';
-import { DndContext, useDroppable, useDraggable, closestCenter } from '@dnd-kit/core';
-import { SortableContext, sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import ImageCropper from './ImageCropper';
 import { Area } from 'react-easy-crop/types';
-import { addProduct } from '@/api/adminEnpoints';
+import { addProduct, getCategories } from '@/api/adminEnpoints';
+import { Category, Subcategory } from 'shared/types';
 
 interface AddProductFormInputs {
   productName: string;
   category: string;
+  subCategory: string;
   price: number;
-  piece: number;
+  stock: number;
 }
 
 interface ProductImage {
@@ -21,58 +20,63 @@ interface ProductImage {
   preview: string;
 }
 
-interface Props {
-  id: number;
-  children: React.ReactNode;
-}
-
-function Draggable(props: Props) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: props.id
-  });
-
-  const style = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-  };
-
-  return (
-    <li ref={setNodeRef} style={style} {...listeners} {...attributes}>
-      {props.children}
-    </li>
-  );
-}
-
-function Droppable(props: Props) {
-  const { setNodeRef } = useDroppable({
-    id: props.id,
-  });
-
-  return (
-    <ul ref={setNodeRef} className="space-y-2">
-      {props.children}
-    </ul>
-  );
-}
-
 const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<AddProductFormInputs>();
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<AddProductFormInputs>();
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [imagesToCrop, setImagesToCrop] = useState<string[]>([]);
   const [currentCropIndex, setCurrentCropIndex] = useState<number>(0);
-  const [isDragging, setIsDragging] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subCategories, setSubCategories] = useState<Subcategory[]>([]);
 
-  const onSubmit: SubmitHandler<AddProductFormInputs> = (data) => {
+  useEffect(() => {
+    (async () => {
+      const response = await getCategories();
+      const data: Category[] = response.data;
+      console.log(data);
+
+      setCategories(data);
+    })();
+  }, []);
+
+  // Watch the category field
+  const selectedCategory = watch('category');
+
+  useEffect(() => {
+    const category = categories.find((cat: any) => cat._id === selectedCategory);
+    if (category) {
+      setSubCategories(category.subcategories);
+    } else {
+      setSubCategories([]);
+    }
+  }, [selectedCategory, categories]);
+
+  const onSubmit: SubmitHandler<AddProductFormInputs> = async (data) => {
     if (productImages.length < 3) {
       alert('Please add at least 3 images');
       return;
     }
+    const formData = new FormData();
+    formData.append('productName', data.productName);
+    formData.append('category', data.category);
+    formData.append('subCategory', data.subCategory);
+    formData.append('price', data.price.toString());
+    formData.append('stock', data.stock.toString());
 
-    // Here you would typically handle the product addition logic
+    productImages.forEach((image) => {
+      formData.append('images', image.file);
+    });
 
-    addProduct({ ...data, images: productImages });
+    try {
+      formData.forEach((value, key) => {
+        console.log(key, value);
+      });
 
-    console.log({ ...data, images: productImages });
-    // onClose();
+      const response = await addProduct(formData);
+      console.log(response);
+      onClose();
+    } catch (error) {
+      console.error('Error adding product:', error);
+    }
   };
 
   const handleImageUpload = (files: File[]) => {
@@ -126,6 +130,7 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     return new Promise<File>(resolve => {
       canvas.toBlob(blob => {
         if (blob) {
+          console.log('Blob:', blob);
           resolve(
             new File([blob], `cropped_image_${Date.now()}.jpg`, {
               type: 'image/jpeg',
@@ -156,41 +161,6 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   const removeImage = (id: string) => {
     setProductImages((prev) => prev.filter((img) => img.id !== id));
-  };
-
-  const handleDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files);
-    handleImageUpload(files);
-  }, []);
-
-  const handleDragEnd = ({ active, over }) => {
-    if (over && active.id !== over.id) {
-      setProductImages((prevImages) => {
-        const oldIndex = prevImages.findIndex((image) => image.id === active.id);
-        const newIndex = prevImages.findIndex((image) => image.id === over.id);
-        return arrayMove(prevImages, oldIndex, newIndex);
-      });
-    }
   };
 
   return (
@@ -224,13 +194,35 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               {...register("category", { required: "Category is required" })}
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
             >
-              <option value="">Select a category</option>
-              <option value="Snacks">Snacks</option>
-              <option value="Diary">Diary</option>
-              <option value="Drinks">Drinks</option>
+              <option value="">Select Category</option>
+              {
+                categories.map((category: any, index: number) => (
+                  <option key={index} value={category._id}>{category.name}</option>
+                ))
+              }
             </select>
             {errors.category && <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>}
           </div>
+          {subCategories.length > 0 &&
+            <div>
+              <label htmlFor="subCategory" className="block text-sm font-medium text-gray-700">
+                Sub Category
+              </label>
+              <select
+                id="subCategory"
+                {...register("subCategory", { required: "SubCategory is required" })}
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+              >
+                <option value="">Select Sub Category</option>
+                {
+                  subCategories.map((subCategory: any, index: number) => (
+                    <option key={index} value={subCategory._id}>{subCategory.name}</option>
+                  ))
+                }
+              </select>
+              {errors.subCategory && <p className="mt-1 text-sm text-red-600">{errors.subCategory.message}</p>}
+            </div>
+          }
           <div>
             <label htmlFor="price" className="block text-sm font-medium text-gray-700">
               Price (₹)
@@ -238,32 +230,27 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <input
               type="number"
               id="price"
-              {...register("price", { required: "Price is required", min: 0 })}
+              {...register("price", { required: "Price is required", min: 1 })}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
             {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>}
           </div>
           <div>
             <label htmlFor="piece" className="block text-sm font-medium text-gray-700">
-              Piece
+              stock
             </label>
             <input
               type="number"
-              id="piece"
-              {...register("piece", { required: "Piece is required", min: 0 })}
+              id="stock"
+              {...register("stock", { required: "Stock is required", min: 1 })}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
-            {errors.piece && <p className="mt-1 text-sm text-red-600">{errors.piece.message}</p>}
+            {errors.stock && <p className="mt-1 text-sm text-red-600">{errors.stock.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Product Images (3-6 images required)</label>
             <div
-              className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md ${isDragging ? 'border-blue-500 bg-blue-50' : ''
-                }`}
-              onDragEnter={handleDragEnter}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
+              className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md `}
             >
               <div className="space-y-1 text-center">
                 <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
@@ -290,34 +277,30 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
           </div>
           {productImages.length > 0 && (
-            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={productImages.map(image => image.id)} strategy={sortableKeyboardCoordinates}>
-                <Droppable id="droppable">
-                  {productImages.map((image, index) => (
-                    <Draggable key={image.id} id={image.id}>
-                      <div className="flex items-center bg-gray-100 p-2 rounded-md">
-                        <img src={image.preview} alt={`Product ${index + 1}`} className="w-16 h-16 object-cover rounded mr-2" />
-                        <div className="flex-grow">
-                          <p className="text-sm font-medium">Image {index + 1}</p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeImage(image.id);
-                            }}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    </Draggable>
-                  ))}
-                </Droppable>
-              </SortableContext>
-            </DndContext>
+            <>
+              {
+                productImages.map((image, index) => (
+                  <div key={image.id} className="flex items-center bg-gray-100 p-2 rounded-md">
+                    <img src={image.preview} alt={`Product ${index + 1}`} className="w-16 h-16 object-cover rounded mr-2" />
+                    <div className="flex-grow">
+                      <p className="text-sm font-medium">Image {index + 1}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeImage(image.id);
+                        }}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              }
+            </>
           )}
           <div className="flex justify-end">
             <button

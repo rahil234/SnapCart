@@ -2,11 +2,6 @@ import { createSlice } from '@reduxjs/toolkit';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '@/api/axiosInstance';
 
-interface BuilderState {
-  status: string;
-  error: string | null;
-  user: object | null;
-}
 
 export const fetchUserDetails = createAsyncThunk(
   'auth/fetchUserDetails',
