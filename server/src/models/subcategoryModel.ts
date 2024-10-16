@@ -1,22 +1,24 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-interface ISubcategory extends Document {
+interface ISubCategory extends Document {
   name: string;
-  categoryId: mongoose.Types.ObjectId;
+  status: string;
+  category: mongoose.Schema.Types.ObjectId;
 }
 
-const SubcategorySchema: Schema = new Schema({
-  name: { type: String, required: true },
-  categoryId: {
-    type: mongoose.Types.ObjectId,
+const SubCategorySchema: Schema = new Schema({
+  name: { type: String, required: true, unique: true },
+  status: { type: String, default: 'Active' },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
     required: true,
   },
 });
 
-const subcategoryModel = mongoose.model<ISubcategory>(
+const subcategoryModel = mongoose.model<ISubCategory>(
   'Subcategory',
-  SubcategorySchema
+  SubCategorySchema
 );
 
 export default subcategoryModel;

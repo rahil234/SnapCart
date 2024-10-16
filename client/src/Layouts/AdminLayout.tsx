@@ -12,7 +12,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ adminLogout }) => (
 
-  <div className="w-84 bg-white h-screen p-4 flex flex-col">
+  <div className="w-84 bg-white h-screen p-4 px-8 flex flex-col">
     <h1 className="text-2xl font-bold mb-8">
       <span className="text-yellow-400">Snap</span>
       <span className="text-green-600">Cart</span>
@@ -20,14 +20,14 @@ const Sidebar: React.FC<SidebarProps> = ({ adminLogout }) => (
     <nav className="flex-1 flex flex-col space-y-1">
       {[
         { name: 'Dashboard', path: '/admin/dashboard' },
-        { name: 'Products', path: '/admin/products' },
+        { name: 'Inbox', path: '/admin/inbox' },
+        { name: 'Users', path: '/admin/user-management' },
         { name: 'Categories', path: '/admin/categories' },
+        { name: 'Products', path: '/admin/products' },
         { name: 'Coupons', path: '/admin/coupons' },
         { name: 'Offers', path: '/admin/offers' },
         { name: 'Deals', path: '/admin/deals' },
-        { name: 'Inbox', path: '/admin/inbox' },
         { name: 'Order lists', path: '/admin/order-lists' },
-        { name: 'User management', path: '/admin/user-management' },
         { name: 'Settings', path: '/admin/settings' },
       ].map(item => (
         <NavLink
@@ -53,6 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ adminLogout }) => (
 
 const Header = () => (
   <header className="bg-white p-4 flex items-center justify-between">
+
     <div className="flex-1 max-w-xl">
       <div className="relative">
         <input
@@ -63,6 +64,7 @@ const Header = () => (
         <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
       </div>
     </div>
+
     <div className="flex items-center space-x-4">
       <div className="relative">
         <Bell className="text-gray-600" />
@@ -70,7 +72,8 @@ const Header = () => (
           3
         </span>
       </div>
-      <div className="flex items-center space-x-2">
+      {/* Lamguage disabled */}
+      {/* <div className="flex items-center space-x-2">
         <img
           src="/placeholder.svg?height=24&width=24"
           alt="UK flag"
@@ -78,7 +81,7 @@ const Header = () => (
         />
         <span className="text-gray-600">English</span>
         <ChevronDown size={16} className="text-gray-400" />
-      </div>
+      </div> */}
       <div className="flex items-center space-x-2">
         <img
           src="/placeholder.svg?height=32&width=32"

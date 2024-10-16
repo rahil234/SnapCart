@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { X } from 'lucide-react';
-import { editCatogories } from '@/api/adminEnpoints'
+import { editCatogories } from '@/api/adminEndpoints'
 
 interface EditCategoryFormInputs {
   catName: string;

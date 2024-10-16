@@ -9,7 +9,11 @@ const adminLogin = (req: Request, res: Response) => {
   console.log(email, password);
 
   if (email === 'admin@gmail.com' && password === '12345678') {
-    res.status(200).json({ message: 'success', token: '1234567890' });
+    const user = {
+      email,
+      roles: ['admin'],
+    };
+    res.status(200).json({ message: 'success', token: '1234567890', user });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });
   }
@@ -21,7 +25,7 @@ const getCategories = async (req: Request, res: Response) => {
     const categoriesWithSubcategories = await Promise.all(
       categories.map(async (category) => {
         const subcategories = await subcategoryModel.find({
-          categoryId: category._id,
+          category: category._id,
         });
         return { ...category.toObject(), subcategories };
       })
@@ -56,7 +60,7 @@ const getProducts = async (req: Request, res: Response) => {
 const addProduct = async (req: Request, res: Response) => {
   try {
     console.log(req.files, req.body);
-    const { productName, category, price, piece } = req.body;
+    const { productName, category, price, quantity, stock } = req.body;
     const images = req.files as Express.Multer.File[];
 
     // Save images to the uploads folder
@@ -67,7 +71,8 @@ const addProduct = async (req: Request, res: Response) => {
       name: productName,
       category,
       price,
-      quantity: piece,
+      quantity,
+      stock,
       images: imagePaths,
     });
     newProduct.save();
@@ -90,6 +95,41 @@ const getUsers = async (req: Request, res: Response) => {
   }
 };
 
+const addCategory = async (req: Request, res: Response) => {
+  console.log(req.body);
+
+  try {
+    const { categoryName, subcategoryName, categoryId } = req.body;
+
+    if (categoryId) {
+      const newSubCategory = new subcategoryModel({
+        name: subcategoryName,
+        category: categoryId,
+      });
+      newSubCategory.save();
+      res.status(200).json({ message: 'Subcategories added successfully' });
+    } else {
+      // Create new category with subcategories
+      const newCategory = new categoryModel({ name: categoryName });
+      await newCategory.save();
+
+      const newSubCategory = new subcategoryModel({
+        name: subcategoryName,
+        category: newCategory._id,
+      });
+
+      newSubCategory.save();
+      res.status(200).json({ message: 'Category added successfully' });
+    }
+  } catch (error: any) {
+    if (error.code === 11000) {
+      res.status(400).json({ message: 'Category already exists' });
+      return;
+    }
+    res.status(500).json({ message: 'Error adding category' });
+  }
+};
+
 export {
   adminLogin,
   getCategories,
@@ -97,4 +137,5 @@ export {
   addProduct,
   getProducts,
   getUsers,
+  addCategory,
 };

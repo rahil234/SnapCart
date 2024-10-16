@@ -5,7 +5,8 @@ export interface Product {
   name: string;
   price: number;
   quantity: string;
-  image: string;
+  stock: number;
+  images: string[];
 }
 
 export interface Subcategory {
@@ -48,4 +49,11 @@ interface ImportMetaEnv {
 
 export interface ImportMeta {
   readonly env: ImportMetaEnv;
+}
+
+export interface SignUpFormInputs {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
 }

@@ -1,14 +1,13 @@
-//@ts-nocheck
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { X } from 'lucide-react';
-import LoginButton from '@/components/ui/LoginButton';
 import InputField from '@/components/ui/InputField';
 import { userLogin } from '@/api/userEndpoints';
 import { login } from '@/features/auth/authSlice';
 import { useGoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
+import { userGoogleLogin } from '@/api/userEndpoints';
+import { motion } from 'framer-motion';
 
 interface LoginFormInputs {
   email: string;
@@ -26,192 +25,166 @@ const LoginCard: React.FC<LoginCardProps> = ({
   hideLoginOverlay,
   setActiveTab,
 }) => {
+  const dispatch = useDispatch();
+  const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormInputs>();
-  const dispatch = useDispatch();
-  const [user, setUser] = useState([]);
-  const [profile, setProfile] = useState([]);
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
     try {
+      setError(null);
       const response = await userLogin(data);
       console.log('data', response.data);
-      dispatch(login({ user: response.data.user, token: response.data.token }));
+      dispatch(login(response.data));
       hideLoginOverlay();
-    } catch (error) {
+    } catch (error: any) {
       console.error('error', error);
+      setError(error.response.data.message);
     }
   };
 
+  const handleGoogleLoginSuccess = async (codeResponse: { access_token: string }) => {
+    console.log(codeResponse);
 
-  //   const login = useGoogleLogin({
-  //     onSuccess: (codeResponse) => setUser(codeResponse),
-  //     onError: (error) => console.log('Login Failed:', error)
-  // });  
-
-
-  useEffect(
-    () => {
-      if (user) {
-        axios
-          .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
-            headers: {
-              Authorization: `Bearer ${user.access_token}`,
-              Accept: 'application/json'
-            }
-          })
-          .then((res) => {
-            setProfile(res.data);
-            dispatch(login({ user: res.data, token: "456789087656" }));
-            console.log(res.data);
-            hideLoginOverlay();
-          })
-          .catch((err) => console.log(err));
-      }
-    },
-    [user]
-  );
-
-  // const handleGoogleLoginSuccess = async (tokenResponse: object) => {
-  //   console.log('Google login success:', tokenResponse);
-  //   setUser(tokenResponse.data);
-
-
-  //   dispatch(login({ user: response.data.user, token: response.data.token }));
-  //   hideLoginOverlay();
-  // };
-
-  // const handleGoogleLoginError = () => {
-  //   console.error('Google login failed');
-  // };
+    const response = await userGoogleLogin(codeResponse.access_token);
+    console.log('data', response.data);
+    dispatch(login({ user: response.data.user, token: response.data.token }));
+    hideLoginOverlay();
+  };
 
   const googleLogin = useGoogleLogin({
-    onSuccess: (codeResponse) => setUser(codeResponse),
+    onSuccess: (codeResponse) => handleGoogleLoginSuccess(codeResponse),
     onError: (error) => console.log('Login Failed:', error)
-});
+  });
 
   return (
-    <div className="flex w-full h-full flex-col justify-between items-center gap-8 p-8">
-      <header className="w-full flex justify-end">
-        <X className="absolute h-50" onClick={hideLoginOverlay} />
+    <div className="flex flex-col h-full">
+      <header className="flex justify-end p-4">
+        <X className="cursor-pointer" onClick={hideLoginOverlay} />
       </header>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="w-full flex flex-col items-center gap-3"
-      >
-        <div className="flex gap-1 bg-white rounded-3xl border overflow-hidden mb-3">
-          <h1 className="text-xl font-bold p-2 px-6 bg-black text-white">
-            Login
-          </h1>
-          <h1
-            className="text-xl font-bold p-2 px-6 "
-            onClick={() => setActiveTab('signup')}
-          >
-            Signup
-          </h1>
+      <div className="flex flex-col justify-center items-center px-8 pb-4">
+        <div className="w-full">
+          <div className="flex max-w-72 mx-auto bg-gray-100 rounded-full p mb-4">
+            <motion.button
+              className={`flex-1 py-2 rounded-full text-sm font-medium ${isLogin ? 'bg-black text-white' : 'bg-transparent text-black'}`}
+              onClick={() => setIsLogin(true)}
+              animate={{ x: isLogin ? 0 : '100%' }}
+              transition={{ duration: 0.3 }}
+            >
+              Login
+            </motion.button>
+            <motion.button
+              className={`flex-1 py-2 rounded-full text-sm font-medium ${!isLogin ? 'bg-black text-white' : 'bg-transparent text-black'}`}
+              onClick={() => setActiveTab('signup')}
+              animate={{ x: isLogin ? 0 : '-100%' }}
+              transition={{ duration: 0.3 }}
+            >
+              Signup
+            </motion.button>
+          </div>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4">
+            <p className="text-red-500 text-sm h-[5px] text-center">
+              {error && error}
+            </p>
+            <div>
+              <InputField
+                placeholder="Email"
+                className="border border-gray-300 rounded-lg p-2 w-full"
+                type="email"
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                    message: 'Invalid email address',
+                  },
+                })}
+              />
+              <p className="text-red-500 h-1 text-sm mt-1">
+                {errors.email &&
+                  errors.email.message}
+              </p>
+            </div>
+            <div>
+              <InputField
+                placeholder="Password"
+                className="border border-gray-300 rounded-lg p-2 w-full"
+                type="password"
+                {...register('password', {
+                  required: 'Password is required',
+                  minLength: {
+                    value: 6,
+                    message: 'Password must be at least 6 characters',
+                  },
+                })}
+              />
+              <p className="text-red-500 h-1 text-sm mt-1">
+                {errors.password && errors.password.message}
+              </p>
+            </div>
+            <div className="flex justify-end">
+              <a href="#forgot-password" className="text-sm text-gray-600 hover:underline mb-2">
+                Forgot password?
+              </a>
+            </div>
+            <button
+              type="submit"
+              className="mx-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-8 rounded-lg "
+            >
+              Login
+            </button>
+          </form>
+          <div className="flex items-center my-6">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="flex-shrink mx-4 text-gray-500">or</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+          <div className="flex justify-center space-x-4">
+            <button
+              onClick={() => googleLogin()}
+              className="p-2 border border-gray-300 rounded-full hover:bg-gray-50 transition duration-300"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21.8055 10.0415H21V10H12V14H17.6515C16.827 16.3285 14.6115 18 12 18C8.6865 18 6 15.3135 6 12C6 8.6865 8.6865 6 12 6C13.5295 6 14.921 6.577 15.9805 7.5195L18.809 4.691C17.023 3.0265 14.634 2 12 2C6.4775 2 2 6.4775 2 12C2 17.5225 6.4775 22 12 22C17.5225 22 22 17.5225 22 12C22 11.3295 21.931 10.675 21.8055 10.0415Z" fill="#FFC107" />
+                <path d="M3.15295 7.3455L6.43845 9.755C7.32745 7.554 9.48045 6 12 6C13.5295 6 14.921 6.577 15.9805 7.5195L18.809 4.691C17.023 3.0265 14.634 2 12 2C8.15895 2 4.82795 4.1685 3.15295 7.3455Z" fill="#FF3D00" />
+                <path d="M12 22C14.583 22 16.93 21.0115 18.7045 19.404L15.6095 16.785C14.5718 17.5742 13.3038 18.001 12 18C9.39903 18 7.19053 16.3415 6.35853 14.027L3.09753 16.5395C4.75253 19.778 8.11353 22 12 22Z" fill="#4CAF50" />
+                <path d="M21.8055 10.0415H21V10H12V14H17.6515C17.2571 15.1082 16.5467 16.0766 15.608 16.7855L15.6095 16.7845L18.7045 19.4035C18.4855 19.6025 22 17 22 12C22 11.3295 21.931 10.675 21.8055 10.0415Z" fill="#1976D2" />
+              </svg>
+            </button>
+            <button
+              className="p-2 border border-gray-300 rounded-full hover:bg-gray-50 transition duration-300"
+            >
+              <svg fill="#000000" height="24px" width="24px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 22.773 22.773">
+                <g>
+                  <g>
+                    <path d="M15.769,0c0.053,0,0.106,0,0.162,0c0.13,1.606-0.483,2.806-1.228,3.675c-0.731,0.863-1.732,1.7-3.351,1.573
+			c-0.108-1.583,0.506-2.694,1.25-3.561C13.292,0.879,14.557,0.16,15.769,0z"/>
+                    <path d="M20.67,16.716c0,0.016,0,0.03,0,0.045c-0.455,1.378-1.104,2.559-1.896,3.655c-0.723,0.995-1.609,2.334-3.191,2.334
+			c-1.367,0-2.275-0.879-3.676-0.903c-1.482-0.024-2.297,0.735-3.652,0.926c-0.155,0-0.31,0-0.462,0
+			c-0.995-0.144-1.798-0.932-2.383-1.642c-1.725-2.098-3.058-4.808-3.306-8.276c0-0.34,0-0.679,0-1.019
+			c0.105-2.482,1.311-4.5,2.914-5.478c0.846-0.52,2.009-0.963,3.304-0.765c0.555,0.086,1.122,0.276,1.619,0.464
+			c0.471,0.181,1.06,0.502,1.618,0.485c0.378-0.011,0.754-0.208,1.135-0.347c1.116-0.403,2.21-0.865,3.652-0.648
+			c1.733,0.262,2.963,1.032,3.723,2.22c-1.466,0.933-2.625,2.339-2.427,4.74C17.818,14.688,19.086,15.964,20.67,16.716z"/>
+                  </g>
+                </g>
+              </svg>
+            </button>
+          </div>
         </div>
-        <InputField
-          placeholder="Email"
-          className="w-10/12 border-2 border-gray-300 rounded-lg p-2"
-          type="email"
-          {...register('email', {
-            required: 'Email is required',
-            pattern: {
-              value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-              message: 'Invalid email address',
-            },
-          })}
-        />
-        {errors.email && (
-          <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-        )}
-
-        <InputField
-          placeholder="Password"
-          className="w-10/12 border-2 border-gray-300 rounded-lg p-2"
-          type="password"
-          {...register('password', {
-            required: 'Password is required',
-            minLength: {
-              value: 6,
-              message: 'Password must be at least 6 characters',
-            },
-          })}
-        />
-        {errors.password && (
-          <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-        )}
-
-        <LoginButton
-          label="Login"
-          className="bg-[#198C05] hover:bg-[#194C05] p-2 px-8 rounded-lg mt-5"
-        />
-      </form>
-      <div className="flex gap-5">
-        <span className="border rounded-full p-1" onClick={() => googleLogin()}>
-          <svg
-            width="35px"
-            height="35px"
-            viewBox="0 0 300 300"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="xMidYMid"
-          >
-            <path
-              d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622 38.755 30.023 2.685.268c24.659-22.774 38.875-56.282 38.875-96.027"
-              fill="#4285F4"
-            />
-            <path
-              d="M130.55 261.1c35.248 0 64.839-11.605 86.453-31.622l-41.196-31.913c-11.024 7.688-25.82 13.055-45.257 13.055-34.523 0-63.824-22.773-74.269-54.25l-1.531.13-40.298 31.187-.527 1.465C35.393 231.798 79.49 261.1 130.55 261.1"
-              fill="#34A853"
-            />
-            <path
-              d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82 0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602l42.356-32.782"
-              fill="#FBBC05"
-            />
-            <path
-              d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
-              fill="#EB4335"
-            />
-          </svg>
-        </span>
-        <span className="border rounded-full p-1 -translate-y-1">
-          <svg
-            fill="#000000"
-            width="35px"
-            height="35px"
-            viewBox="0 0 24 24"
-            version="1.1"
-            id="Capa_1"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <g>
-              <path
-                d="M15.769,0c0.053,0,0.106,0,0.162,0c0.13,1.606-0.483,2.806-1.228,3.675c-0.731,0.863-1.732,1.7-3.351,1.573
-            c-0.108-1.583,0.506-2.694,1.25-3.561C13.292,0.879,14.557,0.16,15.769,0z"
-              />
-              <path
-                d="M20.67,16.716c0,0.016,0,0.03,0,0.045c-0.455,1.378-1.104,2.559-1.896,3.655c-0.723,0.995-1.609,2.334-3.191,2.334
-            c-1.367,0-2.275-0.879-3.676-0.903c-1.482-0.024-2.297,0.735-3.652,0.926c-0.155,0-0.31,0-0.462,0
-            c-0.995-0.144-1.798-0.932-2.383-1.642c-1.725-2.098-3.058-4.808-3.306-8.276c0-0.34,0-0.679,0-1.019
-            c0.105-2.482,1.311-4.5,2.914-5.478c0.846-0.52,2.009-0.963,3.304-0.765c0.555,0.086,1.122,0.276,1.619,0.464
-            c0.471,0.181,1.06,0.502,1.618,0.485c0.378-0.011,0.754-0.208,1.135-0.347c1.116-0.403,2.21-0.865,3.652-0.648
-            c1.733,0.262,2.963,1.032,3.723,2.22c-1.466,0.933-2.625,2.339-2.427,4.74C17.818,14.688,19.086,15.964,20.67,16.716z"
-              />
-            </g>
-          </svg>
-        </span>
       </div>
-      <footer>
-        <p className="text-gray-500 text-xs mt-2 text-center">
+      <footer className="p-4">
+        <p className="text-gray-500 text-xs text-center">
           By continuing, you agree to our{' '}
-          <a href="#terms-and-service" className="underline">
+          <a href="#terms-of-service" className="underline">
             Terms of service
           </a>{' '}
           &{' '}
-          <a href="#privcy-policy" className="underline">
+          <a href="#privacy-policy" className="underline">
             Privacy policy
           </a>
         </p>

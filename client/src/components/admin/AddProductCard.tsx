@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Plus, X, Image as ImageIcon } from 'lucide-react';
 import ImageCropper from './ImageCropper';
 import { Area } from 'react-easy-crop/types';
-import { addProduct, getCategories } from '@/api/adminEnpoints';
+import { addProduct, getCategories } from '@/api/adminEndpoints';
 import { Category, Subcategory } from 'shared/types';
 
 interface AddProductFormInputs {
@@ -11,6 +11,7 @@ interface AddProductFormInputs {
   category: string;
   subCategory: string;
   price: number;
+  quantity: string;
   stock: number;
 }
 
@@ -60,6 +61,7 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     formData.append('category', data.category);
     formData.append('subCategory', data.subCategory);
     formData.append('price', data.price.toString());
+    formData.append('quantity', data.quantity.toString());
     formData.append('stock', data.stock.toString());
 
     productImages.forEach((image) => {
@@ -234,6 +236,18 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
             {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>}
+          </div>
+          <div>
+            <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
+            quantity
+            </label>
+            <input
+              type="text"
+              id="quantity"
+              {...register("quantity", { required: "Quantity is required" })}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+            {errors.quantity && <p className="mt-1 text-sm text-red-600">{errors.quantity.message}</p>}
           </div>
           <div>
             <label htmlFor="piece" className="block text-sm font-medium text-gray-700">

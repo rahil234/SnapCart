@@ -5,26 +5,28 @@ interface IProduct extends Document {
   name: string;
   price: number;
   quantity: string;
+  stock: number;
   image: string;
-  categoryId: mongoose.Types.ObjectId;
-  subcategoryId: mongoose.Types.ObjectId;
+  category: mongoose.Types.ObjectId;
+  subcategory: mongoose.Types.ObjectId;
 }
 
 const ProductSchema: Schema = new Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
   quantity: { type: String, required: true },
+  stock: { type: Number, required: true },
   images: { type: Array, required: true },
-  // categoryId: {
-  //   type: mongoose.Types.ObjectId,
-  //   required: true,
-  //   ref: 'categories',
-  // },
-  // subcategoryId: {
-  //   type: mongoose.Types.ObjectId,
-  //   required: true,
-  //   refPath: 'categoryId.subcategories',
-  // },
+  category: {
+    type: mongoose.Types.ObjectId,
+    required: true,
+    ref: 'Category',
+  },
+  subcategory: {
+    type: mongoose.Types.ObjectId,
+    required: true,
+    ref: 'Subcategory',
+  },
 });
 
 const productModel = mongoose.model<IProduct>('Product', ProductSchema);

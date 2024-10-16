@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Edit, Archive, ArchiveXIcon } from 'lucide-react';
 import AddCategoryCard from '@/components/admin/AddCategoryCard';
 import EditCategoryCard from '@/components/admin/EditCategoryCard';
-import { getCategories } from '@/api/adminEnpoints';
-
+import { getCategories } from '@/api/adminEndpoints';
 
 type SubCategory = {
   _id: string;
@@ -11,7 +10,6 @@ type SubCategory = {
   status: 'Active' | 'Blocked';
   catId: string;
   catName: string;
-  subCategories: string;
 };
 
 type Category = {
@@ -28,14 +26,8 @@ type CategoryTableProps = {
 const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
   const [isEditCardOpen, setIsEditCardOpen] = useState(false);
   const [editData, setEditData] = useState<SubCategory | null>(null);
-  console.log(categories);
 
   const handleEditClick = (categoryName: string, subCategory: SubCategory, categoryId: string) => {
-    console.log(categoryName);
-    console.log(categoryId);
-    console.log(subCategory);
-
-    console.log('cat', { ...subCategory, _id: categoryId, name: categoryName })
     setEditData({ ...subCategory, catId: categoryId, catName: categoryName });
     setIsEditCardOpen(true);
   };
@@ -62,37 +54,71 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
         <tbody className="bg-white divide-y divide-gray-200">
           {categories.map((category) => (
             <React.Fragment key={category._id}>
-              {category.subcategories.map((subCategory, subIndex) => (
-                <tr key={subCategory._id}>
-                  {subIndex === 0 && (
-                    <td
-                      className="px-6 py-4 whitespace-nowrap"
-                      rowSpan={category.subcategories.length}
-                    >
-                      {category.name}
+              {category.subcategories.length > 0 ? (
+                category.subcategories.map((subCategory, subIndex) => (
+                  <tr key={subCategory._id}>
+                    {subIndex === 0 && (
+                      <td
+                        className="px-6 py-4 whitespace-nowrap"
+                        rowSpan={category.subcategories.length}
+                      >
+                        {category.name}
+                      </td>
+                    )}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {subCategory.name}
                     </td>
-                  )}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {subCategory.name}
-                  </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 inline-flex text-xs text-center leading-5 font-semibold rounded-full ${subCategory.status === 'Active'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                          }`}
+                      >
+                        {subCategory.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button
+                        className="text-blue-600 hover:text-blue-900 mr-4"
+                        onClick={() => handleEditClick(category.name, subCategory, category._id)}
+                      >
+                        <Edit size={16} />
+                      </button>
+                      {subCategory.status === 'Active' ? (
+                        <button className="text-red-600 hover:text-red-900">
+                          <Archive size={16} />
+                        </button>
+                      ) : (
+                        <button className="text-green-600 hover:text-green-900">
+                          <ArchiveXIcon size={16} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr key={category._id}>
+                  <td className="px-6 py-4 whitespace-nowrap">{category.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">No Subcategories</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`px-2 inline-flex text-xs text-center leading-5 font-semibold rounded-full ${subCategory.status === 'Active'
+                      className={`px-2 inline-flex text-xs text-center leading-5 font-semibold rounded-full ${category.status === 'Active'
                         ? 'bg-green-100 text-green-800'
                         : 'bg-red-100 text-red-800'
                         }`}
                     >
-                      {subCategory.status}
+                      {category.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
                       className="text-blue-600 hover:text-blue-900 mr-4"
-                      onClick={() => handleEditClick(category.name, subCategory, category._id)}
+                      onClick={() => handleEditClick(category.name, { _id: '', name: '', status: 'Active', catId: category._id, catName: category.name }, category._id)}
                     >
                       <Edit size={16} />
                     </button>
-                    {subCategory.status === 'Active' ? (
+                    {category.status === 'Active' ? (
                       <button className="text-red-600 hover:text-red-900">
                         <Archive size={16} />
                       </button>
@@ -103,7 +129,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
                     )}
                   </td>
                 </tr>
-              ))}
+              )}
             </React.Fragment>
           ))}
         </tbody>
@@ -111,7 +137,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
       {isEditCardOpen && editData && (
         <EditCategoryCard
           onClose={() => setIsEditCardOpen(false)}
-          editData={editData}
+          editData={{ ...editData, subCategories: editData?.name || '' }}
         />
       )}
     </div>
@@ -125,6 +151,7 @@ const AdminCategory = () => {
   useEffect(() => {
     getCategories().then((response) => {
       setCategories(response.data);
+      console.log(response.data);
     });
   }, []);
 
@@ -138,7 +165,12 @@ const AdminCategory = () => {
           Add Category
         </button>
         {isAddingCategory && (
-          <AddCategoryCard onClose={() => setIsAddingCategory(false)} />
+          <AddCategoryCard onClose={() => {
+            getCategories().then((response) => {
+              setCategories(response.data);
+            });
+            setIsAddingCategory(false)
+          }} />
         )}
       </div>
       <CategoryTable categories={categories} />

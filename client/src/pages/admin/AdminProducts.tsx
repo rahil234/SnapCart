@@ -7,7 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { getProducts } from '@/api/adminEnpoints';
+import { getProducts } from '@/api/adminEndpoints';
 import AddProductCard from '@/components/admin/AddProductCard';
 import EditProductCard from '@/components/admin/EditProductCard';
 

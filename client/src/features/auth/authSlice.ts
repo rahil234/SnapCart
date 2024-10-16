@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '@/api/axiosInstance';
 
-
 export const fetchUserDetails = createAsyncThunk(
   'auth/fetchUserDetails',
   async (_, { getState, rejectWithValue }) => {
@@ -23,11 +22,12 @@ export const fetchUserDetails = createAsyncThunk(
 );
 
 const token = localStorage.getItem('token');
+const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null;
 
 const initialState = {
   isAuthenticated: token ? true : false,
-  user: null,
-  token: null,
+  user: user,
+  token: token || null,
 };
 
 const authSlice = createSlice({
@@ -37,19 +37,21 @@ const authSlice = createSlice({
     login: (state, action) => {
       state.isAuthenticated = true;
       localStorage.setItem('token', action.payload.token);
+      localStorage.setItem('user', JSON.stringify(action.payload.user));
       state.user = action.payload.user;
       state.token = action.payload.token;
     },
     logout: state => {
       state.isAuthenticated = false;
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       state.user = null;
       state.token = null;
     },
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchUserDetails.pending,(state: any) => {
+      .addCase(fetchUserDetails.pending, (state: any) => {
         state.status = 'loading';
       })
       .addCase(fetchUserDetails.fulfilled, (state: any, action) => {

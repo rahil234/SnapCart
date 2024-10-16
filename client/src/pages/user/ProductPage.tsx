@@ -1,127 +1,44 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Star, ChevronRight } from 'lucide-react';
+import { fetchProductById } from '@/api/userEndpoints';
+import { useParams } from 'react-router-dom';
 
-const product = {
-  id: '1',
-  name: 'Muesli Fitness Nutritious Energy, gluten free',
-  price: 340,
-  discountedPrice: 306,
-  discountPercentage: 10,
-  weight: '500g',
-  images: [
-    '/uploads/image1.webp',
-    '/uploads/image2.avif',
-    '/uploads/image1.webp',
-  ],
-  tags: ['Gluten free', 'Plant based', 'Vegan', 'Keto'],
-  description:
-    'Muesli Fitness Nutritious Energy is a popular breakfast cereal that is a healthy and nutritious way to start your day. This delicious cereal is made up of a combination of whole grains, nuts, seeds, and dried fruits.',
-  category: 'Breakfast & Cereal',
-  subcategory: 'Muesli',
-  reviews: [
-    {
-      id: 1,
-      user: 'John D.',
-      rating: 5,
-      comment: 'Great taste and very nutritious!',
-      date: '2023-05-15',
-    },
-    {
-      id: 2,
-      user: 'Sarah M.',
-      rating: 4,
-      comment: 'Good product, but a bit pricey.',
-      date: '2023-05-10',
-    },
-    {
-      id: 3,
-      user: 'Mike R.',
-      rating: 5,
-      comment: 'Perfect for my morning routine.',
-      date: '2023-05-05',
-    },
-  ],
-  variants: [
-    { id: 1, name: 'Size', options: ['500g', '1kg', '2kg'] },
-    { id: 2, name: 'Flavor', options: ['Original', 'Chocolate', 'Berry'] },
-  ],
-};
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  discountedPrice: number;
+  discountPercentage: number;
+  weight: string;
+  images: string[];
+  tags: string[];
+  description: string;
+  category: Category;
+  subcategory: string;
+  reviews: {
+    id: number;
+    user: string;
+    rating: number;
+    comment: string;
+    date: string;
+  }[];
+  variants: {
+    id: number;
+    name: string;
+    options: string[];
+  }[];
+}
 
-const relatedProducts = [
-  {
-    id: '2',
-    name: 'DNV Appalam',
-    weight: '100 g',
-    price: 45,
-    image: '/placeholder.svg?height=200&width=200',
-  },
-  {
-    id: '3',
-    name: 'DNV Appalam',
-    weight: '100 g',
-    price: 45,
-    image: '/placeholder.svg?height=200&width=200',
-  },
-  {
-    id: '4',
-    name: 'DNV Appalam',
-    weight: '100 g',
-    price: 45,
-    image: '/placeholder.svg?height=200&width=200',
-  },
-  {
-    id: '5',
-    name: 'DNV Appalam',
-    weight: '100 g',
-    price: 45,
-    image: '/placeholder.svg?height=200&width=200',
-  },
-  {
-    id: '6',
-    name: 'DNV Appalam',
-    weight: '100 g',
-    price: 45,
-    image: '/placeholder.svg?height=200&width=200',
-  },
-];
+interface Category {
+  id: string;
+  name: string;
+  subcategorie: Subcategory;
+}
 
-const topCategories = [
-  {
-    name: 'Fresh Fruits',
-    icon: '/placeholder.svg?height=50&width=50',
-    subcategories: ['Oranges', 'Apples', 'Watermelons', 'Exotic Fruits'],
-  },
-  {
-    name: 'Meat products',
-    icon: '/placeholder.svg?height=50&width=50',
-    subcategories: ['Poultry', 'Kosher meat', 'Veal and beef', 'Turkey'],
-  },
-  {
-    name: 'Sauces and Ketchup',
-    icon: '/placeholder.svg?height=50&width=50',
-    subcategories: [
-      'Tomato ketchup',
-      'Hollandaise sauce',
-      'Mayonnaise',
-      'Cheese sauce',
-    ],
-  },
-  {
-    name: 'Meat products',
-    icon: '/placeholder.svg?height=50&width=50',
-    subcategories: ['Poultry', 'Kosher meat', 'Veal and beef', 'Turkey'],
-  },
-  {
-    name: 'Fresh Fruits',
-    icon: '/placeholder.svg?height=50&width=50',
-    subcategories: ['Oranges', 'Apples', 'Watermelons', 'Exotic Fruits'],
-  },
-  {
-    name: 'Meat products',
-    icon: '/placeholder.svg?height=50&width=50',
-    subcategories: ['Poultry', 'Kosher meat', 'Veal and beef', 'Turkey'],
-  },
-];
+interface Subcategory {
+  id: string;
+  name: string;
+}
 
 const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
   src,
@@ -184,27 +101,44 @@ const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
 };
 
 const ProductPage: React.FC = () => {
-  const [mainImage, setMainImage] = useState(product.images[0]);
-  const [selectedVariants, setSelectedVariants] = useState<
-    Record<string, string>
-  >({});
+  // const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
+  const { productId } = useParams<{ productId: string }>();
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }).map((_, index) => (
-      <Star
-        key={index}
-        className={`w-5 h-5 ${
-          index < Math.floor(rating)
-            ? 'text-yellow-400 fill-current'
-            : 'text-gray-300'
-        }`}
-      />
-    ));
-  };
+  const [product, setProduct] = useState<Product | null>(null);
+  const [mainImage, setMainImage] = useState<string | undefined>(undefined);
+  const imagrUrl = 'https://localhost/';
 
-  const handleVariantChange = (variantName: string, option: string) => {
-    setSelectedVariants(prev => ({ ...prev, [variantName]: option }));
-  };
+  useEffect(() => {
+    if (productId) {
+      (async () => {
+        const response = await fetchProductById(productId);
+        console.log('data', response.data);
+        setProduct(response.data);
+        setMainImage(response.data.images[0]);
+      })();
+    }
+  }, [productId]);
+
+  // const renderStars = (rating: number) => {
+  //   return Array.from({ length: 5 }).map((_, index) => (
+  //     <Star
+  //       key={index}
+  //       className={`w-5 h-5 ${index < Math.floor(rating)
+  //         ? 'text-yellow-400 fill-current'
+  //         : 'text-gray-300'
+  //         }`}
+  //     />
+  //   ));
+  // };
+
+  // const handleVariantChange = (variantName: string, option: string) => {
+  //   setSelectedVariants(prev => ({ ...prev, [variantName]: option }));
+  // };
+
+  if (!product) {
+    return null;
+  }
+
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -220,12 +154,14 @@ const ProductPage: React.FC = () => {
             </li>
             <li className="flex items-center">
               <a href="#" className="text-gray-600">
-                {product.category}
+                {product.category.name}
               </a>
               <ChevronRight size={16} className="mx-2" />
             </li>
             <li className="flex items-center">
-              <span className="text-gray-800">{product.subcategory}</span>
+              {product.category.subcategorie &&
+                <span className="text-gray-800">{product.category.subcategorie.name}</span>
+              }
             </li>
           </ol>
         </nav>
@@ -233,12 +169,12 @@ const ProductPage: React.FC = () => {
         <div className="flex flex-col md:flex-row gap-8">
           {/* Product images */}
           <div className="md:w-1/2">
-            <ZoomableImage src={mainImage} alt={product.name} />
+            <ZoomableImage src={imagrUrl + mainImage} alt={product.name} />
             <div className="flex space-x-2">
               {product.images.map((image, index) => (
                 <img
                   key={index}
-                  src={image}
+                  src={imagrUrl + image}
                   alt={`${product.name} ${index + 1}`}
                   className="w-20 h-20 object-cover cursor-pointer border-2 border-transparent hover:border-green-500"
                   onClick={() => setMainImage(image)}
@@ -253,7 +189,7 @@ const ProductPage: React.FC = () => {
             <p className="text-gray-600 mb-4">{product.weight}</p>
             <div className="flex items-center mb-4">
               <p className="text-3xl font-bold text-green-600 mr-2">
-                ₹{product.discountedPrice}
+                ₹{product.price}
               </p>
               <p className="text-xl text-gray-500 line-through mr-2">
                 ₹{product.price}
@@ -264,7 +200,7 @@ const ProductPage: React.FC = () => {
             </div>
 
             {/* Product Variants */}
-            {product.variants.map(variant => (
+            {/* {product.variants.map(variant => (
               <div key={variant.id} className="mb-4">
                 <label
                   htmlFor={variant.name}
@@ -290,7 +226,7 @@ const ProductPage: React.FC = () => {
                   </select>
                 </div>
               </div>
-            ))}
+            ))} */}
 
             <div className="flex space-x-4 mb-6">
               <button className="bg-green-500 text-white px-6 py-2 rounded-full">
@@ -304,7 +240,7 @@ const ProductPage: React.FC = () => {
               Estimated delivery time is 3:00PM - 24 min
             </p>
             <p className="mb-4">{product.description}</p>
-            <div className="flex flex-wrap gap-2 mb-4">
+            {/* <div className="flex flex-wrap gap-2 mb-4">
               {product.tags.map((tag, index) => (
                 <span
                   key={index}
@@ -313,7 +249,7 @@ const ProductPage: React.FC = () => {
                   {tag}
                 </span>
               ))}
-            </div>
+            </div> */}
             <button className="text-blue-500 text-sm">
               Report incorrect product information
             </button>
@@ -321,7 +257,7 @@ const ProductPage: React.FC = () => {
         </div>
 
         {/* Product Reviews */}
-        <section className="mt-12">
+        {/* <section className="mt-12">
           <h3 className="text-xl font-semibold mb-4">Customer Reviews</h3>
           {product.reviews.map(review => (
             <div key={review.id} className="border-b border-gray-200 py-4">
@@ -333,10 +269,10 @@ const ProductPage: React.FC = () => {
               <p className="text-sm text-gray-500">{review.date}</p>
             </div>
           ))}
-        </section>
+        </section> */}
 
         {/* Related products */}
-        <section className="mt-12">
+        {/* <section className="mt-12">
           <h3 className="text-xl font-semibold mb-4">Related products</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {relatedProducts.map(product => (
@@ -357,10 +293,10 @@ const ProductPage: React.FC = () => {
               </div>
             ))}
           </div>
-        </section>
+        </section> */}
 
         {/* Top categories */}
-        <section className="mt-12">
+        {/* <section className="mt-12">
           <h3 className="text-xl font-semibold mb-4">Top Category</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {topCategories.map((category, index) => (
@@ -379,7 +315,7 @@ const ProductPage: React.FC = () => {
               </div>
             ))}
           </div>
-        </section>
+        </section> */}
       </main>
     </div>
   );

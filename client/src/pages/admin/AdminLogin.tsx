@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
-import { adminLogin } from '@/api/adminEnpoints';
+import { adminLogin } from '@/api/adminEndpoints';
 import { login } from '@/features/auth/authSlice';
 
 interface LoginFormInputs {
@@ -13,7 +13,15 @@ interface LoginFormInputs {
 
 const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
-const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const [error, setError] = React.useState<string>('');
+  const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated);    
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admin');
+    }
+  }, [isAuthenticated, navigate]);
 
   const {
     register,
@@ -26,11 +34,15 @@ const dispatch = useDispatch()
   const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
     try {
       const response = await adminLogin(data);
-      dispatch(login(response.data))
+      dispatch(login(response.data));
+      console.log('data', response.data);
+      
       navigate('/admin/dashboard');
       console.log(response.data);
-    } catch (error) {
+    } catch (error: any) {
+
       console.error('error', error);
+      setError(error.response.data.message);
     }
   };
 
@@ -50,6 +62,11 @@ const dispatch = useDispatch()
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div>
+              {error && (
+                <p className="text-sm text-center text-red-600">{error}</p>
+              )}
+            </div>
+            <div>
               <label
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
@@ -61,7 +78,6 @@ const dispatch = useDispatch()
                   id="email"
                   type="email"
                   autoComplete="email"
-                  required
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                   {...register('email', {
                     required: 'Email is required',
@@ -91,7 +107,6 @@ const dispatch = useDispatch()
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  required
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                   {...register('password', {
                     required: 'Password is required',

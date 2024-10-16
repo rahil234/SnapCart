@@ -3,6 +3,7 @@ import upload from '../middleware/upload';
 import {
   adminLogin,
   editCategories,
+  addCategory,
   getCategories,
   addProduct,
   getProducts,
@@ -14,6 +15,8 @@ const adminRoute = Router();
 adminRoute.post('/login', adminLogin);
 
 adminRoute.get('/get-categories', getCategories);
+
+adminRoute.post('/add-category', addCategory);
 
 adminRoute.patch('/edit-categories', editCategories);
 

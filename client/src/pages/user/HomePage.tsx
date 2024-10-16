@@ -7,6 +7,8 @@ import { Category } from 'shared/types';
 export default function Component() {
   const [data, setData] = useState<Category[]>([]);
 
+  const imageUrl = 'https://localhost/';
+
   useEffect(() => {
     fetchProducts().then(response => {
       setData(response.data);
@@ -41,7 +43,7 @@ export default function Component() {
                       <div className="bg-white rounded-lg object-center shadow p-2 min-w-[170px] flex flex-col ">
                         <div className="">
                           <img
-                            src={product.image}
+                            src={imageUrl+product.images[0]}
                             alt={product.name}
                             className="object-cover  h-[170px] mb-2"
                           />

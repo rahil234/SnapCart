@@ -8,6 +8,10 @@ export const getCategories = () => {
   return axiosInstance.get('/api/admin/get-categories');
 };
 
+export const addCategory = (data: object) => {
+  return axiosInstance.post('/api/admin/add-category', data);
+};
+
 export const editCatogories = (data: object) => {
   return axiosInstance.patch('/api/admin/edit-categories', data);
 };

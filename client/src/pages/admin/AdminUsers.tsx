@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getUsers } from '@/api/adminEnpoints';
+import { getUsers } from '@/api/adminEndpoints';
 import {
   Ban,
   ChevronLeft,
@@ -16,51 +16,6 @@ interface User {
   status: 'Active' | 'Blocked';
 }
 
-// const users: User[] = [
-//   {
-//     name: 'Christine Brooks',
-//     email: '123@gmail.com',
-//     phone: '9897969591',
-//     gender: 'Male',
-//     status: 'Active',
-//   },
-//   {
-//     name: 'Christine Brooks',
-//     email: '123@gmail.com',
-//     phone: '9897969591',
-//     gender: 'Male',
-//     status: 'Active',
-//   },
-//   {
-//     name: 'Christine Brooks',
-//     email: '123@gmail.com',
-//     phone: '9897969591',
-//     gender: 'Male',
-//     status: 'Active',
-//   },
-//   {
-//     name: 'Christine Brooks',
-//     email: '123@gmail.com',
-//     phone: '9897969591',
-//     gender: 'Male',
-//     status: 'Blocked',
-//   },
-//   {
-//     name: 'Christine Brooks',
-//     email: '123@gmail.com',
-//     phone: '9897969591',
-//     gender: 'Male',
-//     status: 'Active',
-//   },
-//   {
-//     name: 'Christine Brooks',
-//     email: '123@gmail.com',
-//     phone: '9897969591',
-//     gender: 'Male',
-//     status: 'Active',
-//   },
-// ];
-
 const AdminUsers = () => {
 
   const [users, setUsers] = useState<User[]>([]);
@@ -68,7 +23,7 @@ const AdminUsers = () => {
   useEffect(() => {
     const request = async () => {
       const { data } = await getUsers();
-      console.log(users);
+      console.log(data);
       setUsers(data);
     }
     request();
@@ -127,9 +82,9 @@ const AdminUsers = () => {
                 <td className="px-6 py-4 whitespace-nowrap">{user.gender}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'Active'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-red-100 text-red-800'
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'Blocked'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-green-100 text-green-800'
                       }`}
                   >
                     {user.status}
@@ -137,12 +92,12 @@ const AdminUsers = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                   <button
-                    className={`${user.status === 'Active' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
+                    className={`${user.status === 'Blocked' ? 'text-green-600 hover:text-green-900' : 'text-red-600 hover:text-red-900'}`}
                   >
-                    {user.status === 'Active' ? (
-                      <Ban className="w-5 h-5" />
+                    {user.status === 'Blocked' ? (
+                      <CircleCheck className="w-5 h-5 text-green-500" />
                     ) : (
-                      <CircleCheck className="w-5 h-5" />
+                      <Ban className="w-5 h-5 text-red-500" />
                     )}
                   </button>
                 </td>
