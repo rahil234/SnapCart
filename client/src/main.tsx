@@ -1,4 +1,6 @@
 import React from 'react';
+import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { UIProvider } from '@/context/UIContext';
@@ -15,7 +17,10 @@ createRoot(document.getElementById('root')!).render(
     <GoogleOAuthProvider clientId={googleOAuthClientId}>
       <Provider store={store}>
         <UIProvider>
-          <App />
+          <TooltipProvider>
+            <Toaster />
+            <App />
+          </TooltipProvider>
         </UIProvider>
       </Provider>
     </GoogleOAuthProvider>

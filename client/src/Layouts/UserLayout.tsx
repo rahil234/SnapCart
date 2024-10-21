@@ -7,7 +7,7 @@ function AdminLayout() {
   return (
     <>
       <NavBar />
-      <div className="pt-[63px]">
+      <div className="pt-[63px] min-h-screen">
         <Outlet />
       </div>
       <Footer />

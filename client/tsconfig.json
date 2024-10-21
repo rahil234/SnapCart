@@ -1,11 +1,11 @@
-// {
-//   "references": [
-//     { "path": "./tsconfig.app.json" },
-//     { "path": "./tsconfig.node.json" }
-//   ],
-//   "files": []
-// }
 {
+  "files": [],
+
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+
   "compilerOptions": {
     "target": "ES2020",
 
@@ -44,5 +44,4 @@
       "shared/*": ["../../shared/dist/*"]
     }
   },
-  "include": ["src"]
 }

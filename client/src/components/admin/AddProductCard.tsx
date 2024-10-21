@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Plus, X, Image as ImageIcon } from 'lucide-react';
 import ImageCropper from './ImageCropper';
-import { Area } from 'react-easy-crop/types';
-import { addProduct, getCategories } from '@/api/adminEndpoints';
-import { Category, Subcategory } from 'shared/types';
+import { Area } from 'react-easy-crop';
+import adminEndpoints from '@/api/adminEndpoints';
 
 interface AddProductFormInputs {
   productName: string;
   category: string;
-  subCategory: string;
+  subcategory: string;
   price: number;
   quantity: string;
   stock: number;
@@ -21,6 +20,19 @@ interface ProductImage {
   preview: string;
 }
 
+export interface Category  {
+  _id: string;
+  name: string;
+  status: string;
+  subcategories: Subcategory[];
+};
+
+export interface Subcategory  {
+  _id: string;
+  name: string;
+  status: 'Active' | 'Blocked';
+};
+
 const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { register, handleSubmit, formState: { errors }, watch } = useForm<AddProductFormInputs>();
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
@@ -31,7 +43,7 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   useEffect(() => {
     (async () => {
-      const response = await getCategories();
+      const response = await adminEndpoints.getCategories();
       const data: Category[] = response.data;
       console.log(data);
 
@@ -43,7 +55,7 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const selectedCategory = watch('category');
 
   useEffect(() => {
-    const category = categories.find((cat: any) => cat._id === selectedCategory);
+    const category = categories.find((cat: Category) => cat._id === selectedCategory);
     if (category) {
       setSubCategories(category.subcategories);
     } else {
@@ -59,7 +71,7 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const formData = new FormData();
     formData.append('productName', data.productName);
     formData.append('category', data.category);
-    formData.append('subCategory', data.subCategory);
+    formData.append('subcategory', data.subcategory);
     formData.append('price', data.price.toString());
     formData.append('quantity', data.quantity.toString());
     formData.append('stock', data.stock.toString());
@@ -68,12 +80,14 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       formData.append('images', image.file);
     });
 
+    console.log(formData.get('images'));
+
     try {
       formData.forEach((value, key) => {
         console.log(key, value);
       });
 
-      const response = await addProduct(formData);
+      const response = await adminEndpoints.addProduct(formData);
       console.log(response);
       onClose();
     } catch (error) {
@@ -165,6 +179,18 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     setProductImages((prev) => prev.filter((img) => img.id !== id));
   };
 
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const files = Array.from(e.dataTransfer.files);
+    handleImageUpload(files);
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto overflow-hidden">
@@ -198,7 +224,7 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             >
               <option value="">Select Category</option>
               {
-                categories.map((category: any, index: number) => (
+                categories.map((category: Category, index: number) => (
                   <option key={index} value={category._id}>{category.name}</option>
                 ))
               }
@@ -207,22 +233,22 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </div>
           {subCategories.length > 0 &&
             <div>
-              <label htmlFor="subCategory" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="subcategory" className="block text-sm font-medium text-gray-700">
                 Sub Category
               </label>
               <select
-                id="subCategory"
-                {...register("subCategory", { required: "SubCategory is required" })}
+                id="subcategory"
+                {...register("subcategory", { required: "Subcategory is required" })}
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
               >
                 <option value="">Select Sub Category</option>
                 {
-                  subCategories.map((subCategory: any, index: number) => (
+                  subCategories.map((subCategory: Subcategory, index: number) => (
                     <option key={index} value={subCategory._id}>{subCategory.name}</option>
                   ))
                 }
               </select>
-              {errors.subCategory && <p className="mt-1 text-sm text-red-600">{errors.subCategory.message}</p>}
+              {errors.subcategory && <p className="mt-1 text-sm text-red-600">{errors.subcategory.message}</p>}
             </div>
           }
           <div>
@@ -233,13 +259,14 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               type="number"
               id="price"
               {...register("price", { required: "Price is required", min: 1 })}
+              onWheel={(e) => e.currentTarget.blur()}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
             {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>}
           </div>
           <div>
             <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
-            quantity
+              quantity
             </label>
             <input
               type="text"
@@ -251,12 +278,13 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </div>
           <div>
             <label htmlFor="piece" className="block text-sm font-medium text-gray-700">
-              stock
+              Stock
             </label>
             <input
               type="number"
               id="stock"
               {...register("stock", { required: "Stock is required", min: 1 })}
+              onWheel={(e) => e.currentTarget.blur()}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
             {errors.stock && <p className="mt-1 text-sm text-red-600">{errors.stock.message}</p>}
@@ -264,7 +292,9 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div>
             <label className="block text-sm font-medium text-gray-700">Product Images (3-6 images required)</label>
             <div
-              className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md `}
+              className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md`}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
             >
               <div className="space-y-1 text-center">
                 <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
@@ -281,7 +311,7 @@ const AddProductCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       multiple
                       accept="image/*"
                       onChange={handleFileInputChange}
-                      disabled={productImages.length >= 6}
+                      disabled={productImages.length >= 8}
                     />
                   </label>
                   <p className="pl-1">or drag and drop</p>

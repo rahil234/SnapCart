@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Edit, Archive, ArchiveXIcon } from 'lucide-react';
 import AddCategoryCard from '@/components/admin/AddCategoryCard';
 import EditCategoryCard from '@/components/admin/EditCategoryCard';
-import { getCategories } from '@/api/adminEndpoints';
+import adminEndpoints from '@/api/adminEndpoints';
 
 type SubCategory = {
   _id: string;
@@ -149,7 +149,7 @@ const AdminCategory = () => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    getCategories().then((response) => {
+    adminEndpoints.getCategories().then((response) => {
       setCategories(response.data);
       console.log(response.data);
     });
@@ -166,7 +166,7 @@ const AdminCategory = () => {
         </button>
         {isAddingCategory && (
           <AddCategoryCard onClose={() => {
-            getCategories().then((response) => {
+            adminEndpoints.getCategories().then((response) => {
               setCategories(response.data);
             });
             setIsAddingCategory(false)

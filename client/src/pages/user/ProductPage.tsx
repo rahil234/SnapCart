@@ -1,43 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Star, ChevronRight } from 'lucide-react';
-import { fetchProductById } from '@/api/userEndpoints';
+import { Skeleton } from "@/components/ui/skeleton";
+import userEndpoints from '@/api/userEndpoints';
 import { useParams } from 'react-router-dom';
 
 interface Product {
-  id: string;
+  _id: string;
   name: string;
+  category?: { _id: string; name: string };
+  subcategory?: { _id: string; name: string };
   price: number;
-  discountedPrice: number;
-  discountPercentage: number;
-  weight: string;
+  quantity: string;
+  stock?: number;
   images: string[];
-  tags: string[];
-  description: string;
-  category: Category;
-  subcategory: string;
-  reviews: {
-    id: number;
+  description?: string;
+  tags?: string[];
+  reviews?: {
+    _id: string;
     user: string;
     rating: number;
     comment: string;
     date: string;
   }[];
-  variants: {
-    id: number;
-    name: string;
-    options: string[];
-  }[];
-}
-
-interface Category {
-  id: string;
-  name: string;
-  subcategorie: Subcategory;
-}
-
-interface Subcategory {
-  id: string;
-  name: string;
 }
 
 const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
@@ -103,15 +87,22 @@ const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
 const ProductPage: React.FC = () => {
   // const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const { productId } = useParams<{ productId: string }>();
-
+  const [relatedProducts] = useState<Product[]>([
+    { _id: '1', name: 'Product 1', price: 100, quantity: '1kg', images: ['https://via.placeholder.com/150'] },
+    { _id: '2', name: 'Product 2', price: 200, quantity: '2kg', images: ['https://via.placeholder.com/150'] },
+    { _id: '3', name: 'Product 3', price: 300, quantity: '3kg', images: ['https://via.placeholder.com/150'] },
+    { _id: '4', name: 'Product 4', price: 400, quantity: '4kg', images: ['https://via.placeholder.com/150'] },
+    { _id: '5', name: 'Product 5', price: 500, quantity: '5kg', images: ['https://via.placeholder.com/150'] },
+  ]);
+  const [variants] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product | null>(null);
   const [mainImage, setMainImage] = useState<string | undefined>(undefined);
-  const imagrUrl = 'https://localhost/';
+  const imagrUrl = 'http://localhost:3000/';
 
   useEffect(() => {
     if (productId) {
       (async () => {
-        const response = await fetchProductById(productId);
+        const response = await userEndpoints.fetchProductById(productId);
         console.log('data', response.data);
         setProduct(response.data);
         setMainImage(response.data.images[0]);
@@ -119,26 +110,32 @@ const ProductPage: React.FC = () => {
     }
   }, [productId]);
 
-  // const renderStars = (rating: number) => {
-  //   return Array.from({ length: 5 }).map((_, index) => (
-  //     <Star
-  //       key={index}
-  //       className={`w-5 h-5 ${index < Math.floor(rating)
-  //         ? 'text-yellow-400 fill-current'
-  //         : 'text-gray-300'
-  //         }`}
-  //     />
-  //   ));
-  // };
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }).map((_, index) => (
+      <Star
+        key={index}
+        className={`w-5 h-5 ${index < Math.floor(rating)
+          ? 'text-yellow-400 fill-current'
+          : 'text-gray-300'
+          }`}
+      />
+    ));
+  };
 
   // const handleVariantChange = (variantName: string, option: string) => {
   //   setSelectedVariants(prev => ({ ...prev, [variantName]: option }));
   // };
 
   if (!product) {
-    return null;
+    return (
+      <div className="p-8">
+        <Skeleton />
+        <Skeleton />
+        <Skeleton />
+        <Skeleton />
+      </div>
+    );
   }
-
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -154,13 +151,14 @@ const ProductPage: React.FC = () => {
             </li>
             <li className="flex items-center">
               <a href="#" className="text-gray-600">
-                {product.category.name}
+                {product.category &&
+                  product.category.name}
               </a>
               <ChevronRight size={16} className="mx-2" />
             </li>
             <li className="flex items-center">
-              {product.category.subcategorie &&
-                <span className="text-gray-800">{product.category.subcategorie.name}</span>
+              {product.subcategory &&
+                <span className="text-gray-800">{product.subcategory.name}</span>
               }
             </li>
           </ol>
@@ -186,7 +184,7 @@ const ProductPage: React.FC = () => {
           {/* Product details */}
           <div className="md:w-1/2">
             <h2 className="text-2xl font-semibold mb-2">{product.name}</h2>
-            <p className="text-gray-600 mb-4">{product.weight}</p>
+            <p className="text-gray-600 mb-4">{product.quantity}</p>
             <div className="flex items-center mb-4">
               <p className="text-3xl font-bold text-green-600 mr-2">
                 ₹{product.price}
@@ -195,13 +193,13 @@ const ProductPage: React.FC = () => {
                 ₹{product.price}
               </p>
               <p className="text-sm text-green-600 font-semibold">
-                {product.discountPercentage}% off
+                {product.price}% off
               </p>
             </div>
 
             {/* Product Variants */}
-            {/* {product.variants.map(variant => (
-              <div key={variant.id} className="mb-4">
+            {variants.map(variant => (
+              <div key={variant._id} className="mb-4">
                 <label
                   htmlFor={variant.name}
                   className="block text-sm font-medium text-gray-700 mb-1"
@@ -213,20 +211,20 @@ const ProductPage: React.FC = () => {
                     id={variant.name}
                     name={variant.name}
                     className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md"
-                    value={selectedVariants[variant.name] || ''}
-                    onChange={e =>
-                      handleVariantChange(variant.name, e.target.value)
-                    }
+                  // value={selectedVariants[variant.name] || ''}
+                  // onChange={e =>
+                  //   handleVariantChange(variant.name, e.target.value)
+                  // }
                   >
-                    {variant.options.map(option => (
+                    {/* {variant.options.map(option => (
                       <option key={option} value={option}>
                         {option}
                       </option>
-                    ))}
+                    ))} */}
                   </select>
                 </div>
               </div>
-            ))} */}
+            ))}
 
             <div className="flex space-x-4 mb-6">
               <button className="bg-green-500 text-white px-6 py-2 rounded-full">
@@ -257,33 +255,34 @@ const ProductPage: React.FC = () => {
         </div>
 
         {/* Product Reviews */}
-        {/* <section className="mt-12">
+        <section className="mt-12">
           <h3 className="text-xl font-semibold mb-4">Customer Reviews</h3>
-          {product.reviews.map(review => (
-            <div key={review.id} className="border-b border-gray-200 py-4">
-              <div className="flex items-center mb-2">
-                <div className="flex mr-2">{renderStars(review.rating)}</div>
-                <p className="font-semibold">{review.user}</p>
+          {product.reviews?.length && 
+            product.reviews.map(review => (
+              <div key={review._id} className="border-b border-gray-200 py-4">
+                <div className="flex items-center mb-2">
+                  <div className="flex mr-2">{renderStars(review.rating)}</div>
+                  <p className="font-semibold">{review.user}</p>
+                </div>
+                <p className="text-gray-700 mb-1">{review.comment}</p>
+                <p className="text-sm text-gray-500">{review.date}</p>
               </div>
-              <p className="text-gray-700 mb-1">{review.comment}</p>
-              <p className="text-sm text-gray-500">{review.date}</p>
-            </div>
-          ))}
-        </section> */}
+            ))}
+        </section>
 
         {/* Related products */}
-        {/* <section className="mt-12">
+        <section className="mt-12">
           <h3 className="text-xl font-semibold mb-4">Related products</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {relatedProducts.map(product => (
-              <div key={product.id} className="border rounded-lg p-4">
+              <div key={product._id} className="border rounded-lg p-4">
                 <img
-                  src={product.image}
+                  src={product.images[0]}
                   alt={product.name}
                   className="w-full h-40 object-contain mb-2"
                 />
                 <h4 className="font-semibold">{product.name}</h4>
-                <p className="text-sm text-gray-600">{product.weight}</p>
+                <p className="text-sm text-gray-600">{product.quantity}</p>
                 <div className="flex justify-between items-center mt-2">
                   <span className="font-bold">₹{product.price}</span>
                   <button className="text-green-500 border border-green-500 px-2 py-1 rounded text-sm">
@@ -293,7 +292,7 @@ const ProductPage: React.FC = () => {
               </div>
             ))}
           </div>
-        </section> */}
+        </section>
 
         {/* Top categories */}
         {/* <section className="mt-12">

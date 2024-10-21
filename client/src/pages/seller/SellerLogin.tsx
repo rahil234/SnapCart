@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
-import adminEndpoints from '@/api/adminEndpoints';
+import sellerEndpoints from '@/api/sellerEndpoints';
 import { login } from '@/features/auth/authSlice';
 
 interface LoginFormInputs {
@@ -11,7 +11,7 @@ interface LoginFormInputs {
   password: string;
 }
 
-const AdminLogin: React.FC = () => {
+const SellerLogin: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [error, setError] = React.useState<string>('');
@@ -19,7 +19,7 @@ const AdminLogin: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/admin');
+      navigate('/seller');
     }
   }, [isAuthenticated, navigate]);
 
@@ -33,7 +33,7 @@ const AdminLogin: React.FC = () => {
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
     try {
-      const response = await adminEndpoints.adminLogin(data);
+      const response = await sellerEndpoints.login(data);
       dispatch(login(response.data));
       console.log('data', response.data);
       
@@ -54,7 +54,7 @@ const AdminLogin: React.FC = () => {
           <span className="text-green-600">Cart</span>
         </h1>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Admin Login
+          Seller Login
         </h2>
       </div>
 
@@ -176,4 +176,4 @@ const AdminLogin: React.FC = () => {
   );
 };
 
-export default AdminLogin;
+export default SellerLogin;

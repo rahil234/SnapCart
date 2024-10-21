@@ -22,15 +22,18 @@ const NavBar = () => {
   return (
     <>
       <header className="bg-white fixed w-screen shadow-sm py-3 px-6 flex justify-between items-center gap-4 ">
-        <h1 className="text-2xl font-bold text-green-600">SnapCart</h1>
+        <div className='flex'>
+          <h1 className="text-2xl font-bold text-yellow-400">Snap</h1>
+          <h1 className="text-2xl font-bold text-green-600">Cart</h1>
+        </div>
         <Input id="username" placeholder='Search for "Milk" ' />
         <div className="flex gap-2">
           {isAuthenticated ? (
-            <Button onClick={handleLogout}>User</Button>
+            <Button variant={'ghost'} onClick={handleLogout}>User</Button>
           ) : (
-            <Button onClick={showLoginOverlay}>Login</Button>
+            <Button variant={'ghost'} onClick={showLoginOverlay}>Login</Button>
           )}
-          <Button variant="outline" size="sm" className="bg-[#0F831F]">
+          <Button variant="outline" size="sm" className="bg-[#0F831F] text-white">
             Cart
           </Button>
         </div>

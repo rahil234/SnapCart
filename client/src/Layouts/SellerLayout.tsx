@@ -5,11 +5,12 @@ import { Outlet, NavLink } from 'react-router-dom';
 import { Search, Bell, ChevronDown } from 'lucide-react';
 import { logout } from '@/features/auth/authSlice';
 
+
 interface SidebarProps {
-  adminLogout: () => void;
+  sellerLogout: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ adminLogout }) => (
+const Sidebar: React.FC<SidebarProps> = ({ sellerLogout }) => (
 
   <div className="w-84 bg-white h-screen p-4 px-8 flex flex-col">
     <h1 className="text-2xl font-bold mb-8">
@@ -18,17 +19,11 @@ const Sidebar: React.FC<SidebarProps> = ({ adminLogout }) => (
     </h1>
     <nav className="flex-1 flex flex-col space-y-1">
       {[
-        { name: 'Dashboard', path: '/admin/dashboard' },
-        { name: 'Inbox', path: '/admin/inbox' },
-        { name: 'Users', path: '/admin/user-management' },
-        { name: 'Sellers', path: '/admin/seller-management' },
-        { name: 'Banners', path: '/admin/banners' },
-        { name: 'Categories', path: '/admin/categories' },
-        { name: 'Coupons', path: '/admin/coupons' },
-        { name: 'Offers', path: '/admin/offers' },
-        { name: 'Deals', path: '/admin/deals' },
-        { name: 'Order lists', path: '/admin/order-lists' },
-        { name: 'Settings', path: '/admin/settings' },
+        { name: 'Dashboard', path: '/seller/dashboard' },
+        { name: 'Inbox', path: '/seller/inbox' },
+        { name: 'Products', path: '/seller/products' },
+        { name: 'Order lists', path: '/seller/order-lists' },
+        { name: 'Settings', path: '/seller/settings' },
       ].map(item => (
         <NavLink
           key={item.name}
@@ -45,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ adminLogout }) => (
       ))}
     </nav>
     <div className="mt-auto text-gray-600 hover:bg-gray-100 py-2 px-4 rounded-lg"
-      onClick={adminLogout}>
+      onClick={sellerLogout}>
       Logout
     </div>
   </div>
@@ -90,7 +85,7 @@ const Header = () => (
         />
         <div>
           <div className="text-sm font-semibold">Moni Roy</div>
-          <div className="text-xs text-gray-500">Admin</div>
+          <div className="text-xs text-gray-500">Seller</div>
         </div>
         <ChevronDown size={16} className="text-gray-400" />
       </div>
@@ -98,19 +93,19 @@ const Header = () => (
   </header>
 );
 
-function AdminLayout() {
+function SellerLayout() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const adminLogout = () => {
-    console.log('Admin logout');
-    navigate('/admin/login');
+  const sellerLogout = () => {
+    console.log('Seller logout');
     dispatch(logout());
+    navigate('/seller/login');
   };
 
   return (
     <div className="flex bg-gray-100 h-screen overflow-hidden">
-      <Sidebar adminLogout={adminLogout} />
+      <Sidebar sellerLogout={sellerLogout} />
       <div className="flex-1 flex flex-col">
         <Header />
         <div className="flex-1 overflow-auto">
@@ -121,4 +116,4 @@ function AdminLayout() {
   );
 }
 
-export default AdminLayout;
+export default SellerLayout;

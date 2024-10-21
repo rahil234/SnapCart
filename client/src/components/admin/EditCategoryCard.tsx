@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { X } from 'lucide-react';
-import { editCatogories } from '@/api/adminEndpoints'
+import adminEndpoints from '@/api/adminEndpoints';
 
 interface EditCategoryFormInputs {
   catName: string;
@@ -27,7 +27,7 @@ const EditCategoryCard: React.FC<EditCategoryCardProps> = ({ onClose, editData }
   console.log(editData);
   
   const onSubmit: SubmitHandler<EditCategoryFormInputs> = data => {
-    editCatogories(data)
+    adminEndpoints.editCatogories(data)
     // onClose();
   };
 

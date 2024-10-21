@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { X } from 'lucide-react';
 import InputField from '@/components/ui/InputField';
-import { sendOtp } from '@/api/userEndpoints';
+import userEndpoints from '@/api/userEndpoints';
 import { motion } from 'framer-motion';
 import { SignUpFormInputs } from 'shared/types';
 
@@ -32,7 +32,7 @@ const SignUpCard: React.FC<SignUpCardProps> = ({
     try {
       setError(null);
       console.log('data', data);
-      const response = await sendOtp(data.email);
+      const response = await userEndpoints.sendOtp(data.email);
       setActiveTab('verifyOtp');
       console.log('response', response.data);
       setUserData(data);

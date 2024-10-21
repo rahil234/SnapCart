@@ -1,6 +1,14 @@
 import axios from 'axios';
 
-const apiUrl = (import.meta as any).env.VITE_API_URL as string;
+interface ImportMetaEnv {
+  VITE_API_URL: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
+const apiUrl = (import.meta as unknown as ImportMeta).env.VITE_API_URL as string;
 const token = 'YOUR_API_TOKEN';
 
 const axiosInstance = axios.create({

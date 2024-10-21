@@ -1,35 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { fetchProducts } from '@/api/userEndpoints';
-import { Category } from 'shared/types';
+import userEndpoints from '@/api/userEndpoints';
+import adminEndpoints from '@/api/adminEndpoints'; // Import adminEndpoints to fetch banners
+import { Product } from 'shared/types';
+
+interface Products {
+  categoryId: number;
+  category: string;
+  products: Product[];
+}
 
 export default function Component() {
-  const [data, setData] = useState<Category[]>([]);
+  const [data, setData] = useState<Products[]>([]);
+  const [banners, setBanners] = useState<{ _id: number; image: string; order: number }[]>([]); // State to store banners
 
-  const imageUrl = 'https://localhost/';
+  const imageUrl = 'http://localhost:3000/';
 
   useEffect(() => {
-    fetchProducts().then(response => {
+    // Fetch products
+    userEndpoints.fetchProducts().then(response => {
       setData(response.data);
-      console.log(response.data);
+      console.log(response.data);      
+    });
+
+    // Fetch banners
+    adminEndpoints.getBanners().then(response => {
+      setBanners(response.data);
     });
   }, []);
 
   return (
-    <div className="min-h-[76vh] bg-gray-100">
+    <div className="min-h-screen bg-gray-100">
       <main className="px-4 mx-auto py-8">
         <div className="flex gap-1 mb-8">
-          {[1, 2, 3, 4].map((banner) => (
+          {banners.map((banner) => (
             <div
-              key={banner}
-              className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg p-6 text-white w-full"
+              key={banner._id}
+              className="rounded-lg text-white w-full"
             >
-              <h2 className="text-lg font-semibold mb-2">Special Offer</h2>
-              <p className="text-sm">Save big on selected items!</p>
+              {banner.image ? (
+                <img
+                  src={imageUrl + banner.image}
+                  alt="Banner"
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              ) : (
+                <>
+                  <h2 className="text-lg font-semibold mb-2">Special Offer</h2>
+                  <p className="text-sm">Save big on selected items!</p>
+                </>
+              )}
             </div>
           ))}
         </div>
+
         {data.map((category) => (
           <React.Fragment key={category.categoryId}> {/* Use unique key for each category */}
             {category.products.length === 0 ? null : (
@@ -43,7 +68,7 @@ export default function Component() {
                       <div className="bg-white rounded-lg object-center shadow p-2 min-w-[170px] flex flex-col ">
                         <div className="">
                           <img
-                            src={imageUrl+product.images[0]}
+                            src={imageUrl + product.images[0]}
                             alt={product.name}
                             className="object-cover  h-[170px] mb-2"
                           />
@@ -53,7 +78,7 @@ export default function Component() {
                         <div className="flex items-center justify-between">
                           <p className="text-gray-600">₹{product.price}</p>
                           <Button
-                            className="border border-[#318615] text-[#318615]"
+                            className="border border-[#318615] bg-white text-[#318615]"
                             size="sm"
                           >
                             Add

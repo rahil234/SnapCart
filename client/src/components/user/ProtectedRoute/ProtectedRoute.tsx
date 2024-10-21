@@ -9,15 +9,16 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles }) => {
   const location = useLocation();
-  const auth = useSelector((state) => state.auth);
-  
+  const auth = useSelector((state: { auth: { isAuthenticated: boolean; user?: { roles: string[] } } }) => state.auth);
+
   if (!auth.isAuthenticated) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    // Determine the appropriate login page based on the user's role
+    const loginPath = location.pathname.startsWith('/seller') ? '/seller/login' : '/admin/login';
+    return <Navigate to={loginPath} state={{ from: location }} replace />;
   }
 
   if (requiredRoles && requiredRoles.length > 0) {
     const userRoles = auth.user?.roles || [];
-    
     const hasRequiredRole = requiredRoles.some((role) => userRoles.includes(role));
 
     if (!hasRequiredRole) {

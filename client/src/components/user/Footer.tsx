@@ -37,7 +37,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <h4 className="font-semibold mb-4">Useful Links</h4>
-            <ul className="space-y-2">
+            <ul className="space-y-2 text-sm mb-4">
               {[
                 'Partner',
                 'Franchise',
@@ -54,19 +54,19 @@ const Footer: React.FC = () => {
             <h4 className="font-semibold mb-4">Categories</h4>
             <ul className="space-y-2">
               {categories.slice(0, 6).map((category, index) => (
-                <li key={index}>{category}</li>
+                <li key={index} className='text-sm'>{category}</li>
               ))}
             </ul>
           </div>
           <div>
-            <ul className="space-y-2 mt-10">
+            <ul className="space-y-2 mt-10 text-sm">
               {categories.slice(6, 12).map((category, index) => (
                 <li key={index}>{category}</li>
               ))}
             </ul>
           </div>
           <div>
-            <ul className="space-y-2 mt-10">
+            <ul className="space-y-2 mt-10 text-sm">
               {categories.slice(12, 18).map((category, index) => (
                 <li key={index}>{category}</li>
               ))}
@@ -75,7 +75,7 @@ const Footer: React.FC = () => {
         </div>
         <div className="mt-8 text-center text-sm">
           <p>© SnapCart Domestic Private Limited 2018-2024</p>
-          <div className="flex justify-center space-x-4 mt-4">
+          {/* <div className="flex justify-center space-x-4 mt-4">
             <span>Download App</span>
             <img
               src="/placeholder.svg?height=30&width=100"
@@ -87,7 +87,7 @@ const Footer: React.FC = () => {
               alt="Google Play"
               className="h-8"
             />
-          </div>
+          </div> */}
         </div>
       </div>
     </footer>

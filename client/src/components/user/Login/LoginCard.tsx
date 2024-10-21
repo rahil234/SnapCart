@@ -3,10 +3,9 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { X } from 'lucide-react';
 import InputField from '@/components/ui/InputField';
-import { userLogin } from '@/api/userEndpoints';
+import userEndpoints from '@/api/userEndpoints';
 import { login } from '@/features/auth/authSlice';
 import { useGoogleLogin } from '@react-oauth/google';
-import { userGoogleLogin } from '@/api/userEndpoints';
 import { motion } from 'framer-motion';
 
 interface LoginFormInputs {
@@ -38,7 +37,7 @@ const LoginCard: React.FC<LoginCardProps> = ({
   const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
     try {
       setError(null);
-      const response = await userLogin(data);
+      const response = await userEndpoints.userLogin(data);
       console.log('data', response.data);
       dispatch(login(response.data));
       hideLoginOverlay();
@@ -51,7 +50,7 @@ const LoginCard: React.FC<LoginCardProps> = ({
   const handleGoogleLoginSuccess = async (codeResponse: { access_token: string }) => {
     console.log(codeResponse);
 
-    const response = await userGoogleLogin(codeResponse.access_token);
+    const response = await userEndpoints.userGoogleLogin(codeResponse.access_token);
     console.log('data', response.data);
     dispatch(login({ user: response.data.user, token: response.data.token }));
     hideLoginOverlay();

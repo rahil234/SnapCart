@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { ArrowLeft } from 'lucide-react';
-import { userSignUp, verifyOtp, resendOtp } from '@/api/userEndpoints';
+import userEndpoints from '@/api/userEndpoints';
 import { login } from '@/features/auth/authSlice';
 import { SignUpFormInputs } from 'shared/types';
 
@@ -39,12 +39,12 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ hideLoginOverlay,setActiv
     try {
       const otp = data.otp.join('');
       console.log('OTP submitted:',userData.email, otp);
-      const isValidOtp = await verifyOtp(userData.email, otp);
+      const isValidOtp = await userEndpoints.verifyOtp(userData.email, otp);
       if (!isValidOtp) {
         throw new Error('Invalid OTP');
       }
       // Complete signup process
-      const response = await userSignUp(userData);
+      const response = await userEndpoints.userSignUp(userData);
       console.log('response', response.data);
       dispatch(login({ user: response.data.user, token: response.data.token }));
       hideLoginOverlay();
@@ -82,7 +82,7 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ hideLoginOverlay,setActiv
   const handleResendOtp = () => {
     setTimer(60);
     try {
-      resendOtp(userData.email);
+      userEndpoints.resendOtp(userData.email);
       setIsResendEnabled(false);
       console.log('OTP resent');
     }catch(err: any) {
