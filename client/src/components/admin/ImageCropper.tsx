@@ -24,7 +24,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onCropComplete, onCa
   }
 
   const onCropCompleteHandler = useCallback(
-    (croppedArea: Area, croppedAreaPixels: Area) => {
+    (_croppedArea: Area, croppedAreaPixels: Area) => {
       setCroppedAreaPixels(croppedAreaPixels)
     },
     []

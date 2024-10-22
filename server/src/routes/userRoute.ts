@@ -17,4 +17,8 @@ userRoute.post('/send-otp', user.sendOtp);
 
 userRoute.post('/verify-otp', user.verifyOtp);
 
+userRoute.patch('/:userId/block', user.blockUser);
+
+userRoute.patch('/:userId/allow', user.allowUser);
+
 export default userRoute;

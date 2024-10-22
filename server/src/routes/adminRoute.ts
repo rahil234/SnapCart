@@ -1,31 +1,33 @@
 import { Router } from 'express';
 import upload from '../middleware/upload';
-import {
-  adminLogin,
-  editCategories,
-  addCategory,
-  getCategories,
-  addProduct,
-  getProducts,
-  getUsers,
-} from '../controllers/adminController';
+import adminController from '@/controllers/adminController';
 
 const adminRoute = Router();
 
-adminRoute.post('/login', adminLogin);
+adminRoute.post('/create-admin', adminController.createAdmin);
 
-adminRoute.get('/get-categories', getCategories);
+adminRoute.post('/login', adminController.adminLogin);
 
-adminRoute.post('/add-category', addCategory);
+adminRoute.get('/get-products', adminController.getProducts);
 
-adminRoute.patch('/edit-categories', editCategories);
+adminRoute.get('/get-banners', adminController.getBanners);
 
-adminRoute.get('/get-products', getProducts);
+adminRoute.patch(
+  '/upload-banner-image',
+  upload.single('image'),
+  adminController.uploadBannerImage
+);
 
-adminRoute.post('/upload', upload.array('images', 10), addProduct);
+adminRoute.patch('/update-banner-order', adminController.updateBannerOrder);
 
-adminRoute.post('/add-product', upload.array('images', 6), addProduct);
+adminRoute.post('/save-banners', adminController.saveBanners);
 
-adminRoute.get('/get-users', getUsers);
+adminRoute.get('/get-users', adminController.getUsers);
+
+adminRoute.get('/get-sellers', adminController.getSellers);
+
+adminRoute.post('/add-sellers', adminController.addSeller);
+
+adminRoute.delete('/delete-banner/:bannerId', adminController.deleteBanner);
 
 export default adminRoute;

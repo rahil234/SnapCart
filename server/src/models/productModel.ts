@@ -1,15 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
-
-interface IProduct extends Document {
-  id: string;
-  name: string;
-  price: number;
-  quantity: string;
-  stock: number;
-  image: string;
-  category: mongoose.Types.ObjectId;
-  subcategory: mongoose.Types.ObjectId;
-}
+import mongoose, { Schema } from 'mongoose';
+import { Product } from '@shared/types';
 
 const ProductSchema: Schema = new Schema({
   name: { type: String, required: true },
@@ -17,6 +7,8 @@ const ProductSchema: Schema = new Schema({
   quantity: { type: String, required: true },
   stock: { type: Number, required: true },
   images: { type: Array, required: true },
+  status: { type: String, default: 'Active' },
+  reviews: { type: Array, default: [] },
   category: {
     type: mongoose.Types.ObjectId,
     required: true,
@@ -29,6 +21,6 @@ const ProductSchema: Schema = new Schema({
   },
 });
 
-const productModel = mongoose.model<IProduct>('Product', ProductSchema);
+const productModel = mongoose.model<Product>('Product', ProductSchema);
 
 export default productModel;

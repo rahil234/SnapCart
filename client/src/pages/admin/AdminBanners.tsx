@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Cropper, { Area } from 'react-easy-crop';
 import { toast } from 'sonner';
-import { Edit, Upload, Trash } from 'lucide-react';
+import { Edit, Image as ImageIcon, Upload, Trash, ChartNoAxesCombined  } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -240,73 +240,73 @@ function BannerManagement() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-[80vw]">
       <div className="mb-6 flex justify-between items-center">
-        <h2 className="text-lg font-semibold mb-2">Top banner</h2>
-        <Button onClick={handleAddBanner}>Add Banner</Button>
+      <h2 className="text-lg font-semibold mb-2">Top banner</h2>
+      <Button onClick={handleAddBanner}>Add Banner</Button>
       </div>
       <DndContext
-        collisionDetection={closestCenter}
-        modifiers={[restrictToHorizontalAxis, restrictToParentElement]}
-        onDragEnd={handleDragEnd}
+      collisionDetection={closestCenter}
+      modifiers={[restrictToHorizontalAxis, restrictToParentElement]}
+      onDragEnd={handleDragEnd}
       >
-        <SortableContext items={banners.map(banner => banner._id)} strategy={horizontalListSortingStrategy}>
-          <div className="flex gap-4 mb-8 overflow-x-auto pb-4">
-            {banners.map((banner) => (
-              <SortableBanner
-                key={banner._id}
-                banner={banner}
-                onEdit={() => handleEdit(banner._id)}
-                onRemove={() => handleRemove(banner._id)}
-              />
-            ))}
-          </div>
-        </SortableContext>
+      <SortableContext items={banners.map(banner => banner._id)} strategy={horizontalListSortingStrategy}>
+        <div className="flex gap-4 mb-8 overflow-x-auto pb-4">
+        {banners.map((banner) => (
+          <SortableBanner
+          key={banner._id}
+          banner={banner}
+          onEdit={() => handleEdit(banner._id)}
+          onRemove={() => handleRemove(banner._id)}
+          />
+        ))}
+        </div>
+      </SortableContext>
       </DndContext>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Update Banner Image</DialogTitle>
-          </DialogHeader>
-          {editingBanner && (
-            <>
-              {!imageSrc ? (
-                <div className="w-full h-32 flex items-center justify-center bg-gray-200 rounded mb-4">
-                  <Button onClick={() => document.getElementById('fileInput')?.click()}>
-                    Choose Image
-                  </Button>
-                  <input
-                    id="fileInput"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    style={{ display: 'none' }}
-                  />
-                </div>
-              ) : (
-                <div className="h-[400px] relative">
-                  <Cropper
-                    image={imageSrc}
-                    crop={crop}
-                    zoom={zoom}
-                    aspect={16 / 9}
-                    onCropChange={setCrop}
-                    onCropComplete={onCropComplete}
-                    onZoomChange={setZoom}
-                  />
-                </div>
-              )}
-            </>
-          )}
-          <div className="flex justify-end gap-2 mt-4">
-            {imageSrc && (
-              <Button onClick={handleSaveCroppedImage} disabled={isUploading}>
-                {isUploading ? 'Uploading...' : 'Save Cropped Image'}
-              </Button>
-            )}
-            <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+        <DialogTitle>Update Banner Image</DialogTitle>
+        </DialogHeader>
+        {editingBanner && (
+        <>
+          {!imageSrc ? (
+          <div className="w-full h-32 flex items-center justify-center bg-gray-200 rounded mb-4">
+            <Button onClick={() => document.getElementById('fileInput')?.click()}>
+            Choose Image
+            </Button>
+            <input
+            id="fileInput"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+            />
           </div>
-        </DialogContent>
+          ) : (
+          <div className="h-[400px] relative">
+            <Cropper
+            image={imageSrc}
+            crop={crop}
+            zoom={zoom}
+            aspect={16 / 9}
+            onCropChange={setCrop}
+            onCropComplete={onCropComplete}
+            onZoomChange={setZoom}
+            />
+          </div>
+          )}
+        </>
+        )}
+        <div className="flex justify-end gap-2 mt-4">
+        {imageSrc && (
+          <Button onClick={handleSaveCroppedImage} disabled={isUploading}>
+          {isUploading ? 'Uploading...' : 'Save Cropped Image'}
+          </Button>
+        )}
+        <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
+        </div>
+      </DialogContent>
       </Dialog>
     </div>
   );
@@ -327,7 +327,7 @@ export default function AdminBanner() {
       <Tabs defaultValue="banners" className="space-y-4">
         <TabsList>
           <TabsTrigger value="banners" className="flex items-center">
-            <Upload className="w-4 h-4 mr-2" />
+            <ImageIcon className="w-4 h-4 mr-2" />
             Banners
           </TabsTrigger>
           <TabsTrigger value="campaigns" className="flex items-center">
@@ -335,7 +335,7 @@ export default function AdminBanner() {
             Campaigns
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center">
-            <Upload className="w-4 h-4 mr-2" />
+            <ChartNoAxesCombined className="w-4 h-4 mr-2" />
             Analytics
           </TabsTrigger>
         </TabsList>

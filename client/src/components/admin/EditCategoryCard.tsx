@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { X } from 'lucide-react';
-import adminEndpoints from '@/api/adminEndpoints';
+import categoryEndpoints from '@/api/categoryEndpoints';
 
 interface EditCategoryFormInputs {
   catName: string;
@@ -24,11 +24,13 @@ const EditCategoryCard: React.FC<EditCategoryCardProps> = ({ onClose, editData }
     defaultValues: editData,
   });
 
-  console.log(editData);
-  
-  const onSubmit: SubmitHandler<EditCategoryFormInputs> = data => {
-    adminEndpoints.editCatogories(data)
-    // onClose();
+  const onSubmit: SubmitHandler<EditCategoryFormInputs> = async data => {
+    try {
+      await categoryEndpoints.editCatogories(data);
+    } catch (error) {
+      console.error('Error editing category:', error);
+    }
+    onClose();
   };
 
   return (

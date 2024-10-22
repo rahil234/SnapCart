@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, ObjectId } from 'mongoose';
 
-export interface IUsers extends Document {
+export interface ISeller extends Document {
   _id: ObjectId;
   firstName: string;
   lastName: string | null;
@@ -24,6 +24,6 @@ const UsersSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const userModel = mongoose.model<IUsers>('Users', UsersSchema);
+const sellerModel = mongoose.model<ISeller>('Sellers', UsersSchema);
 
-export default userModel;
+export default sellerModel;

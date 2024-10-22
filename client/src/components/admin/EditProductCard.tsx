@@ -3,8 +3,8 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Save, X, Image as ImageIcon } from 'lucide-react';
 import ImageCropper from './ImageCropper';
 import { Area } from 'react-easy-crop';
-import adminEndpoints from '@/api/adminEndpoints';
 import { Product, Category, Subcategory } from 'shared/types';
+import productEndpoints from '@/api/productEndpoints';
 
 interface EditProductFormInputs {
   productName: string;
@@ -101,7 +101,7 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
     try {
 
 
-      const response = await adminEndpoints.editProduct(formData);
+      const response = await productEndpoints.editProduct(formData);
       console.log(response);
       // onClose();
     } catch (error) {

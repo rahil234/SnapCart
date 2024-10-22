@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node ./dist/index.js",
-    "dev": "nodemon",
+    "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/index.ts",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -24,7 +24,9 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.0",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.15"
+    "nodemailer": "^6.9.15",
+    "shared": "1.0.0",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",

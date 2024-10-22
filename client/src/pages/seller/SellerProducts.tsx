@@ -9,7 +9,8 @@ import {
   ListMinus,
 } from 'lucide-react';
 import adminEndpoints from '@/api/adminEndpoints';
-import AddProductCard from '@/components/admin/AddProductCard';
+import categoryEndpoints from '@/api/categoryEndpoints';
+import AddProductCard from '@/components/seller/AddProductCard';
 import EditProductCard from '@/components/admin/EditProductCard';
 import { Product, Category, Subcategory } from 'shared/types';
 import {
@@ -81,11 +82,11 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit }) => {
                   className="w-12 h-12 object-cover rounded"
                 />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-center">{product.name}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-center">{`${product.category.name}/ ${product.subcategory?.name}`}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-center">₹{product.price}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-center">{product.stock}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-center">
+              <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{product.name}</td>
+              <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{`${product.category.name}/ ${product.subcategory?.name}`}</td>
+              <td className="px-2 py-4 whitespace-nowrap text-xs text-center">₹{product.price}</td>
+              <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{product.stock}</td>
+              <td className="px-2 py-4 whitespace-nowrap text-xs text-center">
                 {product.variants ? JSON.stringify(product.variants) : '-'}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -170,7 +171,7 @@ export default function AdminProducts() {
 
   const handleEditProduct = (product: Product) => {
     (async () => {
-      const response = await adminEndpoints.getCategories();
+      const response = await categoryEndpoints.getCategories();
       const data: Categories[] = response.data;
       setCategories(data);
     })();

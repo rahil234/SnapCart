@@ -2,11 +2,13 @@ import express, { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-// import fs from 'fs';
+import path from 'path';
 
 import userRoute from './routes/userRoute';
 import sellerRoute from './routes/sellerRoute';
 import adminRoute from './routes/adminRoute';
+import productRoute from './routes/productRoute';
+import categoryRoute from './routes/categoryRoute';
 // import deliveryRoute from './routes/delivery.route';
 
 dotenv.config();
@@ -22,7 +24,7 @@ app.use(
 
 app.use(express.json());
 
-app.use(express.static('/uploads'));
+app.use(express.static(path.join(__dirname, '/images')));
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   const currentTime =
@@ -40,6 +42,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/api/user', userRoute);
 app.use('/api/seller', sellerRoute);
 app.use('/api/admin', adminRoute);
+app.use('/api/product', productRoute);
+app.use('/api/category', categoryRoute);
 // app.get('/api/admin', deliveryRoute);
 
 const PORT = 3000;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { X } from 'lucide-react';
-import adminEndpoints from '@/api/adminEndpoints';
+import categoryEndpoints from '@/api/categoryEndpoints';
 
 interface AddCategoryFormInputs {
   category: string;
@@ -15,7 +15,7 @@ const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    adminEndpoints.getCategories().then((response) => {
+    categoryEndpoints.getCategories().then((response) => {
       setCategories(response.data);
     });
   }, []);
@@ -48,7 +48,7 @@ const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         categoryName: data.newCategoryName,
         subcategoryName: data.subcategoryName,
       };
-        await adminEndpoints.addCategory(formData);
+        await categoryEndpoints.addCategory(formData);
       } catch (error: any) {
         setError(error.response.data.message);
         return;
@@ -61,7 +61,7 @@ const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         };
 
         try {
-          await adminEndpoints.addCategory(formData);
+          await categoryEndpoints.addCategory(formData);
         } catch {
           setError('Failed to add subcategories. Please try again.');
         }

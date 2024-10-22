@@ -12,12 +12,14 @@ const addSeller = async (data: {
   return await axiosInstance.post(`/api/seller/add-sellers`, data);
 };
 
-const blockSeller = async (userId: string) => {
-  return await axiosInstance.patch(`/api/seller/${userId}/block`);
+const blockSeller = async (sellerId: string) => {
+  return await axiosInstance.patch(`/api/seller/${sellerId}/block`);
 };
 
-const allowSeller = async (userId: string) => {
-  return await axiosInstance.patch(`/api/seller/${userId}/allow`);
+const allowSeller = async (sellerId: string) => {
+  return await axiosInstance.patch(`/api/seller/${sellerId}/allow`);
 };
+
+
 
 export default { login, addSeller, blockSeller, allowSeller };

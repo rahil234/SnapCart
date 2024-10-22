@@ -176,7 +176,7 @@ const AdminSellers = () => {
                       <AlertDialogHeader>
                         <AlertDialogTitle className="text-red-600">Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription className="text-gray-700">
-                          Do you want to {actionType === 'block' ? 'block' : 'allow'} the user.
+                          Do you want to {actionType === 'block' ? 'block' : 'allow'} the seller.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

@@ -3,12 +3,18 @@ import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-import otpModel from '../models/otpModel';
-import userModel from '../models/userModel';
-import productModel from '../models/productModel';
-import categoryModel from '../models/categoryModel';
+import otpModel from '@models/otpModel';
+import userModel from '@models/userModel';
+import productModel from '@models/productModel';
+import categoryModel from '@models/categoryModel';
 
-const createJWT = (data: object) => jwt.sign(data, 'sdfthsgffgh');
+const createJWT = (data: object) => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined');
+  }
+  return jwt.sign(data, secret);
+};
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -45,7 +51,6 @@ const login = async (req: Request, res: Response) => {
 const googleLogin = async (req: Request, res: Response) => {
   try {
     const { accessToken } = req.body;
-    console.log(accessToken);
     const response = await axios.get(
       `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`,
       {
@@ -55,17 +60,12 @@ const googleLogin = async (req: Request, res: Response) => {
         },
       }
     );
-    const { email, name } = response.data;
+    const { email, given_name } = response.data;
+
     let user = await userModel.findOne({ email });
     if (user) {
       // User exists, generate JWT token
-      const token = jwt.sign(
-        { id: user._id },
-        process.env.JWT_SECRET || 'default_secret',
-        {
-          expiresIn: '1h',
-        }
-      );
+      const token = createJWT({ email: user.email });
       res.status(200).json({ token, user });
       return;
     } else {
@@ -74,18 +74,13 @@ const googleLogin = async (req: Request, res: Response) => {
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
       user = new userModel({
         email,
-        name,
+        firstName: given_name,
         password: hashedPassword,
       });
       await user.save();
+
       // Generate JWT token for the new user
-      const token = jwt.sign(
-        { id: user._id },
-        process.env.JWT_SECRET || 'default_secret',
-        {
-          expiresIn: '1h',
-        }
-      );
+      const token = createJWT({ email: user.email });
 
       res.status(201).json({ token, user });
     }
@@ -243,6 +238,44 @@ const verifyOtp = async (req: Request, res: Response) => {
   }
 };
 
+const blockUser = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await userModel.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    user.status = 'Blocked';
+    await user.save();
+
+    res.status(200).json({ message: 'User blocked successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to block user', error });
+  }
+};
+
+const allowUser = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await userModel.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    user.status = 'Active';
+    await user.save();
+
+    res.status(200).json({ message: 'User blocked successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to block user', error });
+  }
+};
+
 export default {
   login,
   googleLogin,
@@ -251,4 +284,6 @@ export default {
   getProduct,
   sendOtp,
   verifyOtp,
+  blockUser,
+  allowUser,
 };

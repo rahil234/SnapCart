@@ -2,7 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { Edit, Archive, ArchiveXIcon } from 'lucide-react';
 import AddCategoryCard from '@/components/admin/AddCategoryCard';
 import EditCategoryCard from '@/components/admin/EditCategoryCard';
-import adminEndpoints from '@/api/adminEndpoints';
+import categoryEndpoints from '@/api/categoryEndpoints';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { toast } from 'sonner';
 
 type SubCategory = {
   _id: string;
@@ -21,15 +38,76 @@ type Category = {
 
 type CategoryTableProps = {
   categories: Category[];
+  setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
 };
 
-const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
+const CategoryTable: React.FC<CategoryTableProps> = ({ categories, setCategories }) => {
   const [isEditCardOpen, setIsEditCardOpen] = useState(false);
   const [editData, setEditData] = useState<SubCategory | null>(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState<SubCategory | null>(null);
+  const [actionType, setActionType] = useState<'block' | 'unblock' | null>(null);
 
   const handleEditClick = (categoryName: string, subCategory: SubCategory, categoryId: string) => {
     setEditData({ ...subCategory, catId: categoryId, catName: categoryName });
     setIsEditCardOpen(true);
+  };
+
+  const handleBlockSubCategory = async (subCategoryId: string) => {
+    try {
+      await categoryEndpoints.archiveCategory(subCategoryId);
+      // Update the subcategory status in the state
+      setCategories((prevCategories) =>
+        prevCategories.map((category) =>
+          category.subcategories.some((sub) => sub._id === subCategoryId)
+            ? {
+              ...category,
+              subcategories: category.subcategories.map((sub) =>
+                sub._id === subCategoryId ? { ...sub, status: 'Blocked' } : sub
+              ),
+            }
+            : category
+        )
+      );
+      toast.success('Subcategory archived successfully');
+    } catch (error) {
+      console.error('Failed to archive subcategory:', error);
+      toast.error('Failed to archive subcategory');
+    }
+  };
+
+  const handleUnblockSubCategory = async (subCategoryId: string) => {
+    try {
+      await categoryEndpoints.unarchiveCategory(subCategoryId);
+      // Update the subcategory status in the state
+      setCategories((prevCategories) =>
+        prevCategories.map((category) =>
+          category.subcategories.some((sub) => sub._id === subCategoryId)
+            ? {
+              ...category,
+              subcategories: category.subcategories.map((sub) =>
+                sub._id === subCategoryId ? { ...sub, status: 'Active' } : sub
+              ),
+            }
+            : category
+        )
+      );
+      toast.success('Subcategory unarchived successfully');
+    } catch (error) {
+      console.error('Failed to unarchived subcategory:', error);
+      toast.error('Failed to unarchived subcategory');
+    }
+  };
+
+  const handleAction = () => {
+    if (selectedSubCategory && actionType) {
+      if (actionType === 'block') {
+        handleBlockSubCategory(selectedSubCategory._id);
+      } else if (actionType === 'unblock') {
+        handleUnblockSubCategory(selectedSubCategory._id);
+      }
+      setSelectedSubCategory(null);
+      setActionType(null);
+    }
   };
 
   return (
@@ -85,15 +163,45 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
                       >
                         <Edit size={16} />
                       </button>
-                      {subCategory.status === 'Active' ? (
-                        <button className="text-red-600 hover:text-red-900">
-                          <Archive size={16} />
-                        </button>
-                      ) : (
-                        <button className="text-green-600 hover:text-green-900">
-                          <ArchiveXIcon size={16} />
-                        </button>
-                      )}
+                      <AlertDialog>
+                        <AlertDialogTrigger>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span
+                                className={`${subCategory.status === 'Active'
+                                  ? 'text-red-600 hover:text-red-900'
+                                  : 'text-green-600 hover:text-green-900'
+                                  } cursor-pointer`}
+                                onClick={() => {
+                                  setSelectedSubCategory(subCategory);
+                                  setActionType(subCategory.status === 'Active' ? 'block' : 'unblock');
+                                }}
+                              >
+                                {subCategory.status === 'Active' ? (
+                                  <Archive size={16} />
+                                ) : (
+                                  <ArchiveXIcon size={16} />
+                                )}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-white text-black shadow-lg">
+                              <p>{subCategory.status === 'Active' ? 'Block subcategory' : 'Unblock subcategory'}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="bg-gray-100">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="text-red-600">Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription className="text-gray-700">
+                              Do you want to {actionType === 'block' ? 'block' : 'unblock'} the subcategory.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel className="bg-gray-200 text-gray-700">Cancel</AlertDialogCancel>
+                            <AlertDialogAction className="bg-red-600 hover:bg-red-400 text-white" onClick={handleAction}>Continue</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </td>
                   </tr>
                 ))
@@ -118,15 +226,6 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
                     >
                       <Edit size={16} />
                     </button>
-                    {category.status === 'Active' ? (
-                      <button className="text-red-600 hover:text-red-900">
-                        <Archive size={16} />
-                      </button>
-                    ) : (
-                      <button className="text-green-600 hover:text-green-900">
-                        <ArchiveXIcon size={16} />
-                      </button>
-                    )}
                   </td>
                 </tr>
               )}
@@ -136,8 +235,13 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
       </table>
       {isEditCardOpen && editData && (
         <EditCategoryCard
-          onClose={() => setIsEditCardOpen(false)}
           editData={{ ...editData, subCategories: editData?.name || '' }}
+          onClose={() => {
+            categoryEndpoints.getCategories().then((response) => {
+              setCategories(response.data);
+            });
+            setIsEditCardOpen(false)
+          }}
         />
       )}
     </div>
@@ -149,7 +253,7 @@ const AdminCategory = () => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    adminEndpoints.getCategories().then((response) => {
+    categoryEndpoints.getCategories().then((response) => {
       setCategories(response.data);
       console.log(response.data);
     });
@@ -165,15 +269,16 @@ const AdminCategory = () => {
           Add Category
         </button>
         {isAddingCategory && (
-          <AddCategoryCard onClose={() => {
-            adminEndpoints.getCategories().then((response) => {
-              setCategories(response.data);
-            });
-            setIsAddingCategory(false)
-          }} />
+          <AddCategoryCard
+            onClose={() => {
+              categoryEndpoints.getCategories().then((response) => {
+                setCategories(response.data);
+              });
+              setIsAddingCategory(false)
+            }} />
         )}
       </div>
-      <CategoryTable categories={categories} />
+      <CategoryTable categories={categories} setCategories={setCategories} />
     </main>
   );
 }

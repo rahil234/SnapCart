@@ -1,88 +1,82 @@
 import { Request, Response } from 'express';
-import categoryModel from '../models/categoryModel';
-import subcategoryModel from '../models/subcategoryModel';
+import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import productModel from '../models/productModel';
 import userModel from '../models/userModel';
+import adminModel from '@models/adminModel';
+import sellerModel from '../models/sellerModel';
+import bannerModel from '@/models/bannerModel';
 
-const adminLogin = (req: Request, res: Response) => {
+const createAdmin = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    const existingAdmin = await adminModel.findOne({ email });
+    if (existingAdmin) {
+      res.status(400).json({ message: 'Admin already exists' });
+      return;
+    }
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    const newAdmin = new adminModel({
+      email,
+      password: hashedPassword,
+    });
+
+    await newAdmin.save();
+
+    res.status(201).json({ message: 'Admin created successfully' });
+  } catch (error: any) {
+    console.log(error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const adminLogin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  console.log(email, password);
 
-  if (email === 'admin@gmail.com' && password === '12345678') {
+  const admin = await adminModel.findOne({ email });
+
+  if (!admin) {
+    res.status(401).json({ message: 'Invalid email or password' });
+    return;
+  }
+
+  const validPassword = bcrypt.compareSync(password, admin.password);
+
+  if (validPassword) {
     const user = {
       email,
       roles: ['admin'],
     };
-    res.status(200).json({ message: 'success', token: '1234567890', user });
+
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET is not defined');
+    }
+
+    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
+
+    res.status(200).json({ message: 'success', token, user });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });
-  }
-};
-
-const getCategories = async (req: Request, res: Response) => {
-  try {
-    const categories = await categoryModel.find();
-    const categoriesWithSubcategories = await Promise.all(
-      categories.map(async (category) => {
-        const subcategories = await subcategoryModel.find({
-          category: category._id,
-        });
-        return { ...category.toObject(), subcategories };
-      })
-    );
-    res.status(200).json(categoriesWithSubcategories);
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-const editCategories = (req: Request, res: Response) => {
-  try {
-    console.log(req.body);
-
-    res.status(200).json({ message: 'success' });
-  } catch (error) {
-    console.log(error);
   }
 };
 
 const getProducts = async (req: Request, res: Response) => {
   try {
     console.log(req.body);
-    const products = await productModel.find();
+    const products = await productModel
+      .find()
+      .populate('category')
+      .populate('subcategory');
     res.status(200).json(products);
-  } catch (error) {
+  } catch (error: any) {
     console.log(error);
-    res.status(400).json({ message: (error as any).message as string });
-  }
-};
-
-const addProduct = async (req: Request, res: Response) => {
-  try {
-    console.log(req.files, req.body);
-    const { productName, category, price, quantity, stock } = req.body;
-    const images = req.files as Express.Multer.File[];
-
-    // Save images to the uploads folder
-    const imagePaths = images.map((image) => image.filename);
-
-    // Save product details to the database
-    const newProduct = new productModel({
-      name: productName,
-      category,
-      price,
-      quantity,
-      stock,
-      images: imagePaths,
-    });
-    newProduct.save();
-
-    res
-      .status(200)
-      .json({ message: 'Product added successfully', product: newProduct });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Error adding product' });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -95,47 +89,164 @@ const getUsers = async (req: Request, res: Response) => {
   }
 };
 
-const addCategory = async (req: Request, res: Response) => {
-  console.log(req.body);
-
+const getSellers = async (req: Request, res: Response) => {
   try {
-    const { categoryName, subcategoryName, categoryId } = req.body;
-
-    if (categoryId) {
-      const newSubCategory = new subcategoryModel({
-        name: subcategoryName,
-        category: categoryId,
-      });
-      newSubCategory.save();
-      res.status(200).json({ message: 'Subcategories added successfully' });
-    } else {
-      // Create new category with subcategories
-      const newCategory = new categoryModel({ name: categoryName });
-      await newCategory.save();
-
-      const newSubCategory = new subcategoryModel({
-        name: subcategoryName,
-        category: newCategory._id,
-      });
-
-      newSubCategory.save();
-      res.status(200).json({ message: 'Category added successfully' });
-    }
-  } catch (error: any) {
-    if (error.code === 11000) {
-      res.status(400).json({ message: 'Category already exists' });
-      return;
-    }
-    res.status(500).json({ message: 'Error adding category' });
+    const sellers = await sellerModel.find();
+    res.status(200).json(sellers);
+  } catch (error) {
+    console.log(error);
   }
 };
 
-export {
+const addSeller = async (req: Request, res: Response) => {
+  try {
+    const { name, email, password } = req.body;
+
+    // Check if the seller already exists
+    const existingSeller = await sellerModel.findOne({ email });
+    if (existingSeller) {
+      res.status(400).json({ message: 'Seller already exists' });
+      return;
+    }
+
+    // Create a new seller
+    const newSeller = new sellerModel({
+      name,
+      email,
+      password,
+    });
+
+    await newSeller.save();
+
+    res
+      .status(201)
+      .json({ message: 'Seller added successfully', seller: newSeller });
+  } catch (error) {
+    console.error('Error adding seller:', error);
+    res.status(500).json({ message: 'Failed to add seller' });
+  }
+};
+
+const getBanners = async (req: Request, res: Response) => {
+  try {
+    const banners = await bannerModel.find().sort({ order: 1 });
+    res.status(200).json(banners);
+  } catch (error) {
+    console.error('Error fetching banners:', error);
+    res.status(500).json({ message: 'Failed to fetch banners' });
+  }
+};
+
+const uploadBannerImage = async (req: Request, res: Response) => {
+  try {
+    console.log(req.body);
+
+    if (!req.file) {
+      res.status(400).json({ message: 'No image uploaded' });
+      return;
+    }
+    const imageUrl = req.file.filename;
+
+    // const banner = await bannerModel.findById(bannerId);
+    // if (banner) {
+    //   await bannerModel.findByIdAndUpdate(
+    //     bannerId,
+    //     { image: imageUrl },
+    //     { new: true }
+    //   );
+    // } else {
+    const newBanner = new bannerModel({
+      image: imageUrl,
+      order: 1,
+    });
+    await newBanner.save();
+
+    const banner = await bannerModel.findOne({ image: imageUrl });
+
+    if (!banner) {
+      res.status(404).json({ message: 'Banner not found' });
+      return;
+    }
+
+    res.status(200).json({ imageUrl: banner.image });
+  } catch (error) {
+    console.error('Error uploading banner image:', error);
+    res.status(500).json({ message: 'Failed to upload banner image' });
+  }
+};
+
+const updateBannerOrder = async (req: Request, res: Response) => {
+  try {
+    const { banners } = req.body;
+
+    const updatePromises = banners.map(
+      (banner: { _id: string; order: number }) =>
+        bannerModel.findByIdAndUpdate(banner._id, { order: banner.order })
+    );
+
+    await Promise.all(updatePromises);
+
+    res.status(200).json({ message: 'Banner order updated successfully' });
+  } catch (error) {
+    console.error('Error updating banner order:', error);
+    res.status(500).json({ message: 'Failed to update banner order' });
+  }
+};
+
+const saveBanners = async (req: Request, res: Response) => {
+  try {
+    const { banners } = req.body;
+
+    const savePromises = banners.map(
+      (banner: { id: string; image: string; order: number }) => {
+        if (banner.id === '-1') {
+          // Create a new banner with a new ObjectId
+          const newBanner = new bannerModel({
+            _id: new mongoose.Types.ObjectId(),
+            image: banner.image,
+            order: banner.order,
+          });
+          return newBanner.save();
+        } else {
+          // Update existing banner
+          return bannerModel.findByIdAndUpdate(banner.id, {
+            image: banner.image,
+            order: banner.order,
+          });
+        }
+      }
+    );
+
+    await Promise.all(savePromises);
+
+    res.status(200).json({ message: 'Banners saved successfully' });
+  } catch (error) {
+    console.error('Error saving banners:', error);
+    res.status(500).json({ message: 'Failed to save banners' });
+  }
+};
+
+const deleteBanner = async (req: Request, res: Response) => {
+  try {
+    const { bannerId } = req.params;
+    await bannerModel.findByIdAndDelete(bannerId);
+    res.status(200).json({ message: 'Banner deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting banner:', error);
+    res.status(500).json({ message: 'Failed to delete banner' });
+  }
+};
+
+export default {
+  createAdmin,
   adminLogin,
-  getCategories,
-  editCategories,
-  addProduct,
   getProducts,
   getUsers,
-  addCategory,
+  getSellers,
+  addSeller,
+  getBanners,
+  uploadBannerImage,
+  updateBannerOrder,
+  saveBanners,
+  deleteBanner,
 };
