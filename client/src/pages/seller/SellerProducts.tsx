@@ -9,9 +9,10 @@ import {
   ListMinus,
 } from 'lucide-react';
 import adminEndpoints from '@/api/adminEndpoints';
+import productEndpoints from '@/api/productEndpoints';
 import categoryEndpoints from '@/api/categoryEndpoints';
 import AddProductCard from '@/components/seller/AddProductCard';
-import EditProductCard from '@/components/admin/EditProductCard';
+import EditProductCard from '@/components/seller/EditProductCard';
 import { Product, Category, Subcategory } from 'shared/types';
 import {
   AlertDialog,
@@ -23,29 +24,55 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-
+} from "@/components/ui/alert-dialog";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
+import { toast } from 'sonner';
 
 interface ProductsTableProps {
   products: Product[];
   onEdit: (product: Product) => void;
+  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
 }
 
 interface Categories extends Category {
   subcategories: Subcategory[];
 }
 
-const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit }) => {
+const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit, setProducts }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [actionType, setActionType] = useState<'list' | 'unlist'>('list');
 
-  const handleAction = () => {
-    console.log(`Product ${selectedProduct?.name} will be ${actionType}ed.`);
+  const handleAction = async () => {
+    if (selectedProduct) {
+      try {
+        if (actionType === 'list') {
+          await productEndpoints.listProduct(selectedProduct._id);
+          setProducts((prevProducts) =>
+            prevProducts.map((product) =>
+              product._id === selectedProduct._id ? { ...product, status: 'Active' } : product
+            )
+          );
+          toast.success('Product listed successfully');
+        } else {
+          await productEndpoints.unlistProduct(selectedProduct._id);
+          setProducts((prevProducts) =>
+            prevProducts.map((product) =>
+              product._id === selectedProduct._id ? { ...product, status: 'Inactive' } : product
+            )
+          );
+          toast.success('Product unlisted successfully');
+        }
+      } catch (error) {
+        console.error(`Failed to ${actionType} product:`, error);
+        toast.error(`Failed to ${actionType} product`);
+      }
+      setSelectedProduct(null);
+      setActionType('list');
+    }
   };
 
   return (
@@ -223,7 +250,7 @@ export default function AdminProducts() {
         </div>
       </div>
 
-      <ProductsTable products={products} onEdit={handleEditProduct} />
+      <ProductsTable products={products} onEdit={handleEditProduct} setProducts={setProducts} />
       <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
         <span>Showing 1-09 of 78</span>
         <div className="flex space-x-2">

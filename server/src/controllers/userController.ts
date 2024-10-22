@@ -117,7 +117,7 @@ const getProducts = async (req: Request, res: Response) => {
         console.log('Category ID:', category._id);
 
         const products = await productModel
-          .find({ category: category._id })
+          .find({ category: category._id, status: 'Active' }) // Filter out inactive products
           .limit(10);
 
         return {

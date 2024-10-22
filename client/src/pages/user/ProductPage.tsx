@@ -3,6 +3,7 @@ import { X, Star, ChevronRight } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
 import userEndpoints from '@/api/userEndpoints';
 import { useParams } from 'react-router-dom';
+import productEndpoints from '@/api/productEndpoints';
 
 interface Product {
   _id: string;
@@ -87,13 +88,7 @@ const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
 const ProductPage: React.FC = () => {
   // const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const { productId } = useParams<{ productId: string }>();
-  const [relatedProducts] = useState<Product[]>([
-    { _id: '1', name: 'Product 1', price: 100, quantity: '1kg', images: ['https://via.placeholder.com/150'] },
-    { _id: '2', name: 'Product 2', price: 200, quantity: '2kg', images: ['https://via.placeholder.com/150'] },
-    { _id: '3', name: 'Product 3', price: 300, quantity: '3kg', images: ['https://via.placeholder.com/150'] },
-    { _id: '4', name: 'Product 4', price: 400, quantity: '4kg', images: ['https://via.placeholder.com/150'] },
-    { _id: '5', name: 'Product 5', price: 500, quantity: '5kg', images: ['https://via.placeholder.com/150'] },
-  ]);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [variants] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product | null>(null);
   const [mainImage, setMainImage] = useState<string | undefined>(undefined);
@@ -109,6 +104,18 @@ const ProductPage: React.FC = () => {
       })();
     }
   }, [productId]);
+
+  useEffect(() => {
+    if (product && product.subcategory?._id) {
+      (async () => {
+        const subcategoryId = product.subcategory?._id;
+        if (subcategoryId) {
+          const response = await productEndpoints.getRelatedProduct(subcategoryId);
+          setRelatedProducts(response.data);
+        }
+      })();
+    }
+  }, [product]);
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }).map((_, index) => (
@@ -257,9 +264,9 @@ const ProductPage: React.FC = () => {
         {/* Product Reviews */}
         <section className="mt-12">
           <h3 className="text-xl font-semibold mb-4">Customer Reviews</h3>
-          {product.reviews?.length && 
-            product.reviews.map(review => (
-              <div key={review._id} className="border-b border-gray-200 py-4">
+          {product.reviews?.length &&
+            product.reviews.map((review, index) => (
+              <div key={index} className="border-b border-gray-200 py-4">
                 <div className="flex items-center mb-2">
                   <div className="flex mr-2">{renderStars(review.rating)}</div>
                   <p className="font-semibold">{review.user}</p>
@@ -277,7 +284,7 @@ const ProductPage: React.FC = () => {
             {relatedProducts.map(product => (
               <div key={product._id} className="border rounded-lg p-4">
                 <img
-                  src={product.images[0]}
+                  src={'http://localhost:3000/' + product.images[0]}
                   alt={product.name}
                   className="w-full h-40 object-contain mb-2"
                 />

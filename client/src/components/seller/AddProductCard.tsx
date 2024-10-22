@@ -37,7 +37,7 @@ interface FormValues {
   productName: string;
   description: string;
   category: string;
-  subcategory: object;
+  subcategory: string;
   variants: Variant[];
 }
 
@@ -198,7 +198,7 @@ export default function Component({ onClose }: { onClose: () => void }) {
     }
   };
 
-  const onCropComplete = useCallback(( _ , croppedAreaPixels: Area) => {
+  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
@@ -262,15 +262,18 @@ export default function Component({ onClose }: { onClose: () => void }) {
       formData.append('productName', data.productName);
       formData.append('description', data.description);
       formData.append('category', data.category);
-      formData.append('subcategory', data.category);
+      formData.append('subcategory', data.subcategory);
 
       data.variants.forEach((variant, index) => {
         formData.append(`variants[${index}][name]`, variant.name);
         formData.append(`variants[${index}][price]`, variant.price);
         formData.append(`variants[${index}][stock]`, variant.stock);
 
-        variant.images.forEach((image) => {
-          formData.append('images', image.file);
+        // variant.images.forEach((image) => {
+        //   formData.append('images', image.file);
+        // });
+        variant.images.forEach((image, imgIndex) => {
+          formData.append(`variants[${index}][images][${imgIndex}]`, image.file);
         });
       });
 
@@ -291,24 +294,26 @@ export default function Component({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       {cropperOpen && currentImage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
-          <div className="bg-white p-4 rounded-lg w-96 h-96">
-            <Cropper
-              image={currentImage.preview}
-              crop={crop}
-              zoom={zoom}
-              aspect={1}
-              onCropChange={setCrop}
-              onZoomChange={setZoom}
-              onCropComplete={onCropComplete}
-            />
+          <div className="bg-white p-4 rounded-lg w-[90vw] max-w-2xl">
+            <div className="relative w-full h-[60vh]">
+              <Cropper
+                image={currentImage.preview}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
             <div className="mt-4 flex justify-between">
-              <Button onClick={() => setCropperOpen(false)}>Cancel</Button>
+              <Button onClick={() => setCropperOpen(false)} variant="outline">Cancel</Button>
               <Button onClick={handleCropConfirm}>Confirm</Button>
             </div>
           </div>
         </div>
       )}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 w-full max-h-[90vh] overflow-y-scroll max-w-2xl p-6 bg-white rounded-lg shadow-lg relative">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 w-full max-h-[90vh] overflow-y-auto max-w-2xl p-6 bg-white rounded-lg shadow-lg relative">
         <button
           type="button"
           onClick={onClose}
@@ -371,7 +376,6 @@ export default function Component({ onClose }: { onClose: () => void }) {
             <Label>Variants</Label>
           </div>
           <div className="flex space-x-2 overflow-x-auto p-2 items-center justify-center">
-
             <TabsList className="flex-grow flex ps-14 space-x-2 bg-transparent h-22">
               {fields.map((variant) => (
                 <TabsTrigger
@@ -421,7 +425,8 @@ export default function Component({ onClose }: { onClose: () => void }) {
                       <Input
                         id={`variantPrice-${variant.id}`}
                         type="number"
-                        {...register(`variants.${index}.price`, { required: 'Price is required' })}
+                        min="1"
+                        {...register(`variants.${index}.price`, { required: 'Price is required', min: { value: 1, message: 'Price must be at least 1' } })}
                       />
                       {errors.variants?.[index]?.price && <span className="text-red-500 text-xs">{errors.variants[index].price?.message}</span>}
                     </div>
@@ -430,7 +435,8 @@ export default function Component({ onClose }: { onClose: () => void }) {
                       <Input
                         id={`variantStock-${variant.id}`}
                         type="number"
-                        {...register(`variants.${index}.stock`, { required: 'Stock is required' })}
+                        min="1"
+                        {...register(`variants.${index}.stock`, { required: 'Stock is required', min: { value: 1, message: 'Stock must be at least 1' } })}
                       />
                       {errors.variants?.[index]?.stock && <span className="text-red-500 text-xs">{errors.variants[index].stock?.message}</span>}
                     </div>
@@ -449,6 +455,7 @@ export default function Component({ onClose }: { onClose: () => void }) {
                         type="file"
                         accept="image/*"
                         className="hidden"
+                        multiple
                         id={`imageUpload-${variant.id}`}
                         onChange={(e) => handleImageUpload(variant.id, e.target.files)}
                       />

@@ -8,7 +8,23 @@ const ProductSchema: Schema = new Schema({
   stock: { type: Number, required: true },
   images: { type: Array, required: true },
   status: { type: String, default: 'Active' },
-  reviews: { type: Array, default: [] },
+  description: { type: String },
+  reviews: {
+    type: Array,
+    default: [
+      {
+        user: 'user',
+        comment: 'demo review',
+        rating: 4,
+      },
+      {
+        user: 'user2',
+        comment: 'demo review',
+        rating: 2,
+      },
+    ],
+  },
+  ratings: { type: Number, default: 5 },
   category: {
     type: mongoose.Types.ObjectId,
     required: true,

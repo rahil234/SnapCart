@@ -3,8 +3,9 @@ import productModel from '@/models/productModel';
 
 const addProduct = async (req: Request, res: Response) => {
   try {
+    console.log(req.body);
     const { productName, description, category, subcategory } = req.body;
-    const variants = JSON.parse(req.body.variants);
+    const variants = req.body.variants;
 
     const images = req.files as Express.Multer.File[];
 
@@ -25,14 +26,18 @@ const addProduct = async (req: Request, res: Response) => {
       }
     });
 
+    console.log(variantImagesMap);
+
     // Iterate over variants and save each as a new product
     const savedProducts = [];
+
     for (const [index, variant] of variants.entries()) {
       const newProduct = new productModel({
         name: productName,
         description,
         category,
         subcategory,
+        quantity: variant.name,
         price: variant.price,
         stock: variant.stock,
         images: variantImagesMap[index] || [],
@@ -90,4 +95,46 @@ const editProduct = async (req: Request, res: Response) => {
   }
 };
 
-export default { addProduct, editProduct };
+const getRelatedProducts = async (req: Request, res: Response) => {
+  try {
+    const { subcategoryId } = req.params;
+    console.log(subcategoryId);
+    const products = await productModel
+      .find({ subcategory: subcategoryId })
+      .limit(5);
+    res.status(200).json(products);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error fetching related products' });
+  }
+};
+
+const unlistProduct = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    await productModel.findByIdAndUpdate(productId, { status: 'Inactive' });
+    res.status(200).json({ message: 'Product unlisted successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error unlisting product' });
+  }
+};
+
+const listProduct = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    await productModel.findByIdAndUpdate(productId, { status: 'Active' });
+    res.status(200).json({ message: 'Product listed successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error listing product' });
+  }
+};
+
+export default {
+  addProduct,
+  editProduct,
+  getRelatedProducts,
+  unlistProduct,
+  listProduct,
+};

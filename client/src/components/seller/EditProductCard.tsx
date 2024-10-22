@@ -103,7 +103,7 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
 
       const response = await productEndpoints.editProduct(formData);
       console.log(response);
-      // onClose();
+      onClose();
     } catch (error) {
       console.error('Error updating product:', error);
     }

@@ -16,4 +16,22 @@ const editProduct = (data: FormData) => {
   });
 };
 
-export default { addProduct, editProduct };
+const unlistProduct = (productId: string) => {
+  return axiosInstance.patch('/api/product/unlist-product/' + productId);
+};
+
+const listProduct = (productId: string) => {
+  return axiosInstance.patch('/api/product/list-product/' + productId);
+};
+
+const getRelatedProduct = (subcategoryId: string) => {
+  return axiosInstance.get('/api/product/related-products/' + subcategoryId);
+};
+
+export default {
+  addProduct,
+  editProduct,
+  getRelatedProduct,
+  unlistProduct,
+  listProduct,
+};
