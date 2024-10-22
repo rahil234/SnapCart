@@ -191,6 +191,12 @@ export default function Component({ onClose }: { onClose: () => void }) {
 
   const handleImageUpload = (variantId: string, files: FileList | null) => {
     if (files && files.length > 0) {
+      const variant = fields.find(v => v.id === variantId);
+      if (variant && variant.images.length >= 6) {
+        alert('You can only add up to 6 images per variant.');
+        return;
+      }
+
       const file = files[0];
       setCurrentImage({ file, preview: URL.createObjectURL(file) });
       setCurrentVariantId(variantId);
@@ -215,7 +221,7 @@ export default function Component({ onClose }: { onClose: () => void }) {
 
       const updatedVariants = fields.map(variant =>
         variant.id === currentVariantId
-          ? { ...variant, images: [...variant.images, newImage] }
+          ? { ...variant, images: [...variant.images, newImage].slice(0, 6) }
           : variant
       );
       setValue('variants', updatedVariants);
@@ -269,9 +275,6 @@ export default function Component({ onClose }: { onClose: () => void }) {
         formData.append(`variants[${index}][price]`, variant.price);
         formData.append(`variants[${index}][stock]`, variant.stock);
 
-        // variant.images.forEach((image) => {
-        //   formData.append('images', image.file);
-        // });
         variant.images.forEach((image, imgIndex) => {
           formData.append(`variants[${index}][images][${imgIndex}]`, image.file);
         });
@@ -281,6 +284,7 @@ export default function Component({ onClose }: { onClose: () => void }) {
 
       if (response.status === 201) {
         alert('Product added successfully!');
+        onClose();
       } else {
         alert('Failed to add product. Please try again.');
       }
@@ -368,7 +372,9 @@ export default function Component({ onClose }: { onClose: () => void }) {
                 </option>
               ))}
             </select>
-            {errors.subcategory && <span className="text-red-500 text-xs">{errors.subcategory.message}</span>}
+            {errors.subcategory && 
+              <span className="text-red-500 text-xs">{errors.subcategory.message}</span>
+            }
           </div>
         }
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -442,7 +448,7 @@ export default function Component({ onClose }: { onClose: () => void }) {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Images</Label>
+                    <Label>Images (Max 6)</Label>
                     <div
                       className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors"
                       onDragOver={(e) => e.preventDefault()}
@@ -458,11 +464,14 @@ export default function Component({ onClose }: { onClose: () => void }) {
                         multiple
                         id={`imageUpload-${variant.id}`}
                         onChange={(e) => handleImageUpload(variant.id, e.target.files)}
+                        disabled={variant.images.length >= 6}
                       />
                       <Label htmlFor={`imageUpload-${variant.id}`} className="cursor-pointer">
                         <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
                         <span className="mt-2 block text-sm font-medium text-gray-900">
-                          Drop image here or click to upload and crop
+                          {variant.images.length < 6
+                            ? "Drop image here or click to upload and crop"
+                            : "Maximum number of images reached"}
                         </span>
                       </Label>
                     </div>

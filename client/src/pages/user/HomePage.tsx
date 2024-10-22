@@ -21,7 +21,7 @@ export default function Component() {
     // Fetch products
     userEndpoints.fetchProducts().then(response => {
       setData(response.data);
-      console.log(response.data);      
+      console.log(response.data);
     });
 
     // Fetch banners
@@ -59,14 +59,19 @@ export default function Component() {
           <React.Fragment key={category.categoryId}> {/* Use unique key for each category */}
             {category.products.length === 0 ? null : (
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
-                  {category.category}
-                </h2>
+                <div className='flex justify-between items-center'>
+                  <h2 className="text-2xl font-semibold mb-4">
+                    {category.category}
+                  </h2>
+                  <p className="font-medium mb-4 text-green-700">
+                    see all
+                  </p>
+                </div>
                 <div className="flex gap-2 overflow-scroll hide-scroll">
                   {category.products.map(product => (
                     <Link key={product._id} to={'/product/' + product._id}>
                       <div className="bg-white rounded-lg object-center shadow p-2 min-w-[170px] flex flex-col ">
-                        <div className="">
+                        <div className="rounded-sm overflow-hidden">
                           <img
                             src={imageUrl + product.images[0]}
                             alt={product.name}
