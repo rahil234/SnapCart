@@ -1,8 +1,9 @@
-import { Router } from 'express';
+import express from 'express';
 import productController from '@/controllers/productController';
+import authenticateAndAuthorize from '@/middleware/authenticateAndAuthorize';
 import upload from '@/middleware/upload';
 
-const productRoute = Router();
+const productRoute = express.Router();
 
 productRoute.post('/add-product', upload.any(), productController.addProduct);
 
@@ -15,6 +16,12 @@ productRoute.patch(
 productRoute.get(
   '/related-products/:subcategoryId',
   productController.getRelatedProducts
+);
+
+productRoute.get(
+  '/get-products',
+  authenticateAndAuthorize(['seller']),
+  productController.getProducts
 );
 
 productRoute.patch(

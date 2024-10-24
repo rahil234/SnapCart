@@ -2,11 +2,11 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import productModel from '../models/productModel';
 import userModel from '../models/userModel';
 import adminModel from '@models/adminModel';
 import sellerModel from '../models/sellerModel';
 import bannerModel from '@/models/bannerModel';
+import { catchError } from '@shared/types';
 
 const createAdmin = async (req: Request, res: Response) => {
   try {
@@ -28,9 +28,9 @@ const createAdmin = async (req: Request, res: Response) => {
     await newAdmin.save();
 
     res.status(201).json({ message: 'Admin created successfully' });
-  } catch (error: any) {
-    console.log(error);
-    res.status(400).json({ message: error.message });
+  } catch (error) {
+    const myError = error as catchError;
+    res.status(400).json({ message: myError.message });
   }
 };
 
@@ -63,20 +63,6 @@ const adminLogin = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'success', token, user });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });
-  }
-};
-
-const getProducts = async (req: Request, res: Response) => {
-  try {
-    console.log(req.body);
-    const products = await productModel
-      .find()
-      .populate('category')
-      .populate('subcategory');
-    res.status(200).json(products);
-  } catch (error: any) {
-    console.log(error);
-    res.status(400).json({ message: error.message });
   }
 };
 
@@ -240,7 +226,6 @@ const deleteBanner = async (req: Request, res: Response) => {
 export default {
   createAdmin,
   adminLogin,
-  getProducts,
   getUsers,
   getSellers,
   addSeller,

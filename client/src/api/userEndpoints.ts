@@ -26,6 +26,10 @@ const verifyOtp = (email: string, otp: string) => {
   return axiosInstance.post('/api/user/verify-otp', { email, otp });
 };
 
+const forgotPassword = (email: string) => {
+  return axiosInstance.post('/api/user/forgot-password', { email });
+};
+
 const fetchProducts = () => {
   return axiosInstance.get('/api/user/products');
 };
@@ -43,14 +47,15 @@ const allowUser = async (userId: string) => {
 };
 
 export default {
+  userLogin,
   sendOtp,
   resendOtp,
   verifyOtp,
+  forgotPassword,
   fetchProducts,
   fetchProductById,
   blockUser,
   allowUser,
-  userLogin,
   userGoogleLogin,
   userSignUp,
 };

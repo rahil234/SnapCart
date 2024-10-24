@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import categoryModel from '../models/categoryModel';
 import subcategoryModel from '../models/subcategoryModel';
+import { catchError } from 'shared/types';
 
 const getCategories = async (req: Request, res: Response) => {
   try {
@@ -14,8 +15,9 @@ const getCategories = async (req: Request, res: Response) => {
       })
     );
     res.status(200).json(categoriesWithSubcategories);
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
+  } catch (err) {
+    const myError = err as catchError;
+    res.status(500).json({ message: myError.message });
   }
 };
 
@@ -45,8 +47,9 @@ const addCategory = async (req: Request, res: Response) => {
       newSubCategory.save();
       res.status(200).json({ message: 'Category added successfully' });
     }
-  } catch (error: any) {
-    if (error.code === 11000) {
+  } catch (error) {
+    const myError = error as catchError;
+    if (myError.code === 11000) {
       res.status(400).json({ message: 'Category already exists' });
       return;
     }

@@ -51,8 +51,8 @@ const addProduct = async (req: Request, res: Response) => {
       message: 'Products added successfully',
       products: savedProducts,
     });
-  } catch (error) {
-    console.log(error);
+  } catch {
+    // console.log(error);
     res.status(500).json({ message: 'Error adding products' });
   }
 };
@@ -108,6 +108,23 @@ const getRelatedProducts = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error fetching related products' });
   }
 };
+interface custominterface {
+  message: string;
+}
+const getProducts = async (req: Request, res: Response) => {
+  try {
+    console.log(req.body);
+    const products = await productModel
+      .find()
+      .populate('category')
+      .populate('subcategory');
+    res.status(200).json(products);
+  } catch (error) {
+    const newError = error as custominterface;
+    console.log(error);
+    res.status(400).json({ message: newError.message });
+  }
+};
 
 const unlistProduct = async (req: Request, res: Response) => {
   try {
@@ -135,6 +152,7 @@ export default {
   addProduct,
   editProduct,
   getRelatedProducts,
+  getProducts,
   unlistProduct,
   listProduct,
 };

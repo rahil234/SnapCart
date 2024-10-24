@@ -6,8 +6,12 @@ import LoginCard from '@/components/user/Login/LoginCard';
 import SignUpCard from '@/components/user/Login/SignUpCard';
 import VerifyOTPCard from '@/components/user/Login/VerifyOTPCard';
 import { SignUpFormInputs } from 'shared/types';
+import ForgotPasswordCard from './ForgetPasswordCard';
+import userEndpoints from '@/api/userEndpoints';
+
 
 const LoginMain = (): JSX.Element => {
+
   return (
     <div className="bg-black fixed w-screen p-7 bg-opacity-55 h-screen overflow-hidden">
       <div className="relative top-1/2 flex left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[900px] h-[522px] rounded-3xl overflow-hidden">
@@ -48,8 +52,30 @@ const LoginMain = (): JSX.Element => {
 };
 
 function LoginController() {
-  const { activeTab, setActiveTab, hideLoginOverlay } = useContext(UIContext);
-  const [userData, setUserData] = useState<SignUpFormInputs>();
+  const { hideLoginOverlay } = useContext(UIContext);
+  const [activeTab, setActiveTab] = useState<
+    'login' | 'signup' | 'forgotPassword' | 'verifyOtp'>('login');
+  const [signupData, setSignupData] = useState<SignUpFormInputs>();
+
+  // Updated onOtpSubmit function to use verifyOtp from userEndpoints
+  const onOtpSubmit = async (otp: string) => {
+    console.log('OTP submitted:', otp);
+    try {
+      if (!signupData) {
+        console.error('User data not found');
+        return;
+      }
+      const response = await userEndpoints.verifyOtp(signupData?.email, otp);
+      if (response.data.success) {
+        console.log('OTP verified successfully');
+        setActiveTab('login'); // Change tab or take any action on success
+      } else {
+        console.error('Failed to verify OTP');
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+    }
+  };
 
   switch (activeTab) {
     case 'login':
@@ -64,23 +90,20 @@ function LoginController() {
         <SignUpCard
           setActiveTab={setActiveTab}
           hideLoginOverlay={hideLoginOverlay}
-          setUserData={setUserData}
+          setUserData={setSignupData}
         />
       );
 
     case 'verifyOtp':
       return (
-        userData ? (
-          <VerifyOTPCard
+        <VerifyOTPCard
           setActiveTab={setActiveTab}
-          hideLoginOverlay={hideLoginOverlay}
-            userData={userData}
-          />
-        ) : null
+          onOTPSubmit={onOtpSubmit}
+        />
       );
 
     case 'forgotPassword':
-      return <>forgotPassword</>;
+      return <ForgotPasswordCard setActiveTab={setActiveTab} />;
 
     default:
       return null;

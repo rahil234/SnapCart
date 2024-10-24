@@ -8,20 +8,20 @@ import React, {
 
 interface UIContextProps {
   isLoginOverlayOpen: boolean;
-  activeTab: string;
-  setActiveTab: (
-    tab: 'login' | 'signup' | 'forgotPassword' | 'verifyOtp'
-  ) => void;
   showLoginOverlay: () => void;
   hideLoginOverlay: () => void;
+  isCartOverlayOpen: boolean;
+  showCartOverlay: () => void;
+  hideCartOverlay: () => void;
 }
 
 export const UIContext = createContext<UIContextProps>({
   isLoginOverlayOpen: false,
-  activeTab: 'login',
-  setActiveTab: () => {},
   showLoginOverlay: () => {},
   hideLoginOverlay: () => {},
+  isCartOverlayOpen: false,
+  showCartOverlay: () => {},
+  hideCartOverlay: () => {},
 });
 
 interface UIProviderProps {
@@ -30,8 +30,8 @@ interface UIProviderProps {
 
 export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
   const [isLoginOverlayOpen, setIsLoginOverlayOpen] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<
-    'login' | 'signup' | 'forgotPassword' | 'verifyOtp'>('login');
+  const [isCartOverlayOpen, setIsCartOverlayOpen] = useState<boolean>(false);
+
 
   const showLoginOverlay = useCallback(() => {
     setIsLoginOverlayOpen(true);
@@ -40,9 +40,17 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
   const hideLoginOverlay = useCallback(() => {
     setIsLoginOverlayOpen(false);
   }, []);
+  
+  const showCartOverlay = useCallback(() => {
+    setIsCartOverlayOpen(true);
+  }, []);
+
+  const hideCartOverlay = useCallback(() => {
+    setIsCartOverlayOpen(false);
+  }, []);
 
   useEffect(() => {
-    if (isLoginOverlayOpen) {
+    if (isLoginOverlayOpen || isCartOverlayOpen) {
       document.body.classList.add('no-scroll');
     } else {
       document.body.classList.remove('no-scroll');
@@ -51,16 +59,17 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
     return () => {
       document.body.classList.remove('no-scroll');
     };
-  }, [isLoginOverlayOpen]);
+  }, [isLoginOverlayOpen, isCartOverlayOpen]);
 
   return (
     <UIContext.Provider
       value={{
         isLoginOverlayOpen,
-        activeTab,
         showLoginOverlay,
         hideLoginOverlay,
-        setActiveTab,
+        isCartOverlayOpen,
+        showCartOverlay,
+        hideCartOverlay,
       }}
     >
       {children}

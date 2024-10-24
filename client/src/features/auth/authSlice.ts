@@ -1,11 +1,20 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '@/api/axiosInstance';
+import { User } from 'shared/types';
+import { AxiosError } from 'axios';
+
+interface AuthState {
+  isAuthenticated: boolean;
+  user: User | null;
+  error: string | null;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  token: string | null;
+}
 
 export const fetchUserDetails = createAsyncThunk(
   'auth/fetchUserDetails',
   async (_, { getState, rejectWithValue }) => {
-    const state = getState() as any;
+    const state = getState() as { auth: AuthState };
     const token = state.auth.token;
 
     try {
@@ -15,19 +24,28 @@ export const fetchUserDetails = createAsyncThunk(
         },
       });
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data);
+    } catch (error) {
+      let errorMessage = 'An unknown error occurred';
+      if (error instanceof AxiosError && error.response) {
+        errorMessage = error.response.data.message || error.response.data;
+      }
+      return rejectWithValue(errorMessage);
     }
   }
 );
 
-const token = localStorage.getItem('token');
-const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null;
 
-const initialState = {
-  isAuthenticated: token ? true : false,
+const token = localStorage.getItem('token');
+const user = localStorage.getItem('user')
+  ? JSON.parse(localStorage.getItem('user')!)
+  : null;
+
+const initialState: AuthState = {
+  isAuthenticated: !!token,
   user: user,
   token: token || null,
+  error: null,
+  status: 'idle',
 };
 
 const authSlice = createSlice({
@@ -51,16 +69,16 @@ const authSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchUserDetails.pending, (state: any) => {
+      .addCase(fetchUserDetails.pending, (state: AuthState) => {
         state.status = 'loading';
       })
-      .addCase(fetchUserDetails.fulfilled, (state: any, action) => {
+      .addCase(fetchUserDetails.fulfilled, (state: AuthState, action) => {
         state.status = 'succeeded';
         state.user = action.payload;
       })
-      .addCase(fetchUserDetails.rejected, (state: any, action) => {
+      .addCase(fetchUserDetails.rejected, (state: AuthState, action) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload as string;
       });
   },
 });

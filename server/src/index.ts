@@ -46,7 +46,7 @@ app.use('/api/product', productRoute);
 app.use('/api/category', categoryRoute);
 // app.get('/api/admin', deliveryRoute);
 
-const PORT = 3000;
+const PORT = process.env.PORT;
 
 const connectToDatabaseAndStartServer = async () => {
   try {

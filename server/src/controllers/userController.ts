@@ -8,14 +8,6 @@ import userModel from '@models/userModel';
 import productModel from '@models/productModel';
 import categoryModel from '@models/categoryModel';
 
-const createJWT = (data: object) => {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error('JWT_SECRET is not defined');
-  }
-  return jwt.sign(data, secret);
-};
-
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -23,6 +15,54 @@ const transporter = nodemailer.createTransport({
     pass: 'blik rpge njhj aose',
   },
 });
+
+const sendOtp = async (email: string) => {
+  try {
+    const otp: number = Math.floor(1000 + Math.random() * 9000);
+
+    const mailOptions = {
+      to: email,
+      subject: 'OTP for Snapcart Signup',
+      html: `
+    <div style="font-family: Arial, sans-serif; text-align: center; background-color: #FFDC02; color:#000000; padding: 20px; border-radius: 10px;">
+    <h1 style="color: #000000; font-size:35px;">Welcome to SnapCart</h1>
+    <p>Use the following OTP to verify your email:</p>
+    <h2 style="color: #198C05; line-width: 1.5; font-size:35px">${otp}</h2>
+    <p>This OTP is valid for 10 minutes.</p>
+    <p>If you did not request this, please ignore this email.</p>
+    <br>
+    <p>Thank you,</p>
+    <p>The Snapcart Team</p>
+    </div>
+  `,
+    };
+
+    transporter.sendMail(mailOptions, async (error, info) => {
+      if (error) {
+        throw new Error('Failed to send OTP: ' + error);
+      } else {
+        // Update or create the OTP document using upsert
+        const result = await otpModel.updateOne(
+          { email },
+          { $set: { otp } },
+          { upsert: true }
+        );
+        console.log(result);
+      }
+      console.log('Email sent: ' + info.response);
+    });
+  } catch (err) {
+    throw new Error('Failed to send OTP: ' + err);
+  }
+};
+
+const createJWT = (data: object) => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined');
+  }
+  return jwt.sign(data, secret);
+};
 
 const login = async (req: Request, res: Response) => {
   try {
@@ -151,11 +191,9 @@ const getProduct = async (req: Request, res: Response) => {
   }
 };
 
-const sendOtp = async (req: Request, res: Response) => {
-  console.log('sendOtp');
+const verifySignUp = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
-    console.log(email);
 
     // Check if the email is provided
     if (!email) {
@@ -170,53 +208,36 @@ const sendOtp = async (req: Request, res: Response) => {
       return;
     }
 
-    const otp: string = Math.floor(1000 + Math.random() * 9000).toString();
-
-    // Find the OTP document by email
-    let otpDocument = await otpModel.findOne({ email });
-
-    if (otpDocument) {
-      // Update the existing OTP document
-      otpDocument.otp = otp;
-      await otpDocument.save();
-    } else {
-      // Create a new OTP document
-      otpDocument = new otpModel({ email, otp });
-      await otpDocument.save();
-    }
-
-    const mailOptions = {
-      to: email,
-      subject: 'OTP for Snapcart Signup',
-      html: `
-      <div style="font-family: Arial, sans-serif; text-align: center; background-color: #FFDC02; color:#000000; padding: 20px; border-radius: 10px;">
-      <h1 style="color: #000000; font-size:35px;">Welcome to SnapCart</h1>
-      <p>Use the following OTP to verify your email:</p>
-      <h2 style="color: #198C05; line-width: 1.5; font-size:35px">${otp}</h2>
-      <p>This OTP is valid for 10 minutes.</p>
-      <p>If you did not request this, please ignore this email.</p>
-      <br>
-      <p>Thank you,</p>
-      <p>The Snapcart Team</p>
-      </div>
-    `,
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-        res.status(500).json({ message: 'Failed to send OTP' });
-        return;
-      } else {
-        console.log('Email sent: ' + info.response);
-        res.json({ message: 'OTP sent successfully' });
-        return;
-      }
-    });
+    sendOtp(email);
+    res.json({ message: 'OTP sent to your email' });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Internal server error' });
     return;
+  }
+};
+
+const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    // Check if the email is provided
+    if (!email) {
+      res.status(400).json({ message: 'Email is required' });
+      return;
+    }
+
+    // Check if the user with the given email already exists
+    const existingUser = await userModel.findOne({ email });
+    if (!existingUser) {
+      res.status(400).json({ message: 'User not found' });
+      return;
+    }
+
+    await sendOtp(email);
+    res.json({ message: 'OTP sent to your email' });
+  } catch (err) {
+    res.status(500).json({ message: 'Internal server error' + err });
   }
 };
 
@@ -282,7 +303,8 @@ export default {
   signup,
   getProducts,
   getProduct,
-  sendOtp,
+  verifySignUp,
+  forgotPassword,
   verifyOtp,
   blockUser,
   allowUser,

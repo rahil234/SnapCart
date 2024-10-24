@@ -1,19 +1,23 @@
 import { Router } from 'express';
 import upload from '../middleware/upload';
+import authenticateAndAuthorize from '@/middleware/authenticateAndAuthorize';
 import adminController from '@/controllers/adminController';
 
 const adminRoute = Router();
 
-adminRoute.post('/create-admin', adminController.createAdmin);
+adminRoute.post(
+  '/create-admin',
+  authenticateAndAuthorize(['admin']),
+  adminController.createAdmin
+);
 
 adminRoute.post('/login', adminController.adminLogin);
-
-adminRoute.get('/get-products', adminController.getProducts);
 
 adminRoute.get('/get-banners', adminController.getBanners);
 
 adminRoute.patch(
   '/upload-banner-image',
+  authenticateAndAuthorize(['admin']),
   upload.single('image'),
   adminController.uploadBannerImage
 );

@@ -20,15 +20,13 @@ export interface Product {
 //   subcategories: Subcategory[];
 // }
 
-
 // export interface Subcategory {
 //   subcategory: string;
 //   subcategoryId: string;
 //   products: Product[];
 // }
 
-
-interface Review{
+interface Review {
   _id: string;
   user: string;
   date: string;
@@ -36,18 +34,18 @@ interface Review{
   comment: string;
 }
 
-export interface Category  {
+export interface Category {
   _id: string;
   name: string;
   status: string;
   subcategory: Subcategory;
-};
+}
 
-export interface Subcategory  {
+export interface Subcategory {
   _id: string;
   name: string;
   status: 'Active' | 'Blocked';
-};
+}
 
 export type UserRole = 'admin' | 'user' | 'seller';
 
@@ -89,4 +87,10 @@ export interface SignUpFormInputs {
   email: string;
   password: string;
   confirmPassword: string;
+}
+
+export interface catchError {
+  code: number;
+  name: string;
+  message: string;
 }

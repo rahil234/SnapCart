@@ -4,7 +4,7 @@ import {
   Navigate,
   RouterProvider,
 } from 'react-router-dom';
-import ProtectedRoute from './components/user/ProtectedRoute/ProtectedRoute';
+import ProtectedRoute from './components/user/ProtectedRoute';
 import UserLayout from '@/Layouts/UserLayout';
 import Home from '@/pages/user/HomePage';
 import ProductPage from '@/pages/user/ProductPage';
@@ -22,22 +22,31 @@ import SellerLogin from '@/pages/seller/SellerLogin';
 import SellerLayout from '@/Layouts/SellerLayout';
 import NotAuthorised from './pages/NotAuthorised';
 import Page404 from './pages/Page404';
-
+import CartPage from './pages/user/CartPage';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <UserLayout />,
     children: [
       {
         path: '',
-        element: <Home />,
-      },
-      {
-        path: '/product/:productId',
-        element: <ProductPage />,
-      },
-    ],
+        element: <UserLayout />,
+        children: [
+          {
+            path: '',
+            element: <Home />,
+          },
+          {
+            path: '/product/:productId',
+            element: <ProductPage />,
+          },
+          {
+            path: 'cart',
+            element: <CartPage />,
+          }
+        ],
+      }
+    ]
   },
   {
     path: '/admin',

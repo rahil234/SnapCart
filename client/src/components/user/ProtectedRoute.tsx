@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles }) => {
   const location = useLocation();
-  const auth = useSelector((state: { auth: { isAuthenticated: boolean; user?: { roles: string[] } } }) => state.auth);
+  const auth = useSelector((state: { auth: { isAuthenticated: boolean; user?: { role: string } } }) => state.auth);
 
   if (!auth.isAuthenticated) {
     // Determine the appropriate login page based on the user's role
@@ -18,8 +18,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles
   }
 
   if (requiredRoles && requiredRoles.length > 0) {
-    const userRoles = auth.user?.roles || [];
-    const hasRequiredRole = requiredRoles.some((role) => userRoles.includes(role));
+    const hasRequiredRole = requiredRoles.some((role) => role === auth.user?.role);
 
     if (!hasRequiredRole) {
       return <Navigate to="/not-authorized" replace />;

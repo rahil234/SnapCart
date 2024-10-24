@@ -1,28 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 import { ArrowLeft } from 'lucide-react';
-import userEndpoints from '@/api/userEndpoints';
-import { login } from '@/features/auth/authSlice';
-import { SignUpFormInputs } from 'shared/types';
 
 interface VerifyOTPFormInputs {
-  otp: string[];
+  otp: string;
 }
 
 interface VerifyOTPCardProps {
-  hideLoginOverlay:() => void;
   setActiveTab: (tab: "login" | "signup" | "forgotPassword" | "verifyOtp") => void;
-  userData: SignUpFormInputs; // Ensure userData is required
+  onOTPSubmit: (otp: string) => void;
 }
 
-const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ hideLoginOverlay,setActiveTab, userData }) => {
+const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ setActiveTab, onOTPSubmit }) => {
   const [otpValues, setOtpValues] = useState(['', '', '', '']);
   const [error, setError] = useState<string | null>(null);
   const [timer, setTimer] = useState(60);
   const [isResendEnabled, setIsResendEnabled] = useState(false);
   const { handleSubmit } = useForm<VerifyOTPFormInputs>();
-  const dispatch = useDispatch();
 
   useEffect(() => {
     if (timer > 0) {
@@ -35,21 +29,13 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ hideLoginOverlay,setActiv
     }
   }, [timer]);
 
-  const onSubmit: SubmitHandler<VerifyOTPFormInputs> = async (data) => {
+  const onSubmit: SubmitHandler<VerifyOTPFormInputs> = async () => {
+    const otp = otpValues.join('');
+    console.log('OTP submitted:', otp);
     try {
-      const otp = data.otp.join('');
-      console.log('OTP submitted:',userData.email, otp);
-      const isValidOtp = await userEndpoints.verifyOtp(userData.email, otp);
-      if (!isValidOtp) {
-        throw new Error('Invalid OTP');
-      }
-      // Complete signup process
-      const response = await userEndpoints.userSignUp(userData);
-      console.log('response', response.data);
-      dispatch(login({ user: response.data.user, token: response.data.token }));
-      hideLoginOverlay();
+      onOTPSubmit(otp);
     } catch (err: any) {
-      setError(err.response.data.message);
+      setError(err.response?.data?.message || 'An error occurred');
     }
   };
 
@@ -65,9 +51,10 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ hideLoginOverlay,setActiv
         nextInput?.focus();
       }
 
-      // Check if all inputs are filled
+      // Check if all inputs are filled using the local copy of the OTP values
       if (newOtpValues.every((val) => val !== '')) {
-        onSubmit({ otp: newOtpValues });
+        const otp = newOtpValues.join('');
+        onOTPSubmit(otp); // Directly submit the OTP using the handler
       }
     }
   };
@@ -81,14 +68,14 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ hideLoginOverlay,setActiv
 
   const handleResendOtp = () => {
     setTimer(60);
-    try {
-      userEndpoints.resendOtp(userData.email);
-      setIsResendEnabled(false);
-      console.log('OTP resent');
-    }catch(err: any) {
-      console.error('Error:', err);
-      setError(err.response.data.message);
-    }
+    // try {
+    //   userEndpoints.resendOtp(userData.email);
+    //   setIsResendEnabled(false);
+    //   console.log('OTP resent');
+    // } catch (err: any) {
+    //   console.error('Error:', err);
+    //   setError(err.response?.data?.message || 'An error occurred');
+    // }
     setIsResendEnabled(false);
   };
 

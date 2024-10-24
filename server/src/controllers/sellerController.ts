@@ -21,7 +21,6 @@ const sellerLogin = async (req: Request, res: Response) => {
     }
 
     const isMatch = await bcrypt.compare(password, seller.password);
-    // Check if the password is correct
 
     if (!isMatch) {
       res.status(401).json({ message: 'Invalid email or password' });
@@ -32,7 +31,7 @@ const sellerLogin = async (req: Request, res: Response) => {
       _id: seller._id,
       name: seller.firstName,
       email: seller.email,
-      roles: ['seller'],
+      role: 'seller',
     };
 
     // Generate a token
@@ -40,10 +39,11 @@ const sellerLogin = async (req: Request, res: Response) => {
       throw new Error('JWT_SECRET is not defined');
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    console.log(user);
+
+    const token = jwt.sign(user, process.env.JWT_SECRET, {
       expiresIn: '1h',
     });
-
     res.status(200).json({ message: 'success', token, user });
   } catch (error) {
     console.error('Error logging in seller:', error);

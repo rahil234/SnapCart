@@ -13,9 +13,11 @@ userRoute.get('/products', user.getProducts);
 
 userRoute.get('/product/:productId', user.getProduct);
 
-userRoute.post('/send-otp', user.sendOtp);
+userRoute.post('/send-otp', user.verifySignUp);
 
 userRoute.post('/verify-otp', user.verifyOtp);
+
+userRoute.post('/forgot-password', user.forgotPassword);
 
 userRoute.patch('/:userId/block', user.blockUser);
 

@@ -21,8 +21,8 @@ interface LoginCardProps {
 }
 
 const LoginCard: React.FC<LoginCardProps> = ({
-  hideLoginOverlay,
   setActiveTab,
+  hideLoginOverlay,
 }) => {
   const dispatch = useDispatch();
   const [isLogin, setIsLogin] = useState(true);
@@ -40,7 +40,6 @@ const LoginCard: React.FC<LoginCardProps> = ({
       const response = await userEndpoints.userLogin(data);
       console.log('data', response.data);
       dispatch(login(response.data));
-      hideLoginOverlay();
     } catch (error: any) {
       console.error('error', error);
       setError(error.response.data.message);
@@ -48,10 +47,7 @@ const LoginCard: React.FC<LoginCardProps> = ({
   };
 
   const handleGoogleLoginSuccess = async (codeResponse: { access_token: string }) => {
-    console.log(codeResponse);
-
     const response = await userEndpoints.userGoogleLogin(codeResponse.access_token);
-    console.log('data', response.data);
     dispatch(login({ user: response.data.user, token: response.data.token }));
     hideLoginOverlay();
   };
@@ -64,7 +60,7 @@ const LoginCard: React.FC<LoginCardProps> = ({
   return (
     <div className="flex flex-col h-full">
       <header className="flex justify-end p-4">
-        <X className="cursor-pointer" onClick={hideLoginOverlay} />
+        <X className="cursor-pointer" onClick={() => hideLoginOverlay()} />
       </header>
       <div className="flex flex-col justify-center items-center px-8 pb-4">
         <div className="w-full">
@@ -126,9 +122,9 @@ const LoginCard: React.FC<LoginCardProps> = ({
               </p>
             </div>
             <div className="flex justify-end">
-              <a href="#forgot-password" className="text-sm text-gray-600 hover:underline mb-2">
+              <button className="text-sm text-gray-600 hover:underline mb-2" onClick={() => setActiveTab("forgotPassword")}>
                 Forgot password?
-              </a>
+              </button>
             </div>
             <button
               type="submit"

@@ -9,7 +9,7 @@ interface ImportMeta {
 }
 
 const apiUrl = (import.meta as unknown as ImportMeta).env.VITE_API_URL as string;
-const token = 'YOUR_API_TOKEN';
+const token = localStorage.getItem('token'); 
 
 const axiosInstance = axios.create({
   baseURL: apiUrl,
