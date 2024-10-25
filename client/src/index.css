@@ -32,6 +32,10 @@ input::-webkit-inner-spin-button {
   display: none;
 }
 
+body.no-scroll-padding {
+  padding-right: 15px;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

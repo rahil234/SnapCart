@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import productModel from '@/models/productModel';
+import { catchError } from '@shared/types';
 
 const addProduct = async (req: Request, res: Response) => {
   try {
@@ -97,20 +98,32 @@ const editProduct = async (req: Request, res: Response) => {
 
 const getRelatedProducts = async (req: Request, res: Response) => {
   try {
-    const { subcategoryId } = req.params;
-    console.log(subcategoryId);
-    const products = await productModel
-      .find({ subcategory: subcategoryId })
+    const { productId } = req.params;
+    const currentProduct = await productModel
+      .findById(productId)
+      .populate('category');
+    if (!currentProduct) {
+      res.status(404).json({ message: 'Product not found' });
+      return;
+    }
+
+    const relatedProducts = await productModel
+      .find({
+        subcategory: currentProduct.subcategory
+          ? currentProduct.subcategory._id
+          : null,
+        _id: { $ne: productId },
+      })
       .limit(5);
+
+    const products = relatedProducts;
     res.status(200).json(products);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Error fetching related products' });
   }
 };
-interface custominterface {
-  message: string;
-}
+
 const getProducts = async (req: Request, res: Response) => {
   try {
     console.log(req.body);
@@ -120,9 +133,9 @@ const getProducts = async (req: Request, res: Response) => {
       .populate('subcategory');
     res.status(200).json(products);
   } catch (error) {
-    const newError = error as custominterface;
+    const myError = error as catchError;
     console.log(error);
-    res.status(400).json({ message: newError.message });
+    res.status(400).json({ message: myError.message });
   }
 };
 

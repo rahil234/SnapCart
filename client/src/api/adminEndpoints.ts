@@ -4,11 +4,6 @@ const adminLogin = (data: object) => {
   return axiosInstance.post('/api/admin/login', data);
 };
 
-
-const getProducts = () => {
-  return axiosInstance.get('/api/admin/get-products');
-};
-
 const getUsers = () => {
   return axiosInstance.get('/api/admin/get-users');
 };
@@ -43,7 +38,6 @@ const deleteBanner = async (bannerId: string) => {
 
 export default {
   adminLogin,
-  getProducts,
   getUsers,
   getSellers,
   getBanners,

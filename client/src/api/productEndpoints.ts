@@ -1,5 +1,9 @@
 import axiosInstance from './axiosInstance';
 
+const getProducts = () => {
+  return axiosInstance.get('/api/product/get-products');
+};
+
 const addProduct = (data: FormData) => {
   return axiosInstance.post('/api/product/add-product', data, {
     headers: {
@@ -24,11 +28,12 @@ const listProduct = (productId: string) => {
   return axiosInstance.patch('/api/product/list-product/' + productId);
 };
 
-const getRelatedProduct = (subcategoryId: string) => {
-  return axiosInstance.get('/api/product/related-products/' + subcategoryId);
+const getRelatedProduct = (productId: string) => {
+  return axiosInstance.get('/api/product/related-products/' + productId);
 };
 
 export default {
+  getProducts,
   addProduct,
   editProduct,
   getRelatedProduct,

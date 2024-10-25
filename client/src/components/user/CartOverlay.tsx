@@ -23,7 +23,7 @@ const CartOverlay = () => {
 
   return (
     <>
-      <div className="fixed top-0 right-0 h-full w-[471px] bg-white shadow-lg z-50">
+      <div className="fixed top-14  right-0 h-full w-[471px] bg-white shadow-lg z-50">
         <div className="flex items-start justify-between p-[15px] bg-white">
           <div className="font-extrabold text-black text-lg">
             My Cart

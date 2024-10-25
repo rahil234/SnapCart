@@ -14,7 +14,7 @@ productRoute.patch(
 );
 
 productRoute.get(
-  '/related-products/:subcategoryId',
+  '/related-products/:productId',
   productController.getRelatedProducts
 );
 

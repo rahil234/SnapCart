@@ -1,16 +1,46 @@
+// export interface Product {
+//   _id: string;
+//   name: string;
+//   price: number;
+//   quantity: string;
+//   stock: number;
+//   status: 'Active' | 'Inactive';
+//   reviews: Array<Review>;
+//   images: string[];
+//   variants: object[];
+//   description: string;
+//   category: Category;
+//   subcategory: Subcategory;
+// }
+
+interface Review {
+  _id: string;
+  user: string;
+  date: string;
+  rating: number;
+  comment: string;
+}
+
 export interface Product {
   _id: string;
   name: string;
+  category: { _id: string; name: string };
+  subcategory: { _id: string; name: string };
   price: number;
   quantity: string;
-  stock: number;
-  status: 'Active' | 'Inactive';
-  reviews: Array<Review>;
+  stock?: number;
   images: string[];
-  variants: object[];
-  description: string;
-  category: Category;
-  subcategory: Subcategory;
+  description?: string;
+  tags?: string[];
+  status: 'Active' | 'Inactive';
+  variants?: {
+    _id: string;
+    name: string;
+    price: number;
+    stock: number;
+    images: string[];
+  };
+  reviews?: Review[];
 }
 
 // export interface Category {
@@ -25,14 +55,6 @@ export interface Product {
 //   subcategoryId: string;
 //   products: Product[];
 // }
-
-interface Review {
-  _id: string;
-  user: string;
-  date: string;
-  rating: number;
-  comment: string;
-}
 
 export interface Category {
   _id: string;

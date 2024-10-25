@@ -1,29 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useParams, ScrollRestoration } from 'react-router-dom';
 import { X, Star, ChevronRight } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
 import userEndpoints from '@/api/userEndpoints';
-import { useParams } from 'react-router-dom';
 import productEndpoints from '@/api/productEndpoints';
+import ProductCard from '@/components/user/ProductCard';
+import { Product } from 'shared/types';
 
-interface Product {
-  _id: string;
-  name: string;
-  category?: { _id: string; name: string };
-  subcategory?: { _id: string; name: string };
-  price: number;
-  quantity: string;
-  stock?: number;
-  images: string[];
-  description?: string;
-  tags?: string[];
-  reviews?: {
-    _id: string;
-    user: string;
-    rating: number;
-    comment: string;
-    date: string;
-  }[];
-}
 
 const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
   src,
@@ -108,11 +91,8 @@ const ProductPage: React.FC = () => {
   useEffect(() => {
     if (product && product.subcategory?._id) {
       (async () => {
-        const subcategoryId = product.subcategory?._id;
-        if (subcategoryId) {
-          const response = await productEndpoints.getRelatedProduct(subcategoryId);
+          const response = await productEndpoints.getRelatedProduct(product._id);
           setRelatedProducts(response.data);
-        }
       })();
     }
   }, [product]);
@@ -146,6 +126,7 @@ const ProductPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollRestoration />
       <main className="flex-grow container mx-auto px-4 py-8">
         {/* Breadcrumbs */}
         <nav className="text-sm mb-4">
@@ -279,24 +260,10 @@ const ProductPage: React.FC = () => {
 
         {/* Related products */}
         <section className="mt-12">
-          <h3 className="text-xl font-semibold mb-4">Related products</h3>
+          <h3 className="text-2xl text-center font-semibold mb-4">You may also like</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {relatedProducts.map(product => (
-              <div key={product._id} className="border rounded-lg p-4">
-                <img
-                  src={'http://localhost:3000/' + product.images[0]}
-                  alt={product.name}
-                  className="w-full h-40 object-contain mb-2"
-                />
-                <h4 className="font-semibold">{product.name}</h4>
-                <p className="text-sm text-gray-600">{product.quantity}</p>
-                <div className="flex justify-between items-center mt-2">
-                  <span className="font-bold">₹{product.price}</span>
-                  <button className="text-green-500 border border-green-500 px-2 py-1 rounded text-sm">
-                    ADD
-                  </button>
-                </div>
-              </div>
+              <ProductCard key={product._id} product={product} />
             ))}
           </div>
         </section>

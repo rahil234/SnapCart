@@ -5,23 +5,30 @@ import React, {
   useEffect,
   ReactNode,
 } from 'react';
+import { useLocation } from 'react-router-dom';
 
 interface UIContextProps {
   isLoginOverlayOpen: boolean;
   showLoginOverlay: () => void;
   hideLoginOverlay: () => void;
   isCartOverlayOpen: boolean;
-  showCartOverlay: () => void;
+  toggleCartOverlay: () => void;
   hideCartOverlay: () => void;
+  isProfileOverlayOpen: boolean;
+  toggleProfileOverlay: () => void;
+  hideProfileOverlay: () => void;
 }
 
 export const UIContext = createContext<UIContextProps>({
   isLoginOverlayOpen: false,
-  showLoginOverlay: () => {},
-  hideLoginOverlay: () => {},
+  showLoginOverlay: () => { },
+  hideLoginOverlay: () => { },
   isCartOverlayOpen: false,
-  showCartOverlay: () => {},
-  hideCartOverlay: () => {},
+  toggleCartOverlay: () => { },
+  hideCartOverlay: () => { },
+  isProfileOverlayOpen: false,
+  toggleProfileOverlay: () => { },
+  hideProfileOverlay: () => { },
 });
 
 interface UIProviderProps {
@@ -31,7 +38,9 @@ interface UIProviderProps {
 export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
   const [isLoginOverlayOpen, setIsLoginOverlayOpen] = useState<boolean>(false);
   const [isCartOverlayOpen, setIsCartOverlayOpen] = useState<boolean>(false);
+  const [isProfileOverlayOpen, setIsProfileOverlayOpen] = useState<boolean>(false);
 
+  const location = useLocation();
 
   const showLoginOverlay = useCallback(() => {
     setIsLoginOverlayOpen(true);
@@ -40,26 +49,59 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
   const hideLoginOverlay = useCallback(() => {
     setIsLoginOverlayOpen(false);
   }, []);
-  
-  const showCartOverlay = useCallback(() => {
-    setIsCartOverlayOpen(true);
-  }, []);
+
+  const toggleCartOverlay = useCallback(() => {
+    hideAllOverlays();
+    if (location.pathname !== '/cart') {
+      setIsCartOverlayOpen(true);
+    }
+  }, [location.pathname]);
 
   const hideCartOverlay = useCallback(() => {
     setIsCartOverlayOpen(false);
   }, []);
 
+  const toggleProfileOverlay = useCallback(() => {
+    hideAllOverlays();
+    setIsProfileOverlayOpen(true);
+  }, []);
+
+  const hideProfileOverlay = useCallback(() => {
+    setIsProfileOverlayOpen(false);
+  }, []);
+
+  const hideAllOverlays = useCallback(() => {
+    setIsLoginOverlayOpen(false);
+    setIsCartOverlayOpen(false);
+    setIsProfileOverlayOpen(false);
+  }, []);
+
   useEffect(() => {
-    if (isLoginOverlayOpen || isCartOverlayOpen) {
+    const handlePopState = () => {
+      hideAllOverlays();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [hideAllOverlays]);
+
+  useEffect(() => {
+    if (isLoginOverlayOpen || isCartOverlayOpen || isProfileOverlayOpen) {
       document.body.classList.add('no-scroll');
+      document.body.classList.add('no-scroll-padding');
     } else {
       document.body.classList.remove('no-scroll');
+      document.body.classList.remove('no-scroll-padding');
     }
 
     return () => {
       document.body.classList.remove('no-scroll');
+      document.body.classList.remove('no-scroll-padding');
     };
-  }, [isLoginOverlayOpen, isCartOverlayOpen]);
+  }, [isLoginOverlayOpen, isCartOverlayOpen, isProfileOverlayOpen]);
 
   return (
     <UIContext.Provider
@@ -68,8 +110,11 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
         showLoginOverlay,
         hideLoginOverlay,
         isCartOverlayOpen,
-        showCartOverlay,
+        toggleCartOverlay,
         hideCartOverlay,
+        isProfileOverlayOpen,
+        toggleProfileOverlay,
+        hideProfileOverlay,
       }}
     >
       {children}

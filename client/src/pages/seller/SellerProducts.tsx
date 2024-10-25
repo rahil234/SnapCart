@@ -8,7 +8,6 @@ import {
   ListPlus,
   ListMinus,
 } from 'lucide-react';
-import adminEndpoints from '@/api/adminEndpoints';
 import productEndpoints from '@/api/productEndpoints';
 import categoryEndpoints from '@/api/categoryEndpoints';
 import AddProductCard from '@/components/seller/AddProductCard';
@@ -190,7 +189,7 @@ export default function AdminProducts() {
 
   useEffect(() => {
     const request = async () => {
-      const { data } = await adminEndpoints.getProducts();
+      const { data } = await productEndpoints.getProducts();
       setProducts(data);
     };
     request();
