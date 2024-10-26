@@ -23,7 +23,7 @@ services:
     volumes:
       - ./server:/usr/src/app/server
       - ./shared:/usr/src/app/shared
-    command: sh -c "npm install && npm run dev --prefix ./server"
+    command: sh -c "npm install && npm run build && npm run start"
     depends_on:
       - mongo
     networks:
