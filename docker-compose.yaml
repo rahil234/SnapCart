@@ -1,7 +1,7 @@
 services:
   mongo:
-    image: mongo:6.0
-    container_name: mongodb
+    image: mongo:6
+    container_name: snapcart-mongodb
     restart: always
     ports:
       - "27017:27017"
@@ -12,73 +12,70 @@ services:
     networks:
       - app-network
 
-  ubuntu:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    container_name: ubuntu
+  node:
+    container_name: snapcart-node
+    image: node:alpine
     restart: always
     environment:
       - MONGODB_URI=mongodb://mongo:27017/snapcart
-    # volumes:
-    #   - ./server:/usr/src/app/server
-    #   - ./shared:/usr/src/app/shared
-    # command: sh -c "npm install && npm run build && npm run start"
+    volumes:
+      - ../snapcart:/app/snapcart
+    command: sh -c "cd /app/snapcart/server && npm run build && npm run start"
     depends_on:
       - mongo
     networks:
       - app-network
 
-  # nginx:
-  #   build:
-  #     context: ./nginx
-  #     dockerfile: Dockerfile
-  #   container_name: nginx_proxy
-  #   restart: always
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
+  nginx:
+    container_name: snapcart-nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
     # volumes:
     #   - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     #   - ./nginx/certs:/etc/letsencrypt
     #   - certbot-www:/var/www/certbot
-    # volumes:
-    #   - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-    #   - ./nginx/certs:/etc/nginx/certs
-      # - ./frontend/build:/usr/share/nginx/html
-    # depends_on:
-    #   - node
-    # networks:
-    #   - app-network
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/certs:/etc/nginx/certs
+      - ./frontend/build:/usr/share/nginx/html
+    depends_on:
+      - node
+    networks:
+      - app-network
 
-  # certbot:
-  #   image: certbot/certbot
-  #   container_name: certbot
-  #   volumes:
-  #     - ./nginx/certs:/etc/letsencrypt
-  #     - certbot-www:/var/www/certbot
-  #   depends_on:
-  #     - nginx
-  #   networks:
-  #     - app-network
+  certbot:
+    image: certbot/certbot
+    container_name: snapcart-certbot
+    volumes:
+      - ./nginx/certs:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    depends_on:
+      - nginx
+    networks:
+      - app-network
 
-  # redis:
-  #     image: redis
-  #     container_name: redis
-  #     restart: always
-  #     volumes:
-  #       - redis_volume_data:/data
-  #     ports:
-  #       - 6379:6379
+  redis:
+      image: redis
+      container_name: snapcart-redis
+      restart: always
+      volumes:
+        - redis_volume_data:/data
+      ports:
+        - 6379:6379
      
-  # redis_insight:
-  #     image: redislabs/redisinsight:1.14.0
-  #     container_name: redis_insight
-  #     restart: always
-  #     ports:
-  #       - 8001:8001
-  #     volumes:
-  #       - redis_insight_volume_data:/db
+  redis_insight:
+      image: redislabs/redisinsight:1.14.0
+      container_name: snapcart-redis_insight
+      restart: always
+      ports:
+        - 8001:8001
+      volumes:
+        - redis_insight_volume_data:/db
 
 networks:
   app-network:
