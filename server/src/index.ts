@@ -50,7 +50,7 @@ const PORT = process.env.PORT;
 
 const connectToDatabaseAndStartServer = async () => {
   try {
-    const DATABASE_URL = 'mongodb://localhost:27017/SnapCart';
+    const DATABASE_URL = 'mongodb://mongo:27017/SnapCart';
     await mongoose.connect(DATABASE_URL);
     console.log('Database ✅: Connected to MongoDB');
 

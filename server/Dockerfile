@@ -1,23 +1,32 @@
-#Base Image configuring
-FROM node:alpine
+# Use the official Ubuntu image as the base
+FROM ubuntu:latest
 
-WORKDIR /usr/src/app
+# Set the working directory
+WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Install required packages: curl, git, and Node.js
+RUN apt update && \
+    apt install -y curl git && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt install -y nodejs && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install app dependencies
-# RUN npm install --production
+# Clone the SnapCart repository
+RUN git clone https://github.com/rahil234/SnapCart.git
+
+# Set the working directory to the cloned repo
+# COPY . .
+WORKDIR /app/SnapCart
+
+# Install npm dependencies
 RUN npm install
 
-# Copy application source
-COPY . .
+# Build the TypeScript code
+RUN npm run build
 
-# Expose the port the app runs on
+# Expose the desired port (if needed, adjust based on your app)
 EXPOSE 3000
 
-# Define environment variable for MongoDB URI (can be overridden)
-ENV MONGO_URI=mongodb://mongo:27017/snapcart
-
-# Start the Node.js app
-CMD ["npm", "start"]
+# Command to run your app
+CMD ["npm", "start"]  # or adjust to your entry point
