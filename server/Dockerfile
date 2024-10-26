@@ -12,14 +12,14 @@ RUN apt update && \
 
 # # Clone the SnapCart repository
 # RUN git clone https://github.com/rahil234/SnapCart.git
-# WORKDIR  /app/SnapCart
+WORKDIR  /app/SnapCart
 
-# RUN npm install
+RUN npm install
 
-# WORKDIR  /app/SnapCart/server
+WORKDIR  /app/SnapCart/server
 
 # # Build the TypeScript code
-# RUN npm run build
+RUN npm run build
 
 # Expose the desired port (if needed, adjust based on your app)
 EXPOSE 3000
