@@ -10,6 +10,7 @@ import Home from '@/pages/user/HomePage';
 import ProductPage from '@/pages/user/ProductPage';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminCategory from '@/pages/admin/AdminCategory';
+import { UIProvider } from '@/context/UIContext';
 import AdminUsers from '@/pages/admin/AdminUsers';
 import AdminSellers from '@/pages/admin/AdminSellers';
 import ComingSoon from '@/pages/admin/ComingSoon';
@@ -30,7 +31,10 @@ const router = createBrowserRouter([
     children: [
       {
         path: '',
-        element: <UserLayout />,
+        element:
+          <UIProvider>
+            <UserLayout />
+          </UIProvider>,
         children: [
           {
             path: '',

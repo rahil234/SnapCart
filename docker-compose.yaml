@@ -1,14 +1,14 @@
 services:
   mongo:
-    image: mongo:6
+    image: mongo
     container_name: snapcart-mongodb
     restart: always
     ports:
-      - "27017:27017"
+      - "27000:27017"
     environment:
       MONGO_INITDB_DATABASE: snapcart
     volumes:
-      - mongo-data:/data/db
+      - /opt/homebrew/var/mongodb:/data/db
     networks:
       - app-network
 
@@ -39,10 +39,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    # volumes:
-    #   - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-    #   - ./nginx/certs:/etc/letsencrypt
-    #   - certbot-www:/var/www/certbot
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/certs:/etc/nginx/certs
@@ -71,15 +67,6 @@ services:
         - redis_volume_data:/data
       ports:
         - 6379:6379
-     
-  redis_insight:
-      image: redislabs/redisinsight:1.14.0
-      container_name: snapcart-redis_insight
-      restart: always
-      ports:
-        - 8001:8001
-      volumes:
-        - redis_insight_volume_data:/db
 
 networks:
   app-network:
@@ -89,4 +76,3 @@ volumes:
   mongo-data:
   certbot-www:
   redis_volume_data:
-  redis_insight_volume_data:

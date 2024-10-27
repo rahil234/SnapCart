@@ -42,7 +42,13 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
 
   const location = useLocation();
 
+  useEffect(() => {
+    console.log('isLoginOverlayOpen:', isLoginOverlayOpen);
+  }, [isLoginOverlayOpen]);
+
   const showLoginOverlay = useCallback(() => {
+    hideAllOverlays();
+    console.log('showLoginOverlay');
     setIsLoginOverlayOpen(true);
   }, []);
 
@@ -53,9 +59,9 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
   const toggleCartOverlay = useCallback(() => {
     hideAllOverlays();
     if (location.pathname !== '/cart') {
-      setIsCartOverlayOpen(true);
+      setIsCartOverlayOpen(isCartOverlayOpen? false : true);
     }
-  }, [location.pathname]);
+  },[isCartOverlayOpen]);
 
   const hideCartOverlay = useCallback(() => {
     setIsCartOverlayOpen(false);

@@ -13,7 +13,7 @@ import userEndpoints from '@/api/userEndpoints';
 const LoginMain = (): JSX.Element => {
 
   return (
-    <div className="bg-black fixed w-screen p-7 bg-opacity-55 h-screen overflow-hidden">
+    <div className="bg-black fixed w-screen p-7 bg-opacity-55 h-screen overflow-hidden z-50">
       <div className="relative top-1/2 flex left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[900px] h-[522px] rounded-3xl overflow-hidden">
         <div className="bg-[#FFDB00] flex-1">
           <div className="absolute left-1/4 -translate-x-1/2 top-11 w-[229px] h-[53px] mx-auto text-center">
