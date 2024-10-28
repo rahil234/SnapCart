@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Outlet, NavLink } from 'react-router-dom';
 import { Search, Bell, ChevronDown } from 'lucide-react';
-import { logout } from '@/features/auth/authSlice';
+import { clearCredentials } from '@/features/auth/authSlice';
 
 
 interface SidebarProps {
@@ -78,11 +78,11 @@ const Header = () => (
         <ChevronDown size={16} className="text-gray-400" />
       </div> */}
       <div className="flex items-center space-x-2">
-        <img
+        {/* <img
           src="/placeholder.svg?height=32&width=32"
           alt="User avatar"
           className="w-8 h-8 rounded-full"
-        />
+        /> */}
         <div>
           <div className="text-sm font-semibold">Moni Roy</div>
           <div className="text-xs text-gray-500">Seller</div>
@@ -99,7 +99,7 @@ function SellerLayout() {
 
   const sellerLogout = () => {
     console.log('Seller logout');
-    dispatch(logout());
+    dispatch(clearCredentials());
     navigate('/seller/login');
   };
 

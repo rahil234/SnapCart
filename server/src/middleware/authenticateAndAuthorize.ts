@@ -30,7 +30,7 @@ const authenticateAndAuthorize = (
       return;
     }
 
-    jwt.verify(token, JWT_SECRET, (err, user) => {
+    jwt.verify(token, JWT_SECRET, async (err, user) => {
       if (err) {
         console.error(err);
         res.status(403).json({ message: 'Invalid token' });

@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
 import sellerEndpoints from '@/api/sellerEndpoints';
-import { login } from '@/features/auth/authSlice';
+import { AuthState, setCredentials } from '@/features/auth/authSlice';
+import { catchError } from 'shared/types';
 
 interface LoginFormInputs {
   email: string;
@@ -12,16 +13,11 @@ interface LoginFormInputs {
 }
 
 const SellerLogin: React.FC = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [error, setError] = React.useState<string>('');
-  const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated);    
+  const isAuthenticated = useSelector((state: { auth: AuthState }) => state.auth.isAuthenticated);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/seller');
-    }
-  }, [isAuthenticated, navigate]);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -29,20 +25,24 @@ const SellerLogin: React.FC = () => {
     formState: { errors },
   } = useForm<LoginFormInputs>();
 
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/seller/dashboard');
+    }
+    console.log('Seller login page');
+  }, [isAuthenticated]);
+
   const [showPassword, setShowPassword] = React.useState(false);
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
     try {
       const response = await sellerEndpoints.login(data);
-      dispatch(login(response.data));
-      console.log('data', response.data);
-      
-      navigate('/admin/dashboard');
-      console.log(response.data);
-    } catch (error: any) {
-
-      console.error('error', error);
-      setError(error.response.data.message);
+      dispatch(setCredentials(response.data));
+      navigate('/seller/dashboard');
+    } catch (error) {
+      const newError = error as catchError;
+      setError(newError.response.data.message);
     }
   };
 

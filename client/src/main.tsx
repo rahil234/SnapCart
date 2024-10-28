@@ -14,12 +14,12 @@ const googleOAuthClientId = (import.meta as unknown as ImportMeta).env.VITE_goog
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={googleOAuthClientId}>
-      <Provider store={store}>
-          <TooltipProvider>
-            <Toaster />
-            <App />
-          </TooltipProvider>
-      </Provider>
+      < Provider store={store} >
+        <TooltipProvider>
+          <Toaster />
+          <App />
+        </TooltipProvider>
+      </Provider >
     </GoogleOAuthProvider>
   </React.StrictMode>
 );

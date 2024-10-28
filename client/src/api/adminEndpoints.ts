@@ -1,7 +1,9 @@
 import axiosInstance from './axiosInstance';
 
 const adminLogin = (data: object) => {
-  return axiosInstance.post('/api/admin/login', data);
+  return axiosInstance.post('/api/admin/login', data, {
+    withCredentials: true,
+  });
 };
 
 const getUsers = () => {
@@ -24,11 +26,17 @@ const uploadBannerImage = async (data: FormData) => {
   });
 };
 
-const updateBannerOrder = async (updatedBanners: { id: number, order: number }[]) => {
-  return axiosInstance.patch('/api/admin/update-banner-order', { banners: updatedBanners });
+const updateBannerOrder = async (
+  updatedBanners: { id: number; order: number }[]
+) => {
+  return axiosInstance.patch('/api/admin/update-banner-order', {
+    banners: updatedBanners,
+  });
 };
 
-const saveBanners = async (banners: { _id: number, image: string, order: number }[]) => {
+const saveBanners = async (
+  banners: { _id: number; image: string; order: number }[]
+) => {
   return axiosInstance.post('/api/admin/save-banners', { banners });
 };
 

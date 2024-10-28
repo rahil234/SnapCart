@@ -6,6 +6,9 @@ import userEndpoints from '@/api/userEndpoints';
 import productEndpoints from '@/api/productEndpoints';
 import ProductCard from '@/components/user/ProductCard';
 import { Product } from 'shared/types';
+import { ImportMeta } from 'shared/types';
+
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL ;
 
 
 const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
@@ -75,7 +78,6 @@ const ProductPage: React.FC = () => {
   const [variants] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product | null>(null);
   const [mainImage, setMainImage] = useState<string | undefined>(undefined);
-  const imagrUrl = 'http://localhost:3000/';
 
   useEffect(() => {
     if (productId) {
@@ -155,12 +157,12 @@ const ProductPage: React.FC = () => {
         <div className="flex flex-col md:flex-row gap-8">
           {/* Product images */}
           <div className="md:w-1/2">
-            <ZoomableImage src={imagrUrl + mainImage} alt={product.name} />
+            <ZoomableImage src={imageUrl + mainImage} alt={product.name} />
             <div className="flex space-x-2">
               {product.images.map((image, index) => (
                 <img
                   key={index}
-                  src={imagrUrl + image}
+                  src={imageUrl + image}
                   alt={`${product.name} ${index + 1}`}
                   className="w-20 h-20 object-cover cursor-pointer border-2 border-transparent hover:border-green-500"
                   onClick={() => setMainImage(image)}

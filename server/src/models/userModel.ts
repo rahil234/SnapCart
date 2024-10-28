@@ -9,6 +9,7 @@ export interface IUsers extends Document {
   email: string;
   password: string;
   status: 'Active' | 'Blocked';
+  __v: number;
 }
 
 const UsersSchema: Schema = new Schema(

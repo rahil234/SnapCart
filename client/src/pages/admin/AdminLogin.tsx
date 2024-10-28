@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
 import adminEndpoints from '@/api/adminEndpoints';
-import { login } from '@/features/auth/authSlice';
+import { setCredentials } from '@/features/auth/authSlice';
+import { catchError } from 'shared/types';
 
 interface LoginFormInputs {
   email: string;
@@ -15,7 +16,7 @@ const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [error, setError] = React.useState<string>('');
-  const isAuthenticated = useSelector((state: any) => state.auth.isAuthenticated);    
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -34,15 +35,15 @@ const AdminLogin: React.FC = () => {
   const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
     try {
       const response = await adminEndpoints.adminLogin(data);
-      dispatch(login(response.data));
+      dispatch(setCredentials(response.data));
       console.log('data', response.data);
       
       navigate('/admin/dashboard');
       console.log(response.data);
-    } catch (error: any) {
-
+    } catch (error) {
+      const newError = error as catchError;
       console.error('error', error);
-      setError(error.response.data.message);
+      setError(newError.response.data.message);
     }
   };
 

@@ -2,8 +2,9 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button';
 import { Product } from 'shared/types';
+import { ImportMeta } from 'shared/types';
 
-const imageUrl = 'http://localhost:3000/';
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL ;
 
 const ProductCard = ({ product }: { product: Product }) => {
     return (

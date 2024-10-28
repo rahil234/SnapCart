@@ -1,7 +1,9 @@
 import axiosInstance from './axiosInstance';
 
 const login = async (data: { email: string; password: string }) => {
-  return axiosInstance.post('/api/seller/login', data);
+  return axiosInstance.post('/api/seller/login', data, {
+    withCredentials: true,
+  });
 };
 
 const addSeller = async (data: {

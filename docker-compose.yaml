@@ -1,6 +1,6 @@
 services:
   mongo:
-    image: mongo
+    image: mongo:7
     container_name: snapcart-mongodb
     restart: always
     ports:
@@ -8,7 +8,8 @@ services:
     environment:
       MONGO_INITDB_DATABASE: snapcart
     volumes:
-      - /opt/homebrew/var/mongodb:/data/db
+      # - /opt/homebrew/var/mongodb:/data/db
+      - mongo-data:/data/db
     networks:
       - app-network
 
@@ -24,7 +25,7 @@ services:
     volumes:
       - ../snapcart:/app/snapcart
     working_dir: /app/snapcart
-    command: sh -c "npm install && cd server && npm run build && npm run start"
+    command: sh -c "npm install && cd server && npm run dev"
     depends_on:
       - mongo
     networks:

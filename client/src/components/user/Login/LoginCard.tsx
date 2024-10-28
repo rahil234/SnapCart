@@ -4,9 +4,10 @@ import { useDispatch } from 'react-redux';
 import { X } from 'lucide-react';
 import InputField from '@/components/ui/InputField';
 import userEndpoints from '@/api/userEndpoints';
-import { login } from '@/features/auth/authSlice';
+import { setCredentials } from '@/features/auth/authSlice';
 import { useGoogleLogin } from '@react-oauth/google';
 import { motion } from 'framer-motion';
+import { catchError } from 'shared/types';
 
 interface LoginFormInputs {
   email: string;
@@ -39,16 +40,16 @@ const LoginCard: React.FC<LoginCardProps> = ({
       setError(null);
       const response = await userEndpoints.userLogin(data);
       console.log('data', response.data);
-      dispatch(login(response.data));
-    } catch (error: any) {
-      console.error('error', error);
-      setError(error.response.data.message);
+      dispatch(setCredentials(response.data));
+    } catch (error) {
+      const newError = error as catchError;
+      setError(newError.response.data.message);
     }
   };
 
   const handleGoogleLoginSuccess = async (codeResponse: { access_token: string }) => {
     const response = await userEndpoints.userGoogleLogin(codeResponse.access_token);
-    dispatch(login({ user: response.data.user, token: response.data.token }));
+    dispatch(setCredentials({ user: response.data.user, token: response.data.token }));
     hideLoginOverlay();
   };
 
@@ -82,7 +83,7 @@ const LoginCard: React.FC<LoginCardProps> = ({
               Signup
             </motion.button>
           </div>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-3">
             <p className="text-red-500 text-sm h-[5px] text-center">
               {error && error}
             </p>

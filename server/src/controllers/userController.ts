@@ -102,27 +102,29 @@ const googleLogin = async (req: Request, res: Response) => {
     );
     const { email, given_name } = response.data;
 
-    let user = await userModel.findOne({ email });
-    if (user) {
+    const userData = await userModel.findOne({ email });
+
+    if (userData) {
       // User exists, generate JWT token
-      const token = createJWT({ email: user.email });
-      res.status(200).json({ token, user });
+      const token = createJWT({ email: userData.email });
+      const { password, __v, ...user } = userData.toObject(); // eslint-disable-line
+      res.status(200).json({ token, user: user });
       return;
     } else {
       // User does not exist, create a new user with a random password
       const randomPassword = Math.random().toString(36).slice(-8);
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
-      user = new userModel({
+      const newUser = new userModel({
         email,
         firstName: given_name,
         password: hashedPassword,
       });
-      await user.save();
+      await newUser.save();
 
-      // Generate JWT token for the new user
-      const token = createJWT({ email: user.email });
+      const token = createJWT({ email: newUser.email });
+      const { password, __v, ...user } = newUser.toObject(); // eslint-disable-line
 
-      res.status(201).json({ token, user });
+      res.status(201).json({ token, userData });
     }
   } catch (err) {
     console.log(err);
@@ -154,8 +156,6 @@ const getProducts = async (req: Request, res: Response) => {
 
     const categoryProducts = await Promise.all(
       categories.map(async (category) => {
-        console.log('Category ID:', category._id);
-
         const products = await productModel
           .find({ category: category._id, status: 'Active' }) // Filter out inactive products
           .limit(10);

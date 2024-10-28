@@ -126,7 +126,6 @@ const getRelatedProducts = async (req: Request, res: Response) => {
 
 const getProducts = async (req: Request, res: Response) => {
   try {
-    console.log(req.body);
     const products = await productModel
       .find()
       .populate('category')

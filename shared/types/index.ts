@@ -73,9 +73,11 @@ export type UserRole = 'admin' | 'user' | 'seller';
 
 export interface User {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   DOB: string;
+  role: UserRole;
 }
 
 export interface Seller {
@@ -98,6 +100,8 @@ export interface ApiResponse<T> {
 
 interface ImportMetaEnv {
   readonly VITE_googleOAuthClientId: string;
+  readonly VITE_BUCKET_URL: string;
+  readonly VITE_API_URL: string;
 }
 
 export interface ImportMeta {
@@ -115,4 +119,9 @@ export interface catchError {
   code: number;
   name: string;
   message: string;
+  response: {
+    data: {
+      message: string;
+    };
+  };
 }

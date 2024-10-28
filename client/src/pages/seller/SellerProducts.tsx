@@ -103,7 +103,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit, setProd
             <tr key={index}>
               <td className="px-6 py-4 whitespace-nowrap">
                 <img
-                  src={`http://localhost:3000/` + product.images[0]}
+                  src={`https://localhost/` + product.images[0]}
                   alt={product.name}
                   className="w-12 h-12 object-cover rounded"
                 />

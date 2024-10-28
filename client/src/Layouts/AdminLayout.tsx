@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Outlet, NavLink } from 'react-router-dom';
 import { Search, Bell, ChevronDown } from 'lucide-react';
-import { logout } from '@/features/auth/authSlice';
+import { clearCredentials } from '@/features/auth/authSlice';
 
 interface SidebarProps {
   adminLogout: () => void;
@@ -105,7 +105,7 @@ function AdminLayout() {
   const adminLogout = () => {
     console.log('Admin logout');
     navigate('/admin/login');
-    dispatch(logout());
+    dispatch(clearCredentials());
   };
 
   return (

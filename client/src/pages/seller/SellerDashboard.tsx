@@ -8,7 +8,6 @@ import {
   BarChart,
   Pie,
   PieChart,
-  ResponsiveContainer,
   XAxis,
   YAxis,
   Cell,
@@ -44,7 +43,7 @@ const customerData = [
   { name: "Repeated", value: 1420, color: "#2196F3" },
 ]
 
-export default function AdminDashboard() {
+function SellerDashboard() {
   return (
     <div className="flex flex-col">
       <main className="flex-1 p-4 sm:p-6 bg-gray-100 overflow-auto">
@@ -116,7 +115,6 @@ export default function AdminDashboard() {
                     }}
                     className="h-[300px] w-full sm:h-[350px]"
                   >
-                    <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={revenueData}>
                         <XAxis dataKey="month" />
                         <YAxis />
@@ -124,7 +122,6 @@ export default function AdminDashboard() {
                         <Area type="monotone" dataKey="sales" stroke="var(--color-sales)" fill="var(--color-sales)" fillOpacity={0.2} />
                         <Area type="monotone" dataKey="profit" stroke="var(--color-profit)" fill="var(--color-profit)" fillOpacity={0.2} />
                       </AreaChart>
-                    </ResponsiveContainer>
                   </ChartContainer>
               </TabsContent>
             </Tabs>
@@ -145,7 +142,6 @@ export default function AdminDashboard() {
                 }}
                 className="h-[200px] w-full"
               >
-                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={customerData}
@@ -162,7 +158,6 @@ export default function AdminDashboard() {
                     </Pie>
                     <ChartTooltip content={<ChartTooltipContent />} />
                   </PieChart>
-                </ResponsiveContainer>
               </ChartContainer>
             </CardContent>
             <CardFooter className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -195,7 +190,6 @@ export default function AdminDashboard() {
                 }}
                 className="h-[300px] w-full"
               >
-                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={salesAnalyticsData}>
                     <XAxis dataKey="year" />
                     <YAxis />
@@ -203,7 +197,6 @@ export default function AdminDashboard() {
                     <Bar dataKey="sales" fill="var(--color-sales)" />
                     <Bar dataKey="profit" fill="var(--color-profit)" />
                   </BarChart>
-                </ResponsiveContainer>
               </ChartContainer>
             </CardContent>
           </Card>
@@ -212,3 +205,5 @@ export default function AdminDashboard() {
     </div>
   )
 }
+
+export default SellerDashboard;

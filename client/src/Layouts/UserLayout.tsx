@@ -1,21 +1,13 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useContext } from 'react';
-import { useDispatch } from 'react-redux';
 import { Outlet } from 'react-router-dom';
 import NavBar from '@/components/user/NavBar';
 import Footer from '@/components/user/Footer';
-import { AppDispatch } from '@/app/store';
-import { fetchUserDetails } from '@/features/auth/authSlice';
 import { UIContext } from '@/context/UIContext';
 import LoginMain from '@/components/user/Login/LoginMain';
 
 function UserLayout() {
   const { isLoginOverlayOpen } = useContext(UIContext);
-
-  const dispatch = useDispatch() as AppDispatch;
-  useEffect(() => {
-    dispatch(fetchUserDetails());
-  }, [dispatch]);
 
   return (
     <>

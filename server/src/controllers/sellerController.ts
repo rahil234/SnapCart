@@ -8,6 +8,9 @@ const sellerLogin = async (req: Request, res: Response) => {
 
   try {
     // Find the seller by email
+    const sellere = await sellerModel.find();
+    console.log(sellere);
+
     const seller = await sellerModel.findOne({ email });
 
     if (!seller) {
@@ -39,12 +42,23 @@ const sellerLogin = async (req: Request, res: Response) => {
       throw new Error('JWT_SECRET is not defined');
     }
 
-    console.log(user);
-
-    const token = jwt.sign(user, process.env.JWT_SECRET, {
+    const accessToken = jwt.sign(user, process.env.JWT_SECRET, {
       expiresIn: '1h',
     });
-    res.status(200).json({ message: 'success', token, user });
+
+    // Generate a refresh token
+    const refreshToken = jwt.sign(user, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({ message: 'success', accessToken, user });
   } catch (error) {
     console.error('Error logging in seller:', error);
     res.status(500).json({ message: 'Failed to login seller' });

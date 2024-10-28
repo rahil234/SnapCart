@@ -2,14 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Button } from '@/components/ui/button';
-import { logout } from '@/features/auth/authSlice';
+import { clearCredentials } from '@/features/auth/authSlice';
 
 const NotAuthorised: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(clearCredentials());
     navigate('/');
   };
 

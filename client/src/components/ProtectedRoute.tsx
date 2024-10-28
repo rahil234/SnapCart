@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { AuthState } from '@/features/auth/authSlice';
 
 interface ProtectedRouteProps {
   children: JSX.Element;
@@ -9,7 +10,9 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles }) => {
   const location = useLocation();
-  const auth = useSelector((state: { auth: { isAuthenticated: boolean; user?: { role: string } } }) => state.auth);
+  const auth = useSelector((state: { auth: AuthState }) => state.auth);
+  console.log(auth);
+
 
   if (!auth.isAuthenticated) {
     // Determine the appropriate login page based on the user's role

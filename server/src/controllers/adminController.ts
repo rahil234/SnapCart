@@ -49,18 +49,33 @@ const adminLogin = async (req: Request, res: Response) => {
   if (validPassword) {
     const user = {
       email,
-      roles: ['admin'],
+      role: 'admin',
     };
 
-    if (!process.env.JWT_SECRET) {
-      throw new Error('JWT_SECRET is not defined');
+    const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
+    const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
+
+    if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
+      res.status(500).json({ message: 'Internal server error' });
+      return;
     }
 
-    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
+    const refreshToken = jwt.sign({ email: user.email }, REFRESH_TOKEN_SECRET, {
+      expiresIn: '7d',
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      path: '/',
+    });
+
+    const accessToken = jwt.sign({ email: user.email }, ACCESS_TOKEN_SECRET, {
       expiresIn: '1h',
     });
 
-    res.status(200).json({ message: 'success', token, user });
+    res.status(200).json({ message: 'success', accessToken, user });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });
   }

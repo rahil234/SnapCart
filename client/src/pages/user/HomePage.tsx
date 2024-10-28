@@ -5,6 +5,7 @@ import { UIContext } from '@/context/UIContext';
 import CartOverlay from '@/components/user/CartOverlay';
 import ProductCard from '@/components/user/ProductCard';
 import { Product } from 'shared/types';
+import { ImportMeta } from 'shared/types';
 
 interface Products {
   categoryId: number;
@@ -17,7 +18,7 @@ export default function Component() {
   const { isCartOverlayOpen } = useContext(UIContext);
   const [banners, setBanners] = useState<{ _id: number; image: string; order: number }[]>([]);
 
-  const imageUrl = 'http://localhost:3000/';
+  const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL ;
 
   useEffect(() => {
     // Fetch products

@@ -43,12 +43,22 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    console.log('isLoginOverlayOpen:', isLoginOverlayOpen);
-  }, [isLoginOverlayOpen]);
+    if (isLoginOverlayOpen || isCartOverlayOpen || isProfileOverlayOpen) {
+      document.body.classList.add('no-scroll');
+      document.body.classList.add('no-scroll-padding');
+    } else {
+      document.body.classList.remove('no-scroll');
+      document.body.classList.remove('no-scroll-padding');
+    }
+
+    return () => {
+      document.body.classList.remove('no-scroll');
+      document.body.classList.remove('no-scroll-padding');
+    };
+  }, [isLoginOverlayOpen, isCartOverlayOpen, isProfileOverlayOpen]);
 
   const showLoginOverlay = useCallback(() => {
     hideAllOverlays();
-    console.log('showLoginOverlay');
     setIsLoginOverlayOpen(true);
   }, []);
 
@@ -59,9 +69,9 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
   const toggleCartOverlay = useCallback(() => {
     hideAllOverlays();
     if (location.pathname !== '/cart') {
-      setIsCartOverlayOpen(isCartOverlayOpen? false : true);
+      setIsCartOverlayOpen(!isCartOverlayOpen);
     }
-  },[isCartOverlayOpen]);
+  }, [isCartOverlayOpen]);
 
   const hideCartOverlay = useCallback(() => {
     setIsCartOverlayOpen(false);
@@ -69,8 +79,8 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
 
   const toggleProfileOverlay = useCallback(() => {
     hideAllOverlays();
-    setIsProfileOverlayOpen(true);
-  }, []);
+    setIsProfileOverlayOpen(!isProfileOverlayOpen);
+  }, [isProfileOverlayOpen]);
 
   const hideProfileOverlay = useCallback(() => {
     setIsProfileOverlayOpen(false);
@@ -93,21 +103,6 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
       window.removeEventListener('popstate', handlePopState);
     };
   }, [hideAllOverlays]);
-
-  useEffect(() => {
-    if (isLoginOverlayOpen || isCartOverlayOpen || isProfileOverlayOpen) {
-      document.body.classList.add('no-scroll');
-      document.body.classList.add('no-scroll-padding');
-    } else {
-      document.body.classList.remove('no-scroll');
-      document.body.classList.remove('no-scroll-padding');
-    }
-
-    return () => {
-      document.body.classList.remove('no-scroll');
-      document.body.classList.remove('no-scroll-padding');
-    };
-  }, [isLoginOverlayOpen, isCartOverlayOpen, isProfileOverlayOpen]);
 
   return (
     <UIContext.Provider
