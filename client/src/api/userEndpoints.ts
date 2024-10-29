@@ -1,13 +1,21 @@
 import axiosInstance from './axiosInstance';
 
 const userLogin = (data: object) => {
-  return axiosInstance.post('/api/user/login', data);
+  return axiosInstance.post('/api/user/login', data, {
+    withCredentials: true,
+  });
 };
 
 const userGoogleLogin = (access_token: string) => {
-  return axiosInstance.post('/api/user/google-login', {
-    accessToken: access_token,
-  });
+  return axiosInstance.post(
+    '/api/user/google-login',
+    {
+      googleAccessToken: access_token,
+    },
+    {
+      withCredentials: true,
+    }
+  );
 };
 
 const userSignUp = (data: object) => {
@@ -46,6 +54,10 @@ const allowUser = async (userId: string) => {
   return await axiosInstance.patch(`/api/user/${userId}/allow`);
 };
 
+const addToCart = async (productId: string) => {
+  return await axiosInstance.post(`/api/user/cart/${productId}`);
+};
+
 export default {
   userLogin,
   sendOtp,
@@ -58,4 +70,5 @@ export default {
   allowUser,
   userGoogleLogin,
   userSignUp,
+  addToCart,
 };

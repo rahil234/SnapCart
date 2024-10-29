@@ -124,6 +124,20 @@ const getRelatedProducts = async (req: Request, res: Response) => {
   }
 };
 
+const getProductsBySeller = async (req: Request, res: Response) => {
+  try {
+    const products = await productModel
+      .find({ seller: req.user?._id })
+      .populate('category')
+      .populate('subcategory');
+    res.status(200).json(products);
+  } catch (error) {
+    const myError = error as catchError;
+    console.log(error);
+    res.status(400).json({ message: myError.message });
+  }
+};
+
 const getProducts = async (req: Request, res: Response) => {
   try {
     const products = await productModel
@@ -165,6 +179,7 @@ export default {
   editProduct,
   getRelatedProducts,
   getProducts,
+  getProductsBySeller,
   unlistProduct,
   listProduct,
 };

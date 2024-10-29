@@ -17,22 +17,16 @@ const apiUrl = (import.meta as unknown as ImportMeta).env
 // Define the thunk to refresh the token
 export const refreshAuthToken = createAsyncThunk(
   'auth/refreshAuthToken',
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await axios.post(
         `${apiUrl}api/auth/refresh-token`,
         null,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
-
-      // Dispatch action to update Redux state with new token and user data
-      dispatch(setCredentials(response.data));
       return response.data;
-    } catch (error) {
-      console.error('Failed to refresh token:', error);
-      dispatch(clearCredentials());
+    } catch {
+      // console.error('Failed to refresh token:', error);
       return rejectWithValue('Failed to refresh token');
     }
   }
@@ -41,14 +35,11 @@ export const refreshAuthToken = createAsyncThunk(
 // Define the thunk to log out the user
 export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       await axios.post(`${apiUrl}api/auth/logout`, null, {
         withCredentials: true,
       });
-
-      // Dispatch action to clear Redux state
-      dispatch(clearCredentials());
     } catch (error) {
       console.error('Failed to log out:', error);
       return rejectWithValue('Failed to log out');
@@ -73,12 +64,8 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
       state.isAuthenticated = true;
-      console.log('Setting credentials:', action.payload);
     },
     clearCredentials: state => {
-      // axios.post(`${apiUrl}api/auth/logout`, null, {
-      //   withCredentials: true,
-      // });
       state.isAuthenticated = false;
       state.user = null;
       state.accessToken = null;
@@ -86,30 +73,26 @@ const authSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(refreshAuthToken.pending, (state: AuthState) => {
+      .addCase(refreshAuthToken.pending, state => {
         state.status = 'loading';
       })
-      .addCase(refreshAuthToken.fulfilled, (state: AuthState, action) => {
+      .addCase(refreshAuthToken.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.user = action.payload.user;
-        state.isAuthenticated = true;
-        setCredentials(action.payload);
+        authSlice.caseReducers.setCredentials(state, action);
       })
-      .addCase(refreshAuthToken.rejected, (state: AuthState, action) => {
+      .addCase(refreshAuthToken.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
       });
     builder
-      .addCase(logoutUser.pending, (state: AuthState) => {
+      .addCase(logoutUser.pending, state => {
         state.status = 'loading';
       })
-      .addCase(logoutUser.fulfilled, (state: AuthState) => {
+      .addCase(logoutUser.fulfilled, state => {
+        authSlice.caseReducers.clearCredentials(state);
         state.status = 'succeeded';
-        state.isAuthenticated = false;
-        state.user = null;
-        state.accessToken = null;
       })
-      .addCase(logoutUser.rejected, (state: AuthState, action) => {
+      .addCase(logoutUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
       });

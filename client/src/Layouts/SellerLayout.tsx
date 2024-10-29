@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Outlet, NavLink } from 'react-router-dom';
 import { Search, Bell, ChevronDown } from 'lucide-react';
-import { clearCredentials } from '@/features/auth/authSlice';
+import { logoutUser } from '@/features/auth/authSlice';
+import { AppDispatch } from '@/app/store';
 
 
 interface SidebarProps {
@@ -95,11 +96,11 @@ const Header = () => (
 
 function SellerLayout() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const sellerLogout = () => {
     console.log('Seller logout');
-    dispatch(clearCredentials());
+    dispatch(logoutUser());
     navigate('/seller/login');
   };
 

@@ -1,9 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '@/app/store';
 import { Outlet, NavLink } from 'react-router-dom';
 import { Search, Bell, ChevronDown } from 'lucide-react';
-import { clearCredentials } from '@/features/auth/authSlice';
+import { logoutUser } from '@/features/auth/authSlice';
 
 interface SidebarProps {
   adminLogout: () => void;
@@ -100,12 +101,12 @@ const Header = () => (
 
 function AdminLayout() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const adminLogout = () => {
     console.log('Admin logout');
     navigate('/admin/login');
-    dispatch(clearCredentials());
+    dispatch(logoutUser());
   };
 
   return (

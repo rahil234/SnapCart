@@ -6,7 +6,7 @@
     "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
   },
-  "include": ["types/**/*"]
+  "include": ["types/**/*", "../server/src/types/express.d.ts"]
 }

@@ -7,7 +7,7 @@ import AdminUsers from '@/pages/admin/AdminUsers';
 import AdminSellers from '@/pages/admin/AdminSellers';
 import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminBanners from '@/pages/admin/AdminBanners';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/routes/ProtectedRoute';
 import ComingSoon from '@/pages/admin/ComingSoon';
 
 

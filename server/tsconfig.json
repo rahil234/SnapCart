@@ -1,27 +1,30 @@
 {
   "compilerOptions": {
-    "target": "ES2016",
-    "module": "commonjs",
+    "target": "ES2023",
+    "module": "NodeNext",
     "baseUrl": ".",
     "paths": {
-      "@shared/*": [
-        "../shared/*"
-      ],
+      "@shared/*": ["../shared/*"],
       "@models/*": ["src/models/*"],
-
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
-
     "outDir": "./dist",
-    "esModuleInterop": true ,
-    "forceConsistentCasingInFileNames": true ,
-    "strict": true ,
-    "skipLibCheck": false ,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "strict": true,
+    "skipLibCheck": false,
+    "pretty": true,
+    "noEmit": false,
+    "noErrorTruncation": true,
+    "allowSyntheticDefaultImports": true,
   },
+  "typeRoots": ["./node_modules/@types", "./types/**/*.d.ts"],
   "include": [
-    "types/**/*.d.ts",
-    "src/**/*"
+    "src/**/*",
+    "models/**/*",
+    "controllers/**/*",
+    "./types/**/*.d.ts",
+    "../shared/types/**/*.d.ts", "types"
   ]
 }

@@ -1,6 +1,21 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
+import jwtUtils from '@/utils/jwtUtils';
+import userModel from '@models/userModel';
 import sellerModel from '@models/sellerModel';
+import adminModel from '@models/adminModel';
+
+const getUserByRoleAndId = async (role: string, id: string) => {
+  switch (role) {
+    case 'customer':
+      return await userModel.findById(id);
+    case 'seller':
+      return await sellerModel.findById(id);
+    case 'admin':
+      return await adminModel.findById(id);
+    default:
+      return null;
+  }
+};
 
 const refreshToken = async (req: Request, res: Response) => {
   const refreshToken = req.cookies['refreshToken'];
@@ -10,56 +25,39 @@ const refreshToken = async (req: Request, res: Response) => {
     return;
   }
 
-  const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
-  const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
-
-  if (!REFRESH_TOKEN_SECRET || !ACCESS_TOKEN_SECRET) {
-    res.status(500).json({ message: 'Internal server error' });
+  const decodedToken = jwtUtils.verifyRefreshToken(refreshToken);
+  if (!decodedToken) {
+    res.status(403).json({ message: 'Invalid token' });
     return;
   }
 
-  jwt.verify(
-    refreshToken,
-    REFRESH_TOKEN_SECRET,
-    async (err: any, decoded: any) => {
-      if (err) {
-        res.status(403).json({ message: 'Invalid token' });
-        return;
-      }
-
-      try {
-        const seller = await sellerModel.findById(decoded._id);
-        if (!seller) {
-          res.status(404).json({ message: 'Seller not found' });
-          return;
-        }
-
-        const accessToken = jwt.sign(
-          { id: seller._id, role: 'seller' },
-          ACCESS_TOKEN_SECRET,
-          {
-            expiresIn: '15m',
-          }
-        );
-
-        const newUser = {
-          _id: seller._id,
-          name: seller.firstName,
-          email: seller.email,
-          role: 'seller',
-        };
-
-        console.log('NewUser', newUser);
-
-        res.status(200).json({ accessToken, user: newUser });
-      } catch {
-        res.status(500).json({ message: 'Internal server error' });
-      }
+  try {
+    const user = await getUserByRoleAndId(decodedToken.role, decodedToken._id);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
     }
-  );
+
+    const accessToken = jwtUtils.signAccessToken({
+      id: user._id,
+      role: decodedToken.role,
+    });
+
+    const newUser = {
+      _id: user._id,
+      firstName: user.firstName,
+      email: user.email,
+      role: decodedToken.role,
+    };
+
+    res.status(200).json({ accessToken, user: newUser });
+  } catch (error) {
+    console.error('Error refreshing token:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
-const logout = async (req: Request, res: Response) => {
+const logout = (req: Request, res: Response) => {
   res.clearCookie('refreshToken', {
     httpOnly: true,
     secure: true,

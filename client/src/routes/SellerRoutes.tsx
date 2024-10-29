@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import SellerLayout from '@/Layouts/SellerLayout';
 import SellerDashboard from '@/pages/seller/SellerDashboard';
 import SellerLogin from '@/pages/seller/SellerLogin';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/routes/ProtectedRoute';
 import ComingSoon from '@/pages/admin/ComingSoon';
 import SellerProducts from '@/pages/seller/SellerProducts';
 

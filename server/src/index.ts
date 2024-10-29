@@ -4,7 +4,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import cookieParser from 'cookie-parser';
-
 import authRoute from './routes/authRoute';
 import userRoute from './routes/userRoute';
 import sellerRoute from './routes/sellerRoute';
@@ -16,7 +15,6 @@ import categoryRoute from './routes/categoryRoute';
 dotenv.config();
 
 const app = express();
-
 app.use(
   cors({
     origin: 'http://localhost:5173',

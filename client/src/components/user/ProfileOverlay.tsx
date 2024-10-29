@@ -2,14 +2,15 @@ import React, { useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { Button } from '@/components/ui/button';
 import { UIContext } from '@/context/UIContext';
-import { AuthState, clearCredentials } from '@/features/auth/authSlice';
+import { AuthState, logoutUser } from '@/features/auth/authSlice';
 import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/app/store';
 
 
 const ProfileOverlay = () => {
   const user = useSelector((state: { auth: AuthState }) => state.auth.user);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const { hideProfileOverlay } = useContext(UIContext);
 
@@ -18,7 +19,7 @@ const ProfileOverlay = () => {
   };
 
   const handleLogout = () => {
-    dispatch(clearCredentials());
+    dispatch(logoutUser());
     hideProfileOverlay();
   };
 

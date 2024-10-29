@@ -372,7 +372,7 @@ export default function Component({ onClose }: { onClose: () => void }) {
                 </option>
               ))}
             </select>
-            {errors.subcategory && 
+            {errors.subcategory &&
               <span className="text-red-500 text-xs">{errors.subcategory.message}</span>
             }
           </div>
@@ -394,6 +394,7 @@ export default function Component({ onClose }: { onClose: () => void }) {
                     <Button
                       type="button"
                       variant="ghost"
+                      asChild
                       size="icon"
                       className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       onClick={(e) => {
@@ -401,7 +402,7 @@ export default function Component({ onClose }: { onClose: () => void }) {
                         removeVariant(variant.id);
                       }}
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3 w-3"/>
                     </Button>
                   )}
                 </TabsTrigger>

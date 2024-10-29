@@ -102,6 +102,7 @@ interface ImportMetaEnv {
   readonly VITE_googleOAuthClientId: string;
   readonly VITE_BUCKET_URL: string;
   readonly VITE_API_URL: string;
+  readonly VITE_imageUrl: string;
 }
 
 export interface ImportMeta {

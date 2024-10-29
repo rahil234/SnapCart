@@ -1,12 +1,19 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button';
-import { Product } from 'shared/types';
-import { ImportMeta } from 'shared/types';
+import { Product, ImportMeta } from 'shared/types';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL ;
+
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL;
 
 const ProductCard = ({ product }: { product: Product }) => {
+
+
+    const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        console.log('Add to cart');
+    };
+
     return (
         <Link key={product._id} to={'/product/' + product._id}>
             <div className="bg-white rounded-lg object-center shadow p-2 min-w-[170px] flex flex-col ">
@@ -22,8 +29,9 @@ const ProductCard = ({ product }: { product: Product }) => {
                 <div className="flex items-center justify-between">
                     <p className="text-gray-600">₹{product.price}</p>
                     <Button
-                        className="border border-[#318615] bg-white text-[#318615]"
+                        className="border border-[#318615] bg-white text-[#318615] hover:bg-[#318615] hover:text-white"
                         size="sm"
+                        onClick={handleAddToCart}
                     >
                         Add
                     </Button>

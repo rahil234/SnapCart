@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import jwtUtils from '@/utils/jwtUtils';
+import { setRefreshTokenCookie } from '../utils/cookieUtils';
 import userModel from '../models/userModel';
 import adminModel from '@models/adminModel';
 import sellerModel from '../models/sellerModel';
@@ -48,32 +49,20 @@ const adminLogin = async (req: Request, res: Response) => {
 
   if (validPassword) {
     const user = {
-      email,
+      _id: admin._id,
+      firstName: admin.firstName,
+      email: admin.email,
       role: 'admin',
     };
 
-    const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
-    const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
-
-    if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
-      res.status(500).json({ message: 'Internal server error' });
-      return;
-    }
-
-    const refreshToken = jwt.sign({ email: user.email }, REFRESH_TOKEN_SECRET, {
-      expiresIn: '7d',
+    const refreshToken = jwtUtils.signRefreshToken({
+      _id: admin._id,
+      email: admin.email,
+      role: 'admin',
     });
+    setRefreshTokenCookie(res, refreshToken);
 
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      path: '/',
-    });
-
-    const accessToken = jwt.sign({ email: user.email }, ACCESS_TOKEN_SECRET, {
-      expiresIn: '1h',
-    });
+    const accessToken = jwtUtils.signAccessToken({ email: user.email });
 
     res.status(200).json({ message: 'success', accessToken, user });
   } else {

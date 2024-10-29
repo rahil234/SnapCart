@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Save, X, Image as ImageIcon } from 'lucide-react';
 import ImageCropper from './ImageCropper';
 import { Area } from 'react-easy-crop';
-import { Product, Category, Subcategory } from 'shared/types';
+import { Product, Category, Subcategory, ImportMeta } from 'shared/types';
 import productEndpoints from '@/api/productEndpoints';
 
 interface EditProductFormInputs {
@@ -25,8 +25,10 @@ interface Categories extends Category {
   subcategories: Subcategory[];
 }
 
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
+
 const EditProductCard: React.FC<{ product: Product; categories: Categories[]; onClose: () => void }> = ({ product, categories, onClose }) => {
-  const { register, handleSubmit, formState: { errors }, reset , watch } = useForm<EditProductFormInputs>();
+  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<EditProductFormInputs>();
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [imagesToCrop, setImagesToCrop] = useState<string[]>([]);
   const [currentCropIndex, setCurrentCropIndex] = useState<number>(0);
@@ -63,7 +65,7 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
 
     const fetchImages = async () => {
       const imagesWithFiles = await Promise.all(product.images.map(async (image, index) => {
-        const file = await fetchImageFile(`http://localhost:3000/${image}`);
+        const file = await fetchImageFile(imageUrl + image);
         return {
           id: `existing-${index}`,
           file,

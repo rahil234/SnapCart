@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -21,10 +21,29 @@ const routes = createBrowserRouter([
 
 
 const App: React.FC = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useLayoutEffect(() => {
-    store.dispatch(refreshAuthToken());
+    (async () => {
+      await store.dispatch(refreshAuthToken());
+      setIsLoading(false);
+    })();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <div className="spinner" style={{ border: '4px solid rgba(0, 0, 0, 0.1)', width: '36px', height: '36px', borderRadius: '50%', borderTopColor: '#3498db', animation: 'spin 1s ease-in-out infinite' }}></div>
+        <style>
+          {`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+            }
+            `}
+        </style>
+      </div>
+    )
+  }
 
   return <RouterProvider router={routes} />;
 };

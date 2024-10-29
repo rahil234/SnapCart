@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useEffect,
   ReactNode,
+  useLayoutEffect,
 } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -42,21 +43,6 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
 
   const location = useLocation();
 
-  useEffect(() => {
-    if (isLoginOverlayOpen || isCartOverlayOpen || isProfileOverlayOpen) {
-      document.body.classList.add('no-scroll');
-      document.body.classList.add('no-scroll-padding');
-    } else {
-      document.body.classList.remove('no-scroll');
-      document.body.classList.remove('no-scroll-padding');
-    }
-
-    return () => {
-      document.body.classList.remove('no-scroll');
-      document.body.classList.remove('no-scroll-padding');
-    };
-  }, [isLoginOverlayOpen, isCartOverlayOpen, isProfileOverlayOpen]);
-
   const showLoginOverlay = useCallback(() => {
     hideAllOverlays();
     setIsLoginOverlayOpen(true);
@@ -91,6 +77,21 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
     setIsCartOverlayOpen(false);
     setIsProfileOverlayOpen(false);
   }, []);
+
+  useLayoutEffect(() => {
+    if (isLoginOverlayOpen || isCartOverlayOpen || isProfileOverlayOpen) {
+      document.body.classList.add('no-scroll');
+      document.body.classList.add('no-scroll-padding');
+    } else {
+      document.body.classList.remove('no-scroll');
+      document.body.classList.remove('no-scroll-padding');
+    }
+
+    return () => {
+      document.body.classList.remove('no-scroll');
+      document.body.classList.remove('no-scroll-padding');
+    };
+  }, [isLoginOverlayOpen, isCartOverlayOpen, isProfileOverlayOpen]);
 
   useEffect(() => {
     const handlePopState = () => {

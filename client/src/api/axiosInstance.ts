@@ -46,12 +46,12 @@ axiosInstance.interceptors.response.use(
         const response = await axiosInstance.post('/api/refreshToken',null,{
           withCredentials: true,
         });
+
         console.log(response);
         const newToken = response.data.accessToken;
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        console.log(refreshError);
         return Promise.reject(refreshError);
       }
     }

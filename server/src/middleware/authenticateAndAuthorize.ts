@@ -1,14 +1,5 @@
-import { Request as OriginalRequest, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-
-interface Request extends OriginalRequest {
-  user?: {
-    _id: string;
-    name: string;
-    email: string;
-    role: 'admin' | 'user' | 'seller';
-  };
-}
 
 const authenticateAndAuthorize = (
   roles: Array<'admin' | 'user' | 'seller'> = []

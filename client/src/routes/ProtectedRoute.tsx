@@ -11,11 +11,10 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles }) => {
   const location = useLocation();
   const auth = useSelector((state: { auth: AuthState }) => state.auth);
-  console.log(auth);
 
 
   if (!auth.isAuthenticated) {
-    // Determine the appropriate login page based on the user's role
+    // if the user is not authenticated, redirect to the appropiate login page
     const loginPath = location.pathname.startsWith('/seller') ? '/seller/login' : '/admin/login';
     return <Navigate to={loginPath} state={{ from: location }} replace />;
   }

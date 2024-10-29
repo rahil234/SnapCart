@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ImportMeta } from 'shared/types';
 import {
   Search,
   ChevronDown,
@@ -40,6 +41,8 @@ interface ProductsTableProps {
 interface Categories extends Category {
   subcategories: Subcategory[];
 }
+
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
 
 const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit, setProducts }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -103,7 +106,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit, setProd
             <tr key={index}>
               <td className="px-6 py-4 whitespace-nowrap">
                 <img
-                  src={`https://localhost/` + product.images[0]}
+                  src={imageUrl + product.images[0]}
                   alt={product.name}
                   className="w-12 h-12 object-cover rounded"
                 />
@@ -248,19 +251,24 @@ export default function AdminProducts() {
           </div>
         </div>
       </div>
-
-      <ProductsTable products={products} onEdit={handleEditProduct} setProducts={setProducts} />
-      <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-        <span>Showing 1-09 of 78</span>
-        <div className="flex space-x-2">
-          <button className="p-2 rounded-md bg-white shadow">
-            <ChevronLeft size={16} />
-          </button>
-          <button className="p-2 rounded-md bg-white shadow">
-            <ChevronRight size={16} />
-          </button>
+      {products.length > 0 ? (<>
+        <ProductsTable products={products} onEdit={handleEditProduct} setProducts={setProducts} />
+        <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
+          <span>Showing 1-09 of 78</span>
+          <div className="flex space-x-2">
+            <button className="p-2 rounded-md bg-white shadow">
+              <ChevronLeft size={16} />
+            </button>
+            <button className="p-2 rounded-md bg-white shadow">
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
-      </div>
-    </main>
+      </>
+      ) : (<div className="text-center py-10">
+        <p className="text-gray-500">You have no products available.</p>
+      </div>)
+      }
+    </main >
   );
 }

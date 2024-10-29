@@ -1,12 +1,14 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
+import jwtUtils from '@/utils/jwtUtils';
+import { setRefreshTokenCookie } from '@/utils/cookieUtils';
 import otpModel from '@models/otpModel';
 import userModel from '@models/userModel';
 import productModel from '@models/productModel';
 import categoryModel from '@models/categoryModel';
+import { catchError } from '@shared/types';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -56,61 +58,66 @@ const sendOtp = async (email: string) => {
   }
 };
 
-const createJWT = (data: object) => {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error('JWT_SECRET is not defined');
-  }
-  return jwt.sign(data, secret);
-};
-
 const login = async (req: Request, res: Response) => {
   try {
     if (!req.body.email || !req.body.password) {
       res.status(401).json({ message: 'Email and password required' });
-    } else {
-      const user = await userModel.findOne({ email: req.body.email });
-
-      if (!user) {
-        res.status(401).json({ message: 'Invalid email or password' });
-      } else {
-        const isMatch = await bcrypt.compare(req.body.password, user?.password);
-        if (!isMatch) {
-          res.status(401).json({ message: 'Invalid email or password' });
-          return;
-        }
-        const token = createJWT({ email: user.email });
-        res.status(200).json({ token, message: 'success', user });
-      }
     }
+
+    const user = await userModel.findOne({ email: req.body.email });
+
+    if (!user) {
+      res.status(401).json({ message: 'Invalid email or password' });
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(req.body.password, user?.password);
+
+    if (!isMatch) {
+      res.status(401).json({ message: 'Invalid email or password' });
+      return;
+    }
+
+    const refreshToken = jwtUtils.signRefreshToken({
+      _id: user._id,
+      email: user.email,
+      role: 'customer',
+    });
+
+    setRefreshTokenCookie(res, refreshToken);
+
+    const accessToken = jwtUtils.signAccessToken({
+      _id: user._id,
+      email: user.email,
+      role: 'customer',
+    });
+
+    console.log('cookie was set User', user);
+
+    res.status(200).json({ accessToken, message: 'success', user });
   } catch (err) {
     console.log(err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 const googleLogin = async (req: Request, res: Response) => {
   try {
-    const { accessToken } = req.body;
+    const { googleAccessToken } = req.body;
     const response = await axios.get(
-      `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`,
+      `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${googleAccessToken}`,
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${googleAccessToken}`,
           Accept: 'application/json',
         },
       }
     );
     const { email, given_name } = response.data;
 
-    const userData = await userModel.findOne({ email });
+    let userData = await userModel.findOne({ email });
 
-    if (userData) {
-      // User exists, generate JWT token
-      const token = createJWT({ email: userData.email });
-      const { password, __v, ...user } = userData.toObject(); // eslint-disable-line
-      res.status(200).json({ token, user: user });
-      return;
-    } else {
+    if (!userData) {
       // User does not exist, create a new user with a random password
       const randomPassword = Math.random().toString(36).slice(-8);
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
@@ -120,21 +127,41 @@ const googleLogin = async (req: Request, res: Response) => {
         password: hashedPassword,
       });
       await newUser.save();
-
-      const token = createJWT({ email: newUser.email });
-      const { password, __v, ...user } = newUser.toObject(); // eslint-disable-line
-
-      res.status(201).json({ token, userData });
+      userData = newUser;
     }
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: 'Internal server error' });
+
+    const user = {
+      _id: userData._id,
+      firstName: userData.firstName,
+      email: userData.email,
+      role: 'customer',
+    };
+
+    const refreshToken = jwtUtils.signRefreshToken({
+      _id: user._id,
+      email: user.email,
+      role: 'customer',
+    });
+
+    setRefreshTokenCookie(res, refreshToken);
+
+    const accessToken = jwtUtils.signAccessToken({
+      _id: userData._id,
+      email: userData.email,
+      role: 'customer',
+    });
+
+    res.status(201).json({ accessToken, user });
+  } catch (error) {
+    const newError = error as catchError;
+    res
+      .status(500)
+      .json({ message: 'Internal server error', error: newError.message });
   }
 };
 
 const signup = async (req: Request, res: Response) => {
   try {
-    // Hash the password before creating the user
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = await userModel.create({
       ...req.body,
@@ -142,7 +169,7 @@ const signup = async (req: Request, res: Response) => {
     });
     user.save();
 
-    const token = createJWT({ email: user.email });
+    const token = jwtUtils.signAccessToken({ email: user.email });
     res.status(201).json({ token, message: 'User created successfully', user });
   } catch (err) {
     console.log(err);
@@ -250,7 +277,8 @@ const verifyOtp = async (req: Request, res: Response) => {
     const { email, otp } = req.body;
     console.log(email, otp);
     const otpUser = await otpModel.findOne({ email });
-    if (otp === otpUser?.otp) {
+    console.log('type of otp: ', typeof otpUser?.otp);
+    if (Number(otp) === otpUser?.otp) {
       console.log('OTP verified', otp, ':', otpUser?.otp);
       res.json({ message: 'OTP verified' });
     } else {

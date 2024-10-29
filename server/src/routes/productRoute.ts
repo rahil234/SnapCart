@@ -21,7 +21,7 @@ productRoute.get(
 productRoute.get(
   '/get-products',
   authenticateAndAuthorize(['seller']),
-  productController.getProducts
+  productController.getProductsBySeller
 );
 
 productRoute.patch(
