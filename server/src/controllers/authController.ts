@@ -3,6 +3,7 @@ import jwtUtils from '@/utils/jwtUtils';
 import userModel from '@models/userModel';
 import sellerModel from '@models/sellerModel';
 import adminModel from '@models/adminModel';
+import { clearRefreshTokenCookie } from '@/utils/cookieUtils';
 
 const getUserByRoleAndId = async (role: string, id: string) => {
   switch (role) {
@@ -34,12 +35,19 @@ const refreshToken = async (req: Request, res: Response) => {
   try {
     const user = await getUserByRoleAndId(decodedToken.role, decodedToken._id);
     if (!user) {
+      clearRefreshTokenCookie(res);
       res.status(404).json({ message: 'User not found' });
       return;
     }
 
+    if (user.status === 'Blocked') {
+      clearRefreshTokenCookie(res);
+      res.status(403).json({ message: 'User is blocked' });
+      return;
+    }
+
     const accessToken = jwtUtils.signAccessToken({
-      id: user._id,
+      _id: user._id,
       role: decodedToken.role,
     });
 
@@ -53,6 +61,7 @@ const refreshToken = async (req: Request, res: Response) => {
     res.status(200).json({ accessToken, user: newUser });
   } catch (error) {
     console.error('Error refreshing token:', error);
+    clearRefreshTokenCookie(res);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

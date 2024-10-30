@@ -1,7 +1,11 @@
 import axiosInstance from './axiosInstance';
 
-const getProducts = () => {
-  return axiosInstance.get('/api/product/get-products');
+const getSellerProducts = () => {
+  return axiosInstance.get('/api/product/get-seller-products');
+};
+
+const getAdminProducts = () => {
+  return axiosInstance.get('/api/product/get-admin-products');
 };
 
 const addProduct = (data: FormData) => {
@@ -33,7 +37,8 @@ const getRelatedProduct = (productId: string) => {
 };
 
 export default {
-  getProducts,
+  getSellerProducts,
+  getAdminProducts,
   addProduct,
   editProduct,
   getRelatedProduct,

@@ -22,8 +22,8 @@ app.use(
   })
 );
 
-app.use(express.json());
 app.use(cookieParser());
+app.use(express.json());
 
 app.use(express.static(path.join(__dirname, '/images')));
 

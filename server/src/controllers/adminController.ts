@@ -45,6 +45,11 @@ const adminLogin = async (req: Request, res: Response) => {
     return;
   }
 
+  if (admin.status === 'Blocked') {
+    res.status(403).json({ message: 'Admin is blocked' });
+    return;
+  }
+
   const validPassword = bcrypt.compareSync(password, admin.password);
 
   if (validPassword) {

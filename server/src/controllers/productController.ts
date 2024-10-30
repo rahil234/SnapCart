@@ -124,6 +124,19 @@ const getRelatedProducts = async (req: Request, res: Response) => {
   }
 };
 
+const getProductsByAdmin = async (req: Request, res: Response) => {
+  try {
+    const products = await productModel
+      .find()
+      .populate('category')
+      .populate('subcategory');
+    res.status(200).json(products);
+  } catch (error) {
+    const myError = error as catchError;
+    res.status(400).json({ message: myError.message });
+  }
+};
+
 const getProductsBySeller = async (req: Request, res: Response) => {
   try {
     const products = await productModel
@@ -133,7 +146,6 @@ const getProductsBySeller = async (req: Request, res: Response) => {
     res.status(200).json(products);
   } catch (error) {
     const myError = error as catchError;
-    console.log(error);
     res.status(400).json({ message: myError.message });
   }
 };
@@ -179,6 +191,7 @@ export default {
   editProduct,
   getRelatedProducts,
   getProducts,
+  getProductsByAdmin,
   getProductsBySeller,
   unlistProduct,
   listProduct,

@@ -48,9 +48,18 @@ const LoginCard: React.FC<LoginCardProps> = ({
   };
 
   const handleGoogleLoginSuccess = async (codeResponse: { access_token: string }) => {
-    const response = await userEndpoints.userGoogleLogin(codeResponse.access_token);
-    dispatch(setCredentials({ user: response.data.user, token: response.data.token }));
-    hideLoginOverlay();
+    try{
+      const response = await userEndpoints.userGoogleLogin(codeResponse.access_token);
+      console.log('data', response.data);
+      
+      dispatch(setCredentials({ user: response.data.user, token: response.data.token }));
+      hideLoginOverlay();
+    }
+    catch(error){
+      const newError = error as catchError;
+      console.log("ertyui",newError.response.data);
+      setError(newError.response.data.message);
+    }
   };
 
   const googleLogin = useGoogleLogin({

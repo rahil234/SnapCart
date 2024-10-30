@@ -184,7 +184,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit, setProd
   );
 };
 
-export default function SellerProducts() {
+export default function AdminProducts() {
   const [showAddProduct, setShowAddProduct] = useState<boolean>(false);
   const [showEditProduct, setShowEditProduct] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -193,7 +193,7 @@ export default function SellerProducts() {
 
   useEffect(() => {
     const request = async () => {
-      const { data } = await productEndpoints.getSellerProducts();
+      const { data } = await productEndpoints.getAdminProducts();
       console.log('products', data);
       setProducts(data);
     };

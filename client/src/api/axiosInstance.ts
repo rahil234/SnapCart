@@ -38,18 +38,22 @@ axiosInstance.interceptors.response.use(
   },
   async error => {
     const originalRequest = error.config;
-    if (error.response.status === 403 && !originalRequest._retry) {
+    if (
+      error.response.status === 403 &&
+      error.response.data.message === 'Token expired' &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
       try {
-        console.log('Refreshing token...');
-        
-        const response = await axiosInstance.post('/api/refreshToken',null,{
+        const response = await axiosInstance.post('/api/refreshToken', null, {
           withCredentials: true,
         });
-
-        console.log(response);
         const newToken = response.data.accessToken;
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+        // Update the app state with the new token
+        store.dispatch({ type: 'auth/updateToken', payload: newToken });
+
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         return Promise.reject(refreshError);

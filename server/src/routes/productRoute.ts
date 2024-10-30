@@ -19,7 +19,13 @@ productRoute.get(
 );
 
 productRoute.get(
-  '/get-products',
+  '/get-admin-products',
+  authenticateAndAuthorize(['admin']),
+  productController.getProductsByAdmin
+);
+
+productRoute.get(
+  '/get-seller-products',
   authenticateAndAuthorize(['seller']),
   productController.getProductsBySeller
 );

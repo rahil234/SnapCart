@@ -1,19 +1,15 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
-import { Plus, X, Image as ImageIcon, GripVertical } from 'lucide-react';
-import Cropper, { Point, Area } from 'react-easy-crop';
+import { Plus, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import productEndpoints from '@/api/productEndpoints';
 import categoryEndpoints from '@/api/categoryEndpoints';
 import { Category as OriginalCategory, Subcategory } from 'shared/types';
+import ProductAddTab from './ProductAddTab';
 
 interface Category extends OriginalCategory {
   subcategories: Subcategory[];
@@ -41,75 +37,8 @@ interface FormValues {
   variants: Variant[];
 }
 
-const createImage = (url: string): Promise<HTMLImageElement> =>
-  new Promise((resolve, reject) => {
-    const image = new Image();
-    image.addEventListener('load', () => resolve(image));
-    image.addEventListener('error', (error) => reject(error));
-    image.setAttribute('crossOrigin', 'anonymous');
-    image.src = url;
-  });
 
-const getCroppedImg = async (imageSrc: string, pixelCrop: Area): Promise<Blob> => {
-  const image = await createImage(imageSrc);
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  if (!ctx) {
-    throw new Error('No 2d context');
-  }
-
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
-
-  ctx.drawImage(
-    image,
-    pixelCrop.x,
-    pixelCrop.y,
-    pixelCrop.width,
-    pixelCrop.height,
-    0,
-    0,
-    pixelCrop.width,
-    pixelCrop.height
-  );
-
-  return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        reject(new Error('Canvas is empty'));
-        return;
-      }
-      resolve(blob);
-    }, 'image/jpeg');
-  });
-};
-
-function SortableImage({ image, onRemove }: { image: VariantImage; onRemove: () => void }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: image.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="relative group">
-      <img src={image.preview} alt="Product variant" className="w-24 h-24 object-cover rounded-lg" />
-      <button
-        onClick={onRemove}
-        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <X size={12} />
-      </button>
-      <div className="absolute top-1 left-1 cursor-move">
-        <GripVertical size={16} className="text-white drop-shadow-lg" />
-      </div>
-    </div>
-  );
-}
-
-export default function Component({ onClose }: { onClose: () => void }) {
+function AddProductCard({ onClose }: { onClose: () => void }) {
   const { register, handleSubmit, control, setValue, formState: { errors }, watch } = useForm<FormValues>({
     defaultValues: {
       productName: '',
@@ -127,12 +56,6 @@ export default function Component({ onClose }: { onClose: () => void }) {
   const [activeTab, setActiveTab] = useState(fields[0].id);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategory, setSubcategory] = useState<Subcategory[]>([]);
-  const [cropperOpen, setCropperOpen] = useState(false);
-  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
-  const [currentImage, setCurrentImage] = useState<{ file: File; preview: string } | null>(null);
-  const [currentVariantId, setCurrentVariantId] = useState<string | null>(null);
 
   const category = watch('category');
 
@@ -159,12 +82,6 @@ export default function Component({ onClose }: { onClose: () => void }) {
     }
   }, [category, categories]);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   const addVariant = () => {
     if (fields.length >= 6) {
@@ -173,7 +90,7 @@ export default function Component({ onClose }: { onClose: () => void }) {
     }
     const newVariant = { id: Date.now().toString(), name: `Variant ${fields.length + 1}`, price: '', stock: '', images: [] };
     append(newVariant);
-    setActiveTab(newVariant.id);
+    // setActiveTab(newVariant.id);
   };
 
   const removeVariant = (id: string) => {
@@ -189,78 +106,6 @@ export default function Component({ onClose }: { onClose: () => void }) {
     }
   };
 
-  const handleImageUpload = (variantId: string, files: FileList | null) => {
-    if (files && files.length > 0) {
-      const variant = fields.find(v => v.id === variantId);
-      if (variant && variant.images.length >= 6) {
-        alert('You can only add up to 6 images per variant.');
-        return;
-      }
-
-      const file = files[0];
-      setCurrentImage({ file, preview: URL.createObjectURL(file) });
-      setCurrentVariantId(variantId);
-      setCropperOpen(true);
-    }
-  };
-
-  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
-
-  const handleCropConfirm = async () => {
-    if (croppedAreaPixels && currentImage && currentVariantId) {
-      const croppedImageBlob = await getCroppedImg(currentImage.preview, croppedAreaPixels);
-      const croppedImageFile = new File([croppedImageBlob], currentImage.file.name, { type: 'image/jpeg' });
-
-      const newImage = {
-        id: Date.now().toString(),
-        file: croppedImageFile,
-        preview: URL.createObjectURL(croppedImageBlob)
-      };
-
-      const updatedVariants = fields.map(variant =>
-        variant.id === currentVariantId
-          ? { ...variant, images: [...variant.images, newImage].slice(0, 6) }
-          : variant
-      );
-      setValue('variants', updatedVariants);
-
-      setCropperOpen(false);
-      setCurrentImage(null);
-      setCurrentVariantId(null);
-    }
-  };
-
-  const removeImage = (variantId: string, imageId: string) => {
-    const updatedVariants = fields.map(variant =>
-      variant.id === variantId
-        ? { ...variant, images: variant.images.filter(img => img.id !== imageId) }
-        : variant
-    );
-    setValue('variants', updatedVariants);
-  };
-
-  const handleDragEnd = (event: DragEndEvent, variantId: string) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      const updatedVariants = fields.map(variant => {
-        if (variant.id === variantId) {
-          const oldIndex = variant.images.findIndex(img => img.id === active.id);
-          const newIndex = variant.images.findIndex(img => img.id === over.id);
-
-          const newImages = [...variant.images];
-          const [reorderedItem] = newImages.splice(oldIndex, 1);
-          newImages.splice(newIndex, 0, reorderedItem);
-
-          return { ...variant, images: newImages };
-        }
-        return variant;
-      });
-      setValue('variants', updatedVariants);
-    }
-  };
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
     try {
@@ -296,27 +141,6 @@ export default function Component({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      {cropperOpen && currentImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
-          <div className="bg-white p-4 rounded-lg w-[90vw] max-w-2xl">
-            <div className="relative w-full h-[60vh]">
-              <Cropper
-                image={currentImage.preview}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={onCropComplete}
-              />
-            </div>
-            <div className="mt-4 flex justify-between">
-              <Button onClick={() => setCropperOpen(false)} variant="outline">Cancel</Button>
-              <Button onClick={handleCropConfirm}>Confirm</Button>
-            </div>
-          </div>
-        </div>
-      )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 w-full max-h-[90vh] overflow-y-auto max-w-2xl p-6 bg-white rounded-lg shadow-lg relative">
         <button
           type="button"
@@ -402,7 +226,7 @@ export default function Component({ onClose }: { onClose: () => void }) {
                         removeVariant(variant.id);
                       }}
                     >
-                      <X className="h-3 w-3"/>
+                      <X className="h-3 w-3" />
                     </Button>
                   )}
                 </TabsTrigger>
@@ -415,88 +239,7 @@ export default function Component({ onClose }: { onClose: () => void }) {
             }
           </div>
           {fields.map((variant, index) => (
-            <TabsContent key={variant.id} value={variant.id}>
-              <Card>
-                <CardContent className="space-y-4 pt-6">
-                  <div className="space-y-2">
-                    <Label htmlFor={`variantName-${variant.id}`}>Variant Name</Label>
-                    <Input
-                      id={`variantName-${variant.id}`}
-                      {...register(`variants.${index}.name`, { required: 'Variant Name is required' })}
-                    />
-                    {errors.variants?.[index]?.name && <span className="text-red-500 text-xs">{errors.variants[index].name?.message}</span>}
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor={`variantPrice-${variant.id}`}>Price</Label>
-                      <Input
-                        id={`variantPrice-${variant.id}`}
-                        type="number"
-                        min="1"
-                        {...register(`variants.${index}.price`, { required: 'Price is required', min: { value: 1, message: 'Price must be at least 1' } })}
-                      />
-                      {errors.variants?.[index]?.price && <span className="text-red-500 text-xs">{errors.variants[index].price?.message}</span>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`variantStock-${variant.id}`}>Stock</Label>
-                      <Input
-                        id={`variantStock-${variant.id}`}
-                        type="number"
-                        min="1"
-                        {...register(`variants.${index}.stock`, { required: 'Stock is required', min: { value: 1, message: 'Stock must be at least 1' } })}
-                      />
-                      {errors.variants?.[index]?.stock && <span className="text-red-500 text-xs">{errors.variants[index].stock?.message}</span>}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Images (Max 6)</Label>
-                    <div
-                      className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors"
-                      onDragOver={(e) => e.preventDefault()}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        handleImageUpload(variant.id, e.dataTransfer.files);
-                      }}
-                    >
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        multiple
-                        id={`imageUpload-${variant.id}`}
-                        onChange={(e) => handleImageUpload(variant.id, e.target.files)}
-                        disabled={variant.images.length >= 6}
-                      />
-                      <Label htmlFor={`imageUpload-${variant.id}`} className="cursor-pointer">
-                        <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-                        <span className="mt-2 block text-sm font-medium text-gray-900">
-                          {variant.images.length < 6
-                            ? "Drop image here or click to upload and crop"
-                            : "Maximum number of images reached"}
-                        </span>
-                      </Label>
-                    </div>
-                    <DndContext
-                      sensors={sensors}
-                      collisionDetection={closestCenter}
-                      onDragEnd={(event) => handleDragEnd(event, variant.id)}
-                    >
-                      <SortableContext items={variant.images} strategy={verticalListSortingStrategy}>
-                        <div className="grid grid-cols-4 gap-2 mt-2">
-                          {variant.images.map((image) => (
-                            <SortableImage
-                              key={image.id}
-                              image={image}
-                              onRemove={() => removeImage(variant.id, image.id)}
-                            />
-                          ))}
-                        </div>
-                      </SortableContext>
-                    </DndContext>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+            <ProductAddTab key={index} index={index} variant={variant} setValue={setValue} register={register} errors={errors} fields={fields}/>
           ))}
         </Tabs>
         <Button type="submit" className="w-full">Submit Product</Button>
@@ -504,3 +247,6 @@ export default function Component({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
+
+
+export default AddProductCard;

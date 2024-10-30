@@ -13,7 +13,7 @@ const userGoogleLogin = (access_token: string) => {
       googleAccessToken: access_token,
     },
     {
-      withCredentials: true,
+      withCredentials: true
     }
   );
 };

@@ -9,6 +9,7 @@ import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminBanners from '@/pages/admin/AdminBanners';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 import ComingSoon from '@/pages/admin/ComingSoon';
+import AdminProducts from '@/pages/admin/AdminProducts';
 
 
 const AdminRoutes = [
@@ -31,6 +32,7 @@ const AdminRoutes = [
                     { path: 'seller-management', element: <AdminSellers /> },
                     { path: 'coupons', element: <ComingSoon /> },
                     { path: 'categories', element: <AdminCategory /> },
+                    { path: 'products', element: <AdminProducts /> },
                     { path: 'offers', element: <ComingSoon /> },
                     { path: 'order-lists', element: <ComingSoon /> },
                     { path: 'deals', element: <ComingSoon /> },

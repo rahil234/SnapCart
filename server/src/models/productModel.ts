@@ -35,6 +35,11 @@ const ProductSchema: Schema = new Schema({
     required: true,
     ref: 'Subcategory',
   },
+  seller: {
+    type: mongoose.Types.ObjectId,
+    required: true,
+    ref: 'Seller',
+  },
 });
 
 const productModel = mongoose.model<Product>('Product', ProductSchema);

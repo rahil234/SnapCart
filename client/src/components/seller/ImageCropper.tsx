@@ -75,4 +75,4 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ image, onCropComplete, onCa
   )
 }
 
-export default ImageCropper
+export default ImageCropper;

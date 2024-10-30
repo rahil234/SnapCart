@@ -24,6 +24,6 @@ const UsersSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-const sellerModel = mongoose.model<ISeller>('Sellers', UsersSchema);
+const sellerModel = mongoose.model<ISeller>('Seller', UsersSchema);
 
 export default sellerModel;

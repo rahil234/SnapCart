@@ -25,6 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({ adminLogout }) => (
         { name: 'Sellers', path: '/admin/seller-management' },
         { name: 'Banners', path: '/admin/banners' },
         { name: 'Categories', path: '/admin/categories' },
+        { name: 'Products', path: '/admin/products' },
         { name: 'Coupons', path: '/admin/coupons' },
         { name: 'Offers', path: '/admin/offers' },
         { name: 'Deals', path: '/admin/deals' },

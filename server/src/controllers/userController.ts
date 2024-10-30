@@ -3,7 +3,10 @@ import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import jwtUtils from '@/utils/jwtUtils';
-import { setRefreshTokenCookie } from '@/utils/cookieUtils';
+import {
+  clearRefreshTokenCookie,
+  setRefreshTokenCookie,
+} from '@/utils/cookieUtils';
 import otpModel from '@models/otpModel';
 import userModel from '@models/userModel';
 import productModel from '@models/productModel';
@@ -128,6 +131,10 @@ const googleLogin = async (req: Request, res: Response) => {
       });
       await newUser.save();
       userData = newUser;
+    } else if (userData.status === 'Blocked') {
+      clearRefreshTokenCookie(res);
+      res.status(403).json({ message: 'User is blocked' });
+      return;
     }
 
     const user = {
