@@ -5,8 +5,7 @@
   "scripts": {
     "build": "tsc && tsc-alias",
     "start": "node dist/server/src/.",
-    "dev1": "nodemon",
-    "dev": "ts-node-dev --files -r tsconfig-paths/register src/index.ts",
+    "dev": "nodemon",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -7,8 +7,9 @@ import productEndpoints from '@/api/productEndpoints';
 import ProductCard from '@/components/user/ProductCard';
 import { Product } from 'shared/types';
 import { ImportMeta } from 'shared/types';
+import { Button } from '@/components/ui/button';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL ;
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL;
 
 
 const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
@@ -93,8 +94,8 @@ const ProductPage: React.FC = () => {
   useEffect(() => {
     if (product && product.subcategory?._id) {
       (async () => {
-          const response = await productEndpoints.getRelatedProduct(product._id);
-          setRelatedProducts(response.data);
+        const response = await productEndpoints.getRelatedProduct(product._id);
+        setRelatedProducts(response.data);
       })();
     }
   }, [product]);
@@ -111,6 +112,11 @@ const ProductPage: React.FC = () => {
     ));
   };
 
+  const calculateDiscount = (originalPrice: number, discount: number) => {
+    return Math.floor(originalPrice - (originalPrice * discount) / 100);
+  };
+
+
   // const handleVariantChange = (variantName: string, option: string) => {
   //   setSelectedVariants(prev => ({ ...prev, [variantName]: option }));
   // };
@@ -124,6 +130,10 @@ const ProductPage: React.FC = () => {
         <Skeleton />
       </div>
     );
+  }
+
+  function handleAddToCart(): void {
+    console.log('Add to cart clicked');
   }
 
   return (
@@ -164,8 +174,9 @@ const ProductPage: React.FC = () => {
                   key={index}
                   src={imageUrl + image}
                   alt={`${product.name} ${index + 1}`}
-                  className="w-20 h-20 object-cover cursor-pointer border-2 border-transparent hover:border-green-500"
+                  className={`w-20 h-20 object-cover cursor-pointer border-2 ${mainImage === image ? 'border-green-500' : 'border-transparent'} hover:border-green-500`}
                   onClick={() => setMainImage(image)}
+                  onMouseEnter={() => setMainImage(image)}
                 />
               ))}
             </div>
@@ -175,16 +186,38 @@ const ProductPage: React.FC = () => {
           <div className="md:w-1/2">
             <h2 className="text-2xl font-semibold mb-2">{product.name}</h2>
             <p className="text-gray-600 mb-4">{product.quantity}</p>
-            <div className="flex items-center mb-4">
-              <p className="text-3xl font-bold text-green-600 mr-2">
+
+            {/* Product price */}
+            {product.discount ? (
+              <div className="flex items-center mb-1">
+                <p className="text-3xl font-bold text-green-600 mr-2">
+                  ₹{calculateDiscount(product.price, product.discount)}
+                </p>
+                <p className="text-xl text-gray-500 line-through mr-2">
+                  ₹{product.price}
+                </p>
+                <p className="text-sm text-green-600 font-semibold">
+                  {product.discount}% off
+                </p>
+              </div>) : (
+              <p className="text-3xl font-bold text-green-600 mb-1">
                 ₹{product.price}
-              </p>
-              <p className="text-xl text-gray-500 line-through mr-2">
-                ₹{product.price}
-              </p>
-              <p className="text-sm text-green-600 font-semibold">
-                {product.price}% off
-              </p>
+                </p>
+              )
+            }
+
+            {/* Product stock */}
+            <div className='py-1'>
+              {product.stock && product.stock > 0 ? (
+                product.stock < 10 ? (
+                  <p className="text-yellow-600">Only {product.stock} left in stock</p>
+                ) : (
+                  <p className="text-green-600">In stock</p>
+                )
+              ) : (
+                <p className="text-red-600">Out of stock</p>
+              )}
+
             </div>
 
             {/* Product Variants */}
@@ -217,12 +250,14 @@ const ProductPage: React.FC = () => {
             ))}
 
             <div className="flex space-x-4 mb-6">
-              <button className="bg-green-500 text-white px-6 py-2 rounded-full">
+              <Button className="bg-[#0E8320] hover:bg-[#2ea940] text-white px-6 py-2 rounded-full">
                 Buy Now
-              </button>
-              <button className="border border-green-500 text-green-500 px-6 py-2 rounded-full">
+              </Button>
+              <Button className="border border-[#0E8320] bg-white hover:bg-white hover:border-[#0E8320a6] hover:text-[#0E8320a6] text-[#0E8320] px-6 py-2 rounded-full"
+              onClick={handleAddToCart}
+              >
                 Add to Cart
-              </button>
+              </Button>
             </div>
             <p className="text-sm text-gray-600 mb-4">
               Estimated delivery time is 3:00PM - 24 min
@@ -261,7 +296,8 @@ const ProductPage: React.FC = () => {
         </section>
 
         {/* Related products */}
-        <section className="mt-12">
+        {relatedProducts.length > 0 &&
+          <section className="mt-12">
           <h3 className="text-2xl text-center font-semibold mb-4">You may also like</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {relatedProducts.map(product => (
@@ -269,6 +305,7 @@ const ProductPage: React.FC = () => {
             ))}
           </div>
         </section>
+          }
 
         {/* Top categories */}
         {/* <section className="mt-12">

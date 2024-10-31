@@ -54,6 +54,7 @@ const refreshToken = async (req: Request, res: Response) => {
     const newUser = {
       _id: user._id,
       firstName: user.firstName,
+      profilePicture: user.profilePicture,
       email: user.email,
       role: decodedToken.role,
     };

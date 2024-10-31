@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 const authenticateAndAuthorize = (
-  roles: Array<'admin' | 'user' | 'seller'> = []
+  roles: Array<'admin' | 'customer' | 'seller'> = []
 ) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split(' ')[1];

@@ -1,85 +1,182 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Loader2, Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import userEndpoints from '@/api/userEndpoints'
+import { ICart, ImportMeta } from 'shared/types'
 
-const initialCartData = [
-  { id: 1, name: 'Nestle Fruits Cereal', price: '₹120', quantity: 1 },
-  { id: 2, name: 'Amul Cheese', price: '₹60', quantity: 1 },
-];
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl
 
-const CartPage: React.FC = () => {
-  const [cartData, setCartData] = useState(initialCartData);
+export default function CartPage() {
+  const [cartData, setCartData] = useState<ICart | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const handleIncreaseQuantity = (id: number) => {
-    setCartData(prevCartData =>
-      prevCartData.map(item =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
-    // Plan: Make API request to update quantity on the server
-  };
+  useEffect(() => {
+    const fetchCartData = async () => {
+      try {
+        const response = await userEndpoints.fetchCartData()
+        setCartData(response.data.cart)
+      } catch (error) {
+        console.error('Error fetching cart data:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchCartData()
+  }, [])
 
-  const handleDecreaseQuantity = (id: number) => {
-    setCartData(prevCartData =>
-      prevCartData.map(item =>
-        item.id === id && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-    );
-    // Plan: Make API request to update quantity on the server
-  };
+  useEffect(() => {
+    if (cartData) {
+      const newTotalPrice = cartData.items.reduce((total, item) => {
+        return total + item.productId.price * item.quantity
+      }, 0)
+      setCartData({ ...cartData, totalPrice: newTotalPrice })
+    }
+  }, [cartData?.items])
 
-  const handleRemoveItem = (id: number) => {
-    setCartData(prevCartData => prevCartData.filter(item => item.id !== id));
-    // Plan: Make API request to remove item from the server
-  };
+  const handleIncreaseQuantity = async (productId: string) => {
+    if (!cartData) return
+    setCartData({
+      ...cartData,
+      items: cartData.items.map((item) =>
+        item.productId._id === productId ? { ...item, quantity: item.quantity + 1 } : item
+      ),
+    })
+  }
 
-  const totalPrice = cartData.reduce((total, item) => {
-    const price = parseInt(item.price.replace('₹', ''), 10);
-    return total + price * item.quantity;
-  }, 0);
+  const handleDecreaseQuantity = async (productId: string) => {
+    if (!cartData) return
+    const item = cartData.items.find((item) => item.productId._id === productId)
+    if (item && item.quantity === 1) {
+      handleRemoveItem(productId)
+    } else {
+      setCartData({
+        ...cartData,
+        items: cartData.items.map((item) =>
+          item.productId._id === productId ? { ...item, quantity: item.quantity - 1 } : item
+        ),
+      })
+    }
+  }
+
+  const handleRemoveItem = async (productId: string) => {
+    if (!cartData) return
+    setCartData({
+      ...cartData,
+      items: cartData.items.filter((item) => item.productId._id !== productId),
+    })
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    )
+  }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
-      {cartData.length === 0 ? (
-        <p>Your cart is currently empty.</p>
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-semibold mb-6">Shopping Cart</h1>
+      {!cartData || cartData.items.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center h-64">
+            <ShoppingCart className="w-16 h-16 text-gray-400 mb-4" />
+            <p className="text-xl text-gray-500">Your cart is currently empty.</p>
+            <Button className="mt-4">Continue Shopping</Button>
+          </CardContent>
+        </Card>
       ) : (
-        <table className="min-w-full bg-white">
-          <thead>
-            <tr>
-              <th className="py-2">Item</th>
-              <th className="py-2">Price</th>
-              <th className="py-2">Quantity</th>
-              <th className="py-2">Total</th>
-              <th className="py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cartData.map((item, index) => (
-              <tr key={index} className="text-center">
-                <td className="py-2">{item.name}</td>
-                <td className="py-2">{item.price}</td>
-                <td className="py-2">{item.quantity}</td>
-                <td className="py-2">₹{parseInt(item.price.replace('₹', ''), 10) * item.quantity}</td>
-                <td className="py-2">
-                  <button className="px-2" onClick={() => handleIncreaseQuantity(item.id)}>+</button>
-                  <button className="px-2" onClick={() => handleDecreaseQuantity(item.id)}>-</button>
-                  <button className="px-2 text-red-500" onClick={() => handleRemoveItem(item.id)}>Remove</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="md:col-span-2">
+            <AnimatePresence>
+              {cartData.items.map((item) => (
+                <motion.div
+                  key={item.productId._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Card className="mb-4">
+                    <CardContent className="flex items-center p-4">
+                      <img
+                        src={imageUrl + item.productId.images[0]}
+                        alt={item.productId.name}
+                        className="w-24 h-24 object-cover rounded-md mr-4"
+                      />
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold">{item.productId.name}</h3>
+                        <p className="text-sm text-gray-500">Price: ₹{item.productId.price}</p>
+                        <div className="flex items-center mt-2">
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => handleDecreaseQuantity(item.productId._id)}
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                          <span className="mx-2 min-w-[2ch] text-center">{item.quantity}</span>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            onClick={() => handleIncreaseQuantity(item.productId._id)}
+                            aria-label="Increase quantity"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-semibold">₹{item.productId.price * item.quantity}</p>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="mt-2"
+                          onClick={() => handleRemoveItem(item.productId._id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Remove
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Order Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>₹{cartData.totalPrice}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between font-semibold">
+                    <span>Total</span>
+                    <span>₹{cartData.totalPrice}</span>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button className="w-full">Proceed to Checkout</Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </div>
       )}
-      <div className="flex justify-between items-center mt-4">
-        <span className="text-xl font-bold">Total: ₹{totalPrice}</span>
-        <Button type="button" className="bg-green-500 text-white">
-          Checkout
-        </Button>
-      </div>
     </div>
-  );
-};
-
-export default CartPage;
+  )
+}

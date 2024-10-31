@@ -47,18 +47,15 @@ const getCroppedImg = async (imageSrc: string, pixelCrop: Area): Promise<Blob> =
 };
 
 interface AddImageCropperProps {
-    currentImageIndex: number;
-    currentVariantId: string | null;
-    currentImages: File[];
-    setCurrentImageIndex: any; //eslint-disable-line
-    setCropperOpen: any; //eslint-disable-line
-    fields: any; //eslint-disable-line
-    setValue: any; //eslint-disable-line
-    setCurrentImages: any; //eslint-disable-line
-    setCurrentVariantId: any; //eslint-disable-line
+    pushCroppedImage: any, //eslint-disable-line 
+    currentImageIndex: any, //eslint-disable-line
+    currentVariantId: number
+    setCurrentImageIndex: any, //eslint-disable-line
+    currentImages: File[],
+    onClose: () => void
 }
 
-const AddImageCropper: React.FC<AddImageCropperProps> = ({ currentImageIndex, currentVariantId, currentImages, fields, setValue, setCurrentImageIndex, setCropperOpen, setCurrentImages, setCurrentVariantId }) => {
+const AddImageCropper: React.FC<AddImageCropperProps> = ({ pushCroppedImage, setCurrentImageIndex, currentImages, currentImageIndex, currentVariantId, onClose }) => {
     const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -68,36 +65,29 @@ const AddImageCropper: React.FC<AddImageCropperProps> = ({ currentImageIndex, cu
     }, []);
 
     const handleCropConfirm = async () => {
+
+
         if (croppedAreaPixels && currentImages.length > 0 && currentVariantId) {
             const currentFile = currentImages[currentImageIndex];
             const croppedImageBlob = await getCroppedImg(URL.createObjectURL(currentFile), croppedAreaPixels);
             const croppedImageFile = new File([croppedImageBlob], `cropped_image_${Date.now()}.jpg`, { type: 'image/jpeg' });
 
-            const newImage = {
-                id: Date.now().toString(),
-                file: croppedImageFile,
-                preview: URL.createObjectURL(croppedImageBlob)
-            };
-
-            const variantIndex = fields.findIndex((v: any) => v.id === currentVariantId); //eslint-disable-line
-            const updatedImages = [...fields[variantIndex].images, newImage].slice(0, 6);
-
-            setValue(`variants.${variantIndex}.images`, updatedImages);
+            pushCroppedImage({ id: currentImageIndex +1 , file: croppedImageFile, preview: URL.createObjectURL(croppedImageFile) });
 
             if (currentImageIndex < currentImages.length - 1) {
                 setCurrentImageIndex(currentImageIndex + 1);
                 setCrop({ x: 0, y: 0 });
                 setZoom(1);
-            } else {
-                setCropperOpen(false);
-                setCurrentImages([]);
-                setCurrentImageIndex(0);
-                setCurrentVariantId(null);
             }
+
+        }
+
+        if (currentImageIndex === currentImages.length - 1) {
+            onClose();
         }
     };
 
-    return (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
+    return currentImages.length > 0 && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
         <div className="bg-white p-4 rounded-lg w-[90vw] max-w-2xl">
             <div className="relative w-full h-[60vh]">
                 <Cropper
@@ -113,8 +103,8 @@ const AddImageCropper: React.FC<AddImageCropperProps> = ({ currentImageIndex, cu
             <div className="mt-4 flex justify-between items-center">
                 <span>Image {currentImageIndex + 1} of {currentImages.length}</span>
                 <div>
-                    <Button onClick={() => setCropperOpen(false)} variant="outline" className="mr-2">Cancel</Button>
-                    <Button onClick={handleCropConfirm}>
+                    <Button type='button' onClick={() => onClose()} variant="outline" className="mr-2">Cancel</Button>
+                    <Button  type='button' onClick={handleCropConfirm}>
                         {currentImageIndex === currentImages.length - 1 ? 'Finish' : 'Next'}
                     </Button>
                 </div>

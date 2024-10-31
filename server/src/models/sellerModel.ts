@@ -8,6 +8,7 @@ export interface ISeller extends Document {
   phoneNo: number | null;
   email: string;
   password: string;
+  profilePicture: string | null;
   status: 'Active' | 'Blocked';
 }
 
@@ -19,6 +20,7 @@ const UsersSchema: Schema = new Schema(
     phoneNo: Number,
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    profilePicture: String,
     status: { type: String, enum: ['Active', 'Blocked'], default: 'Active' }, // Add status field with default value
   },
   { timestamps: true }

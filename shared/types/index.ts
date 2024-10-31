@@ -28,10 +28,12 @@ export interface Product {
   subcategory: { _id: string; name: string };
   price: number;
   quantity: string;
+  variantName?: string;
   stock?: number;
   images: string[];
   description?: string;
   tags?: string[];
+  discount?: number;
   status: 'Active' | 'Inactive';
   variants?: {
     _id: string;
@@ -69,7 +71,7 @@ export interface Subcategory {
   status: 'Active' | 'Blocked';
 }
 
-export type UserRole = 'admin' | 'user' | 'seller';
+export type UserRole = 'admin' | 'customer' | 'seller';
 
 export interface User {
   id: string;
@@ -78,6 +80,7 @@ export interface User {
   email: string;
   DOB: string;
   role: UserRole;
+  profilePicture: string;
 }
 
 export interface Seller {
@@ -90,6 +93,19 @@ export interface Seller {
 export interface Credentials {
   email: string;
   password: string;
+}
+
+export interface ICart {
+  _id: string;
+  userId: string;
+  items: {
+    productId: Product ;
+    quantity: number;
+  }[];
+  totalPrice: number; 
+  createdAt: Date;
+  updatedAt: Date;
+  status: 'loading' | 'idle' | 'succeeded' | 'failed';
 }
 
 export interface ApiResponse<T> {

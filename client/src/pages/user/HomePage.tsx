@@ -13,7 +13,7 @@ interface Products {
   products: Product[];
 }
 
-export default function Component() {
+function HomePage() {
   const [data, setData] = useState<Products[]>([]);
   const { isCartOverlayOpen } = useContext(UIContext);
   const [banners, setBanners] = useState<{ _id: number; image: string; order: number }[]>([]);
@@ -24,7 +24,6 @@ export default function Component() {
     // Fetch products
     userEndpoints.fetchProducts().then(response => {
       setData(response.data);
-      console.log(response.data);
     });
 
     // Fetch banners
@@ -84,3 +83,5 @@ export default function Component() {
     </div>
   );
 }
+
+export default HomePage;

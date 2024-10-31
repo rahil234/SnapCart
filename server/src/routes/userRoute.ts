@@ -1,26 +1,47 @@
 import { Router } from 'express';
-import user from '../controllers/userController';
+import userController from '../controllers/userController';
+import authenticateAndAuthorize from '@/middleware/authenticateAndAuthorize';
+import upload from '@/middleware/upload';
 
 const userRoute = Router();
 
-userRoute.post('/login', user.login);
+userRoute.post('/login', userController.login);
 
-userRoute.post('/google-login', user.googleLogin);
+userRoute.post('/google-login', userController.googleLogin);
 
-userRoute.post('/signup', user.signup);
+userRoute.post('/signup', userController.signup);
 
-userRoute.get('/products', user.getProducts);
+userRoute.get('/products', userController.getProducts);
 
-userRoute.get('/product/:productId', user.getProduct);
+userRoute.get('/product/:productId', userController.getProduct);
 
-userRoute.post('/send-otp', user.verifySignUp);
+userRoute.post('/send-otp', userController.verifySignUp);
 
-userRoute.post('/verify-otp', user.verifyOtp);
+userRoute.post('/verify-otp', userController.verifyOtp);
 
-userRoute.post('/forgot-password', user.forgotPassword);
+userRoute.post('/forgot-password', userController.forgotPassword);
 
-userRoute.patch('/:userId/block', user.blockUser);
+userRoute.post(
+  '/upload-profile-picture',
+  authenticateAndAuthorize(['customer']),
+  upload.single('file'),
+  userController.uploadProfilePicture
+);
 
-userRoute.patch('/:userId/allow', user.allowUser);
+userRoute.patch('/:userId/block', userController.blockUser);
+
+userRoute.patch('/:userId/allow', userController.allowUser);
+
+userRoute.get(
+  '/shopping-cart',
+  authenticateAndAuthorize(['customer']),
+  userController.getCart
+);
+
+userRoute.post(
+  '/shopping-cart',
+  authenticateAndAuthorize(['customer']),
+  userController.addToCart
+);
 
 export default userRoute;

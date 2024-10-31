@@ -12,6 +12,7 @@ import userModel from '@models/userModel';
 import productModel from '@models/productModel';
 import categoryModel from '@models/categoryModel';
 import { catchError } from '@shared/types';
+import cartModel from '@models/cartModel';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -141,6 +142,7 @@ const googleLogin = async (req: Request, res: Response) => {
       _id: userData._id,
       firstName: userData.firstName,
       email: userData.email,
+      profilePicture: userData.profilePicture,
       role: 'customer',
     };
 
@@ -298,6 +300,27 @@ const verifyOtp = async (req: Request, res: Response) => {
   }
 };
 
+const uploadProfilePicture = async (req: Request, res: Response) => {
+  console.log(req.file);
+
+  try {
+    if (!req.file) {
+      res.status(400).json({ message: 'Profile picture is required' });
+      return;
+    }
+
+    const user = await userModel.findByIdAndUpdate(req.user?._id, {
+      $set: { profilePicture: req.file.filename },
+    });
+
+    res
+      .status(200)
+      .json({ message: 'Profile picture uploaded successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+};
+
 const blockUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
@@ -336,6 +359,71 @@ const allowUser = async (req: Request, res: Response) => {
   }
 };
 
+const getCart = async (req: Request, res: Response) => {
+  try {
+    const cart = await cartModel.findOne({ userId: req.user?._id }).populate({
+      path: 'items.productId',
+      select: 'name price images',
+      model: 'Product',
+    });
+    res.status(200).json({ message: 'success', cart });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+};
+
+const addToCart = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.body;
+
+    const user = await userModel.findById(req.user?._id);
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    const product = await productModel.findById(productId);
+
+    if (!product) {
+      res.status(404).json({ message: 'Product not found' });
+      return;
+    }
+
+    const cart = await cartModel.findOne({ userId: user._id });
+
+    if (cart) {
+      const existingItem = cart.items.find(
+        (item) => item.productId === product._id
+      );
+
+      if (existingItem) {
+        console.log('existingItem', existingItem);
+        existingItem.quantity += 1;
+        await cartModel.updateOne(
+          { userId: user._id },
+          { items: existingItem }
+        );
+      } else {
+        cart.items.push({ productId: product._id, quantity: 1 });
+      }
+      cart.totalPrice += product.price;
+    } else {
+      const newCart = new cartModel({
+        userId: user._id,
+        items: [{ productId: product._id, quantity: 1 }],
+        totalPrice: product.price,
+      });
+
+      await newCart.save();
+    }
+
+    res.status(200).json({ message: 'Product added to cart', quantity: 2 });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+};
+
 export default {
   login,
   googleLogin,
@@ -345,6 +433,9 @@ export default {
   verifySignUp,
   forgotPassword,
   verifyOtp,
+  uploadProfilePicture,
   blockUser,
   allowUser,
+  getCart,
+  addToCart,
 };

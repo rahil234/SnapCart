@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { Plus, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ interface Category extends OriginalCategory {
 }
 
 interface Variant {
-  id: string;
+  id: number;
   name: string;
   price: string;
   stock: string;
@@ -39,21 +39,13 @@ interface FormValues {
 
 
 function AddProductCard({ onClose }: { onClose: () => void }) {
-  const { register, handleSubmit, control, setValue, formState: { errors }, watch } = useForm<FormValues>({
-    defaultValues: {
-      productName: '',
-      description: '',
-      category: '',
-      variants: [{ id: '1', name: 'Variant 1', price: '', stock: '', images: [] }]
-    }
-  });
+  const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<FormValues>();
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'variants'
-  });
 
-  const [activeTab, setActiveTab] = useState(fields[0].id);
+  const defaultVariant = { id: 1, name: `Variant 1`, price: '', stock: '', images: [] };
+
+  const [variants, setVariants] = useState<Variant[]>([defaultVariant]);
+  const [activeTab, setActiveTab] = useState(defaultVariant.id);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategory, setSubcategory] = useState<Subcategory[]>([]);
 
@@ -84,30 +76,44 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
 
 
   const addVariant = () => {
-    if (fields.length >= 6) {
+    if (variants.length >= 6) {
       alert('You can only add up to 6 variants.');
       return;
     }
-    const newVariant = { id: Date.now().toString(), name: `Variant ${fields.length + 1}`, price: '', stock: '', images: [] };
-    append(newVariant);
-    // setActiveTab(newVariant.id);
+    const newVariant = { id: variants.length + 1, name: `Variant ${variants.length + 1}`, price: '', stock: '', images: [] };
+    setVariants(prev => [...prev, newVariant]);
+    setActiveTab(newVariant.id);
   };
 
-  const removeVariant = (id: string) => {
-    if (fields.length > 1) {
-      const index = fields.findIndex((variant) => variant.id === id);
+  const removeVariant = (id: number) => {
 
-      if (activeTab === id) {
-        const newIndex = index > 0 ? index - 1 : 1;
-        setActiveTab(fields[newIndex].id);
-      }
+    setActiveTab(currentActiveTab => {
+      if (id === variants.length) return variants.length - 2;
+      console.log("currentActiveTab", currentActiveTab);
+      if (currentActiveTab === 1) return 1;
+      if (variants.length === 2) return 1;
+      if (id === 1) return 1;
 
-      remove(index);
-    }
+      if (currentActiveTab !== id && variants.length > 2) return currentActiveTab;
+
+      if (currentActiveTab === id && variants.length > 2) return currentActiveTab - 1;
+      if (currentActiveTab > id) return currentActiveTab - 1;
+      return currentActiveTab - 1
+    });
+
+    setVariants(prevVariants => {
+      const updatedVariants = prevVariants
+        .filter(variant => variant.id !== id)
+        .map((variant, index) => ({ ...variant, id: index + 1 }));
+
+      return updatedVariants;
+    });
   };
 
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
+    console.log("data", data);
+
     try {
       const formData = new FormData();
       formData.append('productName', data.productName);
@@ -120,12 +126,18 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
         formData.append(`variants[${index}][price]`, variant.price);
         formData.append(`variants[${index}][stock]`, variant.stock);
 
-        variant.images.forEach((image, imgIndex) => {
-          formData.append(`variants[${index}][images][${imgIndex}]`, image.file);
+        variants.map((variant) => {
+          variant.images.forEach((image, imgIndex) => {
+            formData.append(`variants[${index}][images][${imgIndex}]`, image.file);
+          });
         });
       });
-
       const response = await productEndpoints.addProduct(formData);
+
+      formData.forEach((value, key) => {
+        console.log(key, value);
+      })
+
 
       if (response.status === 201) {
         alert('Product added successfully!');
@@ -201,20 +213,21 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
             }
           </div>
         }
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={String(activeTab)} className="w-full">
           <div className="flex items-center justify-between mb-4">
             <Label>Variants</Label>
           </div>
           <div className="flex space-x-2 overflow-x-auto p-2 items-center justify-center">
             <TabsList className="flex-grow flex ps-14 space-x-2 bg-transparent h-22">
-              {fields.map((variant) => (
+              {variants.map((variant) => (
                 <TabsTrigger
                   key={variant.id}
-                  value={variant.id}
+                  value={String(variant.id)}
                   className="relative flex flex-col items-center justify-center rounded-lg border-2 data-[state=active]:border-primary"
+                  onClick={() => setActiveTab(variant.id)}
                 >
-                  <span className="text-sm font-medium p-2 py-6">{variant.name}</span>
-                  {fields.length > 1 && (
+                  <span className="text-sm font-medium p-2 py-6">{`Variant ${variant.id}`}</span>
+                  {variants.length > 1 && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -232,19 +245,27 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
                 </TabsTrigger>
               ))}
             </TabsList>
-            {fields.length < 6 &&
+            {variants.length < 6 &&
               <Button type="button" onClick={addVariant} size="sm" className="shrink-0 h-24 w-24">
                 <Plus className="h-6 w-6" />
               </Button>
             }
           </div>
-          {fields.map((variant, index) => (
-            <ProductAddTab key={index} index={index} variant={variant} setValue={setValue} register={register} errors={errors} fields={fields}/>
-          ))}
+          {
+            activeTab && variants.find(variant => variant.id === activeTab) &&
+            <ProductAddTab
+              variant={variants.find(variant => variant.id === activeTab)!}
+              setVariants={setVariants}
+              setValue={setValue}
+              register={register}
+              errors={errors}
+              variants={variants}
+            />
+          }
         </Tabs>
         <Button type="submit" className="w-full">Submit Product</Button>
       </form>
-    </div>
+    </div >
   );
 }
 

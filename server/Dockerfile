@@ -1,5 +1,5 @@
 # Use the official Ubuntu image as the base
-FROM node
+FROM node:22
 
 # Set the working directory
 WORKDIR /app
