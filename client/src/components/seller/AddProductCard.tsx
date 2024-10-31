@@ -16,7 +16,7 @@ interface Category extends OriginalCategory {
 }
 
 interface Variant {
-  id: number;
+  id: string;
   name: string;
   price: string;
   stock: string;
@@ -39,10 +39,9 @@ interface FormValues {
 
 
 function AddProductCard({ onClose }: { onClose: () => void }) {
-  const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<FormValues>();
+  const { register, handleSubmit, setValue, clearErrors, formState: { errors }, watch } = useForm<FormValues>();
 
-
-  const defaultVariant = { id: 1, name: `Variant 1`, price: '', stock: '', images: [] };
+  const defaultVariant = { id: '0', name: `Variant 0`, price: '', stock: '', images: [] };
 
   const [variants, setVariants] = useState<Variant[]>([defaultVariant]);
   const [activeTab, setActiveTab] = useState(defaultVariant.id);
@@ -80,36 +79,58 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
       alert('You can only add up to 6 variants.');
       return;
     }
-    const newVariant = { id: variants.length + 1, name: `Variant ${variants.length + 1}`, price: '', stock: '', images: [] };
+    const newVariant = { id: String(variants.length), name: `Variant ${variants.length}`, price: '', stock: '', images: [] };
     setVariants(prev => [...prev, newVariant]);
     setActiveTab(newVariant.id);
   };
 
-  const removeVariant = (id: number) => {
+  // const removeVariant = (id: string) => {
 
-    setActiveTab(currentActiveTab => {
-      if (id === variants.length) return variants.length - 2;
-      console.log("currentActiveTab", currentActiveTab);
-      if (currentActiveTab === 1) return 1;
-      if (variants.length === 2) return 1;
-      if (id === 1) return 1;
+  //   setActiveTab('0');
+  // setActiveTab(currentActiveTab => {
+  //   if (id === variants.length) return variants.length - 2;
+  //   console.log("currentActiveTab", currentActiveTab);
+  //   if (currentActiveTab === 1) return 1;
+  //   if (variants.length === 2) return 1;
+  //   if (id === 1) return 1;
 
-      if (currentActiveTab !== id && variants.length > 2) return currentActiveTab;
+  //   if (currentActiveTab !== id && variants.length > 2) return currentActiveTab;
 
-      if (currentActiveTab === id && variants.length > 2) return currentActiveTab - 1;
-      if (currentActiveTab > id) return currentActiveTab - 1;
-      return currentActiveTab - 1
-    });
+  //   if (currentActiveTab === id && variants.length > 2) return currentActiveTab - 1;
+  //   if (currentActiveTab > id) return currentActiveTab - 1;
+  //   return currentActiveTab - 1
+  // });
 
+  //   setVariants(prevVariants => {
+  //     const updatedVariants = prevVariants
+  //       .filter(variant => variant.id !== id)
+  //       // .map((variant, index) => ({ ...variant, id: String(index) }));
+
+  //     return updatedVariants;
+  //   });
+  // };
+
+  const removeVariant = (id: string) => {
+    console.log("removeVariantId", id);
+    setActiveTab('0');
+    
+    // Update variants state
     setVariants(prevVariants => {
       const updatedVariants = prevVariants
         .filter(variant => variant.id !== id)
-        .map((variant, index) => ({ ...variant, id: index + 1 }));
+        .map((variant, index) => ({ ...variant, id: String(index) }));
+
+      const maxIndex = prevVariants.length;
+      for (let i = 0; i < maxIndex; i++) {
+        setValue(`variants.${i}.name`, '');
+        setValue(`variants.${i}.price`, '');
+        setValue(`variants.${i}.stock`, '');
+        clearErrors(`variants.${i}`);
+      }
 
       return updatedVariants;
     });
   };
-
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
     console.log("data", data);
@@ -121,27 +142,28 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
       formData.append('category', data.category);
       formData.append('subcategory', data.subcategory);
 
-      data.variants.forEach((variant, index) => {
-        formData.append(`variants[${index}][name]`, variant.name);
-        formData.append(`variants[${index}][price]`, variant.price);
-        formData.append(`variants[${index}][stock]`, variant.stock);
+      variants.forEach((_variant, index) => {
+        formData.append(`variants[${index}][name]`, data.variants[index].name);
+        formData.append(`variants[${index}][price]`, data.variants[index].price);
+        formData.append(`variants[${index}][stock]`, data.variants[index].stock);
 
-        variants.map((variant) => {
-          variant.images.forEach((image, imgIndex) => {
-            formData.append(`variants[${index}][images][${imgIndex}]`, image.file);
-          });
+      });
+      variants.map((variant, index) => {
+        variant.images.forEach((image, imgIndex) => {
+          formData.append(`variants[${index}][images][${imgIndex}]`, image.file);
         });
       });
-      const response = await productEndpoints.addProduct(formData);
+      // if(variant.id==index) console.log("variant6", image);
 
       formData.forEach((value, key) => {
         console.log(key, value);
       })
 
+      const response = await productEndpoints.addProduct(formData);
 
       if (response.status === 201) {
-        alert('Product added successfully!');
-        onClose();
+        // alert('Product added successfully!');
+        // onClose();
       } else {
         alert('Failed to add product. Please try again.');
       }
@@ -224,7 +246,10 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
                   key={variant.id}
                   value={String(variant.id)}
                   className="relative flex flex-col items-center justify-center rounded-lg border-2 data-[state=active]:border-primary"
-                  onClick={() => setActiveTab(variant.id)}
+                  onClick={() => {
+                    console.log("variant.id", variant.id);
+                    setActiveTab(variant.id)
+                  }}
                 >
                   <span className="text-sm font-medium p-2 py-6">{`Variant ${variant.id}`}</span>
                   {variants.length > 1 && (

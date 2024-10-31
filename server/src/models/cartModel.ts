@@ -1,14 +1,13 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 export interface ICart extends Document {
+  _id: string;
   userId: string;
-  items: {
+  items: Array<{
     productId: string;
     quantity: number;
-  }[];
+  }>;
   totalPrice: number;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 const CartSchema: Schema = new Schema(

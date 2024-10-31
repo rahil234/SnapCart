@@ -48,7 +48,7 @@ const getCroppedImg = async (imageSrc: string, pixelCrop: Area): Promise<Blob> =
 
 interface AddImageCropperProps {
     pushCroppedImage: any, //eslint-disable-line 
-    currentImageIndex: any, //eslint-disable-line
+    currentImageIndex: number,
     currentVariantId: number
     setCurrentImageIndex: any, //eslint-disable-line
     currentImages: File[],
@@ -66,13 +66,12 @@ const AddImageCropper: React.FC<AddImageCropperProps> = ({ pushCroppedImage, set
 
     const handleCropConfirm = async () => {
 
-
-        if (croppedAreaPixels && currentImages.length > 0 && currentVariantId) {
+        if (croppedAreaPixels && currentImages.length > 0 && currentVariantId !== undefined) {
             const currentFile = currentImages[currentImageIndex];
             const croppedImageBlob = await getCroppedImg(URL.createObjectURL(currentFile), croppedAreaPixels);
             const croppedImageFile = new File([croppedImageBlob], `cropped_image_${Date.now()}.jpg`, { type: 'image/jpeg' });
 
-            pushCroppedImage({ id: currentImageIndex +1 , file: croppedImageFile, preview: URL.createObjectURL(croppedImageFile) });
+            pushCroppedImage({ id: currentImageIndex + 1, file: croppedImageFile, preview: URL.createObjectURL(croppedImageFile) });
 
             if (currentImageIndex < currentImages.length - 1) {
                 setCurrentImageIndex(currentImageIndex + 1);
@@ -104,7 +103,7 @@ const AddImageCropper: React.FC<AddImageCropperProps> = ({ pushCroppedImage, set
                 <span>Image {currentImageIndex + 1} of {currentImages.length}</span>
                 <div>
                     <Button type='button' onClick={() => onClose()} variant="outline" className="mr-2">Cancel</Button>
-                    <Button  type='button' onClick={handleCropConfirm}>
+                    <Button type='button' onClick={handleCropConfirm}>
                         {currentImageIndex === currentImages.length - 1 ? 'Finish' : 'Next'}
                     </Button>
                 </div>

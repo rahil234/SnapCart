@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { UIContext } from '@/context/UIContext';
 import { Button } from '@/components/ui/button';
-import userEndpoints from '@/api/userEndpoints';
 import { ICart, ImportMeta } from 'shared/types';
+import cartEndpoints from '@/api/cartEndpoints';
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
 
@@ -21,7 +21,7 @@ const CartOverlay = () => {
   useEffect(() => {
     (async () => {
       try {
-        const response = await userEndpoints.fetchCartData();
+        const response = await cartEndpoints.getCart();
         setCartData(response.data.cart);
       } catch (error) {
         console.log(error);

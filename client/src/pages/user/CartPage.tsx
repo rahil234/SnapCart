@@ -4,7 +4,7 @@ import { Loader2, Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import userEndpoints from '@/api/userEndpoints'
+import cartEndpoints from '@/api/cartEndpoints'
 import { ICart, ImportMeta } from 'shared/types'
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl
@@ -16,7 +16,7 @@ export default function CartPage() {
   useEffect(() => {
     const fetchCartData = async () => {
       try {
-        const response = await userEndpoints.fetchCartData()
+        const response = await cartEndpoints.getCart()
         setCartData(response.data.cart)
       } catch (error) {
         console.error('Error fetching cart data:', error)

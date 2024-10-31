@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { Product } from '@shared/types';
+import { Product } from 'shared/types';
 
 const ProductSchema: Schema = new Schema({
   name: { type: String, required: true },

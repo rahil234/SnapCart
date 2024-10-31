@@ -1,13 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import cartEndpoints from '@/api/cartEndpoints';
+import { ICart } from 'shared/types';
 
-// Define the ICart interface
-interface ICart {
-  items: Array<{
-    productId: string;  // Ensure this matches the usage in reducers
-    quantity: number;
-  }>;
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+interface ICartItem extends ICart {
+  status: string;
 }
 
 export const fetchCart = createAsyncThunk('cart/fetchCart', async () => {
@@ -18,29 +14,36 @@ export const fetchCart = createAsyncThunk('cart/fetchCart', async () => {
 export const cartSlice = createSlice({
   name: 'cart',
   initialState: {
+    _id: '',
+    userId: '',
     items: [],
+    totalPrice: 0,
     status: 'idle',
-  } as ICart, // Apply the ICart type to initialState
+  } as ICartItem,
   reducers: {
     addItemToCart: (state, action) => {
       const item = action.payload;
-      const existingItem = state.items.find(i => i.productId === item.productId); // Corrected to productId
+      const existingItem = state.items.find(
+        i => i.productId === item.productId
+      ); // Corrected to productId
       if (existingItem) {
         existingItem.quantity += item.quantity;
       } else {
         state.items.push({
           productId: item.productId, // Ensure the object structure matches ICart
-          quantity: item.quantity
+          quantity: item.quantity,
         });
       }
     },
     removeItemFromCart: (state, action) => {
-      const productId = action.payload; // Assuming payload is productId directly
+      const productId = action.payload;
       state.items = state.items.filter(item => item.productId !== productId);
     },
     updateItemQuantity: (state, action) => {
-      const { productId, quantity } = action.payload; // Corrected to productId
-      const existingItem = state.items.find(item => item.productId === productId);
+      const { productId, quantity } = action.payload;
+      const existingItem = state.items.find(
+        item => item.productId === productId
+      );
       if (existingItem) {
         existingItem.quantity = quantity;
       }
@@ -55,7 +58,7 @@ export const cartSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
-        state.items = action.payload; // Assuming payload is correctly structured
+        state.items = action.payload;
         state.status = 'succeeded';
       })
       .addCase(fetchCart.rejected, state => {

@@ -62,21 +62,6 @@ const allowUser = async (userId: string) => {
   return await axiosInstance.patch(`/api/user/${userId}/allow`);
 };
 
-const fetchCartData = async () => {
-  return await axiosInstance.get('/api/user/shopping-cart');
-};
-
-const addToCart = async (productId: string) => {
-  return await axiosInstance.post('/api/user/shopping-cart', { productId });
-};
-
-const editCart = async (productId: string, quantity: number) => {
-  return await axiosInstance.patch('/api/user/shopping-cart', {
-    productId,
-    quantity,
-  });
-};
-
 export default {
   userLogin,
   sendOtp,
@@ -90,7 +75,4 @@ export default {
   uploadProfilePicture,
   userGoogleLogin,
   userSignUp,
-  fetchCartData,
-  addToCart,
-  editCart,
 };

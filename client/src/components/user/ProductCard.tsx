@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button';
-import userEndpoints from '@/api/userEndpoints';
+import cartEndpoints from '@/api/cartEndpoints';
 import { Product, ImportMeta } from 'shared/types';
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL;
@@ -10,7 +10,7 @@ const ProductCard = ({ product }: { product: Product }) => {
 
     const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        const response = await userEndpoints.addToCart(product._id);
+        const response = await cartEndpoints.addToCart(product._id);
         console.log(response);
         setCartQuantity(1);
     };

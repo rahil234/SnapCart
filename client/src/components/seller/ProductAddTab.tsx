@@ -9,9 +9,10 @@ import { SortableContext, sortableKeyboardCoordinates, useSortable, horizontalLi
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
 import AddImageCropper from './addImageCropper';
+import { FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 
 interface Variant {
-  id: number;
+  id: string;
   name: string;
   price: string;
   stock: string;
@@ -22,6 +23,14 @@ interface VariantImage {
   id: string;
   file: File;
   preview: string;
+}
+
+interface FormValues {
+  productName: string;
+  description: string;
+  category: string;
+  subcategory: string;
+  variants: Variant[];
 }
 
 function SortableImage({ image, onRemove }: { image: VariantImage; onRemove: () => void }) {
@@ -49,7 +58,7 @@ function SortableImage({ image, onRemove }: { image: VariantImage; onRemove: () 
   );
 }
 
-function ProductAddTab({ variant, setVariants, setValue, register, errors, variants }: { variant: Variant; setVariants: any; setValue: any; register: any; errors: any; variants: any; }) { //eslint-disable-line
+function ProductAddTab({ variant, setVariants, setValue, register, errors, variants }: { variant: Variant; setVariants: React.Dispatch<React.SetStateAction<Variant[]>>; setValue: UseFormSetValue<FormValues>; register: UseFormRegister<FormValues>; errors: FieldErrors<FormValues>; variants: Variant[]; }) {
 
   const [cropperOpen, setCropperOpen] = useState(false);
   const [currentImages, setCurrentImages] = useState<File[]>([]);
@@ -71,11 +80,12 @@ function ProductAddTab({ variant, setVariants, setValue, register, errors, varia
 
   const closeImageCropper = () => {
     setCropperOpen(false);
+    // setCurrentImages([]);
   };
 
-  const handleImageUpload = (variantId: number, files: FileList | null) => {
+  const handleImageUpload = (variantId: string, files: FileList | null) => {
     if (files) {
-      const variant = variants.find((v: any) => v.id === variantId); //eslint-disable-line
+      const variant = variants.find((v: Variant) => v.id === variantId);
       if (variant && variant.images.length + files.length > 6) {
         alert('You can only add up to 6 images per variant.');
         return;
@@ -87,23 +97,23 @@ function ProductAddTab({ variant, setVariants, setValue, register, errors, varia
   };
 
 
-  const removeImage = (variantId: number, imageId: string) => {
+  const removeImage = (variantId: string, imageId: string) => {
     const updatedVariants = variants.map((variant: Variant) =>
       variant.id === variantId
-        ? { ...variant, images: variant.images.filter((img: any) => img.id !== imageId) } //eslint-disable-line
+        ? { ...variant, images: variant.images.filter((img: VariantImage) => img.id !== imageId) }
         : variant
     );
     setValue('variants', updatedVariants);
   };
 
-  const handleDragEnd = (event: DragEndEvent, variantId: number) => {
+  const handleDragEnd = (event: DragEndEvent, variantId: string) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
       const updatedVariants = variants.map((variant: Variant) => {
         if (variant.id === variantId) {
-          const oldIndex = variant.images.findIndex((img: any) => img.id === active.id); //eslint-disable-line
-          const newIndex = variant.images.findIndex((img: any) => img.id === over.id); //eslint-disable-line
+          const oldIndex = variant.images.findIndex((img: VariantImage) => img.id === active.id);
+          const newIndex = variant.images.findIndex((img: VariantImage) => img.id === over.id);
 
           const newImages = [...variant.images];
           const [reorderedItem] = newImages.splice(oldIndex, 1);
@@ -117,18 +127,20 @@ function ProductAddTab({ variant, setVariants, setValue, register, errors, varia
     }
   };
 
+  // console.log('variant', variant);
+  
   return (
-    <TabsContent key={variant.id} value={variant.id + ""}>
-      {cropperOpen && currentImages.length > 0 && <AddImageCropper currentImages={currentImages} pushCroppedImage={pushCroppedImage} currentImageIndex={currentImageIndex} setCurrentImageIndex={setCurrentImageIndex} currentVariantId={variant.id} onClose={closeImageCropper} />}
+    <TabsContent key={variant.id} value={variant.id}>
+      {cropperOpen && currentImages.length > 0 && <AddImageCropper currentImages={currentImages} pushCroppedImage={pushCroppedImage} currentImageIndex={currentImageIndex} setCurrentImageIndex={setCurrentImageIndex} currentVariantId={Number(variant.id)} onClose={closeImageCropper} />}
       <Card>
         <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">
             <Label htmlFor={`variantName-${variant.id}`}>Variant Name</Label>
             <Input
               id={`variantName-${variant.id}`}
-              {...register(`variants.${variant.id}.name`, { required: 'Variant Name is required' })}
+              {...register(`variants.${Number(variant.id)}.name`, { required: 'Variant Name is required' })}
             />
-            {errors.variants?.[variant.id]?.name && <span className="text-red-500 text-xs">{errors.variants[variant.id].name?.message}</span>}
+            {errors.variants?.[Number(variant.id)]?.name && <span className="text-red-500 text-xs">{errors.variants?.[Number(variant.id)]?.name?.message ?? ''}</span>}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -137,9 +149,9 @@ function ProductAddTab({ variant, setVariants, setValue, register, errors, varia
                 id={`variantPrice-${variant.id}`}
                 type="number"
                 min="1"
-                {...register(`variants.${variant.id}.price`, { required: 'Price is required', min: { value: 1, message: 'Price must be at least 1' } })}
+                {...register(`variants.${Number(variant.id)}.price`, { required: 'Price is required', min: { value: 1, message: 'Price must be at least 1' } })}
               />
-              {errors.variants?.[variant.id]?.price && <span className="text-red-500 text-xs">{errors.variants[variant.id].price?.message}</span>}
+              {errors.variants?.[Number(variant.id)]?.price && <span className="text-red-500 text-xs">{errors.variants[Number(variant.id)]?.price?.message}</span>}
             </div>
             <div className="space-y-2">
               <Label htmlFor={`variantStock-${variant.id}`}>Stock</Label>
@@ -147,9 +159,9 @@ function ProductAddTab({ variant, setVariants, setValue, register, errors, varia
                 id={`variantStock-${variant.id}`}
                 type="number"
                 min="1"
-                {...register(`variants.${variant.id}.stock`, { required: 'Stock is required', min: { value: 1, message: 'Stock must be at least 1' } })}
+                {...register(`variants.${Number(variant.id)}.stock`, { required: 'Stock is required', min: { value: 1, message: 'Stock must be at least 1' } })}
               />
-              {errors.variants?.[variant.id]?.stock && <span className="text-red-500 text-xs">{errors.variants[variant.id].stock?.message}</span>}
+              {errors.variants?.[Number(variant.id)]?.stock && <span className="text-red-500 text-xs">{errors.variants[Number(variant.id)]?.stock?.message}</span>}
             </div>
           </div>
           <div className="space-y-2">

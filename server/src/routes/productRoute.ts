@@ -5,7 +5,12 @@ import upload from '@/middleware/upload';
 
 const productRoute = express.Router();
 
-productRoute.post('/add-product', upload.any(), productController.addProduct);
+productRoute.post(
+  '/add-product',
+  authenticateAndAuthorize(['seller']),
+  upload.any(),
+  productController.addProduct
+);
 
 productRoute.patch(
   '/edit-product',

@@ -11,7 +11,7 @@ import otpModel from '@models/otpModel';
 import userModel from '@models/userModel';
 import productModel from '@models/productModel';
 import categoryModel from '@models/categoryModel';
-import { catchError } from '@shared/types';
+import { catchError } from 'shared/types';
 import cartModel from '@models/cartModel';
 
 const transporter = nodemailer.createTransport({
@@ -405,13 +405,22 @@ const addToCart = async (req: Request, res: Response) => {
           { items: existingItem }
         );
       } else {
-        cart.items.push({ productId: product._id, quantity: 1 });
+        cart.items.push({
+          productId: product._id,
+          quantity: 1,
+        });
       }
       cart.totalPrice += product.price;
+      await cart.save();
     } else {
       const newCart = new cartModel({
         userId: user._id,
-        items: [{ productId: product._id, quantity: 1 }],
+        items: [
+          {
+            productId: product._id,
+            quantity: 1,
+          },
+        ],
         totalPrice: product.price,
       });
 

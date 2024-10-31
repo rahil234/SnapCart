@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import productModel from '@/models/productModel';
 import { catchError } from '@shared/types';
+import { log } from 'console';
 
 const addProduct = async (req: Request, res: Response) => {
   try {
@@ -27,10 +28,12 @@ const addProduct = async (req: Request, res: Response) => {
       }
     });
 
-    console.log(variantImagesMap);
+    // console.log(variantImagesMap);
 
     // Iterate over variants and save each as a new product
     const savedProducts = [];
+
+    log('variants', variants);
 
     for (const [index, variant] of variants.entries()) {
       const newProduct = new productModel({
@@ -43,6 +46,7 @@ const addProduct = async (req: Request, res: Response) => {
         stock: variant.stock,
         images: variantImagesMap[index] || [],
         variantName: variant.name,
+        seller: req.user?._id,
       });
       await newProduct.save();
       savedProducts.push(newProduct);
@@ -52,8 +56,8 @@ const addProduct = async (req: Request, res: Response) => {
       message: 'Products added successfully',
       products: savedProducts,
     });
-  } catch {
-    // console.log(error);
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ message: 'Error adding products' });
   }
 };

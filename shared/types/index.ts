@@ -98,14 +98,11 @@ export interface Credentials {
 export interface ICart {
   _id: string;
   userId: string;
-  items: {
+  items: Array<{
     productId: Product ;
     quantity: number;
-  }[];
+  }>;
   totalPrice: number; 
-  createdAt: Date;
-  updatedAt: Date;
-  status: 'loading' | 'idle' | 'succeeded' | 'failed';
 }
 
 export interface ApiResponse<T> {
