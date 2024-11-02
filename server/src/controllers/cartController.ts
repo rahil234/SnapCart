@@ -3,15 +3,6 @@ import cartModel from '@models/cartModel';
 import userModel from '@models/userModel';
 import productModel from '@models/productModel';
 import { ICart } from '@shared/types';
-import { Document } from 'mongoose';
-
-interface CustomICart extends Omit<ICart, 'items'>, Document {
-  items: Array<{
-    _id: string;
-    quantity: number;
-    product: string;
-  }>;
-}
 
 const getCart = async (req: Request, res: Response) => {
   try {
@@ -86,7 +77,7 @@ const addItem = async (req: Request, res: Response) => {
       return;
     }
 
-    const cart = (await cartModel.findOne({ userId: user._id })) as CustomICart;
+    const cart = (await cartModel.findOne({ userId: user._id })) as ICart;
 
     if (cart) {
       const existingItem = cart.items.find((item) => item._id === productId);
