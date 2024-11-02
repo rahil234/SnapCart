@@ -8,6 +8,8 @@ import VerifyOTPCard from '@/components/user/Login/VerifyOTPCard';
 import { SignUpFormInputs } from 'shared/types';
 import ForgotPasswordCard from './ForgetPasswordCard';
 import userEndpoints from '@/api/userEndpoints';
+import { useDispatch } from 'react-redux';
+import { setCredentials } from '@/features/auth/authSlice';
 
 
 const LoginMain = (): JSX.Element => {
@@ -57,6 +59,8 @@ function LoginController() {
     'login' | 'signup' | 'forgotPassword' | 'verifyOtp'>('login');
   const [signupData, setSignupData] = useState<SignUpFormInputs>();
 
+  const dispatch = useDispatch();
+
   // Updated onOtpSubmit function to use verifyOtp from userEndpoints
   const onOtpSubmit = async (otp: string) => {
     console.log('OTP submitted:', otp);
@@ -65,15 +69,21 @@ function LoginController() {
         console.error('User data not found');
         return;
       }
-      const response = await userEndpoints.verifyOtp(signupData?.email, otp);
+      const response = await userEndpoints.verifyOtp(signupData.email, otp);
       if (response.data.success) {
         console.log('OTP verified successfully');
-        setActiveTab('login'); // Change tab or take any action on success
+        setActiveTab('login');
+        const signupResponse = await userEndpoints.userSignUp(signupData);
+        dispatch(setCredentials(signupResponse.data));
+        setSignupData(undefined);
+        hideLoginOverlay();
       } else {
         console.error('Failed to verify OTP');
+        setSignupData(undefined)
       }
     } catch (error) {
       console.error('Error verifying OTP:', error);
+      setSignupData(undefined)
     }
   };
 
@@ -90,6 +100,7 @@ function LoginController() {
         <SignUpCard
           setActiveTab={setActiveTab}
           hideLoginOverlay={hideLoginOverlay}
+          signupData={signupData}
           setUserData={setSignupData}
         />
       );

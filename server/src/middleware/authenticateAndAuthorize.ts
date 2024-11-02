@@ -22,7 +22,7 @@ const authenticateAndAuthorize = (
     jwt.verify(token, JWT_SECRET, async (err, user) => {
       if (err) {
         console.error(err);
-        res.status(403).json({ message: 'Invalid token' });
+        res.status(403).json({ message: 'Token expired' });
         return;
       }
 

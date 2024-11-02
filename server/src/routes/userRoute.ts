@@ -28,20 +28,14 @@ userRoute.post(
   userController.uploadProfilePicture
 );
 
+userRoute.patch(
+  '/update-profile',
+  authenticateAndAuthorize(['customer']),
+  userController.updateProfile
+);
+
 userRoute.patch('/:userId/block', userController.blockUser);
 
 userRoute.patch('/:userId/allow', userController.allowUser);
-
-userRoute.get(
-  '/shopping-cart',
-  authenticateAndAuthorize(['customer']),
-  userController.getCart
-);
-
-userRoute.post(
-  '/shopping-cart',
-  authenticateAndAuthorize(['customer']),
-  userController.addToCart
-);
 
 export default userRoute;

@@ -118,7 +118,7 @@ const getRelatedProducts = async (req: Request, res: Response) => {
           : null,
         _id: { $ne: productId },
       })
-      .limit(5);
+      .limit(7);
 
     const products = relatedProducts;
     res.status(200).json(products);

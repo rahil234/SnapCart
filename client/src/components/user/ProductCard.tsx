@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button';
 import cartEndpoints from '@/api/cartEndpoints';
 import { Product, ImportMeta } from 'shared/types';
+import CartContext from '@/context/CartContext';
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL;
 const ProductCard = ({ product }: { product: Product }) => {
+    const { cartData } = useContext(CartContext);
     const [cartQuantity, setCartQuantity] = useState(0);
 
     const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -14,6 +16,15 @@ const ProductCard = ({ product }: { product: Product }) => {
         console.log(response);
         setCartQuantity(1);
     };
+
+    useEffect(() => {
+        if (cartData) {
+            const item = cartData.items.find((item) => item._id === product._id);
+            if (item) {
+                setCartQuantity(item.quantity);
+            }
+        }
+    }, [cartData]);
 
     function handleQuantityIncrease() {
         console.log('increase');
@@ -25,7 +36,7 @@ const ProductCard = ({ product }: { product: Product }) => {
     }
 
     return (
-        <Link key={product._id} to={'/product/' + product._id}>
+        <Link key={String(product._id)} to={'/product/' + product._id} >
             <div className="bg-white rounded-lg object-center shadow p-2 min-w-[170px] flex flex-col ">
                 <div className="rounded-sm overflow-hidden">
                     <img
@@ -41,7 +52,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                     {cartQuantity > 0 ? (
                         <div className="flex items-center justify-between bg-[#328616] text-white rounded-md p-1"
                             onClick={(e) => e.preventDefault()}
-                            >
+                        >
                             <button
                                 className="px-3"
                                 onClick={handleQuantityDecrease}
@@ -67,7 +78,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                     }
                 </div>
             </div>
-        </Link>
+        </Link >
     )
 };
 

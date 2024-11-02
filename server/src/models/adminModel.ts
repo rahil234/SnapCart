@@ -1,13 +1,5 @@
-import mongoose, { Schema, Document, ObjectId } from 'mongoose';
-
-export interface IAdmin extends Document {
-  _id: ObjectId;
-  firstName: string;
-  email: string;
-  password: string;
-  profilePicture: string | null;
-  status: 'Active' | 'Blocked';
-}
+import mongoose, { Schema } from 'mongoose';
+import { IAdmin } from 'shared/types';
 
 const AdminSchema: Schema = new Schema(
   {

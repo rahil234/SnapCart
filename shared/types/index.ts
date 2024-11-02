@@ -1,17 +1,4 @@
-// export interface Product {
-//   _id: string;
-//   name: string;
-//   price: number;
-//   quantity: string;
-//   stock: number;
-//   status: 'Active' | 'Inactive';
-//   reviews: Array<Review>;
-//   images: string[];
-//   variants: object[];
-//   description: string;
-//   category: Category;
-//   subcategory: Subcategory;
-// }
+import { Schema } from 'mongoose';
 
 interface Review {
   _id: string;
@@ -45,19 +32,6 @@ export interface Product {
   reviews?: Review[];
 }
 
-// export interface Category {
-//   name: string;
-//   categoryId: string;
-//   products: Product[];
-//   subcategories: Subcategory[];
-// }
-
-// export interface Subcategory {
-//   subcategory: string;
-//   subcategoryId: string;
-//   products: Product[];
-// }
-
 export interface Category {
   _id: string;
   name: string;
@@ -74,35 +48,62 @@ export interface Subcategory {
 export type UserRole = 'admin' | 'customer' | 'seller';
 
 export interface User {
-  id: string;
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;
   DOB: string;
   role: UserRole;
+  addresses: [];
   profilePicture: string;
+  status: 'Active' | 'Blocked';
 }
 
-export interface Seller {
+export interface IUsers extends Document {
   _id: string;
-  name: string;
+  firstName: string;
+  lastName: string | null;
+  DOB: Date;
+  phoneNo: number | null;
+  addresses: Array<object>;
+  email: string;
+  password: string;
+  profilePicture: string | null;
+  status: 'Active' | 'Blocked';
+}
+
+export interface Seller extends Document {
+  _id: string;
+  firstName: string;
+  profilePicture: string;
   email: string;
   DOB: string;
+  status: 'Active' | 'Blocked';
 }
 
+export interface IAdmin extends Document {
+  _id: string
+  firstName: string;
+  email: string;
+  password: string;
+  profilePicture: string | null;
+  status: 'Active' | 'Blocked';
+}
 export interface Credentials {
   email: string;
   password: string;
 }
 
-export interface ICart {
-  _id: string;
+export type ObjectId = Schema.Types.ObjectId;
+
+export interface ICart extends Document {
   userId: string;
   items: Array<{
-    productId: Product ;
+    _id: string;
+    product: Product;
     quantity: number;
   }>;
-  totalPrice: number; 
+  totalPrice: number;
 }
 
 export interface ApiResponse<T> {
@@ -139,3 +140,59 @@ export interface catchError {
     };
   };
 }
+
+// export interface ICart {
+//   _id: string;
+//   userId: string;
+//   items: Array<{
+//     _id: string;
+//     productId: Product ;
+//     quantity: number;
+//   }>;
+//   totalPrice: number;
+// }
+
+// type Result<T extends string> = T extends 'customer' ? IUsers : Seller | IAdmin;
+// export type customer='customer'
+// export type admin='admin'
+// export type seller='seller'
+// export function processInput(
+//   role: customer | admin | seller,
+//   user: unknown
+// ) {
+//   if (role === 'customer') {
+//     return user as IUsers;
+//   }else if(role === 'seller'){
+//     return user as Seller
+//   }else{
+//     return user as IAdmin  }
+
+// }
+
+// export interface Category {
+//   name: string;
+//   categoryId: string;
+//   products: Product[];
+//   subcategories: Subcategory[];
+// }
+
+// export interface Subcategory {
+//   subcategory: string;
+//   subcategoryId: string;
+//   products: Product[];
+// }
+
+// export interface Product {
+//   _id: string;
+//   name: string;
+//   price: number;
+//   quantity: string;
+//   stock: number;
+//   status: 'Active' | 'Inactive';
+//   reviews: Array<Review>;
+//   images: string[];
+//   variants: object[];
+//   description: string;
+//   category: Category;
+//   subcategory: Subcategory;
+// }

@@ -9,7 +9,7 @@ import React, {
 import { useLocation } from 'react-router-dom';
 
 interface UIContextProps {
-  isLoginOverlayOpen: boolean;
+  isLoginOverlayOpen: boolean; 
   showLoginOverlay: () => void;
   hideLoginOverlay: () => void;
   isCartOverlayOpen: boolean;
@@ -54,10 +54,11 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
 
   const toggleCartOverlay = useCallback(() => {
     hideAllOverlays();
+    console.log(location.pathname);
     if (location.pathname !== '/cart') {
       setIsCartOverlayOpen(!isCartOverlayOpen);
     }
-  }, [isCartOverlayOpen]);
+  }, [isCartOverlayOpen, location]);
 
   const hideCartOverlay = useCallback(() => {
     setIsCartOverlayOpen(false);
@@ -97,7 +98,6 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
     const handlePopState = () => {
       hideAllOverlays();
     };
-
     window.addEventListener('popstate', handlePopState);
 
     return () => {

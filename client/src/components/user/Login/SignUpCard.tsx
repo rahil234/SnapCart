@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { X } from 'lucide-react';
 import InputField from '@/components/ui/InputField';
 import userEndpoints from '@/api/userEndpoints';
 import { motion } from 'framer-motion';
-import { SignUpFormInputs } from 'shared/types';
+import { catchError, SignUpFormInputs } from 'shared/types';
 
 interface SignUpCardProps {
   hideLoginOverlay: () => void;
   setActiveTab: (
     tab: 'login' | 'signup' | 'forgotPassword' | 'verifyOtp'
   ) => void;
+  signupData?: SignUpFormInputs;
   setUserData: (data: SignUpFormInputs) => void;
 }
 
@@ -18,6 +19,7 @@ const SignUpCard: React.FC<SignUpCardProps> = ({
   hideLoginOverlay,
   setActiveTab,
   setUserData,
+  signupData,
 }) => {
   const [isSignUp, setIsSignUp] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,8 +27,13 @@ const SignUpCard: React.FC<SignUpCardProps> = ({
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<SignUpFormInputs>();
+
+  useEffect(() => {
+    reset(signupData);
+  }, [signupData]);
 
   const onSubmit: SubmitHandler<SignUpFormInputs> = async data => {
     try {
@@ -36,9 +43,10 @@ const SignUpCard: React.FC<SignUpCardProps> = ({
       setActiveTab('verifyOtp');
       console.log('response', response.data);
       setUserData(data);
-    } catch (error: any) {
-      console.error('error', error);
-      setError(error.response.data.message);
+    } catch (error) {
+      const newError = error as catchError;
+      console.error('error', newError);
+      setError(newError.response.data.message);
     }
   };
 

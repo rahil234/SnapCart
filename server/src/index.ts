@@ -10,6 +10,7 @@ import sellerRoute from './routes/sellerRoute';
 import adminRoute from './routes/adminRoute';
 import productRoute from './routes/productRoute';
 import categoryRoute from './routes/categoryRoute';
+import cartRoute from './routes/cartRoute';
 // import deliveryRoute from './routes/delivery.route';
 
 dotenv.config();
@@ -45,6 +46,7 @@ app.use('/api/seller', sellerRoute);
 app.use('/api/admin', adminRoute);
 app.use('/api/product', productRoute);
 app.use('/api/category', categoryRoute);
+app.use('/api/cart', cartRoute);
 // app.get('/api/delivery', deliveryRoute);
 
 const PORT = process.env.PORT || 3000;

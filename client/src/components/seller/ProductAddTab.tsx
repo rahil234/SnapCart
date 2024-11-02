@@ -128,9 +128,9 @@ function ProductAddTab({ variant, setVariants, setValue, register, errors, varia
   };
 
   // console.log('variant', variant);
-  
+
   return (
-    <TabsContent key={variant.id} value={variant.id}>
+    <TabsContent  value={variant.id}>
       {cropperOpen && currentImages.length > 0 && <AddImageCropper currentImages={currentImages} pushCroppedImage={pushCroppedImage} currentImageIndex={currentImageIndex} setCurrentImageIndex={setCurrentImageIndex} currentVariantId={Number(variant.id)} onClose={closeImageCropper} />}
       <Card>
         <CardContent className="space-y-4 pt-6">

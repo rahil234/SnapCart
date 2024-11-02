@@ -45,10 +45,12 @@ axiosInstance.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
-        const response = await axiosInstance.post('/api/refreshToken', null, {
+        const response = await axios.post('/api/refreshToken', null, {
           withCredentials: true,
         });
         const newToken = response.data.accessToken;
+        console.log('New token:', newToken);
+        
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
 
         // Update the app state with the new token

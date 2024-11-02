@@ -12,7 +12,8 @@ import { ImportMeta } from 'shared/types';
 const googleOAuthClientId = (import.meta as unknown as ImportMeta).env.VITE_googleOAuthClientId;
 
 createRoot(document.getElementById('root')!).render(
-  <GoogleOAuthProvider clientId={googleOAuthClientId}>
+  <React.StrictMode>
+    <GoogleOAuthProvider clientId={googleOAuthClientId}>
       < Provider store={store} >
         <TooltipProvider>
           <Toaster />
@@ -20,6 +21,5 @@ createRoot(document.getElementById('root')!).render(
         </TooltipProvider>
       </Provider >
     </GoogleOAuthProvider>
-  //     <React.StrictMode>
-  // </React.StrictMode>
+  </React.StrictMode>
 );

@@ -12,7 +12,6 @@ import userModel from '@models/userModel';
 import productModel from '@models/productModel';
 import categoryModel from '@models/categoryModel';
 import { catchError } from 'shared/types';
-import cartModel from '@models/cartModel';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -170,19 +169,37 @@ const googleLogin = async (req: Request, res: Response) => {
 };
 
 const signup = async (req: Request, res: Response) => {
+  console.log('Signup', req.body);
+
   try {
+    const { email, name } = req.body;
+    const [firstName, lastName] = name.split(' ');
+
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const user = await userModel.create({
-      ...req.body,
+    const userData = await userModel.create({
+      email,
+      firstName,
+      lastName,
       password: hashedPassword,
     });
-    user.save();
+    userData.save();
 
-    const token = jwtUtils.signAccessToken({ email: user.email });
-    res.status(201).json({ token, message: 'User created successfully', user });
+    const user = {
+      _id: userData._id,
+      firstName: userData.firstName,
+      email: userData.email,
+      role: 'customer',
+    };
+
+    const accessToken = jwtUtils.signAccessToken({ ...user });
+    const refreshToken = jwtUtils.signRefreshToken({ ...user });
+    setRefreshTokenCookie(res, refreshToken);
+    res
+      .status(201)
+      .json({ accessToken, message: 'User created successfully', user });
   } catch (err) {
     console.log(err);
-    res.status(404).json({ message: err });
+    res.status(404).json({ message: 'user signup failed' });
   }
 };
 
@@ -281,15 +298,37 @@ const forgotPassword = async (req: Request, res: Response) => {
   }
 };
 
+const changePassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    // Check if the email is provided
+    if (!email) {
+      res.status(400).json({ message: 'Email is required' });
+      return;
+    }
+
+    // Check if the user with the given email already exists
+    const existingUser = await userModel.findOne({ email });
+    if (!existingUser) {
+      res.status(400).json({ message: 'User not found' });
+      return;
+    }
+
+    await sendOtp(email);
+    res.json({ message: 'OTP sent to your email' });
+  } catch (err) {
+    res.status(500).json({ message: 'Internal server error' + err });
+  }
+};
+
 const verifyOtp = async (req: Request, res: Response) => {
   try {
     const { email, otp } = req.body;
-    console.log(email, otp);
     const otpUser = await otpModel.findOne({ email });
-    console.log('type of otp: ', typeof otpUser?.otp);
-    if (Number(otp) === otpUser?.otp) {
+    if (otp === otpUser?.otp) {
       console.log('OTP verified', otp, ':', otpUser?.otp);
-      res.json({ message: 'OTP verified' });
+      res.json({ message: 'OTP verified', success: true });
     } else {
       console.log('Wrong Otp', otp, ':', otpUser?.otp);
       throw 'Invalid OTP';
@@ -316,6 +355,21 @@ const uploadProfilePicture = async (req: Request, res: Response) => {
     res
       .status(200)
       .json({ message: 'Profile picture uploaded successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+};
+
+const updateProfile = async (req: Request, res: Response) => {
+  try {
+    const { name } = req.body;
+
+    const user = await userModel.findByIdAndUpdate(req.user?._id, {
+      firstName: name,
+      addresses: req.body.addresses,
+    });
+
+    res.status(200).json({ message: 'Profile updated successfully', user });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error', error });
   }
@@ -359,80 +413,6 @@ const allowUser = async (req: Request, res: Response) => {
   }
 };
 
-const getCart = async (req: Request, res: Response) => {
-  try {
-    const cart = await cartModel.findOne({ userId: req.user?._id }).populate({
-      path: 'items.productId',
-      select: 'name price images',
-      model: 'Product',
-    });
-    res.status(200).json({ message: 'success', cart });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal server error', error });
-  }
-};
-
-const addToCart = async (req: Request, res: Response) => {
-  try {
-    const { productId } = req.body;
-
-    const user = await userModel.findById(req.user?._id);
-
-    if (!user) {
-      res.status(404).json({ message: 'User not found' });
-      return;
-    }
-
-    const product = await productModel.findById(productId);
-
-    if (!product) {
-      res.status(404).json({ message: 'Product not found' });
-      return;
-    }
-
-    const cart = await cartModel.findOne({ userId: user._id });
-
-    if (cart) {
-      const existingItem = cart.items.find(
-        (item) => item.productId === product._id
-      );
-
-      if (existingItem) {
-        console.log('existingItem', existingItem);
-        existingItem.quantity += 1;
-        await cartModel.updateOne(
-          { userId: user._id },
-          { items: existingItem }
-        );
-      } else {
-        cart.items.push({
-          productId: product._id,
-          quantity: 1,
-        });
-      }
-      cart.totalPrice += product.price;
-      await cart.save();
-    } else {
-      const newCart = new cartModel({
-        userId: user._id,
-        items: [
-          {
-            productId: product._id,
-            quantity: 1,
-          },
-        ],
-        totalPrice: product.price,
-      });
-
-      await newCart.save();
-    }
-
-    res.status(200).json({ message: 'Product added to cart', quantity: 2 });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal server error', error });
-  }
-};
-
 export default {
   login,
   googleLogin,
@@ -441,10 +421,10 @@ export default {
   getProduct,
   verifySignUp,
   forgotPassword,
+  changePassword,
   verifyOtp,
   uploadProfilePicture,
+  updateProfile,
   blockUser,
   allowUser,
-  getCart,
-  addToCart,
 };

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useParams, ScrollRestoration } from 'react-router-dom';
 import { X, Star, ChevronRight } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,6 +8,7 @@ import ProductCard from '@/components/user/ProductCard';
 import { Product } from 'shared/types';
 import { ImportMeta } from 'shared/types';
 import { Button } from '@/components/ui/button';
+import CartContext from '@/context/CartContext';
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL;
 
@@ -79,17 +80,28 @@ const ProductPage: React.FC = () => {
   const [variants] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product | null>(null);
   const [mainImage, setMainImage] = useState<string | undefined>(undefined);
+  const [cartQuantity, setCartQuantity] = useState<number>(0);
+
+  const { cartData } = useContext(CartContext);
 
   useEffect(() => {
     if (productId) {
       (async () => {
         const response = await userEndpoints.fetchProductById(productId);
-        console.log('data', response.data);
         setProduct(response.data);
         setMainImage(response.data.images[0]);
       })();
     }
   }, [productId]);
+
+  useEffect(() => {
+    if (cartData) {
+      const item = cartData?.items.find(item => item._id === productId);
+      if (item) {
+        setCartQuantity(item.quantity);
+      }
+    }
+  }, [cartData]);
 
   useEffect(() => {
     if (product && product.subcategory?._id) {
@@ -116,6 +128,14 @@ const ProductPage: React.FC = () => {
     return Math.floor(originalPrice - (originalPrice * discount) / 100);
   };
 
+
+  const handleIncreaseQuantity = () => {
+    setCartQuantity(prev => prev + 1);
+  }
+
+  const handleDecreaseQuantity = () => {
+    setCartQuantity(prev => prev - 1);
+  }
 
   // const handleVariantChange = (variantName: string, option: string) => {
   //   setSelectedVariants(prev => ({ ...prev, [variantName]: option }));
@@ -202,8 +222,8 @@ const ProductPage: React.FC = () => {
               </div>) : (
               <p className="text-3xl font-bold text-green-600 mb-1">
                 ₹{product.price}
-                </p>
-              )
+              </p>
+            )
             }
 
             {/* Product stock */}
@@ -253,11 +273,24 @@ const ProductPage: React.FC = () => {
               <Button className="bg-[#0E8320] hover:bg-[#2ea940] text-white px-6 py-2 rounded-full">
                 Buy Now
               </Button>
-              <Button className="border border-[#0E8320] bg-white hover:bg-white hover:border-[#0E8320a6] hover:text-[#0E8320a6] text-[#0E8320] px-6 py-2 rounded-full"
-              onClick={handleAddToCart}
-              >
-                Add to Cart
-              </Button>
+              {cartQuantity ? (
+                <div className="flex items-center border border-[#0E8320] bg-white text-[#0E8320] px-4 py-2 rounded-full">
+                  <button className="px-2" onClick={handleDecreaseQuantity}>
+                    -
+                  </button>
+                  <span className="px-4">{cartQuantity}</span>
+                  <button className="px-2" onClick={handleIncreaseQuantity}>
+                    +
+                  </button>
+                </div>
+              ) : (
+
+                <Button className="border border-[#0E8320] bg-white hover:bg-white hover:border-[#0E8320a6] hover:text-[#0E8320a6] text-[#0E8320] px-6 py-2 rounded-full"
+                  onClick={handleAddToCart}
+                >
+                  Add to Cart
+                </Button>
+              )}
             </div>
             <p className="text-sm text-gray-600 mb-4">
               Estimated delivery time is 3:00PM - 24 min
@@ -296,16 +329,17 @@ const ProductPage: React.FC = () => {
         </section>
 
         {/* Related products */}
-        {relatedProducts.length > 0 &&
+        {
+          relatedProducts.length > 0 &&
           <section className="mt-12">
-          <h3 className="text-2xl text-center font-semibold mb-4">You may also like</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {relatedProducts.map(product => (
-              <ProductCard key={product._id} product={product} />
-            ))}
-          </div>
-        </section>
-          }
+            <h3 className="text-2xl text-center font-semibold mb-4">You may also like</h3>
+            <div className="flex gap-4">
+              {relatedProducts.map(product => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          </section>
+        }
 
         {/* Top categories */}
         {/* <section className="mt-12">
@@ -328,8 +362,8 @@ const ProductPage: React.FC = () => {
             ))}
           </div>
         </section> */}
-      </main>
-    </div>
+      </main >
+    </div >
   );
 };
 

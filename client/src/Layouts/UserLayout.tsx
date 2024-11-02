@@ -5,14 +5,18 @@ import NavBar from '@/components/user/NavBar';
 import Footer from '@/components/user/Footer';
 import { UIContext } from '@/context/UIContext';
 import LoginMain from '@/components/user/Login/LoginMain';
+import CartOverlay from '@/components/user/CartOverlay';
+import ProfileOverlay from '@/components/user/ProfileOverlay';
 
 function UserLayout() {
-  const { isLoginOverlayOpen } = useContext(UIContext);
+  const { isLoginOverlayOpen, isCartOverlayOpen, isProfileOverlayOpen } = useContext(UIContext);
 
   return (
     <>
       <NavBar />
       {isLoginOverlayOpen && <LoginMain />}
+      {isCartOverlayOpen && <CartOverlay />}
+      {isProfileOverlayOpen && <ProfileOverlay />}
       <div className="pt-[63px] min-h-screen">
         <Outlet />
       </div>

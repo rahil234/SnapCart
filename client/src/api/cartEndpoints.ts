@@ -1,18 +1,19 @@
 import axiosInstance from './axiosInstance';
-
+import { ICart } from 'shared/types';
 const getCart = async () => {
   return axiosInstance.get('api/cart');
 };
 
 const addToCart = async (productId: string) => {
-  return axiosInstance.post('/api/user/shopping-cart', { productId });
+  return axiosInstance.post('/api/cart', { productId });
 };
 
-const editCart = async (productId: string, quantity: number) => {
-  return axiosInstance.patch('/api/user/shopping-cart', {
-    productId,
-    quantity,
-  });
+const updateCart = async (cartData: ICart) => {
+  return axiosInstance.patch('/api/cart', { cartData });
 };
 
-export default { getCart, addToCart, editCart };
+const removeItem = async (productId: string) => {
+  return axiosInstance.delete(`/api/cart/${productId}`);
+};
+
+export default { getCart, addToCart, updateCart, removeItem };

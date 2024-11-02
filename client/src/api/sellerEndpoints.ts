@@ -11,15 +11,15 @@ const addSeller = async (data: {
   email: string;
   password: string;
 }) => {
-  return await axiosInstance.post(`/api/seller/add-sellers`, data);
+  return axiosInstance.post(`/api/seller/add-sellers`, data);
 };
 
 const blockSeller = async (sellerId: string) => {
-  return await axiosInstance.patch(`/api/seller/${sellerId}/block`);
+  return axiosInstance.patch(`/api/seller/${sellerId}/block`);
 };
 
 const allowSeller = async (sellerId: string) => {
-  return await axiosInstance.patch(`/api/seller/${sellerId}/allow`);
+  return axiosInstance.patch(`/api/seller/${sellerId}/allow`);
 };
 
 

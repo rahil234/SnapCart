@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
+import { catchError } from 'shared/types';
 
 interface VerifyOTPFormInputs {
   otp: string;
@@ -34,8 +35,9 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ setActiveTab, onOTPSubmit
     console.log('OTP submitted:', otp);
     try {
       onOTPSubmit(otp);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'An error occurred');
+    } catch (error) {
+      const newError = error as catchError;
+      setError(newError.response?.data?.message || 'An error occurred');
     }
   };
 

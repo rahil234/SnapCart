@@ -1,8 +1,6 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import userEndpoints from '@/api/userEndpoints';
 import adminEndpoints from '@/api/adminEndpoints';
-import { UIContext } from '@/context/UIContext';
-import CartOverlay from '@/components/user/CartOverlay';
 import ProductCard from '@/components/user/ProductCard';
 import { Product } from 'shared/types';
 import { ImportMeta } from 'shared/types';
@@ -15,7 +13,6 @@ interface Products {
 
 function HomePage() {
   const [data, setData] = useState<Products[]>([]);
-  const { isCartOverlayOpen } = useContext(UIContext);
   const [banners, setBanners] = useState<{ _id: number; image: string; order: number }[]>([]);
 
   const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL ;
@@ -79,7 +76,6 @@ function HomePage() {
           </React.Fragment>
         ))}
       </main>
-      {isCartOverlayOpen && <CartOverlay />}
     </div>
   );
 }

@@ -5,8 +5,10 @@ import ProductPage from '@/pages/user/ProductPage';
 import CartPage from '@/pages/user/CartPage';
 import ProfilePage from '@/pages/user/ProfilePage';
 import ForgotPasswordPage from '@/pages/user/ForgotPasswordPage';
+import CheckoutPage from '@/pages/user/CheckoutPage';
 import { UIProvider } from '@/context/UIContext';
 import ChangePasswordPage from '@/pages/user/ChangePassword';
+import { CartProvider } from '@/context/CartContext';
 
 const UserRoutes = [
     {
@@ -16,7 +18,9 @@ const UserRoutes = [
                 path: '',
                 element:
                     <UIProvider>
-                        <UserLayout />
+                        <CartProvider>
+                            <UserLayout />
+                        </CartProvider>
                     </UIProvider>,
                 children: [
                     {
@@ -36,6 +40,7 @@ const UserRoutes = [
             { path: 'profile', element: <ProfilePage /> },
             { path: 'change-password', element: <ChangePasswordPage /> },
             { path: 'forgot-password', element: <ForgotPasswordPage /> },
+            { path: 'checkout', element: <CheckoutPage /> },
         ]
     },
 ];

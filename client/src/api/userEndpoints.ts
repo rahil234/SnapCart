@@ -19,7 +19,9 @@ const userGoogleLogin = (access_token: string) => {
 };
 
 const userSignUp = (data: object) => {
-  return axiosInstance.post('/api/user/signup', data);
+  return axiosInstance.post('/api/user/signup', data,{
+    withCredentials: true,
+  });
 };
 
 const sendOtp = (email: string) => {
@@ -54,12 +56,20 @@ const uploadProfilePicture = async (file: File) => {
   });
 };
 
+const updateUserProfile = async (data: object) => {
+  return axiosInstance.patch('/api/user/update-profile', data);
+};
+
 const blockUser = async (userId: string) => {
-  return await axiosInstance.patch(`/api/user/${userId}/block`);
+  return axiosInstance.patch(`/api/user/${userId}/block`);
 };
 
 const allowUser = async (userId: string) => {
-  return await axiosInstance.patch(`/api/user/${userId}/allow`);
+  return axiosInstance.patch(`/api/user/${userId}/allow`);
+};
+
+const addAddress = async (address: object) => {
+  return axiosInstance.post('/api/user/add-address', address);
 };
 
 export default {
@@ -73,6 +83,8 @@ export default {
   blockUser,
   allowUser,
   uploadProfilePicture,
+  updateUserProfile,
   userGoogleLogin,
   userSignUp,
+  addAddress,
 };

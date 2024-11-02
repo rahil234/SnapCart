@@ -5,7 +5,6 @@ import { CircleUserRound } from 'lucide-react';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { UIContext } from '@/context/UIContext';
-import ProfileOverlay from './ProfileOverlay';
 import { AuthState } from '@/features/auth/authSlice';
 import { AvatarFallback } from '@radix-ui/react-avatar';
 import { ImportMeta } from 'shared/types';
@@ -18,7 +17,7 @@ const NavBar = () => {
     (state: { auth: AuthState }) =>
       state.auth
   );
-  const { showLoginOverlay, toggleCartOverlay, isProfileOverlayOpen, toggleProfileOverlay } = useContext(UIContext);
+  const { showLoginOverlay, toggleCartOverlay, toggleProfileOverlay } = useContext(UIContext);
 
   return (
     <>
@@ -45,7 +44,6 @@ const NavBar = () => {
           </Button>
         </div>
       </header>
-      {isProfileOverlayOpen && <ProfileOverlay />}
     </>
   );
 };

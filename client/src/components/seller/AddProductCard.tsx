@@ -39,7 +39,7 @@ interface FormValues {
 
 
 function AddProductCard({ onClose }: { onClose: () => void }) {
-  const { register, handleSubmit, setValue, clearErrors, formState: { errors }, watch } = useForm<FormValues>();
+  const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<FormValues>();
 
   const defaultVariant = { id: '0', name: `Variant 0`, price: '', stock: '', images: [] };
 
@@ -113,20 +113,20 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
   const removeVariant = (id: string) => {
     console.log("removeVariantId", id);
     setActiveTab('0');
-    
+
     // Update variants state
     setVariants(prevVariants => {
       const updatedVariants = prevVariants
         .filter(variant => variant.id !== id)
         .map((variant, index) => ({ ...variant, id: String(index) }));
 
-      const maxIndex = prevVariants.length;
-      for (let i = 0; i < maxIndex; i++) {
-        setValue(`variants.${i}.name`, '');
-        setValue(`variants.${i}.price`, '');
-        setValue(`variants.${i}.stock`, '');
-        clearErrors(`variants.${i}`);
-      }
+      // const maxIndex = prevVariants.length;
+      // for (let i = 0; i < maxIndex; i++) {
+      //   setValue(`variants.${i+1}.name`, '');
+      //   setValue(`variants.${i+1}.price`, '');
+      //   setValue(`variants.${i+1}.stock`, '');
+      //   clearErrors(`variants.${i+1}`);
+      // }
 
       return updatedVariants;
     });
@@ -162,8 +162,8 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
       const response = await productEndpoints.addProduct(formData);
 
       if (response.status === 201) {
-        // alert('Product added successfully!');
-        // onClose();
+        alert('Product added successfully!');
+        onClose();
       } else {
         alert('Failed to add product. Please try again.');
       }
@@ -276,16 +276,18 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
               </Button>
             }
           </div>
-          {
-            activeTab && variants.find(variant => variant.id === activeTab) &&
-            <ProductAddTab
-              variant={variants.find(variant => variant.id === activeTab)!}
-              setVariants={setVariants}
-              setValue={setValue}
-              register={register}
-              errors={errors}
-              variants={variants}
-            />
+          {activeTab && variants.find(variant => variant.id === activeTab) &&
+            variants.map((variant) => (
+              <ProductAddTab
+                key={variant.id}
+                variant={variant}
+                setVariants={setVariants}
+                setValue={setValue}
+                register={register}
+                errors={errors}
+                variants={variants}
+              />
+            ))
           }
         </Tabs>
         <Button type="submit" className="w-full">Submit Product</Button>
@@ -296,3 +298,13 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
 
 
 export default AddProductCard;
+
+
+// <ProductAddTab
+//   variant={variants.find(variant => variant.id === activeTab)!}
+//   setVariants={setVariants}
+//   setValue={setValue}
+//   register={register}
+//   errors={errors}
+//   variants={variants}
+// />

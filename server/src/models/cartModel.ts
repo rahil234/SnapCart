@@ -1,14 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-
-export interface ICart extends Document {
-  _id: string;
-  userId: string;
-  items: Array<{
-    productId: string;
-    quantity: number;
-  }>;
-  totalPrice: number;
-}
+import { ICart } from 'shared/types';
 
 const CartSchema: Schema = new Schema(
   {
@@ -19,7 +10,7 @@ const CartSchema: Schema = new Schema(
     },
     items: [
       {
-        productId: {
+        product: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Product',
           required: true,

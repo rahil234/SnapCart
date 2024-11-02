@@ -1,23 +1,32 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import cartEndpoints from '@/api/cartEndpoints'
-import { ICart, ImportMeta } from 'shared/types'
+import CartContext from '@/context/CartContext'
+import { ImportMeta } from 'shared/types'
+// import orderEndpoints from '@/api/orderEndpoints'
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl
 
-export default function CartPage() {
-  const [cartData, setCartData] = useState<ICart | null>(null)
+const CartPage = () => {
+
+  const { cartData, setCartData } = useContext(CartContext)
+
   const [isLoading, setIsLoading] = useState(true)
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchCartData = async () => {
       try {
         const response = await cartEndpoints.getCart()
         setCartData(response.data.cart)
+        console.log('Cart data:', response.data.cart);
+
       } catch (error) {
         console.error('Error fetching cart data:', error)
       } finally {
@@ -30,7 +39,7 @@ export default function CartPage() {
   useEffect(() => {
     if (cartData) {
       const newTotalPrice = cartData.items.reduce((total, item) => {
-        return total + item.productId.price * item.quantity
+        return total + item.product.price * item.quantity
       }, 0)
       setCartData({ ...cartData, totalPrice: newTotalPrice })
     }
@@ -41,32 +50,46 @@ export default function CartPage() {
     setCartData({
       ...cartData,
       items: cartData.items.map((item) =>
-        item.productId._id === productId ? { ...item, quantity: item.quantity + 1 } : item
+        item.product._id === productId ? { ...item, quantity: item.quantity + 1 } : item
       ),
     })
   }
 
   const handleDecreaseQuantity = async (productId: string) => {
     if (!cartData) return
-    const item = cartData.items.find((item) => item.productId._id === productId)
+    const item = cartData.items.find((item) => item.product._id === productId)
     if (item && item.quantity === 1) {
       handleRemoveItem(productId)
     } else {
       setCartData({
         ...cartData,
         items: cartData.items.map((item) =>
-          item.productId._id === productId ? { ...item, quantity: item.quantity - 1 } : item
+          item.product._id === productId ? { ...item, quantity: item.quantity - 1 } : item
         ),
       })
     }
   }
 
   const handleRemoveItem = async (productId: string) => {
+    await cartEndpoints.removeItem(productId)
     if (!cartData) return
     setCartData({
       ...cartData,
-      items: cartData.items.filter((item) => item.productId._id !== productId),
+      items: cartData.items.filter((item) => item.product._id !== productId),
     })
+  }
+
+  const handleCheckout = async () => {
+    if (!cartData) return
+    try {
+      // const response = await orderEndpoints.createOrder(cartData)
+      // console.log('Checkout response:', response.data)
+
+      // setCartData({ items: [], totalPrice: 0 })
+      navigate('/checkout')
+    } catch (error) {
+      console.error('Error checking out cart:', error)
+    }
   }
 
   if (isLoading) {
@@ -85,7 +108,7 @@ export default function CartPage() {
           <CardContent className="flex flex-col items-center justify-center h-64">
             <ShoppingCart className="w-16 h-16 text-gray-400 mb-4" />
             <p className="text-xl text-gray-500">Your cart is currently empty.</p>
-            <Button className="mt-4">Continue Shopping</Button>
+            <Button className="mt-4" onClick={() => navigate('/')}>Continue Shopping</Button>
           </CardContent>
         </Card>
       ) : (
@@ -94,7 +117,7 @@ export default function CartPage() {
             <AnimatePresence>
               {cartData.items.map((item) => (
                 <motion.div
-                  key={item.productId._id}
+                  key={item._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
@@ -103,18 +126,18 @@ export default function CartPage() {
                   <Card className="mb-4">
                     <CardContent className="flex items-center p-4">
                       <img
-                        src={imageUrl + item.productId.images[0]}
-                        alt={item.productId.name}
+                        src={imageUrl + item.product.images[0]}
+                        alt={item.product.name}
                         className="w-24 h-24 object-cover rounded-md mr-4"
                       />
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold">{item.productId.name}</h3>
-                        <p className="text-sm text-gray-500">Price: ₹{item.productId.price}</p>
+                        <h3 className="text-lg font-semibold">{item.product.name}</h3>
+                        <p className="text-sm text-gray-500">Price: ₹{item.product.price}</p>
                         <div className="flex items-center mt-2">
                           <Button
                             size="icon"
                             variant="outline"
-                            onClick={() => handleDecreaseQuantity(item.productId._id)}
+                            onClick={() => handleDecreaseQuantity(item.product._id)}
                             aria-label="Decrease quantity"
                           >
                             <Minus className="h-4 w-4" />
@@ -123,20 +146,21 @@ export default function CartPage() {
                           <Button
                             size="icon"
                             variant="outline"
-                            onClick={() => handleIncreaseQuantity(item.productId._id)}
+                            onClick={() => handleIncreaseQuantity(item.product._id)}
                             aria-label="Increase quantity"
+                            disabled={item.quantity > 9}
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-semibold">₹{item.productId.price * item.quantity}</p>
+                        <p className="text-lg font-semibold">₹{item.product.price * item.quantity}</p>
                         <Button
                           size="sm"
                           variant="destructive"
                           className="mt-2"
-                          onClick={() => handleRemoveItem(item.productId._id)}
+                          onClick={() => handleRemoveItem(item.product._id)}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
                           Remove
@@ -171,7 +195,8 @@ export default function CartPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full">Proceed to Checkout</Button>
+                <Button className="w-full"
+                  onClick={handleCheckout}>Proceed to Checkout</Button>
               </CardFooter>
             </Card>
           </div>
@@ -180,3 +205,5 @@ export default function CartPage() {
     </div>
   )
 }
+
+export default CartPage;
