@@ -5,11 +5,11 @@ import React, {
     useEffect,
     useState,
 } from 'react';
-import { ICart } from 'shared/types';
+import { ICartP } from 'shared/types';
 
 interface CartContextProps {
-    cartData: ICart | null;
-    setCartData: (cart: ICart | null) => void;
+    cartData: ICartP | null;
+    setCartData: (cart: ICartP | null) => void;
 }
 
 const CartContext = createContext<CartContextProps>({
@@ -20,7 +20,7 @@ const CartContext = createContext<CartContextProps>({
 
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [cartData, setCartData] = useState<ICart | null>(null);
+    const [cartData, setCartData] = useState<ICartP | null>(null);
 
     useEffect(() => {
         (async () => {

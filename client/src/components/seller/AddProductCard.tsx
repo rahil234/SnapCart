@@ -1,32 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { Plus, X } from 'lucide-react';
+import { useForm, SubmitHandler, FieldErrors } from 'react-hook-form';
+import { GripVertical, ImageIcon, Plus, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import productEndpoints from '@/api/productEndpoints';
 import categoryEndpoints from '@/api/categoryEndpoints';
-import { Category as OriginalCategory, Subcategory } from 'shared/types';
+import { Category as OriginalCategory, Subcategory, Variant, VariantImage } from 'shared/types';
 import ProductAddTab from './ProductAddTab';
+import { CSS } from '@dnd-kit/utilities';
+import { Card, CardContent } from '../ui/card';
+import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import AddImageCropper from './addImageCropper';
+import { restrictToParentElement } from '@dnd-kit/modifiers';
 
 interface Category extends OriginalCategory {
   subcategories: Subcategory[];
-}
-
-interface Variant {
-  id: string;
-  name: string;
-  price: string;
-  stock: string;
-  images: VariantImage[];
-}
-
-interface VariantImage {
-  id: string;
-  file: File;
-  preview: string;
 }
 
 interface FormValues {
@@ -38,15 +30,75 @@ interface FormValues {
 }
 
 
-function AddProductCard({ onClose }: { onClose: () => void }) {
-  const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<FormValues>();
+function SortableImage({ image }: { image: VariantImage; }) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: image.id });
 
-  const defaultVariant = { id: '0', name: `Variant 0`, price: '', stock: '', images: [] };
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="relative group">
+      <img src={image.preview} alt="Product variant" className="w-24 h-24 object-cover rounded-lg" />
+      <button
+        type='button'
+        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <X size={12} />
+      </button>
+      <div className="absolute top-1 left-1 cursor-move">
+        <GripVertical size={16} className="text-white drop-shadow-lg" />
+      </div>
+    </div>
+  );
+}
+
+function AddProductCard({ onClose }: { onClose: () => void }) {
+  const { register, handleSubmit, setValue, getValues, formState: { errors }, watch } = useForm<FormValues>();
+
+  const defaultVariant = { id: 0, name: `Variant 0`, price: '', stock: '', images: [] };
 
   const [variants, setVariants] = useState<Variant[]>([defaultVariant]);
   const [activeTab, setActiveTab] = useState(defaultVariant.id);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategory, setSubcategory] = useState<Subcategory[]>([]);
+
+
+
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [currentImages, setCurrentImages] = useState<File[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleImageUpload = (variantId: number, files: FileList | null) => {
+    if (files) {
+      const variant = variants.find((v: Variant) => v.id === variantId);
+      if (variant && variant.images.length + files.length > 6) {
+        alert('You can only add up to 6 images per variant.');
+        return;
+      }
+      setCurrentImages(Array.from(files));
+      setCurrentImageIndex(0);
+      setCropperOpen(true);
+    }
+  };
+
+  const pushCroppedImage = (image: VariantImage) => {
+    setVariants((prevVariants: Variant[]) => prevVariants.map((v: Variant) => v.id === activeTab ? { ...v, images: [...v.images, image] } : v));
+  };
+
+  const closeImageCropper = () => {
+    setCropperOpen(false);
+    // setCurrentImages([]);
+  };
+
 
   const category = watch('category');
 
@@ -79,7 +131,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
       alert('You can only add up to 6 variants.');
       return;
     }
-    const newVariant = { id: String(variants.length), name: `Variant ${variants.length}`, price: '', stock: '', images: [] };
+    const newVariant = { id: variants.length, name: `Variant ${variants.length}`, price: '', stock: '', images: [] };
     setVariants(prev => [...prev, newVariant]);
     setActiveTab(newVariant.id);
   };
@@ -110,15 +162,15 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
   //   });
   // };
 
-  const removeVariant = (id: string) => {
+  const removeVariant = (id: number) => {
     console.log("removeVariantId", id);
-    setActiveTab('0');
+    // setActiveTab('0');
 
     // Update variants state
     setVariants(prevVariants => {
       const updatedVariants = prevVariants
         .filter(variant => variant.id !== id)
-        .map((variant, index) => ({ ...variant, id: String(index) }));
+        .map((variant, index) => ({ ...variant, id: index }));
 
       // const maxIndex = prevVariants.length;
       // for (let i = 0; i < maxIndex; i++) {
@@ -173,9 +225,20 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
     }
   };
 
+  function onInvalid(data: FieldErrors): void {
+    console.log(data.variants);
+  }
+
+
+  function logValues(): void {
+    console.log(getValues());
+  }
+
+  // logValues();
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 w-full max-h-[90vh] overflow-y-auto max-w-2xl p-6 bg-white rounded-lg shadow-lg relative">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-8 w-full max-h-[90vh] overflow-y-auto max-w-2xl p-6 bg-white rounded-lg shadow-lg relative">
         <button
           type="button"
           onClick={onClose}
@@ -183,7 +246,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
         >
           <X size={25} />
         </button>
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Label htmlFor="productName">Product Name</Label>
           <Input
             id="productName"
@@ -234,13 +297,13 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
               <span className="text-red-500 text-xs">{errors.subcategory.message}</span>
             }
           </div>
-        }
+        } */}
         <Tabs value={String(activeTab)} className="w-full">
           <div className="flex items-center justify-between mb-4">
             <Label>Variants</Label>
           </div>
-          <div className="flex space-x-2 overflow-x-auto p-2 items-center justify-center">
-            <TabsList className="flex-grow flex ps-14 space-x-2 bg-transparent h-22">
+          <div className="flex space-x-2 overflow-x-auto p-4 items-center justify-center">
+            <TabsList className="flex-grow flex space-x-2 bg-transparent h-22">
               {variants.map((variant) => (
                 <TabsTrigger
                   key={variant.id}
@@ -251,7 +314,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
                     setActiveTab(variant.id)
                   }}
                 >
-                  <span className="text-sm font-medium p-2 py-6">{`Variant ${variant.id}`}</span>
+                  <span className="text-sm font-medium">{`Variant ${variant.id}`}</span>
                   {variants.length > 1 && (
                     <Button
                       type="button"
@@ -271,24 +334,95 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
               ))}
             </TabsList>
             {variants.length < 6 &&
-              <Button type="button" onClick={addVariant} size="sm" className="shrink-0 h-24 w-24">
+              <Button type="button" onClick={addVariant} size="sm" className="shrink-0 h-16 w-16">
                 <Plus className="h-6 w-6" />
               </Button>
             }
           </div>
-          {activeTab && variants.find(variant => variant.id === activeTab) &&
-            variants.map((variant) => (
-              <ProductAddTab
-                key={variant.id}
-                variant={variant}
-                setVariants={setVariants}
-                setValue={setValue}
-                register={register}
-                errors={errors}
-                variants={variants}
-              />
-            ))
-          }
+          {variants.map((variant) => (
+            <TabsContent value={String(variant.id)} key={variant.id}>
+              {cropperOpen && currentImages.length > 0 && <AddImageCropper currentImages={currentImages} pushCroppedImage={pushCroppedImage} currentImageIndex={currentImageIndex} setCurrentImageIndex={setCurrentImageIndex} currentVariantId={variant.id} onClose={closeImageCropper} />}
+              <Card>
+                <CardContent className="space-y-4 pt-6">
+                  <div className="space-y-2">
+                    <Label htmlFor={`variantName-${variant.id}`}>Variant Name</Label>
+                    <Input
+                      id={`variantName-${variant.id}`}
+                      {...register(`variants.${variant.id}.name`, { required: 'Variant Name is required' })}
+                    />
+                    {errors.variants?.[variant.id]?.name && <span className="text-red-500 text-xs">{errors.variants?.[variant.id]?.name?.message ?? ''}</span>}
+                  </div>
+                  {/* <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor={`variantPrice-${variant.id}`}>Price</Label>
+                      <Input
+                        id={`variantPrice-${variant.id}`}
+                        type="number"
+                        min="1"
+                        {...register(`variants.${variant.id}.price`, { required: 'Price is required', min: { value: 1, message: 'Price must be at least 1' } })}
+                      />
+                      {errors.variants?.[variant.id]?.price && <span className="text-red-500 text-xs">{errors.variants[variant.id]?.price?.message}</span>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor={`variantStock-${variant.id}`}>Stock</Label>
+                      <Input
+                        id={`variantStock-${variant.id}`}
+                        type="number"
+                        min="1"
+                        {...register(`variants.${variant.id}.stock`, { required: 'Stock is required', min: { value: 1, message: 'Stock must be at least 1' } })}
+                      />
+                      {errors.variants?.[variant.id]?.stock && <span className="text-red-500 text-xs">{errors.variants[variant.id]?.stock?.message}</span>}
+                    </div>
+                  </div>*/}
+                  <div className="space-y-2">
+                    <Label>Images (Max 6)</Label>
+                    <div
+                      className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors"
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                      }}
+                    >
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        multiple
+                        id={`imageUpload-${variant.id}`}
+                        onChange={(e) => handleImageUpload(variant.id, e.target.files)}
+                        disabled={variant.images.length >= 6}
+                      />
+                      <Label htmlFor={`imageUpload-${variant.id}`} className="cursor-pointer">
+                        <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
+                        <span className="mt-2 block text-sm font-medium text-gray-900">
+                          {variant.images.length < 6
+                            ? "Drop image here or click to upload and crop"
+                            : "Maximum number of images reached"}
+                        </span>
+                      </Label>
+                    </div>
+                  </div>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    modifiers={[restrictToParentElement]}
+                  >
+                    <SortableContext items={variant.images} strategy={horizontalListSortingStrategy}>
+                      <div className='grid grid-cols-6'>
+                        {variant.images.map((image, index) => (
+                          <SortableImage
+                            key={index}
+                            image={image}
+                          />
+                        )
+                        )}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          ))}
         </Tabs>
         <Button type="submit" className="w-full">Submit Product</Button>
       </form>
@@ -296,15 +430,4 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
   );
 }
 
-
 export default AddProductCard;
-
-
-// <ProductAddTab
-//   variant={variants.find(variant => variant.id === activeTab)!}
-//   setVariants={setVariants}
-//   setValue={setValue}
-//   register={register}
-//   errors={errors}
-//   variants={variants}
-// />

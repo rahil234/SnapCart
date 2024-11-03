@@ -31,6 +31,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from 'sonner';
+import { useAsyncValue } from 'react-router-dom';
 
 interface ProductsTableProps {
   products: Product[];
@@ -191,22 +192,18 @@ export default function SellerProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Categories[]>([]);
 
+
+  useAsyncValue
+
   useEffect(() => {
-    const request = async () => {
+    (async () => {
       const { data } = await productEndpoints.getSellerProducts();
       console.log('products', data);
       setProducts(data);
-    };
-    request();
+    })();
   }, []);
 
-  const handleEditProduct = (product: Product) => {
-    (async () => {
-      const response = await categoryEndpoints.getCategories();
-      const data: Categories[] = response.data;
-      setCategories(data);
-    })();
-
+  const handleEditProduct = async (product: Product) => {
     setSelectedProduct(product);
     setShowEditProduct(true);
   };

@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { Document, Schema } from 'mongoose';
 
 interface Review {
   _id: string;
@@ -82,7 +82,7 @@ export interface Seller extends Document {
 }
 
 export interface IAdmin extends Document {
-  _id: string
+  _id: string;
   firstName: string;
   email: string;
   password: string;
@@ -100,10 +100,32 @@ export interface ICart extends Document {
   userId: string;
   items: Array<{
     _id: string;
-    product: Product;
+    product: string;
     quantity: number;
   }>;
   totalPrice: number;
+}
+
+export interface ICartP extends Omit<ICart, 'items'> {
+  items: Array<{
+    _id: string;
+    product: Product;
+    quantity: number;
+  }>;
+}
+
+export interface Variant {
+  id: number;
+  name: string;
+  price: string;
+  stock: string;
+  images: VariantImage[];
+}
+
+export interface VariantImage {
+  id: number;
+  file: File;
+  preview: string;
 }
 
 export interface ApiResponse<T> {
