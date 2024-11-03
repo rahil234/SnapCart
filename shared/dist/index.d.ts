@@ -1,3 +1,4 @@
+import { Document, Schema } from 'mongoose';
 interface Review {
     _id: string;
     user: string;
@@ -18,10 +19,12 @@ export interface Product {
     };
     price: number;
     quantity: string;
+    variantName?: string;
     stock?: number;
     images: string[];
     description?: string;
     tags?: string[];
+    discount?: number;
     status: 'Active' | 'Inactive';
     variants?: {
         _id: string;
@@ -43,24 +46,78 @@ export interface Subcategory {
     name: string;
     status: 'Active' | 'Blocked';
 }
-export type UserRole = 'admin' | 'user' | 'seller';
+export type UserRole = 'admin' | 'customer' | 'seller';
 export interface User {
-    id: string;
+    _id: string;
     firstName: string;
     lastName: string;
     email: string;
     DOB: string;
     role: UserRole;
+    addresses: [];
+    profilePicture: string;
+    status: 'Active' | 'Blocked';
 }
-export interface Seller {
+export interface IUsers extends Document {
     _id: string;
-    name: string;
+    firstName: string;
+    lastName: string | null;
+    DOB: Date;
+    phoneNo: number | null;
+    addresses: Array<object>;
+    email: string;
+    password: string;
+    profilePicture: string | null;
+    status: 'Active' | 'Blocked';
+}
+export interface Seller extends Document {
+    _id: string;
+    firstName: string;
+    profilePicture: string;
     email: string;
     DOB: string;
+    status: 'Active' | 'Blocked';
+}
+export interface IAdmin extends Document {
+    _id: string;
+    firstName: string;
+    email: string;
+    password: string;
+    profilePicture: string | null;
+    status: 'Active' | 'Blocked';
 }
 export interface Credentials {
     email: string;
     password: string;
+}
+export type ObjectId = Schema.Types.ObjectId;
+export interface ICart extends Document {
+    userId: string;
+    items: Array<{
+        _id: string;
+        product: string;
+        quantity: number;
+    }>;
+    totalPrice: number;
+}
+export interface ICartP extends Omit<ICart, 'items'> {
+    items: Array<{
+        _id: string;
+        product: Product;
+        quantity: number;
+    }>;
+}
+export interface Variant {
+    id: number;
+    name: string;
+    price: string;
+    stock: string;
+    images: VariantImage[];
+}
+export interface VariantImage {
+    id: number;
+    file: File;
+    preview: string;
 }
 export interface ApiResponse<T> {
     success: boolean;
@@ -71,6 +128,7 @@ interface ImportMetaEnv {
     readonly VITE_googleOAuthClientId: string;
     readonly VITE_BUCKET_URL: string;
     readonly VITE_API_URL: string;
+    readonly VITE_imageUrl: string;
 }
 export interface ImportMeta {
     readonly env: ImportMetaEnv;
