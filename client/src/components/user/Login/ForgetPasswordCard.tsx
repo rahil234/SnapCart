@@ -3,16 +3,18 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
 import InputField from '@/components/ui/InputField';
 import userEndpoints from '@/api/userEndpoints';
+import { catchError } from 'shared/types';
 
 interface ForgotPasswordInputs {
   email: string;
 }
 
 interface ForgotPasswordCardProps {
-  setActiveTab: (tab: 'login' | 'signup' | 'forgotPassword' | 'verifyOtp') => void;
+  setEmail: (email: string) => void
+  setActiveTab: (tab: 'login' | 'signup' | 'forgotPassword' | 'verifyOtp' | 'forgot-verify' | 'new-password') => void;
 }
 
-export default function ForgotPasswordCard({ setActiveTab }: ForgotPasswordCardProps) {
+export default function ForgotPasswordCard({ setEmail, setActiveTab }: ForgotPasswordCardProps) {
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -25,12 +27,11 @@ export default function ForgotPasswordCard({ setActiveTab }: ForgotPasswordCardP
     try {
       setError(null);
       await userEndpoints.forgotPassword(data.email);
-      console.log('data', data);
-      setActiveTab('verifyOtp');
-      
-    } catch (error: any) {
+      setEmail(data.email);
+      setActiveTab('forgot-verify');
+    } catch (error) {
       console.error('error', error);
-      setError(error.response?.data?.message || 'An error occurred. Please try again.');
+      setError((error as catchError).response?.data?.message || 'An error occurred. Please try again.');
     }
   };
 

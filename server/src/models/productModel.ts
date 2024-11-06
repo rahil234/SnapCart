@@ -4,7 +4,7 @@ import { Product } from 'shared/types';
 const ProductSchema: Schema = new Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
-  quantity: { type: String, required: true },
+  variantName: { type: String, required: true },
   stock: { type: Number, required: true },
   images: { type: Array, required: true },
   status: { type: String, default: 'Active' },

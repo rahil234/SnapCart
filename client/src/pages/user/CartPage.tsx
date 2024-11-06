@@ -1,98 +1,56 @@
-import React, { useEffect, useState, useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import cartEndpoints from '@/api/cartEndpoints'
-import CartContext from '@/context/CartContext'
-import { ImportMeta } from 'shared/types'
-// import orderEndpoints from '@/api/orderEndpoints'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { ImportMeta } from 'shared/types';
+import { updateQuantity, CartState, removeItem } from '@/features/cart/cartSlice';
+import { AppDispatch } from '@/app/store';
+import { toast } from 'sonner';
+import orderEndpoints from '@/api/orderEndpoints';
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl
 
 const CartPage = () => {
 
-  const { cartData, setCartData } = useContext(CartContext)
+  const { cartData } = useSelector((state: { cart: CartState }) => state.cart)
+  const [isLoading] = useState(0)
 
-  const [isLoading, setIsLoading] = useState(true)
+  const dispatch = useDispatch<AppDispatch>()
 
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const fetchCartData = async () => {
-      try {
-        const response = await cartEndpoints.getCart()
-        setCartData(response.data.cart)
-        console.log('Cart data:', response.data.cart);
-
-      } catch (error) {
-        console.error('Error fetching cart data:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchCartData()
-  }, [])
-
-  useEffect(() => {
-    if (cartData) {
-      const newTotalPrice = cartData.items.reduce((total, item) => {
-        return total + item.product.price * item.quantity
-      }, 0)
-      setCartData({ ...cartData, totalPrice: newTotalPrice })
-    }
-  }, [cartData?.items])
-
-  const handleIncreaseQuantity = async (productId: string) => {
+  const handleIncreaseQuantity = async (_id: string, quantity: number) => {
     if (!cartData) return
-    setCartData({
-      ...cartData,
-      items: cartData.items.map((item) =>
-        item.product._id === productId ? { ...item, quantity: item.quantity + 1 } : item
-      ),
-    })
+    dispatch(updateQuantity({ _id, quantity: quantity + 1 }));
   }
 
-  const handleDecreaseQuantity = async (productId: string) => {
+  const handleDecreaseQuantity = async (_id: string, quantity: number) => {
     if (!cartData) return
-    const item = cartData.items.find((item) => item.product._id === productId)
-    if (item && item.quantity === 1) {
-      handleRemoveItem(productId)
-    } else {
-      setCartData({
-        ...cartData,
-        items: cartData.items.map((item) =>
-          item.product._id === productId ? { ...item, quantity: item.quantity - 1 } : item
-        ),
-      })
-    }
+    dispatch(updateQuantity({ _id, quantity: quantity - 1 }))
   }
 
   const handleRemoveItem = async (productId: string) => {
-    await cartEndpoints.removeItem(productId)
     if (!cartData) return
-    setCartData({
-      ...cartData,
-      items: cartData.items.filter((item) => item.product._id !== productId),
-    })
+    dispatch(removeItem({ _id: productId }))
   }
 
   const handleCheckout = async () => {
     if (!cartData) return
     try {
-      // const response = await orderEndpoints.createOrder(cartData)
-      // console.log('Checkout response:', response.data)
-
-      // setCartData({ items: [], totalPrice: 0 })
+      await orderEndpoints.verifyCheckout()
       navigate('/checkout')
     } catch (error) {
+      toast.error('Error checking out cart')
       console.error('Error checking out cart:', error)
     }
   }
 
-  if (isLoading) {
+  if (!cartData || isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="w-8 h-8 animate-spin" />
@@ -137,7 +95,7 @@ const CartPage = () => {
                           <Button
                             size="icon"
                             variant="outline"
-                            onClick={() => handleDecreaseQuantity(item.product._id)}
+                            onClick={() => handleDecreaseQuantity(item.product._id, item.quantity)}
                             aria-label="Decrease quantity"
                           >
                             <Minus className="h-4 w-4" />
@@ -146,7 +104,7 @@ const CartPage = () => {
                           <Button
                             size="icon"
                             variant="outline"
-                            onClick={() => handleIncreaseQuantity(item.product._id)}
+                            onClick={() => handleIncreaseQuantity(item.product._id, item.quantity)}
                             aria-label="Increase quantity"
                             disabled={item.quantity > 9}
                           >
@@ -181,7 +139,7 @@ const CartPage = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span>₹{cartData.totalPrice}</span>
+                    <span>₹{cartData.totalAmount}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
@@ -190,7 +148,7 @@ const CartPage = () => {
                   <Separator />
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>₹{cartData.totalPrice}</span>
+                    <span>₹{cartData.totalAmount}</span>
                   </div>
                 </div>
               </CardContent>
@@ -203,7 +161,7 @@ const CartPage = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 export default CartPage;

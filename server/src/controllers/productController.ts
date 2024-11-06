@@ -2,6 +2,26 @@ import { Request, Response } from 'express';
 import productModel from '@/models/productModel';
 import { catchError } from '@shared/types';
 import { log } from 'console';
+import categoryModel from '@models/categoryModel';
+
+const getProduct = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.productId;
+
+    const product = await productModel
+      .findOne({ _id: productId })
+      .populate('category')
+      .populate('subcategory');
+
+    if (product) {
+      res.status(200).json(product);
+    } else {
+      res.status(404).json({ message: 'Product not found' });
+    }
+  } catch {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 const addProduct = async (req: Request, res: Response) => {
   try {
@@ -128,6 +148,46 @@ const getRelatedProducts = async (req: Request, res: Response) => {
   }
 };
 
+const getProductByCategory = async (req: Request, res: Response) => {
+  try {
+    const { category } = req.params;
+    console.log(category);
+    const products = await productModel
+      .find({ category, status: 'Active' })
+      .populate('category')
+      .populate('subcategory');
+    res.status(200).json(products);
+  } catch (error) {
+    const myError = error as catchError;
+    res.status(400).json({ message: myError.message });
+  }
+};
+
+const getProductsByUser = async (req: Request, res: Response) => {
+  try {
+    const categories = await categoryModel.find().limit(5);
+
+    const categoryProducts = await Promise.all(
+      categories.map(async (category) => {
+        const products = await productModel
+          .find({ category: category._id, status: 'Active', stock: { $gt: 0 } })
+          .limit(10);
+
+        return {
+          categoryId: category._id,
+          category: category.name,
+          products,
+        };
+      })
+    );
+
+    res.json(categoryProducts);
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(404).json({ message: err });
+  }
+};
+
 const getProductsByAdmin = async (req: Request, res: Response) => {
   try {
     const products = await productModel
@@ -143,6 +203,7 @@ const getProductsByAdmin = async (req: Request, res: Response) => {
 
 const getProductsBySeller = async (req: Request, res: Response) => {
   try {
+    console.log(req.user);
     const products = await productModel
       .find({ seller: req.user?._id })
       .populate('category')
@@ -150,20 +211,7 @@ const getProductsBySeller = async (req: Request, res: Response) => {
     res.status(200).json(products);
   } catch (error) {
     const myError = error as catchError;
-    res.status(400).json({ message: myError.message });
-  }
-};
-
-const getProducts = async (req: Request, res: Response) => {
-  try {
-    const products = await productModel
-      .find()
-      .populate('category')
-      .populate('subcategory');
-    res.status(200).json(products);
-  } catch (error) {
-    const myError = error as catchError;
-    console.log(error);
+    console.log(myError);
     res.status(400).json({ message: myError.message });
   }
 };
@@ -191,10 +239,12 @@ const listProduct = async (req: Request, res: Response) => {
 };
 
 export default {
+  getProduct,
   addProduct,
   editProduct,
   getRelatedProducts,
-  getProducts,
+  getProductByCategory,
+  getProductsByUser,
   getProductsByAdmin,
   getProductsBySeller,
   unlistProduct,

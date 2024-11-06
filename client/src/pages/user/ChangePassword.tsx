@@ -32,7 +32,7 @@ function ChangePasswordPage() {
     setIsLoading(false)
     console.log(data)
     toast.success('Password changed successfully')
-    navigate('/profile')
+    navigate('/my-account#security')
   }
 
   return (
@@ -74,6 +74,7 @@ function ChangePasswordPage() {
                   type={showNewPassword ? 'text' : 'password'}
                   {...register('newPassword', {
                     required: 'New password is required',
+                    validate: (value) => value !== watch('currentPassword') || 'New password must be different from current password',
                     minLength: { value: 8, message: 'Password must be at least 8 characters' }
                   })}
                   className="pr-10"
@@ -132,7 +133,7 @@ function ChangePasswordPage() {
           <Button
             variant="ghost"
             className="w-full"
-            onClick={() => navigate('/profile')}
+            onClick={() => navigate('/my-account#security')}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Profile

@@ -1,5 +1,4 @@
 import axiosInstance from './axiosInstance';
-import { ICart } from 'shared/types';
 const getCart = async () => {
   return axiosInstance.get('api/cart');
 };
@@ -8,8 +7,8 @@ const addToCart = async (productId: string) => {
   return axiosInstance.post('/api/cart', { productId });
 };
 
-const updateCart = async (cartData: ICart) => {
-  return axiosInstance.patch('/api/cart', { cartData });
+const updateCart = async (productId: string, quantity: number) => {
+  return axiosInstance.patch(`/api/cart/${productId}`, { quantity });
 };
 
 const removeItem = async (productId: string) => {

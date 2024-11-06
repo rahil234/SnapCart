@@ -11,7 +11,7 @@ interface EditProductFormInputs {
   category: string;
   subcategory: string;
   price: number;
-  quantity: string;
+  variantName: string;
   stock: number;
 }
 
@@ -59,7 +59,7 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
       category: product.category._id,
       subcategory: product.subcategory._id,
       price: product.price,
-      quantity: product.quantity,
+      variantName: product.variantName,
       stock: product.stock,
     });
 
@@ -93,7 +93,7 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
     formData.append('category', data.category);
     formData.append('subcategory', data.subcategory);
     formData.append('price', data.price.toString());
-    formData.append('quantity', data.quantity);
+    formData.append('quantity', data.variantName.toString());
     formData.append('stock', data.stock.toString());
 
     productImages.forEach((image) => {
@@ -282,11 +282,11 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
             </label>
             <input
               type="text"
-              id="quantity"
-              {...register("quantity", { required: "Quantity is required" })}
+              id="variantName"
+              {...register("variantName", { required: "variantName is required" })}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
-            {errors.quantity && <p className="mt-1 text-sm text-red-600">{errors.quantity.message}</p>}
+            {errors.variantName && <p className="mt-1 text-sm text-red-600">{errors.variantName.message}</p>}
           </div>
           <div>
             <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
@@ -295,7 +295,7 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
             <input
               type="number"
               id="stock"
-              {...register("stock", { required: "Stock is required", min: 1 })}
+              {...register("stock", { required: "Stock is required", min: 0 })}
               onWheel={(e) => e.currentTarget.blur()}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />

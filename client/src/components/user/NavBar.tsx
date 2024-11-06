@@ -13,10 +13,7 @@ const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
 
 const NavBar = () => {
 
-  const { isAuthenticated, user } = useSelector(
-    (state: { auth: AuthState }) =>
-      state.auth
-  );
+  const { isAuthenticated, user } = useSelector((state: { auth: AuthState }) => state.auth);
   const { showLoginOverlay, toggleCartOverlay, toggleProfileOverlay } = useContext(UIContext);
 
   return (

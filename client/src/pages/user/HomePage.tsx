@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import userEndpoints from '@/api/userEndpoints';
+import { useNavigate } from 'react-router-dom';
 import adminEndpoints from '@/api/adminEndpoints';
 import ProductCard from '@/components/user/ProductCard';
 import { Product } from 'shared/types';
 import { ImportMeta } from 'shared/types';
+import productEndpoints from '@/api/productEndpoints';
 
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL ;
 interface Products {
   categoryId: number;
   category: string;
@@ -15,12 +17,13 @@ function HomePage() {
   const [data, setData] = useState<Products[]>([]);
   const [banners, setBanners] = useState<{ _id: number; image: string; order: number }[]>([]);
 
-  const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL ;
+  const naviagate = useNavigate();
 
   useEffect(() => {
-    // Fetch products
-    userEndpoints.fetchProducts().then(response => {
+    productEndpoints.getLatestProducts().then(response => {
       setData(response.data);
+      console.log(response.data);
+      
     });
 
     // Fetch banners
@@ -55,14 +58,14 @@ function HomePage() {
         </div>
 
         {data.map((category) => (
-          <React.Fragment key={category.categoryId}> {/* Use unique key for each category */}
+          <React.Fragment key={category.categoryId}>
             {category.products.length === 0 ? null : (
               <section className="mb-8">
                 <div className='flex justify-between items-center'>
                   <h2 className="text-2xl font-semibold mb-4">
                     {category.category}
                   </h2>
-                  <p className="font-medium mb-4 text-green-700">
+                  <p className="font-medium mb-4 text-green-700" onClick={()=>naviagate(`/category/${category.categoryId}`)}>
                     see all
                   </p>
                 </div>

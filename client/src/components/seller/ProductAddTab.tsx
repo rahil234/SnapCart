@@ -117,7 +117,7 @@ function ProductAddTab({ variant, setVariants, setValue, register,  errors, vari
 
   return (
     <TabsContent value={String(variant.id)}>
-      {/* {cropperOpen && currentImages.length > 0 && <AddImageCropper currentImages={currentImages} pushCroppedImage={pushCroppedImage} currentImageIndex={currentImageIndex} setCurrentImageIndex={setCurrentImageIndex} currentVariantId={variant.id} onClose={closeImageCropper} />} */}
+      {cropperOpen && currentImages.length > 0 && <AddImageCropper currentImages={currentImages} pushCroppedImage={pushCroppedImage} currentImageIndex={currentImageIndex} setCurrentImageIndex={setCurrentImageIndex} currentVariantId={variant.id} onClose={closeImageCropper} />}
       <Card>
         <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">

@@ -2,15 +2,13 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-import jwtUtils from '@/utils/jwtUtils';
+import { signAccessToken } from '@/utils/jwtUtils';
 import {
-  clearRefreshTokenCookie,
   setRefreshTokenCookie,
+  clearRefreshTokenCookie,
 } from '@/utils/cookieUtils';
 import otpModel from '@models/otpModel';
 import userModel from '@models/userModel';
-import productModel from '@models/productModel';
-import categoryModel from '@models/categoryModel';
 import { catchError } from 'shared/types';
 
 const transporter = nodemailer.createTransport({
@@ -81,23 +79,15 @@ const login = async (req: Request, res: Response) => {
       return;
     }
 
-    const refreshToken = jwtUtils.signRefreshToken({
+    setRefreshTokenCookie(res, { _id: user._id, role: 'customer' });
+
+    const accessToken = signAccessToken({
       _id: user._id,
       email: user.email,
       role: 'customer',
     });
 
-    setRefreshTokenCookie(res, refreshToken);
-
-    const accessToken = jwtUtils.signAccessToken({
-      _id: user._id,
-      email: user.email,
-      role: 'customer',
-    });
-
-    console.log('cookie was set User', user);
-
-    res.status(200).json({ accessToken, message: 'success', user });
+    res.status(200).json({ message: 'success', accessToken, user });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Internal server error' });
@@ -145,17 +135,10 @@ const googleLogin = async (req: Request, res: Response) => {
       role: 'customer',
     };
 
-    const refreshToken = jwtUtils.signRefreshToken({
-      _id: user._id,
-      email: user.email,
-      role: 'customer',
-    });
+    setRefreshTokenCookie(res, { _id: user._id, role: 'customer' });
 
-    setRefreshTokenCookie(res, refreshToken);
-
-    const accessToken = jwtUtils.signAccessToken({
+    const accessToken = signAccessToken({
       _id: userData._id,
-      email: userData.email,
       role: 'customer',
     });
 
@@ -191,60 +174,15 @@ const signup = async (req: Request, res: Response) => {
       role: 'customer',
     };
 
-    const accessToken = jwtUtils.signAccessToken({ ...user });
-    const refreshToken = jwtUtils.signRefreshToken({ ...user });
-    setRefreshTokenCookie(res, refreshToken);
+    setRefreshTokenCookie(res, { _id: user._id, role: 'customer' });
+
+    const accessToken = signAccessToken({ ...user });
     res
       .status(201)
       .json({ accessToken, message: 'User created successfully', user });
   } catch (err) {
     console.log(err);
     res.status(404).json({ message: 'user signup failed' });
-  }
-};
-
-const getProducts = async (req: Request, res: Response) => {
-  try {
-    const categories = await categoryModel.find().limit(5);
-
-    const categoryProducts = await Promise.all(
-      categories.map(async (category) => {
-        const products = await productModel
-          .find({ category: category._id, status: 'Active' }) // Filter out inactive products
-          .limit(10);
-
-        return {
-          categoryId: category._id,
-          category: category.name,
-          products,
-        };
-      })
-    );
-
-    // Step 3: Send the combined results in the response
-    res.json(categoryProducts);
-  } catch (err) {
-    console.error('Error:', err);
-    res.status(404).json({ message: err });
-  }
-};
-
-const getProduct = async (req: Request, res: Response) => {
-  try {
-    const productId = req.params.productId;
-
-    const product = await productModel
-      .findOne({ _id: productId })
-      .populate('category')
-      .populate('subcategory');
-
-    if (product) {
-      res.status(200).json(product);
-    } else {
-      res.status(404).json({ message: 'Product not found' });
-    }
-  } catch {
-    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -292,6 +230,27 @@ const forgotPassword = async (req: Request, res: Response) => {
     }
 
     await sendOtp(email);
+    res.json({ message: 'OTP sent to your email' });
+  } catch (err) {
+    res.status(500).json({ message: 'Internal server error' + err });
+  }
+};
+
+const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const existingUser = await userModel.findOne({ email: req.body.email });
+    if (!existingUser) {
+      res.status(400).json({ message: 'User not found' });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    existingUser.password = hashedPassword;
+
+    await existingUser.save();
+
+    // await sendOtp(email);
     res.json({ message: 'OTP sent to your email' });
   } catch (err) {
     res.status(500).json({ message: 'Internal server error' + err });
@@ -348,13 +307,19 @@ const uploadProfilePicture = async (req: Request, res: Response) => {
       return;
     }
 
-    const user = await userModel.findByIdAndUpdate(req.user?._id, {
-      $set: { profilePicture: req.file.filename },
-    });
+    const user = await userModel.findByIdAndUpdate(
+      req.user?._id,
+      {
+        $set: { profilePicture: req.file.filename },
+      },
+      { new: true }
+    );
 
-    res
-      .status(200)
-      .json({ message: 'Profile picture uploaded successfully', user });
+    const profilePicture = user?.profilePicture;
+    res.status(200).json({
+      message: 'Profile picture uploaded successfully',
+      profilePicture,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error', error });
   }
@@ -413,18 +378,30 @@ const allowUser = async (req: Request, res: Response) => {
   }
 };
 
+const addAddress = async (req: Request, res: Response) => {
+  try {
+    const user = await userModel.findByIdAndUpdate(req.user?._id, {
+      $push: { addresses: req.body },
+    });
+
+    res.status(200).json({ message: 'Address added successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+};
+
 export default {
   login,
   googleLogin,
   signup,
-  getProducts,
-  getProduct,
   verifySignUp,
   forgotPassword,
+  resetPassword,
   changePassword,
   verifyOtp,
   uploadProfilePicture,
   updateProfile,
   blockUser,
   allowUser,
+  addAddress,
 };

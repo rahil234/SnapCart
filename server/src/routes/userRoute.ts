@@ -11,15 +11,17 @@ userRoute.post('/google-login', userController.googleLogin);
 
 userRoute.post('/signup', userController.signup);
 
-userRoute.get('/products', userController.getProducts);
-
-userRoute.get('/product/:productId', userController.getProduct);
-
-userRoute.post('/send-otp', userController.verifySignUp);
+userRoute.post(
+  '/send-otp',
+  authenticateAndAuthorize(['customer']),
+  userController.verifySignUp
+);
 
 userRoute.post('/verify-otp', userController.verifyOtp);
 
 userRoute.post('/forgot-password', userController.forgotPassword);
+
+userRoute.post('/reset-password', userController.resetPassword);
 
 userRoute.post(
   '/upload-profile-picture',
@@ -34,8 +36,22 @@ userRoute.patch(
   userController.updateProfile
 );
 
-userRoute.patch('/:userId/block', userController.blockUser);
+userRoute.patch(
+  '/:userId/block',
+  authenticateAndAuthorize(['admin']),
+  userController.blockUser
+);
 
-userRoute.patch('/:userId/allow', userController.allowUser);
+userRoute.patch(
+  '/:userId/allow',
+  authenticateAndAuthorize(['admin']),
+  userController.allowUser
+);
+
+userRoute.post(
+  '/add-address',
+  authenticateAndAuthorize(['customer']),
+  userController.addAddress
+);
 
 export default userRoute;

@@ -14,7 +14,6 @@ export interface AuthState {
 const apiUrl = (import.meta as unknown as ImportMeta).env
   .VITE_API_URL as string;
 
-// Define the thunk to refresh the token
 export const refreshAuthToken = createAsyncThunk(
   'auth/refreshAuthToken',
   async (_, { rejectWithValue }) => {
@@ -26,13 +25,12 @@ export const refreshAuthToken = createAsyncThunk(
       );
       return response.data;
     } catch {
-      // console.error('Failed to refresh token:', error);
+      clearCredentials();
       return rejectWithValue('Failed to refresh token');
     }
   }
 );
 
-// Define the thunk to log out the user
 export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
   async (_, { rejectWithValue }) => {
@@ -64,11 +62,18 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
       state.isAuthenticated = true;
+      localStorage.setItem('sessionActive', 'true');
+    },
+    changeProfilePicture: (state, action) => {
+      if (state.user) {
+        state.user.profilePicture = action.payload;
+      }
     },
     clearCredentials: state => {
       state.isAuthenticated = false;
       state.user = null;
       state.accessToken = null;
+      localStorage.removeItem('sessionActive');
     },
   },
   extraReducers: builder => {
@@ -99,5 +104,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, clearCredentials } = authSlice.actions;
+export const { setCredentials, changeProfilePicture, clearCredentials } =
+  authSlice.actions;
 export default authSlice.reducer;

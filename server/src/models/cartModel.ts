@@ -6,6 +6,7 @@ const CartSchema: Schema = new Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      unique: true,
       required: true,
     },
     items: [
@@ -15,10 +16,10 @@ const CartSchema: Schema = new Schema(
           ref: 'Product',
           required: true,
         },
-        quantity: { type: Number, required: true, min: 1 },
+        quantity: { type: Number, required: true, min: 0 },
       },
     ],
-    totalPrice: { type: Number, required: true, default: 0 },
+    totalAmount: { type: Number, required: true, default: 0 },
   },
   {
     timestamps: true,

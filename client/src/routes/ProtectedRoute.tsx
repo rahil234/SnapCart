@@ -14,7 +14,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles
 
 
   if (!auth.isAuthenticated) {
-    // if the user is not authenticated, redirect to the appropiate login page
     const loginPath = location.pathname.startsWith('/seller') ? '/seller/login' : '/admin/login';
     return <Navigate to={loginPath} state={{ from: location }} replace />;
   }

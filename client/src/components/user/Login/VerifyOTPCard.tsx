@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
 import { catchError } from 'shared/types';
+import userEndpoints from '@/api/userEndpoints';
 
 interface VerifyOTPFormInputs {
   otp: string;
 }
 
 interface VerifyOTPCardProps {
+  email: string;
   setActiveTab: (tab: "login" | "signup" | "forgotPassword" | "verifyOtp") => void;
   onOTPSubmit: (otp: string) => void;
 }
 
-const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ setActiveTab, onOTPSubmit }) => {
+const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ email, setActiveTab, onOTPSubmit }) => {
   const [otpValues, setOtpValues] = useState(['', '', '', '']);
   const [error, setError] = useState<string | null>(null);
   const [timer, setTimer] = useState(60);
@@ -32,7 +34,6 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ setActiveTab, onOTPSubmit
 
   const onSubmit: SubmitHandler<VerifyOTPFormInputs> = async () => {
     const otp = otpValues.join('');
-    console.log('OTP submitted:', otp);
     try {
       onOTPSubmit(otp);
     } catch (error) {
@@ -47,16 +48,14 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ setActiveTab, onOTPSubmit
       newOtpValues[index] = value;
       setOtpValues(newOtpValues);
 
-      // Move focus to the next input
       if (value !== '' && index < 3) {
         const nextInput = document.getElementById(`otp-${index + 1}`);
         nextInput?.focus();
       }
 
-      // Check if all inputs are filled using the local copy of the OTP values
       if (newOtpValues.every((val) => val !== '')) {
         const otp = newOtpValues.join('');
-        onOTPSubmit(otp); // Directly submit the OTP using the handler
+        onOTPSubmit(otp);
       }
     }
   };
@@ -70,14 +69,14 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ setActiveTab, onOTPSubmit
 
   const handleResendOtp = () => {
     setTimer(60);
-    // try {
-    //   userEndpoints.resendOtp(userData.email);
-    //   setIsResendEnabled(false);
-    //   console.log('OTP resent');
-    // } catch (err: any) {
-    //   console.error('Error:', err);
-    //   setError(err.response?.data?.message || 'An error occurred');
-    // }
+    try {
+      userEndpoints.resendOtp(email);
+      setIsResendEnabled(false);
+      console.log('OTP resent');
+    } catch (err) {
+      console.error('Error:', err);
+      setError((err as catchError).response?.data?.message || 'An error occurred');
+    }
     setIsResendEnabled(false);
   };
 

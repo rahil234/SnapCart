@@ -10,15 +10,17 @@ import sellerRoute from './routes/sellerRoute';
 import adminRoute from './routes/adminRoute';
 import productRoute from './routes/productRoute';
 import categoryRoute from './routes/categoryRoute';
+import orderRoute from './routes/orderRoute';
 import cartRoute from './routes/cartRoute';
 // import deliveryRoute from './routes/delivery.route';
 
 dotenv.config();
 
 const app = express();
+
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'https://www.snapcart.website'],
     credentials: true,
   })
 );
@@ -46,6 +48,7 @@ app.use('/api/seller', sellerRoute);
 app.use('/api/admin', adminRoute);
 app.use('/api/product', productRoute);
 app.use('/api/category', categoryRoute);
+app.use('/api/order', orderRoute);
 app.use('/api/cart', cartRoute);
 // app.get('/api/delivery', deliveryRoute);
 

@@ -1,18 +1,22 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Loader2, Plus, Edit2, Trash2} from 'lucide-react'
+import { Loader2, Plus, Edit2, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
+import PaymentButton from '@/components/user/PaymentButton'
 import { Separator } from '@/components/ui/separator'
 import { AuthState } from '@/features/auth/authSlice'
-import CartContext from '@/context/CartContext'
+import { CartState } from '@/features/cart/cartSlice'
+import orderEndpoints from '@/api/orderEndpoints'
+import { clearCart } from '@/features/cart/cartSlice'
+import { catchError } from 'shared/types'
 
 interface Address {
     id: string
@@ -22,7 +26,7 @@ interface Address {
     zipCode: string
 }
 
-interface CheckoutFormValues {
+export interface CheckoutFormValues {
     selectedAddressId: string
     addresses: Address[]
     paymentMethod: 'cod' | 'upi' | 'razorpay' | 'wallet'
@@ -33,9 +37,11 @@ export default function CheckoutPage() {
     const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false)
     const [editingAddressIndex, setEditingAddressIndex] = useState<number | null>(null)
 
+    const dispatch = useDispatch()
     const navigate = useNavigate()
+
     const { user } = useSelector((state: { auth: AuthState }) => state.auth)
-    const { cartData } = useContext(CartContext)
+    const { cartData } = useSelector((state: { cart: CartState }) => state.cart)
     const [items, setItems] = useState(cartData?.items)
 
     useEffect(() => {
@@ -43,7 +49,7 @@ export default function CheckoutPage() {
         console.log(cartData)
     }, [cartData])
 
-    const { control, handleSubmit, watch } = useForm<CheckoutFormValues>({
+    const { control, handleSubmit, getValues, watch } = useForm<CheckoutFormValues>({
         defaultValues: {
             selectedAddressId: user?.addresses ? '' : '',
             addresses: user?.addresses || [],
@@ -71,15 +77,19 @@ export default function CheckoutPage() {
     }
 
     const onSubmit = async (data: CheckoutFormValues) => {
-        setIsLoading(true)
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 2000))
-        setIsLoading(false)
-        console.log(data)
-        toast.success('Order placed successfully!')
-        navigate('/order-confirmation')
+        try {
+            setIsLoading(true)
+            const response = await orderEndpoints.createOrder(data);
+            setIsLoading(false)
+            dispatch(clearCart())
+            navigate('/order-success/' + response.data.orderId)
+        }
+        catch (error) {
+            setIsLoading(false)
+            console.log(error);
+            toast.error((error as catchError).response.data.message)
+        }
     }
-
     return (
         <div className="container mx-auto p-6">
             <h1 className="text-3xl font-bold mb-6">Checkout</h1>
@@ -180,10 +190,6 @@ export default function CheckoutPage() {
                                             <Label htmlFor="cod">Cash on Delivery</Label>
                                         </div>
                                         <div className="flex items-center space-x-2">
-                                            <RadioGroupItem value="upi" id="upi" />
-                                            <Label htmlFor="upi">UPI</Label>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
                                             <RadioGroupItem value="razorpay" id="razorpay" />
                                             <Label htmlFor="razorpay">Razorpay</Label>
                                         </div>
@@ -224,7 +230,7 @@ export default function CheckoutPage() {
                             <div className="space-y-2">
                                 <div className="flex justify-between">
                                     <span>Price ({items?.length} items)</span>
-                                    <span>₹{cartData?.totalPrice}</span>
+                                    <span>₹{cartData?.totalAmount}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Delivery Charges</span>
@@ -233,30 +239,35 @@ export default function CheckoutPage() {
                                 <Separator />
                                 <div className="flex justify-between font-semibold">
                                     <span>Total Amount</span>
-                                    <span>₹{cartData?.totalPrice}</span>
+                                    <span>₹{cartData?.totalAmount}</span>
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter>
-                            <Button
-                                className="w-full"
-                                onClick={handleSubmit(onSubmit)}
-                                disabled={isLoading || !selectedAddressId || !selectedPaymentMethod}
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Processing
-                                    </>
-                                ) : (
-                                    <>
-                                        {selectedPaymentMethod === 'cod' && 'Place Order (COD)'}
-                                        {selectedPaymentMethod === 'upi' && 'Pay with UPI'}
-                                        {selectedPaymentMethod === 'razorpay' && 'Pay with Razorpay'}
-                                        {selectedPaymentMethod === 'wallet' && 'Pay with Wallet'}
-                                    </>
-                                )}
-                            </Button>
+                        <CardFooter>{
+                            selectedPaymentMethod === 'razorpay' ? (
+                                <PaymentButton getValues={getValues}>
+                                    Pay with Razorpay
+                                </PaymentButton>
+                            ) : (
+
+                                <Button
+                                    className="w-full"
+                                    onClick={handleSubmit(onSubmit)}
+                                    disabled={isLoading || !selectedAddressId || !selectedPaymentMethod}
+                                >
+                                    {isLoading ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Processing
+                                        </>
+                                    ) : (
+                                        <>
+                                            {selectedPaymentMethod === 'cod' && 'Place Order (COD)'}
+                                            {selectedPaymentMethod === 'wallet' && 'Pay with Wallet'}
+                                        </>
+                                    )}
+                                </Button>
+                            )}
                         </CardFooter>
                     </Card>
                 </div>

@@ -5,15 +5,21 @@ import authenticateAndAuthorize from '@/middleware/authenticateAndAuthorize';
 const cartRoute = Router();
 
 cartRoute.get(
-  '/',
+  '',
   authenticateAndAuthorize(['customer']),
   cartController.getCart
 );
 
 cartRoute.post(
-  '/',
+  '',
   authenticateAndAuthorize(['customer']),
   cartController.addItem
+);
+
+cartRoute.patch(
+  '/:productId',
+  authenticateAndAuthorize(['customer']),
+  cartController.updateItem
 );
 
 cartRoute.delete(

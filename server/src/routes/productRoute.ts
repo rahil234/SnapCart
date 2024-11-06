@@ -3,43 +3,46 @@ import productController from '@/controllers/productController';
 import authenticateAndAuthorize from '@/middleware/authenticateAndAuthorize';
 import upload from '@/middleware/upload';
 
-const productRoute = express.Router();
+const router = express.Router();
 
-productRoute.post(
+router.get(
+  '/related-products/:productId',
+  productController.getRelatedProducts
+);
+
+router.get('/category/:category', productController.getProductByCategory);
+
+router.get(
+  '/seller',
+  authenticateAndAuthorize(['seller']),
+  productController.getProductsBySeller
+);
+
+router.get(
+  '/admin',
+  authenticateAndAuthorize(['admin']),
+  productController.getProductsByAdmin
+);
+
+router.post(
   '/add-product',
   authenticateAndAuthorize(['seller']),
   upload.any(),
   productController.addProduct
 );
 
-productRoute.patch(
+router.patch(
   '/edit-product',
   upload.array('images', 8),
   productController.editProduct
 );
 
-productRoute.get(
-  '/related-products/:productId',
-  productController.getRelatedProducts
-);
+router.patch('/unlist-product/:productId', productController.unlistProduct);
 
-productRoute.get(
-  '/get-admin-products',
-  authenticateAndAuthorize(['admin']),
-  productController.getProductsByAdmin
-);
+router.patch('/list-product/:productId', productController.listProduct);
 
-productRoute.get(
-  '/get-seller-products',
-  authenticateAndAuthorize(['seller']),
-  productController.getProductsBySeller
-);
+router.get('/:productId', productController.getProduct);
 
-productRoute.patch(
-  '/unlist-product/:productId',
-  productController.unlistProduct
-);
+router.get('', productController.getProductsByUser);
 
-productRoute.patch('/list-product/:productId', productController.listProduct);
-
-export default productRoute;
+export default router;

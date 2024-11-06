@@ -1,14 +1,16 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
-import { useParams, ScrollRestoration } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useParams, ScrollRestoration, NavLink } from 'react-router-dom';
 import { X, Star, ChevronRight } from 'lucide-react';
+import { useDispatch } from 'react-redux';
 import { Skeleton } from "@/components/ui/skeleton";
-import userEndpoints from '@/api/userEndpoints';
 import productEndpoints from '@/api/productEndpoints';
 import ProductCard from '@/components/user/ProductCard';
 import { Product } from 'shared/types';
 import { ImportMeta } from 'shared/types';
 import { Button } from '@/components/ui/button';
-import CartContext from '@/context/CartContext';
+import { useSelector } from 'react-redux';
+import { addItemToCart, CartState, updateQuantity } from '@/features/cart/cartSlice';
+import { AppDispatch } from '@/app/store';
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL;
 
@@ -82,12 +84,14 @@ const ProductPage: React.FC = () => {
   const [mainImage, setMainImage] = useState<string | undefined>(undefined);
   const [cartQuantity, setCartQuantity] = useState<number>(0);
 
-  const { cartData } = useContext(CartContext);
+  const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
+
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     if (productId) {
       (async () => {
-        const response = await userEndpoints.fetchProductById(productId);
+        const response = await productEndpoints.fetchProductById(productId);
         setProduct(response.data);
         setMainImage(response.data.images[0]);
       })();
@@ -95,13 +99,9 @@ const ProductPage: React.FC = () => {
   }, [productId]);
 
   useEffect(() => {
-    if (cartData) {
-      const item = cartData?.items.find(item => item._id === productId);
-      if (item) {
-        setCartQuantity(item.quantity);
-      }
-    }
-  }, [cartData]);
+    if (product)
+      setCartQuantity(cartData?.items.find(item => item._id === product._id)?.quantity || 0);
+  }, [product, cartData]);
 
   useEffect(() => {
     if (product && product.subcategory?._id) {
@@ -129,12 +129,17 @@ const ProductPage: React.FC = () => {
   };
 
 
+  const handleAddToCart = () => {
+    dispatch(addItemToCart({ _id: product!._id, product: product! }));
+  };
+
+
   const handleIncreaseQuantity = () => {
-    setCartQuantity(prev => prev + 1);
+    dispatch(updateQuantity({ _id: product!._id, quantity: cartQuantity + 1 }));
   }
 
   const handleDecreaseQuantity = () => {
-    setCartQuantity(prev => prev - 1);
+    dispatch(updateQuantity({ _id: product!._id, quantity: cartQuantity - 1 }));
   }
 
   // const handleVariantChange = (variantName: string, option: string) => {
@@ -152,10 +157,6 @@ const ProductPage: React.FC = () => {
     );
   }
 
-  function handleAddToCart(): void {
-    console.log('Add to cart clicked');
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
       <ScrollRestoration />
@@ -164,16 +165,16 @@ const ProductPage: React.FC = () => {
         <nav className="text-sm mb-4">
           <ol className="list-none p-0 inline-flex">
             <li className="flex items-center">
-              <a href="#" className="text-gray-600">
+              <NavLink to="/" className="text-gray-600">
                 Home
-              </a>
+              </NavLink>
               <ChevronRight size={16} className="mx-2" />
             </li>
             <li className="flex items-center">
-              <a href="#" className="text-gray-600">
+              <NavLink to={`/category/${product.category.name}`} className="text-gray-600">
                 {product.category &&
                   product.category.name}
-              </a>
+              </NavLink>
               <ChevronRight size={16} className="mx-2" />
             </li>
             <li className="flex items-center">
@@ -205,7 +206,7 @@ const ProductPage: React.FC = () => {
           {/* Product details */}
           <div className="md:w-1/2">
             <h2 className="text-2xl font-semibold mb-2">{product.name}</h2>
-            <p className="text-gray-600 mb-4">{product.quantity}</p>
+            <p className="text-gray-600 mb-4">{product.variantName}</p>
 
             {/* Product price */}
             {product.discount ? (
@@ -270,23 +271,24 @@ const ProductPage: React.FC = () => {
             ))}
 
             <div className="flex space-x-4 mb-6">
-              <Button className="bg-[#0E8320] hover:bg-[#2ea940] text-white px-6 py-2 rounded-full">
+              <Button className="bg-[#0E8320] hover:bg-[#2ea940] text-white px-8 py-2 rounded-full"
+                disabled={product.stock === 0}>
                 Buy Now
               </Button>
               {cartQuantity ? (
-                <div className="flex items-center border border-[#0E8320] bg-white text-[#0E8320] px-4 py-2 rounded-full">
-                  <button className="px-2" onClick={handleDecreaseQuantity}>
+                <div className="flex items-center border border-[#0E8320] bg-white text-[#0E8320] px-4 py-1 rounded-full">
+                  <button className="px-2 text-[#0E8320] hover:text-[#2ea940]" onClick={handleDecreaseQuantity}>
                     -
                   </button>
                   <span className="px-4">{cartQuantity}</span>
-                  <button className="px-2" onClick={handleIncreaseQuantity}>
+                  <button className="px-2 text-[#0E8320] hover:text-[#2ea940]" onClick={handleIncreaseQuantity}>
                     +
                   </button>
                 </div>
               ) : (
-
-                <Button className="border border-[#0E8320] bg-white hover:bg-white hover:border-[#0E8320a6] hover:text-[#0E8320a6] text-[#0E8320] px-6 py-2 rounded-full"
+                <Button className="border border-[#0E8320] bg-white hover:bg-white hover:border-[#0E8320a6] hover:text-[#0E8320a6] text-[#0E8320] px-8 py-2 rounded-full"
                   onClick={handleAddToCart}
+                  disabled={product.stock === 0}
                 >
                   Add to Cart
                 </Button>

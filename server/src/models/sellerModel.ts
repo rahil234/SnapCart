@@ -1,16 +1,5 @@
-import mongoose, { Schema, Document, ObjectId } from 'mongoose';
-
-export interface ISeller extends Document {
-  _id: ObjectId;
-  firstName: string;
-  lastName: string | null;
-  DOB: Date;
-  phoneNo: number | null;
-  email: string;
-  password: string;
-  profilePicture: string | null;
-  status: 'Active' | 'Blocked';
-}
+import mongoose, { Schema } from 'mongoose';
+import { ISeller } from 'shared/types';
 
 const UsersSchema: Schema = new Schema(
   {

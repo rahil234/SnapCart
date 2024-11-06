@@ -39,9 +39,12 @@
 
     "baseUrl": ".",
 
+    "types": ["types"],
+
     "paths": {
       "@/*": ["./src/*"],
+      "*": ["types/*"],
       "shared/*": ["../../shared/dist/*"]
     }
-  },
+  }
 }

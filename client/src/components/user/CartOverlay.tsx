@@ -1,53 +1,53 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { UIContext } from '@/context/UIContext';
 import { Button } from '@/components/ui/button';
 import { ImportMeta } from 'shared/types';
-// import cartEndpoints from '@/api/cartEndpoints';
-import CartContext from '@/context/CartContext';
+import { AuthState } from '@/features/auth/authSlice';
+import { CartState, updateQuantity } from '@/features/cart/cartSlice';
+import { AppDispatch } from '@/app/store';
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
 
 const CartOverlay = () => {
-  const { cartData } = useContext(CartContext);
+  const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    console.log('CartEffect:', cartData);
+  }, [cartData]);
 
   const navigate = useNavigate();
 
   const { hideCartOverlay } = useContext(UIContext);
-  const isAuthenticated = useSelector((state: { auth: { isAuthenticated: boolean } }) => state.auth.isAuthenticated);
+  const isAuthenticated = useSelector((state: { auth: AuthState }) => state.auth.user);
 
 
-  const handleQuantityIncrease = (productId: string, currentQuantity: number) => {
-    const updatedItems = cartData?.items.map(item =>
-      item._id === productId
-        ? { ...item, quantity: currentQuantity + 1 }
-        : item
-    );
-    if (updatedItems) {
-      // setCartData((prevState: ICart | null) => prevState ? { ...prevState, items: updatedItems } : null);
-      // updateTotalPrice(updatedItems);
+
+  const handleCheckout = async () => {
+    if (!cartData) return
+    try {
+      // const response = await orderEndpoints.createOrder(cartData);
+      navigate('/checkout')
+    } catch (error) {
+      console.error('Error checking out cart:', error)
     }
-  };
+  }
 
-  const handleQuantityDecrease = (productId: string, currentQuantity: number) => {
-    const updatedItems = cartData?.items
-      .map(item =>
-        item.product._id === productId
-          ? { ...item, quantity: currentQuantity - 1 }
-          : item
-      )
-      .filter(item => item.quantity > 0); // Remove items with quantity 0
 
-    if (updatedItems) {
-      // setCartData(prevState => prevState ? { ...prevState, items: updatedItems } : null);
-      // updateTotalPrice(updatedItems);
-    }
-  };
+  function handleQuantityIncrease(_id: string, cartQuantity: number) {
+    dispatch(updateQuantity({ _id, quantity: cartQuantity + 1 }));
+  }
+
+  function handleQuantityDecrease(_id: string, cartQuantity: number) {
+    dispatch(updateQuantity({ _id, quantity: cartQuantity - 1 }));
+  }
 
   // const updateTotalPrice = (items: ICart['items']) => {
-    // const totalPrice = items.reduce((total, item) => total + item.productId.price * item.quantity, 0);
-    // setCartData((prevState: ICart) => prevState ? { ...prevState, totalPrice } : null);
+  // const totalPrice = items.reduce((total, item) => total + item.productId.price * item.quantity, 0);
+  // setCartData((prevState: ICart) => prevState ? { ...prevState, totalPrice } : null);
   // };
 
   const handleViewCart = () => {
@@ -61,7 +61,7 @@ const CartOverlay = () => {
       onClick={() => hideCartOverlay()}
     >
       <div
-        className="absolute top-14 right-0 h-full w-[471px] bg-white shadow-lg z-50"
+        className="absolute flex flex-col pb-14 top-14 right-0 h-full w-[471px] bg-white shadow-lg z-50"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between p-[15px] bg-white">
@@ -72,45 +72,53 @@ const CartOverlay = () => {
             ✕
           </button>
         </div>
-        <div className="flex flex-col justify-between gap-1.5 px-[15px] py-1.5 flex-1 bg-[#f5f7fc]">
-          {cartData?.items.map((item, index) => (
-            <div key={index} className="flex justify-between items-center w-full">
-              <img
-                className="w-16 h-16 rounded-sm"
-                alt={item.product.name}
-                src={imageUrl + item.product.images[0]}
-              />
-              <div className="flex flex-col mr-auto ps-2">
-                <span className="text-sm">{item.product.name}</span>
-                <span className="text-sm">₹{item.product.price}</span>
-              </div>
-              <div className="flex items-center justify-between bg-[#328616] text-white rounded-md p-1">
-                <button
-                  className="px-3"
-                  onClick={() => handleQuantityDecrease(item._id, item.quantity)}
-                >
-                  -
-                </button>
-                <span>{item.quantity}</span>
-                <button
-                  className="px-3"
-                  onClick={() => handleQuantityIncrease(item._id, item.quantity)}
-                >
-                  +
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="flex flex-col items-center gap-2.5 p-2.5 w-full">
-          <div className="flex justify-between w-full px-4 py-2 bg-white">
-            <span className="font-bold">Total:</span>
-            <span className="font-bold">₹{cartData?.totalPrice}</span>
+        {!cartData?.items.length ? (
+          <div className="flex items-center justify-center h-full">
+            <span>Your cart is empty</span>
           </div>
+        ) : (
+          <div className="flex flex-col overflow-auto gap-1.5 px-[15px] py-1.5 flex-1 bg-[#f5f7fc]">
+            {cartData?.items.map((item, index) => (
+              <div key={index} className="flex justify-between items-center w-full">
+                <img
+                  className="w-16 h-16 rounded-sm"
+                  alt={item?.product.name}
+                  src={imageUrl + item?.product?.images[0]}
+                />
+                <div className="flex flex-col mr-auto ps-2">
+                  <span className="text-sm">{item.product.name}</span>
+                  <span className="text-sm">₹{item.product.price}</span>
+                </div>
+                <div className="flex items-center justify-between bg-[#328616] text-white rounded-md p-1">
+                  <button
+                    className="px-3"
+                    onClick={() => handleQuantityDecrease(item._id, item.quantity)}
+                  >
+                    -
+                  </button>
+                  <span>{item.quantity}</span>
+                  <button
+                    className="px-3"
+                    onClick={() => handleQuantityIncrease(item._id, item.quantity)}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="flex flex-col items-center gap-2.5 p-2.5 w-full">
+          {Boolean(cartData?.items.length) && <div className="flex justify-between w-full px-4 py-2 bg-white">
+            <span className="font-bold">Total:</span>
+            <span className="font-bold">₹{cartData?.totalAmount}</span>
+          </div>}
           <div className="flex justify-center gap-2.5 w-full">
             {isAuthenticated ? (
-              <Button type="button" className="bg-[#0E8320] text-white w-full">
-                Order Now
+              <Button type="button" className="bg-[#0E8320] text-white w-full"
+                onClick={handleCheckout}
+                disabled={!cartData?.items.length}>
+                {cartData?.items.length ? "Order Now" : "Add Items to Order"}
               </Button>
             ) : (
               <Button type="button" className="bg-[#0E8320] text-white w-full">

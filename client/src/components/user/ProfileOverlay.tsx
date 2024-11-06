@@ -39,9 +39,9 @@ const ProfileOverlay = () => {
           </Avatar>
           <h2 className="text-xl font-bold my-2">{user?.firstName}</h2>
           <p className="text-gray-600 mb-4">{user?.email}</p>
-          <Link to={'/profile'} className='w-full'>
+          <Link to={'/my-account#profile'} className='w-full'>
             <Button className="text-white w-full mb-2 bg-[#0E8320] hover:bg-[#0E8320e6]">
-              Edit Profile
+              My Account
             </Button>
           </Link>
           <Button className="border border-[#0E8320] bg-white hover:bg-white text-[#0E8320] w-full hover:border-[#0E8320a6] hover:text-[#0E8320a6]" onClick={handleLogout}>

@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import productEndpoints from '@/api/productEndpoints';
 import categoryEndpoints from '@/api/categoryEndpoints';
 import { Category as OriginalCategory, Subcategory, Variant, VariantImage } from 'shared/types';
-import ProductAddTab from './ProductAddTab';
+// import ProductAddTab from './ProductAddTab';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent } from '../ui/card';
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
@@ -55,7 +55,7 @@ function SortableImage({ image }: { image: VariantImage; }) {
 }
 
 function AddProductCard({ onClose }: { onClose: () => void }) {
-  const { register, handleSubmit, setValue, getValues, formState: { errors }, watch } = useForm<FormValues>();
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormValues>();
 
   const defaultVariant = { id: 0, name: `Variant 0`, price: '', stock: '', images: [] };
 
@@ -230,9 +230,9 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
   }
 
 
-  function logValues(): void {
-    console.log(getValues());
-  }
+  // function logValues(): void {
+  //   console.log(getValues());
+  // }
 
   // logValues();
 
@@ -246,7 +246,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
         >
           <X size={25} />
         </button>
-        {/* <div className="space-y-2">
+        <div className="space-y-2">
           <Label htmlFor="productName">Product Name</Label>
           <Input
             id="productName"
@@ -297,7 +297,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
               <span className="text-red-500 text-xs">{errors.subcategory.message}</span>
             }
           </div>
-        } */}
+        }
         <Tabs value={String(activeTab)} className="w-full">
           <div className="flex items-center justify-between mb-4">
             <Label>Variants</Label>
@@ -352,7 +352,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
                     />
                     {errors.variants?.[variant.id]?.name && <span className="text-red-500 text-xs">{errors.variants?.[variant.id]?.name?.message ?? ''}</span>}
                   </div>
-                  {/* <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor={`variantPrice-${variant.id}`}>Price</Label>
                       <Input
@@ -373,7 +373,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
                       />
                       {errors.variants?.[variant.id]?.stock && <span className="text-red-500 text-xs">{errors.variants[variant.id]?.stock?.message}</span>}
                     </div>
-                  </div>*/}
+                  </div>
                   <div className="space-y-2">
                     <Label>Images (Max 6)</Label>
                     <div

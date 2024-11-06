@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { ImportMeta } from 'shared/types';
 import {
   Search,
   ChevronDown,
@@ -31,6 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from 'sonner';
+import { ImportMeta } from 'shared/types';
 
 interface ProductsTableProps {
   products: Product[];

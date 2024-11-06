@@ -29,7 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({ adminLogout }) => (
         { name: 'Coupons', path: '/admin/coupons' },
         { name: 'Offers', path: '/admin/offers' },
         { name: 'Deals', path: '/admin/deals' },
-        { name: 'Order lists', path: '/admin/order-lists' },
+        { name: 'Orders', path: '/admin/orders' },
         { name: 'Settings', path: '/admin/settings' },
       ].map(item => (
         <NavLink

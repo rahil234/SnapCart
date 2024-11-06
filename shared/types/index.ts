@@ -14,9 +14,8 @@ export interface Product {
   category: { _id: string; name: string };
   subcategory: { _id: string; name: string };
   price: number;
-  quantity: string;
   variantName?: string;
-  stock?: number;
+  stock: number;
   images: string[];
   description?: string;
   tags?: string[];
@@ -72,12 +71,15 @@ export interface IUsers extends Document {
   status: 'Active' | 'Blocked';
 }
 
-export interface Seller extends Document {
+export interface ISeller extends Document {
   _id: string;
   firstName: string;
-  profilePicture: string;
+  lastName: string | null;
+  DOB: Date;
+  phoneNo: number | null;
   email: string;
-  DOB: string;
+  password: string;
+  profilePicture: string | null;
   status: 'Active' | 'Blocked';
 }
 
@@ -97,21 +99,31 @@ export interface Credentials {
 export type ObjectId = Schema.Types.ObjectId;
 
 export interface ICart extends Document {
-  userId: string;
+  userId?: string;
   items: Array<{
     _id: string;
     product: string;
     quantity: number;
   }>;
-  totalPrice: number;
+  totalAmount: number;
+  totalItems: number;
 }
 
-export interface ICartP extends Omit<ICart, 'items'> {
+export interface ICartP{
+  userId?: string;
   items: Array<{
     _id: string;
     product: Product;
     quantity: number;
   }>;
+  totalAmount: number;
+  totalItems: number;
+}
+
+export interface CartItem {
+  _id: string;
+  quantity: number;
+  product: Product;
 }
 
 export interface Variant {
@@ -139,6 +151,7 @@ interface ImportMetaEnv {
   readonly VITE_BUCKET_URL: string;
   readonly VITE_API_URL: string;
   readonly VITE_imageUrl: string;
+  readonly VITE_RAZORPAY_KEY_ID: string;
 }
 
 export interface ImportMeta {
@@ -161,6 +174,25 @@ export interface catchError {
       message: string;
     };
   };
+}
+
+export interface IOrderItem {
+  _id: string;
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+export interface IOrder extends Document {
+  items: IOrderItem[];
+  userId: string;
+  customerName: string;
+  orderId: string;
+  price: number;
+  status: string;
+  orderDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // export interface ICart {
@@ -217,4 +249,13 @@ export interface catchError {
 //   description: string;
 //   category: Category;
 //   subcategory: Subcategory;
+// }
+
+// export interface ISeller extends Document {
+//   _id: string;
+//   firstName: string;
+//   profilePicture: string;
+//   email: string;
+//   DOB: string;
+//   status: 'Active' | 'Blocked';
 // }

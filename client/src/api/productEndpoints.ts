@@ -1,11 +1,24 @@
 import axiosInstance from './axiosInstance';
 
+
+const getLatestProducts = () => {
+  return axiosInstance.get('/api/product');
+};
+
+const fetchProductById = (productId: string) => {
+  return axiosInstance.get(`/api/product/${productId}`);
+};
+
+const getProductByCategory = (category: string) => {
+  return axiosInstance.get('/api/product/category/' + category);
+};
+
 const getSellerProducts = () => {
-  return axiosInstance.get('/api/product/get-seller-products');
+  return axiosInstance.get('/api/product/seller');
 };
 
 const getAdminProducts = () => {
-  return axiosInstance.get('/api/product/get-admin-products');
+  return axiosInstance.get('/api/product/admin');
 };
 
 const addProduct = (data: FormData) => {
@@ -37,8 +50,11 @@ const getRelatedProduct = (productId: string) => {
 };
 
 export default {
+  getLatestProducts,
+  fetchProductById,
   getSellerProducts,
   getAdminProducts,
+  getProductByCategory,
   addProduct,
   editProduct,
   getRelatedProduct,

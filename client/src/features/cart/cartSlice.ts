@@ -1,90 +1,152 @@
-// import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-// import { ICart } from 'shared/types';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { RootState } from '@/app/store';
+import { CartItem, ICartP, Product, catchError } from 'shared/types';
+import cartEndpoints from '@/api/cartEndpoints';
 
-// // Async thunk to update the cart in the backend
-// export const updateCart = createAsyncThunk(
-//   'cart/update',
-//   async (_, { getState }) => {
-//     const cartState = (getState() as { cart: ICart }).cart;
-//     const response = await fetch('/api/cart', {
-//       method: 'PUT', // Assuming the backend uses PUT for updates
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify(cartState),
-//     });
-//     if (!response.ok) {
-//       throw new Error('Failed to update cart');
-//     }
-//     return await response.json();
-//   }
-// );
-// // Initial state setup with local storage
-// const initialState: ICart = localStorage.getItem('cart')
-//   ? JSON.parse(localStorage.getItem('cart')!)
-//   : {
-//       _id: '',
-//       userId: '',
-//       items: [],
-//       totalPrice: 0,
-//       status: 'idle',
-//     };
+export interface CartState {
+  cartData: ICartP;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error?: string | null;
+}
 
-// export const cartSlice = createSlice({
-//   name: 'cart',
-//   initialState,
-//   reducers: {
-//     addItemToCart: (
-//       state,
-//       action: PayloadAction<{ productId: string; quantity: number }>
-//     ) => {
-//       const { productId, quantity } = action.payload;
-//       const existingItem = state.items.find(item => item._id === productId);
-//       if (existingItem) {
-//         existingItem.quantity += quantity;
-//       } else {
-//         state.items.push({
-//           _id: productId,
-//           product: productId,
-//           quantity: quantity,
-//         });
-//       }
-//     },
-//     removeItemFromCart: (state, action: PayloadAction<string>) => {
-//       state.items = state.items.filter(item => item._id !== action.payload);
-//     },
-//     updateItemQuantity: (
-//       state,
-//       action: PayloadAction<{ productId: string; quantity: number }>
-//     ) => {
-//       const { productId, quantity } = action.payload;
-//       const existingItem = state.items.find(item => item._id === productId);
-//       if (existingItem) {
-//         existingItem.quantity = quantity;
-//       }
-//     },
-//     clearCart: state => {
-//       state.items = [];
-//     },
-//   },
-//   extraReducers: builder => {
-//     builder
-//       .addCase(updateCart.fulfilled, (_state, action) => {
-//         // Handle the fulfilled state
-//         console.log('Cart updated successfully:', action.payload);
-//       })
-//       .addCase(updateCart.rejected, (_state, action) => {
-//         // Handle the rejected state
-//         console.error('Failed to update cart:', action.error.message);
-//       });
-//   },
-// });
+const initialState: CartState = {
+  cartData: { items: [], totalItems: 0, totalAmount: 0 },
+  status: 'idle',
+  error: null,
+};
 
-// export const {
-//   addItemToCart,
-//   removeItemFromCart,
-//   updateItemQuantity,
-//   clearCart,
-// } = cartSlice.actions;
+export const fetchCart = createAsyncThunk(
+  'cart/fetchCart',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await cartEndpoints.getCart();
+      return response.data.cart as ICartP;
+    } catch (error) {
+      return rejectWithValue((error as catchError).message);
+    }
+  }
+);
 
-// export default cartSlice.reducer;
+export const addItemToCart = createAsyncThunk(
+  'cart/addItemToCart',
+  async (
+    payload: { _id: string; product: Product },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      const response = await cartEndpoints.addToCart(payload._id);
+      dispatch(setCartData(response.data.cart as ICartP));
+      return response.data.cart as ICartP;
+    } catch (error) {
+      return rejectWithValue((error as catchError).message);
+    }
+  }
+);
+
+export const updateQuantity = createAsyncThunk(
+  'cart/updateQuantity',
+  async (
+    payload: { _id: string; quantity: number },
+    { dispatch, rejectWithValue }
+  ) => {
+    if (payload.quantity === 0) {
+      dispatch(removeItem({ _id: payload._id }));
+      return rejectWithValue('Item removed from cart');
+    } else if (payload.quantity > 10) {
+      return rejectWithValue('Quantity cannot exceed 10');
+    }
+    try {
+      const response = await cartEndpoints.updateCart(
+        payload._id,
+        payload.quantity
+      );
+      dispatch(setCartData(response.data.cart as ICartP)); // Dispatching setCartData here
+      return response.data.cart as ICartP;
+    } catch (error) {
+      return rejectWithValue((error as catchError).message);
+    }
+  }
+);
+
+// Remove an item from the cart
+export const removeItem = createAsyncThunk(
+  'cart/removeItem',
+  async (payload: { _id: string }, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await cartEndpoints.removeItem(payload._id);
+      dispatch(setCartData(response.data.cart as ICartP)); // Dispatching setCartData here
+      return response.data.cart as ICartP;
+    } catch (error) {
+      return rejectWithValue((error as catchError).message);
+    }
+  }
+);
+
+// Sync cart with the server on user login
+export const syncCartOnLogin = createAsyncThunk(
+  'cart/syncCartOnLogin',
+  async (_, { getState, dispatch, rejectWithValue }) => {
+    const state = getState() as RootState;
+    const { items } = state.cart.cartData;
+    try {
+      const response = await axios.put('/api/cart/sync', { items });
+      dispatch(setCartData(response.data.cart as ICartP)); // Dispatching setCartData here
+      return response.data.cart as ICartP;
+    } catch (error) {
+      return rejectWithValue((error as catchError).message);
+    }
+  }
+);
+
+const cartSlice = createSlice({
+  name: 'cart',
+  initialState,
+  reducers: {
+    setCartData: (state, action) => {
+      state.cartData = action.payload;
+      state.cartData.totalItems = action.payload.items.reduce(
+        (total: number, item: CartItem) => total + item.quantity,
+        0
+      );
+      state.cartData.totalAmount = action.payload.items.reduce(
+        (total: number, item: CartItem) =>
+          total + item.quantity * item.product.price,
+        0
+      );
+    },
+    clearCart: state => {
+      state.cartData = { items: [], totalItems: 0, totalAmount: 0 };
+    },
+  },
+  extraReducers: builder => {
+    builder
+      .addCase(fetchCart.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.cartData = action.payload;
+      })
+      .addCase(fetchCart.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(fetchCart.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      // No need to set cart data again here in extraReducers because it's already dispatched in the thunk
+      .addCase(addItemToCart.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
+      .addCase(updateQuantity.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
+      .addCase(removeItem.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
+      .addCase(syncCartOnLogin.rejected, (state, action) => {
+        state.error = action.payload as string;
+      });
+  },
+});
+
+export const { setCartData, clearCart } = cartSlice.actions;
+export default cartSlice.reducer;

@@ -1,27 +1,14 @@
 import { Request, Response } from 'express';
-import jwtUtils from '@/utils/jwtUtils';
+import { signAccessToken, verifyRefreshToken } from '@/utils/jwtUtils';
 import userModel from '@models/userModel';
 import sellerModel from '@models/sellerModel';
 import adminModel from '@models/adminModel';
 import { clearRefreshTokenCookie } from '@/utils/cookieUtils';
-import { IUsers, Seller, IAdmin } from 'shared/types';
-
-const getUserByRoleAndId = async (role: string, id: string) => {
-  switch (role) {
-    case 'customer':
-      return (await userModel.findById(id)) as IUsers;
-    case 'seller':
-      return (await sellerModel.findById(id)) as Seller;
-    case 'admin':
-      return (await adminModel.findById(id)) as IAdmin;
-    default:
-      return null;
-  }
-};
+import { IUsers, ISeller, IAdmin } from 'shared/types';
 
 function TypeGuard(
   role: string,
-  user: IUsers | Seller | IAdmin | null
+  user: IUsers | ISeller | IAdmin | null
 ): user is IUsers {
   if (role === 'customer') {
     return true;
@@ -29,6 +16,19 @@ function TypeGuard(
     return false;
   }
 }
+
+const getUserByRoleAndId = async (role: string, id: string) => {
+  switch (role) {
+    case 'customer':
+      return (await userModel.findById(id)) as IUsers;
+    case 'seller':
+      return (await sellerModel.findById(id)) as ISeller;
+    case 'admin':
+      return (await adminModel.findById(id)) as IAdmin;
+    default:
+      return null;
+  }
+};
 
 const refreshToken = async (req: Request, res: Response) => {
   const refreshToken = req.cookies['refreshToken'];
@@ -38,19 +38,13 @@ const refreshToken = async (req: Request, res: Response) => {
     return;
   }
 
-  const decodedToken = jwtUtils.verifyRefreshToken(refreshToken);
+  const decodedToken = verifyRefreshToken(refreshToken);
   if (!decodedToken) {
     res.status(403).json({ message: 'Invalid token' });
     return;
   }
   try {
-    let user = await getUserByRoleAndId(decodedToken.role, decodedToken._id);
-    if (TypeGuard(decodedToken.role, user)) {
-      // user = user as IUsers;
-      console.log(user);
-    } else {
-      user = user as Seller | IAdmin;
-    }
+    const user = await getUserByRoleAndId(decodedToken.role, decodedToken._id);
 
     if (!user) {
       clearRefreshTokenCookie(res);
@@ -64,8 +58,9 @@ const refreshToken = async (req: Request, res: Response) => {
       return;
     }
 
-    const accessToken = jwtUtils.signAccessToken({
+    const accessToken = signAccessToken({
       _id: user._id,
+      email: user.email,
       role: decodedToken.role,
     });
 

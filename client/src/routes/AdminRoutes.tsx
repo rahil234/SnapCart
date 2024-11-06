@@ -10,6 +10,7 @@ import AdminBanners from '@/pages/admin/AdminBanners';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 import ComingSoon from '@/pages/admin/ComingSoon';
 import AdminProducts from '@/pages/admin/AdminProducts';
+import AdminOrders from '@/pages/admin/AdminOrders';
 
 
 const AdminRoutes = [
@@ -34,7 +35,7 @@ const AdminRoutes = [
                     { path: 'categories', element: <AdminCategory /> },
                     { path: 'products', element: <AdminProducts /> },
                     { path: 'offers', element: <ComingSoon /> },
-                    { path: 'order-lists', element: <ComingSoon /> },
+                    { path: 'orders', element: <AdminOrders /> },
                     { path: 'deals', element: <ComingSoon /> },
                     { path: 'settings', element: <ComingSoon /> },
                 ],

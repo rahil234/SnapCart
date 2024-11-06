@@ -6,8 +6,8 @@ const userLogin = (data: object) => {
   });
 };
 
-const userGoogleLogin = (access_token: string) => {
-  return axiosInstance.post(
+const userGoogleLogin = async (access_token: string) => {
+  const response = await axiosInstance.post(
     '/api/user/google-login',
     {
       googleAccessToken: access_token,
@@ -16,10 +16,12 @@ const userGoogleLogin = (access_token: string) => {
       withCredentials: true,
     }
   );
+  console.log('Google login', response);
+  return response;
 };
 
 const userSignUp = (data: object) => {
-  return axiosInstance.post('/api/user/signup', data,{
+  return axiosInstance.post('/api/user/signup', data, {
     withCredentials: true,
   });
 };
@@ -40,20 +42,39 @@ const forgotPassword = (email: string) => {
   return axiosInstance.post('/api/user/forgot-password', { email });
 };
 
-const fetchProducts = () => {
-  return axiosInstance.get('/api/user/products');
+const changePassword = ({
+  password,
+  newPassword,
+}: {
+  password: string;
+  newPassword: string;
+}) => {
+  return axiosInstance.post('/api/user/reset-password', {
+    password,
+    newPassword,
+  });
 };
 
-const fetchProductById = (productId: string) => {
-  return axiosInstance.get(`/api/user/product/${productId}`);
+const resetPassword = ({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) => {
+  return axiosInstance.post('/api/user/reset-password', { email, password });
 };
 
 const uploadProfilePicture = async (file: File) => {
-  axiosInstance.post('/api/user/upload-profile-picture', {file}, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  return axiosInstance.post(
+    '/api/user/upload-profile-picture',
+    { file },
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
 };
 
 const updateUserProfile = async (data: object) => {
@@ -78,8 +99,8 @@ export default {
   resendOtp,
   verifyOtp,
   forgotPassword,
-  fetchProducts,
-  fetchProductById,
+  changePassword,
+  resetPassword,
   blockUser,
   allowUser,
   uploadProfilePicture,

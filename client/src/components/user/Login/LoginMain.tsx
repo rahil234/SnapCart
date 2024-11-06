@@ -5,12 +5,13 @@ import { UIContext } from '@/context/UIContext';
 import LoginCard from '@/components/user/Login/LoginCard';
 import SignUpCard from '@/components/user/Login/SignUpCard';
 import VerifyOTPCard from '@/components/user/Login/VerifyOTPCard';
-import { SignUpFormInputs } from 'shared/types';
 import ForgotPasswordCard from './ForgetPasswordCard';
+import ForgetPasswordVerifyOTPCard from '@/components/user/Login/ForgetPasswordVerifyOTPCard';
+import NewPassword from '@/components/user/Login/NewPassword';
+import { SignUpFormInputs } from 'shared/types';
 import userEndpoints from '@/api/userEndpoints';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '@/features/auth/authSlice';
-
 
 const LoginMain = (): JSX.Element => {
 
@@ -56,18 +57,17 @@ const LoginMain = (): JSX.Element => {
 function LoginController() {
   const { hideLoginOverlay } = useContext(UIContext);
   const [activeTab, setActiveTab] = useState<
-    'login' | 'signup' | 'forgotPassword' | 'verifyOtp'>('login');
+    'login' | 'signup' | 'forgotPassword' | 'verifyOtp' | 'forgot-verify' | 'new-password'>('login');
   const [signupData, setSignupData] = useState<SignUpFormInputs>();
+  const [email, setEmail] = useState<string>();
 
   const dispatch = useDispatch();
 
-  // Updated onOtpSubmit function to use verifyOtp from userEndpoints
   const onOtpSubmit = async (otp: string) => {
     console.log('OTP submitted:', otp);
     try {
       if (!signupData) {
-        console.error('User data not found');
-        return;
+        throw new Error('no data found');
       }
       const response = await userEndpoints.verifyOtp(signupData.email, otp);
       if (response.data.success) {
@@ -77,6 +77,25 @@ function LoginController() {
         dispatch(setCredentials(signupResponse.data));
         setSignupData(undefined);
         hideLoginOverlay();
+      } else {
+        console.error('Failed to verify OTP');
+        setSignupData(undefined)
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      setSignupData(undefined)
+    }
+  };
+
+  const onOtpSubmitForget = async (otp: string) => {
+    try {
+      if (!email) {
+        throw new Error('no data found');
+      }
+      const response = await userEndpoints.verifyOtp(email, otp);
+      if (response.data.success) {
+        console.log('OTP verified successfully');
+        setActiveTab('new-password');
       } else {
         console.error('Failed to verify OTP');
         setSignupData(undefined)
@@ -108,14 +127,19 @@ function LoginController() {
     case 'verifyOtp':
       return (
         <VerifyOTPCard
+          email={signupData?.email || email!}
           setActiveTab={setActiveTab}
           onOTPSubmit={onOtpSubmit}
         />
       );
-
     case 'forgotPassword':
-      return <ForgotPasswordCard setActiveTab={setActiveTab} />;
+      return <ForgotPasswordCard setActiveTab={setActiveTab} setEmail={setEmail} />;
 
+    case 'forgot-verify':
+      return <ForgetPasswordVerifyOTPCard email={email!} setActiveTab={setActiveTab} onOTPSubmit={onOtpSubmitForget} />;
+
+    case 'new-password':
+      return <NewPassword email={email} setActiveTab={setActiveTab} />;
     default:
       return null;
   }

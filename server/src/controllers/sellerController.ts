@@ -1,16 +1,13 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { signAccessToken } from '@/utils/jwtUtils';
 import sellerModel from '@/models/sellerModel';
+import { setRefreshTokenCookie } from '@/utils/cookieUtils';
 
 const sellerLogin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    // Find the seller by email
-    const sellere = await sellerModel.find();
-    console.log(sellere);
-
     const seller = await sellerModel.findOne({ email });
 
     if (!seller) {
@@ -37,26 +34,9 @@ const sellerLogin = async (req: Request, res: Response) => {
       role: 'seller',
     };
 
-    // Generate a token
-    if (!process.env.JWT_SECRET) {
-      throw new Error('JWT_SECRET is not defined');
-    }
+    setRefreshTokenCookie(res, { _id: seller._id, role: 'seller' });
 
-    const accessToken = jwt.sign(user, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
-
-    // Generate a refresh token
-    const refreshToken = jwt.sign(user, process.env.JWT_SECRET, {
-      expiresIn: '7d',
-    });
-
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    const accessToken = signAccessToken({ _id: seller._id, role: 'seller' });
 
     res.status(200).json({ message: 'success', accessToken, user });
   } catch (error) {

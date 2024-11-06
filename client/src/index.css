@@ -14,6 +14,10 @@ input::-webkit-inner-spin-button {
   box-sizing: border-box;
 }
 
+img {
+  -webkit-user-drag: none;
+}
+
 :root {
   font-synthesis: none;
   text-rendering: optimizeLegibility;

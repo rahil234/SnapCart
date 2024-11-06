@@ -37,10 +37,12 @@ const LoginCard: React.FC<LoginCardProps> = ({
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
     try {
+      console.log('data', data);
+      
       setError(null);
       const response = await userEndpoints.userLogin(data);
-      console.log('data', response.data);
       dispatch(setCredentials(response.data));
+      hideLoginOverlay();
     } catch (error) {
       const newError = error as catchError;
       setError(newError.response.data.message);
@@ -50,8 +52,7 @@ const LoginCard: React.FC<LoginCardProps> = ({
   const handleGoogleLoginSuccess = async (codeResponse: { access_token: string }) => {
     try {
       const response = await userEndpoints.userGoogleLogin(codeResponse.access_token);
-      const { user, token } = response.data;
-      dispatch(setCredentials({ user, token }));
+      dispatch(setCredentials(response.data));
       hideLoginOverlay();
     }
     catch (error) {
@@ -131,7 +132,7 @@ const LoginCard: React.FC<LoginCardProps> = ({
               </p>
             </div>
             <div className="flex justify-end">
-              <button className="text-sm text-gray-600 hover:underline mb-2" onClick={() => setActiveTab("forgotPassword")}>
+              <button className="text-sm text-gray-600 hover:underline mb-2" type='button' onClick={() => setActiveTab("forgotPassword")}>
                 Forgot password?
               </button>
             </div>

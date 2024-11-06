@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import jwtUtils from '@/utils/jwtUtils';
+import { signAccessToken } from '@/utils/jwtUtils';
 import { setRefreshTokenCookie } from '../utils/cookieUtils';
 import userModel from '../models/userModel';
 import adminModel from '@models/adminModel';
@@ -60,14 +60,12 @@ const adminLogin = async (req: Request, res: Response) => {
       role: 'admin',
     };
 
-    const refreshToken = jwtUtils.signRefreshToken({
-      _id: admin._id,
-      email: admin.email,
-      role: 'admin',
-    });
-    setRefreshTokenCookie(res, refreshToken);
+    setRefreshTokenCookie(res, { _id: admin._id, role: 'admin' });
 
-    const accessToken = jwtUtils.signAccessToken({ email: user.email });
+    const accessToken = signAccessToken({
+      _id: user._id,
+      role: user.role,
+    });
 
     res.status(200).json({ message: 'success', accessToken, user });
   } else {

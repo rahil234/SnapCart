@@ -3,6 +3,7 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import NotAuthorised from './pages/NotAuthorised';
 import Page404 from './pages/Page404';
 import store from './app/store';
@@ -10,6 +11,7 @@ import { refreshAuthToken } from './features/auth/authSlice';
 import UserRoutes from '@/routes/UserRoutes';
 import AdminRoutes from '@/routes/AdminRoutes';
 import SellerRoutes from '@/routes/SellerRoutes';
+import { fetchCart } from './features/cart/cartSlice';
 
 const routes = createBrowserRouter([
   ...UserRoutes,
@@ -23,9 +25,12 @@ const routes = createBrowserRouter([
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  const queryClient = new QueryClient();
+
   useLayoutEffect(() => {
     (async () => {
-      await store.dispatch(refreshAuthToken());
+      if (localStorage.getItem('sessionActive')) await store.dispatch(refreshAuthToken());
+      store.dispatch(fetchCart());
       setIsLoading(false);
     })();
   }, []);
@@ -45,7 +50,10 @@ const App: React.FC = () => {
     )
   }
 
-  return <RouterProvider router={routes} />
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={routes} />
+    </QueryClientProvider>)
 };
 
 export default App;
