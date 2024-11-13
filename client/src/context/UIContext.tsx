@@ -54,7 +54,6 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
 
   const toggleCartOverlay = useCallback(() => {
     hideAllOverlays();
-    console.log(location.pathname);
     if (location.pathname !== '/cart') {
       setIsCartOverlayOpen(!isCartOverlayOpen);
     }

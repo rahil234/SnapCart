@@ -2,12 +2,17 @@ import mongoose, { Schema } from 'mongoose';
 import { Product } from 'shared/types';
 
 const ProductSchema: Schema = new Schema({
+  variantId: {
+    type: mongoose.Types.ObjectId,
+    required: true,
+    index: true,
+  },
   name: { type: String, required: true },
   price: { type: Number, required: true },
   variantName: { type: String, required: true },
   stock: { type: Number, required: true },
   images: { type: Array, required: true },
-  status: { type: String, default: 'Active' },
+  status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
   description: { type: String },
   reviews: {
     type: Array,

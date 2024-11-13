@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { ImportMeta } from 'shared/types';
 import {
   Search,
   ChevronDown,
@@ -30,12 +29,19 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { toast } from 'sonner';
+// import { toast } from 'sonner';
+import { ImportMeta } from 'shared/types';
+// import { set } from 'date-fns';
+
+type IVariantGroup = {
+  _id: string;
+  products: Product[];
+};
 
 interface ProductsTableProps {
-  products: Product[];
+  variantGroup: IVariantGroup[];
   onEdit: (product: Product) => void;
-  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
+  setVariantGroup: React.Dispatch<React.SetStateAction<IVariantGroup[]>>;
 }
 
 interface Categories extends Category {
@@ -44,38 +50,39 @@ interface Categories extends Category {
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
 
-const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit, setProducts }) => {
+const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup, onEdit }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [actionType, setActionType] = useState<'list' | 'unlist'>('list');
 
-  const handleAction = async () => {
-    if (selectedProduct) {
-      try {
-        if (actionType === 'list') {
-          await productEndpoints.listProduct(selectedProduct._id);
-          setProducts((prevProducts) =>
-            prevProducts.map((product) =>
-              product._id === selectedProduct._id ? { ...product, status: 'Active' } : product
-            )
-          );
-          toast.success('Product listed successfully');
-        } else {
-          await productEndpoints.unlistProduct(selectedProduct._id);
 
-          setProducts((prevProducts) =>
-            prevProducts.map((product) =>
-              product._id === selectedProduct._id ? { ...product, status: 'Inactive' } : product
-            )
-          );
-          toast.success('Product unlisted successfully');
-        }
-      } catch (error) {
-        console.error(`Failed to ${actionType} product:`, error);
-        toast.error(`Failed to ${actionType} product`);
-      }
-      setSelectedProduct(null);
-      setActionType('list');
-    }
+  const handleAction = async () => {
+    //   if (selectedProduct) {
+    //     try {
+    //       if (actionType === 'list') {
+    //         await productEndpoints.listProduct(selectedProduct._id);
+    //         setProducts((prevProducts) =>
+    //           prevProducts.map((product) =>
+    //             product._id === selectedProduct._id ? { ...product, status: 'Active' } : product
+    //           )
+    //         );
+    //         toast.success('Product listed successfully');
+    //       } else {
+    //         await productEndpoints.unlistProduct(selectedProduct._id);
+
+    //         setProducts((prevProducts) =>
+    //           prevProducts.map((product) =>
+    //             product._id === selectedProduct._id ? { ...product, status: 'Inactive' } : product
+    //           )
+    //         );
+    //         toast.success('Product unlisted successfully');
+    //       }
+    //     } catch (error) {
+    //       console.error(`Failed to ${actionType} product:`, error);
+    //       toast.error(`Failed to ${actionType} product`);
+    //     }
+    //     setSelectedProduct(null);
+    //     setActionType('list');
+    //   }
   };
 
   return (
@@ -84,12 +91,12 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit, setProd
         <thead className="bg-gray-50">
           <tr>
             {[
-              'Image',
               'Product Name',
               'Category/Subcategory',
+              'Available Variants',
+              'Image',
               'Price',
               'Stock',
-              'Available Variants',
               'Status',
               'Action',
             ].map(header => (
@@ -103,80 +110,84 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit, setProd
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {products.map((product: Product, index: number) => (
-            <tr key={index}>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <img
-                  src={imageUrl + product.images[0]}
-                  alt={product.name}
-                  className="w-12 h-12 object-cover rounded"
-                />
-              </td>
-              <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{product.name}</td>
-              <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{`${product.category.name}/ ${product.subcategory?.name}`}</td>
-              <td className="px-2 py-4 whitespace-nowrap text-xs text-center">₹{product.price}</td>
-              <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{product.stock}</td>
-              <td className="px-2 py-4 whitespace-nowrap text-xs text-center">
-                {product.variants ? JSON.stringify(product.variants) : '-'}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-center">
-                <span
-                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.status === 'Active'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                    }`}
-                >
-                  {product.status === 'Active' ? 'Active' : 'Inactive'}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                <button
-                  className="text-blue-600 hover:text-blue-900 mr-4"
-                  onClick={() => onEdit(product)}
-                >
-                  <Edit size={16} />
-                </button>
-                <AlertDialog>
-                  <AlertDialogTrigger>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span
-                          className={`${product.status === 'Active'
-                            ? 'text-red-600 hover:text-red-900'
-                            : 'text-green-600 hover:text-green-900'
-                            } cursor-pointer`}
-                          onClick={() => {
-                            setSelectedProduct(product);
-                            setActionType(product.status === 'Active' ? 'unlist' : 'list');
-                          }}
-                        >
-                          {product.status === 'Active' ? (
-                            <ListMinus className="w-5 h-5 text-red-500" />
-                          ) : (
-                            <ListPlus className="w-5 h-5 text-green-500" />
-                          )}
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-white text-black shadow-lg">
-                        <p>{product.status === 'Active' ? 'Unlist product' : 'List product'}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="bg-gray-100">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="text-red-600">Are you sure?</AlertDialogTitle>
-                      <AlertDialogDescription className="text-gray-700">
-                        Do you want to {actionType} the product.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel className="bg-gray-200 text-gray-700">Cancel</AlertDialogCancel>
-                      <AlertDialogAction className="bg-red-600 hover:bg-red-400 text-white" onClick={handleAction}>Continue</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </td>
-            </tr>
+          {variantGroup.map((varientGroup) => (
+            <React.Fragment key={varientGroup._id}>
+              {varientGroup.products.map((product, index) => (
+                <tr key={index}>
+                  {index === 0 && (<>
+                    <td className="px-2 py-4 whitespace-nowrap text-xs text-center" rowSpan={varientGroup.products.length}>{product.name}</td>
+                    <td className="px-2 py-4 whitespace-nowrap text-xs text-center" rowSpan={varientGroup.products.length}>{`${product.category.name}/ ${product.subcategory.name}`}</td>
+                  </>)}
+                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{product.variantName}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <img
+                      src={imageUrl + product.images[0]}
+                      alt={product.name}
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                  </td>
+                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">₹{product.price}</td>
+                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{product.stock}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.status === 'Active'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                        }`}
+                    >
+                      {product.status === 'Active' ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <button
+                      className="text-blue-600 hover:text-blue-900 mr-4"
+                      onClick={() => onEdit(product)}
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <AlertDialog>
+                      <AlertDialogTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              className={`${product.status === 'Active'
+                                ? 'text-red-600 hover:text-red-900'
+                                : 'text-green-600 hover:text-green-900'
+                                } cursor-pointer`}
+                              onClick={() => {
+                                setSelectedProduct(product);
+                                setActionType(product.status === 'Active' ? 'unlist' : 'list');
+                              }}
+                            >
+                              {product.status === 'Active' ? (
+                                <ListMinus className="w-5 h-5 text-red-500" />
+                              ) : (
+                                <ListPlus className="w-5 h-5 text-green-500" />
+                              )}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-white text-black shadow-lg">
+                            <p>{product.status === 'Active' ? 'Unlist product' : 'List product'}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="bg-gray-100">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="text-red-600">Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription className="text-gray-700">
+                            Do you want to {actionType} the product.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="bg-gray-200 text-gray-700">Cancel</AlertDialogCancel>
+                          <AlertDialogAction className="bg-red-600 hover:bg-red-400 text-white" onClick={handleAction}>Continue</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </td>
+                </tr>
+              ))}
+            </React.Fragment>
           ))}
         </tbody>
       </table>
@@ -184,26 +195,26 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit, setProd
   );
 };
 
-export default function SellerProducts() {
+function SellerProducts() {
   const [showAddProduct, setShowAddProduct] = useState<boolean>(false);
   const [showEditProduct, setShowEditProduct] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [variantGroup, setVariantGroup] = useState<IVariantGroup[]>([]);
   const [categories, setCategories] = useState<Categories[]>([]);
 
   useEffect(() => {
     (async () => {
-      const { data } = await productEndpoints.getSellerProducts();
-      setProducts(data);
+      const data = (await productEndpoints.getSellerProducts()).data;
+      setVariantGroup(data);
     })();
+  }, [showAddProduct, showEditProduct]);
+
+  const handleEditProduct = (product: Product) => {
     (async () => {
-      const response = await categoryEndpoints.getCategories();
-      const data: Categories[] = response.data;
+      const data = await categoryEndpoints.getCategories();
       setCategories(data);
     })();
-  }, [setShowAddProduct, setShowEditProduct]);
 
-  const handleEditProduct = async (product: Product) => {
     setSelectedProduct(product);
     setShowEditProduct(true);
   };
@@ -250,8 +261,8 @@ export default function SellerProducts() {
           </div>
         </div>
       </div>
-      {products.length > 0 ? (<>
-        <ProductsTable products={products} onEdit={handleEditProduct} setProducts={setProducts} />
+      {variantGroup.length > 0 ? (<>
+        <ProductsTable variantGroup={variantGroup} onEdit={handleEditProduct} setVariantGroup={setVariantGroup} />
         <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
           <span>Showing 1-09 of 78</span>
           <div className="flex space-x-2">
@@ -271,3 +282,154 @@ export default function SellerProducts() {
     </main >
   );
 }
+
+export default SellerProducts;
+
+//  <td className="px-2 py-4 whitespace-nowrap text-xs text-center" rowSpan={2}>{`${varientGroup.category.name}/ ${varientGroup.subcategory?.name}`}</td>
+//               <td className="px-6 py-4 whitespace-nowrap">
+//                 <img
+//                   src={imageUrl + varientGroup.images[0]}
+//                   alt={varientGroup.name}
+//                   className="w-12 h-12 object-cover rounded"
+//                 />
+//               </td>
+//               <td className="px-2 py-4 whitespace-nowrap text-xs text-center">₹{varientGroup.price}</td>
+//               <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{varientGroup.stock}</td>
+//               <td className="px-2 py-4 whitespace-nowrap text-xs text-center">
+//                 {varientGroup.variants ? JSON.stringify(varientGroup.variants) : '-'}
+//               </td>
+//               <td className="px-6 py-4 whitespace-nowrap text-center">
+//                 <span
+//                   className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${varientGroup.status === 'Active'
+//                     ? 'bg-green-100 text-green-800'
+//                     : 'bg-red-100 text-red-800'
+//                     }`}
+//                 >
+//                   {varientGroup.status === 'Active' ? 'Active' : 'Inactive'}
+//                 </span>
+//               </td>
+//               <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+//                 <button
+//                   className="text-blue-600 hover:text-blue-900 mr-4"
+//                   onClick={() => onEdit(varientGroup)}
+//                 >
+//                   <Edit size={16} />
+//                 </button>
+//                 <AlertDialog>
+//                   <AlertDialogTrigger>
+//                     <Tooltip>
+//                       <TooltipTrigger asChild>
+//                         <span
+//                           className={`${varientGroup.status === 'Active'
+//                             ? 'text-red-600 hover:text-red-900'
+//                             : 'text-green-600 hover:text-green-900'
+//                             } cursor-pointer`}
+//                           onClick={() => {
+//                             setSelectedProduct(varientGroup);
+//                             setActionType(varientGroup.status === 'Active' ? 'unlist' : 'list');
+//                           }}
+//                         >
+//                           {varientGroup.status === 'Active' ? (
+//                             <ListMinus className="w-5 h-5 text-red-500" />
+//                           ) : (
+//                             <ListPlus className="w-5 h-5 text-green-500" />
+//                           )}
+//                         </span>
+//                       </TooltipTrigger>
+//                       <TooltipContent className="bg-white text-black shadow-lg">
+//                         <p>{varientGroup.status === 'Active' ? 'Unlist product' : 'List product'}</p>
+//                       </TooltipContent>
+//                     </Tooltip>
+//                   </AlertDialogTrigger>
+//                   <AlertDialogContent className="bg-gray-100">
+//                     <AlertDialogHeader>
+//                       <AlertDialogTitle className="text-red-600">Are you sure?</AlertDialogTitle>
+//                       <AlertDialogDescription className="text-gray-700">
+//                         Do you want to {actionType} the product.
+//                       </AlertDialogDescription>
+//                     </AlertDialogHeader>
+//                     <AlertDialogFooter>
+//                       <AlertDialogCancel className="bg-gray-200 text-gray-700">Cancel</AlertDialogCancel>
+//                       <AlertDialogAction className="bg-red-600 hover:bg-red-400 text-white" onClick={handleAction}>Continue</AlertDialogAction>
+//                     </AlertDialogFooter>
+//                   </AlertDialogContent>
+//                 </AlertDialog>
+//               </td>
+
+
+
+
+
+
+
+
+
+{/* <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{`${varientGroup.products[0].category.name}/ ${varientGroup.products[0].subcategory?.name}`}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <img
+                      src={imageUrl + varientGroup.products[0].images[0]}
+                      alt={varientGroup.products[0].name}
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                  </td>
+                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">₹{varientGroup.products[0].price}</td>
+                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{varientGroup.products[0].stock}</td>
+                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">
+                    {varientGroup.products[0].variants ? JSON.stringify(varientGroup.products[0].variants) : '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${varientGroup.products[0].status === 'Active'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                        }`}
+                    >
+                      {varientGroup.products[0].status === 'Active' ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <button
+                      className="text-blue-600 hover:text-blue-900 mr-4"
+                      onClick={() => onEdit(varientGroup.products[0])}
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <AlertDialog>
+                      <AlertDialogTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              className={`${varientGroup.products[0].status === 'Active'
+                                ? 'text-red text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
+                                } cursor-pointer`}
+                              onClick={() => {
+                                setSelectedProduct(varientGroup.products[0]);
+                                setActionType(varientGroup.products[0].status === 'Active' ? 'unlist' : 'list');
+                              }
+                              }>
+                              {varientGroup.products[0].status === 'Active' ? (
+                                <ListMinus className="w-5 h-5 text-red-500" />
+                              ) : (
+                                <ListPlus className="w-5 h-5 text-green-500" />
+                              )}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-white text-black shadow-lg">
+                            <p>{varientGroup.products[0].status === 'Active' ? 'Unlist product' : 'List product'}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="bg-gray-100">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="text-red-600">Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription className="text-gray-700">
+                            Do you want to {actionType} the product.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="bg-gray-200 text-gray-700">Cancel</AlertDialogCancel>
+                          <AlertDialogAction className="bg-red-600 hover:bg-red-400 text-white" onClick={handleAction}>Continue</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </td> */}

@@ -1,10 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { Outlet, NavLink } from 'react-router-dom';
 import { Search, Bell, ChevronDown } from 'lucide-react';
 import { logoutUser } from '@/features/auth/authSlice';
-import { AppDispatch } from '@/app/store';
+import { useAppDispatch } from '@/app/store';
 
 
 interface SidebarProps {
@@ -23,7 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sellerLogout }) => (
         { name: 'Dashboard', path: '/seller/dashboard' },
         { name: 'Inbox', path: '/seller/inbox' },
         { name: 'Products', path: '/seller/products' },
-        { name: 'Order lists', path: '/seller/order-lists' },
+        { name: 'Orders', path: '/seller/orders' },
         { name: 'Settings', path: '/seller/settings' },
       ].map(item => (
         <NavLink
@@ -96,7 +95,7 @@ const Header = () => (
 
 function SellerLayout() {
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
 
   const sellerLogout = () => {
     console.log('Seller logout');

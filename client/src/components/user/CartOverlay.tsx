@@ -1,35 +1,43 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { UIContext } from '@/context/UIContext';
 import { Button } from '@/components/ui/button';
 import { ImportMeta } from 'shared/types';
 import { AuthState } from '@/features/auth/authSlice';
 import { CartState, updateQuantity } from '@/features/cart/cartSlice';
-import { AppDispatch } from '@/app/store';
+import { useAppDispatch } from '@/app/store';
+import orderEndpoints from '@/api/orderEndpoints';
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
 
 const CartOverlay = () => {
   const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
 
-  const dispatch = useDispatch<AppDispatch>();
-
-  useEffect(() => {
-    console.log('CartEffect:', cartData);
-  }, [cartData]);
-
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { hideCartOverlay } = useContext(UIContext);
+  const { isCartOverlayOpen, hideCartOverlay } = useContext(UIContext);
   const isAuthenticated = useSelector((state: { auth: AuthState }) => state.auth.user);
 
+  const [showCart, setShowCart] = useState(false);
 
+  useEffect(() => {
+    setShowCart(true);
+  }, [isCartOverlayOpen]);
+
+
+  const handleClose = () => {
+    setShowCart(false);
+    setTimeout(() => {
+      hideCartOverlay();
+    }, 290);
+  };
 
   const handleCheckout = async () => {
     if (!cartData) return
     try {
-      // const response = await orderEndpoints.createOrder(cartData);
+      await orderEndpoints.verifyCheckout();
       navigate('/checkout')
     } catch (error) {
       console.error('Error checking out cart:', error)
@@ -45,11 +53,6 @@ const CartOverlay = () => {
     dispatch(updateQuantity({ _id, quantity: cartQuantity - 1 }));
   }
 
-  // const updateTotalPrice = (items: ICart['items']) => {
-  // const totalPrice = items.reduce((total, item) => total + item.productId.price * item.quantity, 0);
-  // setCartData((prevState: ICart) => prevState ? { ...prevState, totalPrice } : null);
-  // };
-
   const handleViewCart = () => {
     hideCartOverlay();
     navigate('/cart');
@@ -57,18 +60,18 @@ const CartOverlay = () => {
 
   return (
     <div
-      className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 backdrop-blur-sm"
-      onClick={() => hideCartOverlay()}
+      className={`fixed top-0 left-0 w-full h-full right bg-black ${showCart ? 'bg-opacity-20 backdrop-blur-sm' : 'bg-opacity-0'} z-40 transition-all duration-500 ease-in-out`}
+      onClick={handleClose}
     >
       <div
-        className="absolute flex flex-col pb-14 top-14 right-0 h-full w-[471px] bg-white shadow-lg z-50"
+        className={`absolute flex flex-col pb-14 top-14 ${showCart ? 'right-0' : '-right-full'} transition-all duration-500 ease-in-out h-full w-[471px] bg-white shadow-lg z-50`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between p-[15px] bg-white">
           <div className="font-extrabold text-black text-lg">
             My Cart
           </div>
-          <button onClick={() => hideCartOverlay()} className="text-black">
+          <button onClick={() => handleClose()} className="text-black">
             ✕
           </button>
         </div>
@@ -125,14 +128,14 @@ const CartOverlay = () => {
                 Login to Order
               </Button>
             )}
-            <Button size="sm" variant="secondary" className="bg-white text-[#0E8320] border border-[#0E8320]"
+            <Button className="bg-white text-[#0E8320] border border-[#0E8320]"
               onClick={handleViewCart}>
               View Cart
             </Button>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

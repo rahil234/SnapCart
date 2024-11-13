@@ -1,7 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useParams, ScrollRestoration, NavLink } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useContext } from 'react';
+import { useParams, ScrollRestoration, NavLink, Link } from 'react-router-dom';
 import { X, Star, ChevronRight } from 'lucide-react';
-import { useDispatch } from 'react-redux';
 import { Skeleton } from "@/components/ui/skeleton";
 import productEndpoints from '@/api/productEndpoints';
 import ProductCard from '@/components/user/ProductCard';
@@ -10,7 +9,10 @@ import { ImportMeta } from 'shared/types';
 import { Button } from '@/components/ui/button';
 import { useSelector } from 'react-redux';
 import { addItemToCart, CartState, updateQuantity } from '@/features/cart/cartSlice';
-import { AppDispatch } from '@/app/store';
+import { useAppDispatch } from '@/app/store';
+import { AuthState } from '@/features/auth/authSlice';
+import { UIContext } from '@/context/UIContext';
+import { toast } from 'sonner';
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL;
 
@@ -84,9 +86,12 @@ const ProductPage: React.FC = () => {
   const [mainImage, setMainImage] = useState<string | undefined>(undefined);
   const [cartQuantity, setCartQuantity] = useState<number>(0);
 
+  const { showLoginOverlay } = useContext(UIContext);
+  const { user } = useSelector((state: { auth: AuthState }) => state.auth);
+
   const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
 
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (productId) {
@@ -102,6 +107,7 @@ const ProductPage: React.FC = () => {
     if (product)
       setCartQuantity(cartData?.items.find(item => item._id === product._id)?.quantity || 0);
   }, [product, cartData]);
+
 
   useEffect(() => {
     if (product && product.subcategory?._id) {
@@ -128,13 +134,34 @@ const ProductPage: React.FC = () => {
     return Math.floor(originalPrice - (originalPrice * discount) / 100);
   };
 
+  if (!product) {
+    return (
+      <div className="p-8">
+        <Skeleton />
+        <Skeleton />
+        <Skeleton />
+        <Skeleton />
+      </div>
+    );
+  }
 
   const handleAddToCart = () => {
+    if (!user) {
+      showLoginOverlay();
+      return;
+    }
     dispatch(addItemToCart({ _id: product!._id, product: product! }));
   };
 
 
   const handleIncreaseQuantity = () => {
+    if (cartQuantity >= product.stock) {
+      toast.error('Out of stock');
+      return;
+    } else if (cartQuantity >= 10) {
+      toast.error('You can add only 10 items at a time');
+      return;
+    }
     dispatch(updateQuantity({ _id: product!._id, quantity: cartQuantity + 1 }));
   }
 
@@ -146,16 +173,6 @@ const ProductPage: React.FC = () => {
   //   setSelectedVariants(prev => ({ ...prev, [variantName]: option }));
   // };
 
-  if (!product) {
-    return (
-      <div className="p-8">
-        <Skeleton />
-        <Skeleton />
-        <Skeleton />
-        <Skeleton />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -206,7 +223,14 @@ const ProductPage: React.FC = () => {
           {/* Product details */}
           <div className="md:w-1/2">
             <h2 className="text-2xl font-semibold mb-2">{product.name}</h2>
-            <p className="text-gray-600 mb-4">{product.variantName}</p>
+
+            {/* Product variants */}
+            {product.variants && "variants" in product && product.variants.map((variant, index) =>
+              <Link key={index} to={`/product/${product._id}`} className="mt-10 mb-4 border-2 w-fit p-1 px-4 border-green-500 rounded-lg flex flex-col">
+                <span className='text-green-700'>{`₹${variant.price}`}</span>
+                <span>{'100ml'}</span>
+              </Link>
+            )}
 
             {/* Product price */}
             {product.discount ? (

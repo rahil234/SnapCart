@@ -1,6 +1,5 @@
 import axiosInstance from './axiosInstance';
 
-
 const getLatestProducts = () => {
   return axiosInstance.get('/api/product');
 };
@@ -17,8 +16,8 @@ const getSellerProducts = () => {
   return axiosInstance.get('/api/product/seller');
 };
 
-const getAdminProducts = () => {
-  return axiosInstance.get('/api/product/admin');
+const getAdminProducts = async () => {
+  return (await axiosInstance.get('/api/product/admin')).data;
 };
 
 const addProduct = (data: FormData) => {
@@ -49,6 +48,60 @@ const getRelatedProduct = (productId: string) => {
   return axiosInstance.get('/api/product/related-products/' + productId);
 };
 
+const searchProducts = async ({
+  query,
+  category,
+  minPrice,
+  maxPrice,
+  sortBy,
+  page = 1,
+  limit = 100,
+}: {
+  query: string;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: string;
+  page?: number;
+  limit?: number;
+}) => {
+  console.log(
+    'searchProducts',
+    query,
+    category,
+    minPrice,
+    maxPrice,
+    sortBy,
+    page,
+    limit
+  );
+
+  const params = new URLSearchParams();
+  params.append('query', query);
+  params.append('page', page.toString());
+  params.append('limit', limit.toString());
+
+  if (category && category !== 'all') {
+    params.append('category', category);
+  }
+
+  if (minPrice) {
+    params.append('minPrice', minPrice.toString());
+  }
+  if (maxPrice) {
+    params.append('maxPrice', maxPrice.toString());
+  }
+
+  if (sortBy) {
+    params.append('sortBy', sortBy);
+  }
+
+  const response = await axiosInstance.get(
+    `/api/product/search?${params.toString()}`
+  );
+  return response.data;
+};
+
 export default {
   getLatestProducts,
   fetchProductById,
@@ -60,4 +113,5 @@ export default {
   getRelatedProduct,
   unlistProduct,
   listProduct,
+  searchProducts,
 };

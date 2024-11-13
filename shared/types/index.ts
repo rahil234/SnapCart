@@ -14,20 +14,16 @@ export interface Product {
   category: { _id: string; name: string };
   subcategory: { _id: string; name: string };
   price: number;
-  variantName?: string;
+  variantId: string;
+  variantName: string;
   stock: number;
   images: string[];
   description?: string;
   tags?: string[];
   discount?: number;
+  seller: string;
   status: 'Active' | 'Inactive';
-  variants?: {
-    _id: string;
-    name: string;
-    price: number;
-    stock: number;
-    images: string[];
-  };
+  variants?: Variant[];
   reviews?: Review[];
 }
 
@@ -66,6 +62,7 @@ export interface IUsers extends Document {
   phoneNo: number | null;
   addresses: Array<object>;
   email: string;
+  walletBalance: number;
   password: string;
   profilePicture: string | null;
   status: 'Active' | 'Blocked';
@@ -109,7 +106,7 @@ export interface ICart extends Document {
   totalItems: number;
 }
 
-export interface ICartP{
+export interface ICartP {
   userId?: string;
   items: Array<{
     _id: string;
@@ -128,7 +125,7 @@ export interface CartItem {
 
 export interface Variant {
   id: number;
-  name: string;
+  variantName: string;
   price: string;
   stock: string;
   images: VariantImage[];
@@ -180,7 +177,9 @@ export interface IOrderItem {
   _id: string;
   name: string;
   quantity: number;
+  seller: string;
   price: number;
+  image: string;
 }
 
 export interface IOrder extends Document {
@@ -193,6 +192,15 @@ export interface IOrder extends Document {
   orderDate: Date;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface Offer {
+  _id: string;
+  title: string;
+  discount: number;
+  startDate: string;
+  endDate: string;
+  status: 'Active' | 'Inactive';
 }
 
 // export interface ICart {

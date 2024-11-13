@@ -18,10 +18,11 @@ const initialState: CartState = {
 
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
-  async (_, { rejectWithValue }) => {
+  async (_, { dispatch,rejectWithValue }) => {
     try {
       const response = await cartEndpoints.getCart();
-      return response.data.cart as ICartP;
+      const cartData = response.data.cart as ICartP;
+      dispatch(setCartData(cartData));
     } catch (error) {
       return rejectWithValue((error as catchError).message);
     }
@@ -61,7 +62,7 @@ export const updateQuantity = createAsyncThunk(
         payload._id,
         payload.quantity
       );
-      dispatch(setCartData(response.data.cart as ICartP)); // Dispatching setCartData here
+      dispatch(setCartData(response.data.cart as ICartP));
       return response.data.cart as ICartP;
     } catch (error) {
       return rejectWithValue((error as catchError).message);
@@ -69,13 +70,12 @@ export const updateQuantity = createAsyncThunk(
   }
 );
 
-// Remove an item from the cart
 export const removeItem = createAsyncThunk(
   'cart/removeItem',
   async (payload: { _id: string }, { dispatch, rejectWithValue }) => {
     try {
       const response = await cartEndpoints.removeItem(payload._id);
-      dispatch(setCartData(response.data.cart as ICartP)); // Dispatching setCartData here
+      dispatch(setCartData(response.data.cart as ICartP));
       return response.data.cart as ICartP;
     } catch (error) {
       return rejectWithValue((error as catchError).message);
@@ -83,7 +83,6 @@ export const removeItem = createAsyncThunk(
   }
 );
 
-// Sync cart with the server on user login
 export const syncCartOnLogin = createAsyncThunk(
   'cart/syncCartOnLogin',
   async (_, { getState, dispatch, rejectWithValue }) => {
@@ -91,7 +90,7 @@ export const syncCartOnLogin = createAsyncThunk(
     const { items } = state.cart.cartData;
     try {
       const response = await axios.put('/api/cart/sync', { items });
-      dispatch(setCartData(response.data.cart as ICartP)); // Dispatching setCartData here
+      dispatch(setCartData(response.data.cart as ICartP));
       return response.data.cart as ICartP;
     } catch (error) {
       return rejectWithValue((error as catchError).message);
@@ -121,9 +120,8 @@ const cartSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchCart.fulfilled, (state, action) => {
+      .addCase(fetchCart.fulfilled, (state) => {
         state.status = 'succeeded';
-        state.cartData = action.payload;
       })
       .addCase(fetchCart.pending, state => {
         state.status = 'loading';
@@ -132,7 +130,6 @@ const cartSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message;
       })
-      // No need to set cart data again here in extraReducers because it's already dispatched in the thunk
       .addCase(addItemToCart.rejected, (state, action) => {
         state.error = action.payload as string;
       })

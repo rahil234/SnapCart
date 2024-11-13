@@ -10,8 +10,8 @@ import ForgetPasswordVerifyOTPCard from '@/components/user/Login/ForgetPasswordV
 import NewPassword from '@/components/user/Login/NewPassword';
 import { SignUpFormInputs } from 'shared/types';
 import userEndpoints from '@/api/userEndpoints';
-import { useDispatch } from 'react-redux';
 import { setCredentials } from '@/features/auth/authSlice';
+import { useAppDispatch } from '@/app/store';
 
 const LoginMain = (): JSX.Element => {
 
@@ -61,7 +61,7 @@ function LoginController() {
   const [signupData, setSignupData] = useState<SignUpFormInputs>();
   const [email, setEmail] = useState<string>();
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const onOtpSubmit = async (otp: string) => {
     console.log('OTP submitted:', otp);

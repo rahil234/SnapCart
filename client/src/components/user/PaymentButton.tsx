@@ -1,11 +1,12 @@
 import orderEndpoints from "@/api/orderEndpoints";
 import React, { useEffect, useState } from "react";
-import { ImportMeta } from "shared/types";
-import { RazorpayOptions, RazorpayResponse } from "types/razorpay";
+import { RazorpayOptions, RazorpayResponse } from 'types/razorpay';
 import { Button } from "../ui/button";
 import { UseFormGetValues } from "react-hook-form";
 import { CheckoutFormValues } from "@/pages/user/CheckoutPage";
 import { toast } from "sonner";
+import { ImportMeta } from "shared/types";
+import { catchError } from "shared/types";
 
 interface Order {
    id: string;
@@ -68,7 +69,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({ children, getValues }) =>
          });
          rzp.open();
       } catch (error) {
-         toast.error(error.response.data.message);
+         toast.error((error as catchError).response.data.message);
       }
    };
 

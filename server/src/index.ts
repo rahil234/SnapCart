@@ -12,7 +12,8 @@ import productRoute from './routes/productRoute';
 import categoryRoute from './routes/categoryRoute';
 import orderRoute from './routes/orderRoute';
 import cartRoute from './routes/cartRoute';
-// import deliveryRoute from './routes/delivery.route';
+import walletRoute from './routes/walletRoute';
+import offerRoute from '@/routes/offerRoute';
 
 dotenv.config();
 
@@ -50,7 +51,8 @@ app.use('/api/product', productRoute);
 app.use('/api/category', categoryRoute);
 app.use('/api/order', orderRoute);
 app.use('/api/cart', cartRoute);
-// app.get('/api/delivery', deliveryRoute);
+app.use('/api/wallet', walletRoute);
+app.use('/api/offer', offerRoute);
 
 const PORT = process.env.PORT || 3000;
 

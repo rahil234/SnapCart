@@ -1,7 +1,7 @@
 import axiosInstance from './axiosInstance';
 
-const getCategories = () => {
-  return axiosInstance.get('/api/category/get-categories');
+const getCategories = async () => {
+  return (await axiosInstance.get('/api/category/get-categories')).data;
 };
 
 const addCategory = (data: object) => {

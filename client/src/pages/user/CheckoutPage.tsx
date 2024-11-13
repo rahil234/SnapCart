@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Loader2, Plus, Edit2, Trash2 } from 'lucide-react'
@@ -16,7 +16,11 @@ import { AuthState } from '@/features/auth/authSlice'
 import { CartState } from '@/features/cart/cartSlice'
 import orderEndpoints from '@/api/orderEndpoints'
 import { clearCart } from '@/features/cart/cartSlice'
-import { catchError } from 'shared/types'
+import { catchError, ImportMeta } from 'shared/types'
+import { useAppDispatch } from '@/app/store'
+import userEndpoints from '@/api/userEndpoints'
+
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl
 
 interface Address {
     id: string
@@ -33,21 +37,15 @@ export interface CheckoutFormValues {
 }
 
 export default function CheckoutPage() {
-    const [isLoading, setIsLoading] = useState(false)
-    const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false)
-    const [editingAddressIndex, setEditingAddressIndex] = useState<number | null>(null)
+    const [isLoading, setIsLoading] = useState(false);
+    const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
+    const [editingAddressIndex, setEditingAddressIndex] = useState<number | null>(null);
 
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
-    const { user } = useSelector((state: { auth: AuthState }) => state.auth)
-    const { cartData } = useSelector((state: { cart: CartState }) => state.cart)
-    const [items, setItems] = useState(cartData?.items)
-
-    useEffect(() => {
-        setItems(cartData?.items)
-        console.log(cartData)
-    }, [cartData])
+    const { user } = useSelector((state: { auth: AuthState }) => state.auth);
+    const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
 
     const { control, handleSubmit, getValues, watch } = useForm<CheckoutFormValues>({
         defaultValues: {
@@ -55,34 +53,39 @@ export default function CheckoutPage() {
             addresses: user?.addresses || [],
             paymentMethod: 'cod',
         },
-    })
+    });
 
     const { fields, append, remove, update } = useFieldArray({
         control,
         name: 'addresses',
-    })
+    });
 
-    const selectedAddressId = watch('selectedAddressId')
-    const selectedPaymentMethod = watch('paymentMethod')
+    const selectedAddressId = watch('selectedAddressId');
+    const selectedPaymentMethod = watch('paymentMethod');
 
-    const handleAddAddress = (address: Address) => {
-        append(address)
-        setIsAddressDialogOpen(false)
+    const handleAddAddress = async (address: Address) => {
+        try {
+            await userEndpoints.addAddress(address);
+            append(address)
+            setIsAddressDialogOpen(false)
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const handleEditAddress = (index: number, address: Address) => {
-        update(index, address)
-        setEditingAddressIndex(null)
-        setIsAddressDialogOpen(false)
+        update(index, address);
+        setEditingAddressIndex(null);
+        setIsAddressDialogOpen(false);
     }
 
     const onSubmit = async (data: CheckoutFormValues) => {
         try {
-            setIsLoading(true)
+            setIsLoading(true);
             const response = await orderEndpoints.createOrder(data);
-            setIsLoading(false)
-            dispatch(clearCart())
-            navigate('/order-success/' + response.data.orderId)
+            setIsLoading(false);
+            dispatch(clearCart());
+            navigate('/order-success/' + response.data.orderId, { replace: true });
         }
         catch (error) {
             setIsLoading(false)
@@ -208,13 +211,21 @@ export default function CheckoutPage() {
                             <CardTitle>Order Summary</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            {items && items.map((item) => (
+                            {cartData.items && cartData.items.map((item) => (
                                 <div key={item._id} className="flex justify-between items-center mb-2">
-                                    <div>
-                                        <p className="font-semibold">{item.product.name}</p>
-                                        <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                                    <div className='flex items-center gap-2'>
+                                        <img
+                                            src={imageUrl + item.product.images[0]}
+                                            alt={item.product.name}
+                                            className="w-24 h-24 object-cover rounded-md mr-4"
+                                        />
+                                        <div>
+                                            <p className="font-semibold">{item.product.name}</p>
+                                            <p className="text-sm text-gray-500">Price: ₹{item.product.price}</p>
+                                            <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                                        </div>
                                     </div>
-                                    <p>₹{item.product.price * item.quantity}</p>
+                                    <span className='font-bold'>₹{item.product.price * item.quantity}</span>
                                 </div>
                             ))}
                         </CardContent>
@@ -229,7 +240,7 @@ export default function CheckoutPage() {
                         <CardContent>
                             <div className="space-y-2">
                                 <div className="flex justify-between">
-                                    <span>Price ({items?.length} items)</span>
+                                    <span>Price ({cartData.items?.length} items)</span>
                                     <span>₹{cartData?.totalAmount}</span>
                                 </div>
                                 <div className="flex justify-between">

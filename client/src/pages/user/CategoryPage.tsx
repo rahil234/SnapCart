@@ -21,11 +21,15 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-gray-100">
       <main className="px-4 mx-auto py-8">
-        <div className='grid grid-cols-8'>
-          {products.map((product) =>
-            products.length === 0 ? null : (
-              <ProductCard key={product._id} product={product} />
-            )
+        <div className="flex flex-wrap gap-4 justify-start">
+          {products.length === 0 ? (
+            <p>Currntly there are no products available in this category</p>
+          ) : (
+            products.map((product) => (
+              <div key={product._id} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/6">
+                <ProductCard product={product} />
+              </div>
+            ))
           )}
         </div>
       </main>

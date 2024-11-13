@@ -9,6 +9,7 @@ const UsersSchema: Schema = new Schema(
     phoneNo: Number,
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    walletBalance: { type: Number, default: 0 },
     addresses: Array,
     profilePicture: String,
     status: { type: String, enum: ['Active', 'Blocked'], default: 'Active' },

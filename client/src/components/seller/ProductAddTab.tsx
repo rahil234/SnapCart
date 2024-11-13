@@ -124,9 +124,9 @@ function ProductAddTab({ variant, setVariants, setValue, register,  errors, vari
             <Label htmlFor={`variantName-${variant.id}`}>Variant Name</Label>
             <Input
               id={`variantName-${variant.id}`}
-              {...register(`variants.${variant.id}.name`, { required: 'Variant Name is required' })}
+              {...register(`variants.${variant.id}.variantName`, { required: 'Variant Name is required' })}
             />
-            {errors.variants?.[variant.id]?.name && <span className="text-red-500 text-xs">{errors.variants?.[variant.id]?.name?.message ?? ''}</span>}
+            {errors.variants?.[variant.id]?.variantName && <span className="text-red-500 text-xs">{errors.variants?.[variant.id]?.variantName?.message ?? ''}</span>}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

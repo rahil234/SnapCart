@@ -4,6 +4,10 @@ const getOrders = async () => {
   return axiosInstance.get('/api/order');
 };
 
+const getSellerOrders = async () => {
+  return (await axiosInstance.get('/api/order/seller')).data;
+};
+
 const getAdminOrders = async () => {
   return (await axiosInstance.get('/api/order/admin')).data;
 };
@@ -45,6 +49,7 @@ export default {
   getOrders,
   getOrder,
   getAdminOrders,
+  getSellerOrders,
   createOrder,
   verifyCheckout,
   createPayment,

@@ -1,21 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { Button } from '@/components/ui/button';
-import cartEndpoints from '@/api/cartEndpoints';
 import { Product, ImportMeta } from 'shared/types';
 import { useSelector } from 'react-redux';
 import { CartState, addItemToCart, updateQuantity } from '@/features/cart/cartSlice';
-import { AppDispatch } from '@/app/store';
+import { useAppDispatch } from '@/app/store';
+import { AuthState } from '@/features/auth/authSlice';
+import { UIContext } from '@/context/UIContext';
+import { toast } from 'sonner';
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL;
 
 
 const ProductCard = ({ product }: { product: Product }) => {
-    const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
     const [cartQuantity, setCartQuantity] = useState<number>(0);
 
-    const dispatch = useDispatch<AppDispatch>();
+    const { showLoginOverlay } = useContext(UIContext);
+    const { user } = useSelector((state: { auth: AuthState }) => state.auth);
+    const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
+
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         setCartQuantity(cartData?.items.find(item => item._id === product._id)?.quantity || 0);
@@ -23,11 +27,21 @@ const ProductCard = ({ product }: { product: Product }) => {
 
     const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        await cartEndpoints.addToCart(product._id);
+        if (!user) {
+            showLoginOverlay();
+            return;
+        }
         dispatch(addItemToCart({ _id: product._id, product }));
     };
 
     function handleQuantityIncrease() {
+        if (cartQuantity >= product.stock) {
+            toast.error('Out of stock');
+            return;
+        } else if (cartQuantity >= 10) {
+            toast.error('You can add only 10 items at a time');
+            return;
+        }
         dispatch(updateQuantity({ _id: product._id, quantity: cartQuantity + 1 }));
     }
 

@@ -1,12 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Button } from '@/components/ui/button';
 import { User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { UIContext } from '@/context/UIContext';
 import { AuthState, logoutUser } from '@/features/auth/authSlice';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/app/store';
+import { useAppDispatch } from '@/app/store';
 import { Link } from 'react-router-dom';
 import { ImportMeta } from 'shared/types';
 
@@ -15,14 +14,23 @@ const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
 
 const ProfileOverlay = () => {
   const user = useSelector((state: { auth: AuthState }) => state.auth.user);
+  const [showCard, setShowCard] = useState(false);
 
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
 
-  const { hideProfileOverlay } = useContext(UIContext);
+  const { isProfileOverlayOpen, hideProfileOverlay } = useContext(UIContext);
 
-  const handleBackgroundClick = () => {
-    hideProfileOverlay();
+  useEffect(() => {
+    setShowCard(true);
+  }, [isProfileOverlayOpen]);
+
+  const handleClose = () => {
+    setShowCard(false);
+    setTimeout(() => {
+      hideProfileOverlay();
+    }, 200);
   };
+
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -30,8 +38,8 @@ const ProfileOverlay = () => {
   };
 
   return (
-    <div className='fixed w-screen h-screen bg-black bg-opacity-50' onClick={handleBackgroundClick}>
-      <div className="absolute top-16 right-2 w-[300px] bg-white shadow-lg z-50 p-4 rounded-lg" onClick={(e) => e.stopPropagation()}>
+    <div className={`fixed w-screen h-screen bg-black ${showCard ? 'backdrop-blur-sm bg-opacity-20' : 'backdrop-blur-none bg-opacity-0'} transition-all duration-300 ease-in-out`} onClick={handleClose}>
+      <div className={`absolute right-2 w-[300px] bg-white shadow-lg z-50 p-4 rounded-lg ${showCard ? 'top-16' : '-top-full'}  transition-all duration-300 ease-in-out`} onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-col items-center">
           <Avatar className="w-24 h-24">
             <AvatarImage src={imageUrl + user?.profilePicture} alt="Profile picture" />

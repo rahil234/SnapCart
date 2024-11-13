@@ -1,40 +1,69 @@
 import { Request, Response } from 'express';
 import productModel from '@/models/productModel';
-import { catchError } from '@shared/types';
-import { log } from 'console';
+import { catchError, Product } from '@shared/types';
 import categoryModel from '@models/categoryModel';
+import variantModel from '@models/variantModel';
+import subcategoryModel from '@models/subcategoryModel';
 
 const getProduct = async (req: Request, res: Response) => {
   try {
     const productId = req.params.productId;
 
     const product = await productModel
-      .findOne({ _id: productId })
-      .populate('category')
-      .populate('subcategory');
+      .findById(productId)
+      .populate(['category', 'subcategory']);
 
-    if (product) {
-      res.status(200).json(product);
-    } else {
+    if (!product) {
       res.status(404).json({ message: 'Product not found' });
+      return;
     }
-  } catch {
+
+    const x = product.toObject() as Product;
+
+    const variants = await productModel.find({
+      variantId: product.variantId,
+    });
+
+    if (variants) {
+      x.variants = variants
+        .filter((variant) => variant._id.toString() !== productId)
+        .map((variant) => ({
+          _id: variant._id,
+          variantName: variant.variantName,
+          price: variant.price,
+        })) as any; //eslint-disable-line
+    }
+
+    res.status(200).json(x);
+  } catch (error) {
+    console.log('Error fetching product', error);
+
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 const addProduct = async (req: Request, res: Response) => {
   try {
+    const { productName, description, category, subcategory, variants } =
+      req.body;
+
     console.log(req.body);
-    const { productName, description, category, subcategory } = req.body;
-    const variants = req.body.variants;
+
+    //chack the category and subcategory is valid
+    const categoryExist = await categoryModel.findById(category);
+    const subcategoryExist = await subcategoryModel.findById(subcategory);
+
+    console.log(categoryExist, subcategoryExist);
+
+    if (!categoryExist || !subcategoryExist) {
+      res.status(400).json({ message: 'Category or SubCategory is not valid' });
+      return;
+    }
 
     const images = req.files as Express.Multer.File[];
 
-    // Create a map to store images for each variant
     const variantImagesMap: { [key: string]: string[] } = {};
 
-    // Populate the map with images
     images.forEach((image) => {
       const match = image.fieldname.match(
         /variants\[(\d+)\]\[images\]\[(\d+)\]/
@@ -48,15 +77,13 @@ const addProduct = async (req: Request, res: Response) => {
       }
     });
 
-    // console.log(variantImagesMap);
-
-    // Iterate over variants and save each as a new product
     const savedProducts = [];
 
-    log('variants', variants);
+    const variantId = (await variantModel.create({ name: productName }))._id;
 
     for (const [index, variant] of variants.entries()) {
       const newProduct = new productModel({
+        variantId,
         name: productName,
         description,
         category,
@@ -151,7 +178,6 @@ const getRelatedProducts = async (req: Request, res: Response) => {
 const getProductByCategory = async (req: Request, res: Response) => {
   try {
     const { category } = req.params;
-    console.log(category);
     const products = await productModel
       .find({ category, status: 'Active' })
       .populate('category')
@@ -165,7 +191,7 @@ const getProductByCategory = async (req: Request, res: Response) => {
 
 const getProductsByUser = async (req: Request, res: Response) => {
   try {
-    const categories = await categoryModel.find().limit(5);
+    const categories = await categoryModel.find();
 
     const categoryProducts = await Promise.all(
       categories.map(async (category) => {
@@ -190,11 +216,56 @@ const getProductsByUser = async (req: Request, res: Response) => {
 
 const getProductsByAdmin = async (req: Request, res: Response) => {
   try {
-    const products = await productModel
-      .find()
-      .populate('category')
-      .populate('subcategory');
-    res.status(200).json(products);
+    const productsByVariant = await productModel.aggregate([
+      {
+        $lookup: {
+          from: 'variants',
+          localField: 'variantId',
+          foreignField: '_id',
+          as: 'variantInfo',
+        },
+      },
+      {
+        $lookup: {
+          from: 'categories',
+          let: { category: { $toObjectId: '$category' } },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$category'] } } },
+            { $project: { _id: 1, name: 1, description: 1 } },
+          ],
+          as: 'category',
+        },
+      },
+      {
+        $lookup: {
+          from: 'subcategories',
+          let: { subcategory: { $toObjectId: '$subcategory' } },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$subcategory'] } } },
+            { $project: { _id: 1, name: 1, description: 1 } },
+          ],
+          as: 'subcategory',
+        },
+      },
+      {
+        $addFields: {
+          category: { $arrayElemAt: ['$category', 0] },
+          subcategory: { $arrayElemAt: ['$subcategory', 0] },
+        },
+      },
+      {
+        $group: {
+          _id: '$variantId',
+          products: { $push: '$$ROOT' },
+          category: { $first: '$category' },
+          subcategory: { $first: '$subcategory' },
+        },
+      },
+    ]);
+
+    console.log('p', productsByVariant[0].products);
+
+    res.status(200).json(productsByVariant);
   } catch (error) {
     const myError = error as catchError;
     res.status(400).json({ message: myError.message });
@@ -203,15 +274,58 @@ const getProductsByAdmin = async (req: Request, res: Response) => {
 
 const getProductsBySeller = async (req: Request, res: Response) => {
   try {
-    console.log(req.user);
-    const products = await productModel
-      .find({ seller: req.user?._id })
-      .populate('category')
-      .populate('subcategory');
-    res.status(200).json(products);
+    const productsByVariant = await productModel.aggregate([
+      {
+        $lookup: {
+          from: 'variants',
+          localField: 'variantId',
+          foreignField: '_id',
+          as: 'variantInfo',
+        },
+      },
+      {
+        $lookup: {
+          from: 'categories',
+          let: { category: { $toObjectId: '$category' } },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$category'] } } },
+            { $project: { _id: 1, name: 1, description: 1 } },
+          ],
+          as: 'category',
+        },
+      },
+      {
+        $lookup: {
+          from: 'subcategories',
+          let: { subcategory: { $toObjectId: '$subcategory' } },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$subcategory'] } } },
+            { $project: { _id: 1, name: 1, description: 1 } },
+          ],
+          as: 'subcategory',
+        },
+      },
+      {
+        $addFields: {
+          category: { $arrayElemAt: ['$category', 0] },
+          subcategory: { $arrayElemAt: ['$subcategory', 0] },
+        },
+      },
+      {
+        $group: {
+          _id: '$variantId',
+          products: { $push: '$$ROOT' },
+          category: { $first: '$category' },
+          subcategory: { $first: '$subcategory' },
+        },
+      },
+    ]);
+
+    console.log('p', productsByVariant[0].products);
+
+    res.status(200).json(productsByVariant);
   } catch (error) {
     const myError = error as catchError;
-    console.log(myError);
     res.status(400).json({ message: myError.message });
   }
 };
@@ -238,6 +352,47 @@ const listProduct = async (req: Request, res: Response) => {
   }
 };
 
+const searchProducts = async (req: Request, res: Response) => {
+  try {
+    const { query, category, minPrice, maxPrice, sort } = req.query as {
+      query: string;
+      category: string;
+      minPrice: string;
+      maxPrice: string;
+      sort: string;
+    };
+
+    const searchCriteria: any = {  //eslint-disable-line
+      name: { $regex: new RegExp(query, 'i') },
+      status: 'Active',
+    };
+
+    if (category) {
+      searchCriteria.category = category;
+    }
+
+    if (minPrice) {
+      searchCriteria.price = { $gte: Number(minPrice) };
+    }
+
+    if (maxPrice) {
+      if (!searchCriteria.price) {
+        searchCriteria.price = {};
+      }
+      searchCriteria.price.$lte = Number(maxPrice);
+    }
+
+    const findedProducts = await productModel.find(searchCriteria).sort(sort);
+
+    const products = findedProducts;
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error searching products' });
+  }
+};
+
 export default {
   getProduct,
   addProduct,
@@ -249,4 +404,5 @@ export default {
   getProductsBySeller,
   unlistProduct,
   listProduct,
+  searchProducts,
 };

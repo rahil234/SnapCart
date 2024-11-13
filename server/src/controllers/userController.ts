@@ -83,7 +83,10 @@ const login = async (req: Request, res: Response) => {
 
     const accessToken = signAccessToken({
       _id: user._id,
+      firstName: user.firstName,
       email: user.email,
+      profilePicture: user.profilePicture,
+      addresses: user.addresses,
       role: 'customer',
     });
 
@@ -132,6 +135,7 @@ const googleLogin = async (req: Request, res: Response) => {
       firstName: userData.firstName,
       email: userData.email,
       profilePicture: userData.profilePicture,
+      addresses: userData.addresses,
       role: 'customer',
     };
 
@@ -152,8 +156,6 @@ const googleLogin = async (req: Request, res: Response) => {
 };
 
 const signup = async (req: Request, res: Response) => {
-  console.log('Signup', req.body);
-
   try {
     const { email, name } = req.body;
     const [firstName, lastName] = name.split(' ');
@@ -190,13 +192,11 @@ const verifySignUp = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
 
-    // Check if the email is provided
     if (!email) {
       res.status(400).json({ message: 'Email is required' });
       return;
     }
 
-    // Check if the user with the given email already exists
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
       res.status(400).json({ message: 'Email is already registered' });
@@ -216,13 +216,11 @@ const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
 
-    // Check if the email is provided
     if (!email) {
       res.status(400).json({ message: 'Email is required' });
       return;
     }
 
-    // Check if the user with the given email already exists
     const existingUser = await userModel.findOne({ email });
     if (!existingUser) {
       res.status(400).json({ message: 'User not found' });
@@ -250,7 +248,6 @@ const resetPassword = async (req: Request, res: Response) => {
 
     await existingUser.save();
 
-    // await sendOtp(email);
     res.json({ message: 'OTP sent to your email' });
   } catch (err) {
     res.status(500).json({ message: 'Internal server error' + err });
@@ -261,13 +258,11 @@ const changePassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
 
-    // Check if the email is provided
     if (!email) {
       res.status(400).json({ message: 'Email is required' });
       return;
     }
 
-    // Check if the user with the given email already exists
     const existingUser = await userModel.findOne({ email });
     if (!existingUser) {
       res.status(400).json({ message: 'User not found' });

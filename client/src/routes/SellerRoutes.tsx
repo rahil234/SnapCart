@@ -5,6 +5,7 @@ import SellerDashboard from '@/pages/seller/SellerDashboard';
 import SellerLogin from '@/pages/seller/SellerLogin';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 import ComingSoon from '@/pages/admin/ComingSoon';
+import SellerOrders from '@/pages/seller/SellerOrders';
 import SellerProducts from '@/pages/seller/SellerProducts';
 
 const SellerRoutes = [
@@ -23,7 +24,7 @@ const SellerRoutes = [
                     { path: 'dashboard', element: <SellerDashboard /> },
                     { path: 'inbox', element: <ComingSoon /> },
                     { path: 'products', element: <SellerProducts /> },
-                    { path: 'order-lists', element: <ComingSoon /> },
+                    { path: 'orders', element: <SellerOrders /> },
                     { path: 'settings', element: <ComingSoon /> },
                 ],
             },

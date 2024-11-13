@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -11,7 +11,6 @@ import { refreshAuthToken } from './features/auth/authSlice';
 import UserRoutes from '@/routes/UserRoutes';
 import AdminRoutes from '@/routes/AdminRoutes';
 import SellerRoutes from '@/routes/SellerRoutes';
-import { fetchCart } from './features/cart/cartSlice';
 
 const routes = createBrowserRouter([
   ...UserRoutes,
@@ -27,10 +26,10 @@ const App: React.FC = () => {
 
   const queryClient = new QueryClient();
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     (async () => {
-      if (localStorage.getItem('sessionActive')) await store.dispatch(refreshAuthToken());
-      store.dispatch(fetchCart());
+      if (localStorage.getItem('sessionActive')) await 
+      store.dispatch(refreshAuthToken());
       setIsLoading(false);
     })();
   }, []);

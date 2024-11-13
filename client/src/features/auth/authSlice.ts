@@ -25,7 +25,8 @@ export const refreshAuthToken = createAsyncThunk(
       );
       return response.data;
     } catch {
-      clearCredentials();
+      // store.dispatch(clearUser());
+      // localStorage.removeItem('sessionActive');
       return rejectWithValue('Failed to refresh token');
     }
   }
@@ -69,11 +70,12 @@ const authSlice = createSlice({
         state.user.profilePicture = action.payload;
       }
     },
-    clearCredentials: state => {
+    clearUser: state => {
+      console.log('clearing user');
+      localStorage.removeItem('sessionActive');
       state.isAuthenticated = false;
       state.user = null;
       state.accessToken = null;
-      localStorage.removeItem('sessionActive');
     },
   },
   extraReducers: builder => {
@@ -94,7 +96,7 @@ const authSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(logoutUser.fulfilled, state => {
-        authSlice.caseReducers.clearCredentials(state);
+        authSlice.caseReducers.clearUser(state);
         state.status = 'succeeded';
       })
       .addCase(logoutUser.rejected, (state, action) => {
@@ -104,6 +106,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, changeProfilePicture, clearCredentials } =
+export const { setCredentials, changeProfilePicture, clearUser } =
   authSlice.actions;
 export default authSlice.reducer;

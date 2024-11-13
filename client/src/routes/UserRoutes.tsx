@@ -1,4 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import store from '@/app/store';
+import { fetchCart } from '@/features/cart/cartSlice';
 import UserLayout from '@/Layouts/UserLayout';
 import Home from '@/pages/user/HomePage';
 import ProductPage from '@/pages/user/ProductPage';
@@ -10,18 +14,31 @@ import CategoryPage from '@/pages/user/CategoryPage';
 import { UIProvider } from '@/context/UIContext';
 import ChangePasswordPage from '@/pages/user/ChangePassword';
 import OrderSuccessPage from '@/pages/user/OrderSuccessPage';
+import { AuthState } from '@/features/auth/authSlice';
+import SearchPage from '@/pages/user/SearchPage';
 
 
+function Root() {
+    const { user } = useSelector((state: { auth: AuthState }) => state.auth);
+    useEffect(() => {
+        if (user && user?.role === 'customer')
+            store.dispatch(fetchCart());
+        else
+            store.dispatch({ type: 'cart/clearCart' });
+    }, [user]);
+    return <Outlet />;
+};
 
 const UserRoutes = [
     {
         path: '/',
+        element: <Root />,
         children: [
             {
                 path: '',
                 element:
                     <UIProvider>
-                            <UserLayout />
+                        <UserLayout />
                     </UIProvider>,
                 children: [
                     {
@@ -29,11 +46,15 @@ const UserRoutes = [
                         element: <Home />,
                     },
                     {
-                        path: '/product/:productId',
+                        path: 'search',
+                        element: <SearchPage />,
+                    },
+                    {
+                        path: 'product/:productId',
                         element: <ProductPage />,
                     },
                     {
-                        path: '/category/:category',
+                        path: 'category/:category',
                         element: <CategoryPage />,
                     },
                     {

@@ -8,8 +8,8 @@ import { ICartP } from '@shared/types';
 import productModel from '@models/productModel';
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_1',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'rzp_test_1',
+  key_id: process.env.RAZORPAY_KEY_ID!,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 const getOrders = async (req: Request, res: Response) => {
@@ -35,6 +35,25 @@ const getOrder = async (req: Request, res: Response) => {
     }
 
     res.status(200).json(order);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
+const getSellerOrders = async (req: Request, res: Response) => {
+  try {
+    const allOrders = await orderModel.find();
+    const orders = allOrders.filter((order) =>
+      order.items.some((item) => item.seller === req.user?._id)
+    );
+
+    orders.forEach((order) => {
+      order.items = order.items.filter((item) => item.seller === req.user?._id);
+    });
+
+    console.log(orders);
+    res.status(200).json(orders);
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
@@ -107,12 +126,15 @@ const createOrder = async (req: Request, res: Response) => {
       orderId: orderId,
       price: cart.totalAmount,
     });
+
     cart?.items.forEach((item) => {
       order.items.push({
         _id: item._id,
         name: item.product.name,
         quantity: item.quantity,
         price: item.product.price,
+        seller: item.product.seller,
+        image: item.product.images[0],
       });
     });
     await order.save();
@@ -125,16 +147,22 @@ const createOrder = async (req: Request, res: Response) => {
 };
 
 const createPayment = async (req: Request, res: Response) => {
-  const cart = await cartModel.findById(req.params.id);
+  const cart = (await cartModel
+    .findOne({ userId: req.user?._id })
+    .populate('items.product')) as unknown as ICartP;
 
+  function calculateCartTotal() {
+    return cart?.items.reduce((acc, item) => {
+      return acc + item.product.price * item.quantity;
+    }, 0);
+  }
   const options = {
-    amount: (cart?.totalAmount ? cart?.totalAmount : 1) * 100,
+    amount: calculateCartTotal() * 100,
     currency: 'INR',
     receipt: 'order_rcptid_11',
   };
   try {
     const order = await razorpay.orders.create(options);
-    console.log(order);
     res.json(order);
   } catch (error) {
     console.log(error);
@@ -170,6 +198,7 @@ const verifyPayment = async (req: Request, res: Response) => {
 
 export default {
   getOrders,
+  getSellerOrders,
   getAdminOrders,
   getOrder,
   verifyCheckout,

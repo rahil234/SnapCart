@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { User, MapPin, ShoppingBag, Shield } from 'lucide-react'
+import { User, MapPin, ShoppingBag, Shield, Wallet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthState } from '@/features/auth/authSlice'
 import OrdersSection from '@/pages/user/MyAccount/Orders'
+import WalletSection from '@/pages/user/MyAccount/Wallet'
 import AddressesSection from '@/pages/user/MyAccount/Address'
 import SecuritySection from '@/pages/user/MyAccount/Security'
 import ProfileSection from '@/pages/user/MyAccount/Profile'
@@ -17,7 +18,7 @@ function AccountPage() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1)
-      if (['profile', 'addresses', 'orders', 'security'].includes(hash)) {
+      if (['profile', 'addresses', 'orders', 'security', 'wallet'].includes(hash)) {
         setActiveSection(hash)
       }
     }
@@ -42,6 +43,8 @@ function AccountPage() {
     switch (activeSection) {
       case 'profile':
         return <ProfileSection user={user} />
+        case 'wallet':
+          return <WalletSection />
       case 'addresses':
         return <AddressesSection addresses={user.addresses} />
       case 'orders':
@@ -70,6 +73,14 @@ function AccountPage() {
               >
                 <User className="mr-2 h-4 w-4" />
                 Profile
+              </Button>
+              <Button
+                variant={activeSection === 'wallet' ? 'secondary' : 'ghost'}
+                className="justify-start"
+                onClick={() => handleSectionChange('wallet')}
+              >
+                <Wallet className="mr-2 h-4 w-4" />
+                Wallet
               </Button>
               <Button
                 variant={activeSection === 'addresses' ? 'secondary' : 'ghost'}

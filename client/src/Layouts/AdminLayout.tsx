@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '@/app/store';
+import { useAppDispatch } from '@/app/store';
 import { Outlet, NavLink } from 'react-router-dom';
 import { Search, Bell, ChevronDown } from 'lucide-react';
 import { logoutUser } from '@/features/auth/authSlice';
@@ -30,6 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({ adminLogout }) => (
         { name: 'Offers', path: '/admin/offers' },
         { name: 'Deals', path: '/admin/deals' },
         { name: 'Orders', path: '/admin/orders' },
+        { name: 'sales-report', path: '/admin/sales-report' },
         { name: 'Settings', path: '/admin/settings' },
       ].map(item => (
         <NavLink
@@ -102,7 +102,7 @@ const Header = () => (
 
 function AdminLayout() {
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
 
   const adminLogout = () => {
     console.log('Admin logout');

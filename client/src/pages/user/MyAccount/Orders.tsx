@@ -83,17 +83,33 @@ function OrdersSection() {
                                 <CardHeader>
                                     <AccordionTrigger>
                                         <CardTitle className="flex justify-between items-center w-full">
-                                            <span>Order #{order.orderId}</span>
-                                            <span className={`text-sm font-normal ${getStatusColor(order.status)}`}>
-                                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                            </span>
+                                            <div className="w-full flex justify-between">
+                                                <span className="text-sm">#{order.orderId}</span>
+                                                <span className={`text-sm font-normal ${getStatusColor(order.status)}`}>
+                                                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                                </span>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                {order.items.map((item) => <div key={item._id}>
+                                                    <img src={item.image} alt="" />
+                                                </div>)}
+                                            </div>
                                         </CardTitle>
                                     </AccordionTrigger>
                                 </CardHeader>
                                 <AccordionContent>
                                     <CardContent>
                                         <div className="space-y-2">
-                                            <p><strong>Date:</strong>{String(new Date(order.date))}</p>
+                                            <p>
+                                                <strong>Date:</strong>
+                                                {new Intl.DateTimeFormat('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: 'numeric',
+                                                    minute: 'numeric'
+                                                }).format(new Date(order.createdAt))}
+                                            </p>
                                             <p><strong>Total:</strong> ₹{calculateTotal(order).toFixed(2)}</p>
                                             <h4 className="font-semibold mt-4">Items:</h4>
                                             <ul className="list-disc list-inside space-y-1">

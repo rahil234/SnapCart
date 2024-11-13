@@ -86,10 +86,14 @@ function AddressesSection({ addresses: initialAddresses }: { addresses: Address[
     name: 'addresses',
   })
 
-  const handleAddAddress = (address: Address) => {
-    append(address)
-    userEndpoints.addAddress(address);
-    setIsAddressDialogOpen(false)
+  const handleAddAddress = async (address: Address) => {
+    try {
+      await userEndpoints.addAddress(address);
+      append(address)
+      setIsAddressDialogOpen(false)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const handleEditAddress = (index: number, address: Address) => {

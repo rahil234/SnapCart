@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
 import sellerEndpoints from '@/api/sellerEndpoints';
 import { AuthState, setCredentials } from '@/features/auth/authSlice';
 import { catchError } from 'shared/types';
+import { useAppDispatch } from '@/app/store';
 
 interface LoginFormInputs {
   email: string;
@@ -16,7 +17,7 @@ const SellerLogin: React.FC = () => {
   const [error, setError] = React.useState<string>('');
   const isAuthenticated = useSelector((state: { auth: AuthState }) => state.auth.isAuthenticated);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const {

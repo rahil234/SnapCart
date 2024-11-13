@@ -41,6 +41,8 @@ router.patch('/unlist-product/:productId', productController.unlistProduct);
 
 router.patch('/list-product/:productId', productController.listProduct);
 
+router.get('/search', productController.searchProducts);
+
 router.get('/:productId', productController.getProduct);
 
 router.get('', productController.getProductsByUser);

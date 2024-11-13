@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 import { X } from 'lucide-react';
 import InputField from '@/components/ui/InputField';
 import userEndpoints from '@/api/userEndpoints';
@@ -8,6 +7,7 @@ import { setCredentials } from '@/features/auth/authSlice';
 import { useGoogleLogin } from '@react-oauth/google';
 import { motion } from 'framer-motion';
 import { catchError } from 'shared/types';
+import { useAppDispatch } from '@/app/store';
 
 interface LoginFormInputs {
   email: string;
@@ -25,7 +25,7 @@ const LoginCard: React.FC<LoginCardProps> = ({
   setActiveTab,
   hideLoginOverlay,
 }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

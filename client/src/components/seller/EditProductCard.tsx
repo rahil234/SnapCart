@@ -278,7 +278,7 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
           </div>
           <div>
             <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
-              Quantity
+              Variant Name
             </label>
             <input
               type="text"

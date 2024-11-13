@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Separator } from '@/components/ui/separator';
 import { ImportMeta } from 'shared/types';
 import { updateQuantity, CartState, removeItem } from '@/features/cart/cartSlice';
-import { AppDispatch } from '@/app/store';
+import { useAppDispatch } from '@/app/store';
 import { toast } from 'sonner';
 import orderEndpoints from '@/api/orderEndpoints';
 
@@ -20,7 +19,7 @@ const CartPage = () => {
   const { cartData } = useSelector((state: { cart: CartState }) => state.cart)
   const [isLoading] = useState(0)
 
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useAppDispatch()
 
   const navigate = useNavigate()
 
@@ -91,6 +90,7 @@ const CartPage = () => {
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold">{item.product.name}</h3>
                         <p className="text-sm text-gray-500">Price: ₹{item.product.price}</p>
+                        {item.quantity > item.product.stock && <p className='text-red-600 text-sm'>Max stock available is {item.product.stock}</p>}
                         <div className="flex items-center mt-2">
                           <Button
                             size="icon"

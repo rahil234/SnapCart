@@ -1,4 +1,5 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Button } from '@/components/ui/button';
 import { CircleUserRound } from 'lucide-react';
@@ -12,18 +13,40 @@ import { ImportMeta } from 'shared/types';
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
 
 const NavBar = () => {
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { isAuthenticated, user } = useSelector((state: { auth: AuthState }) => state.auth);
   const { showLoginOverlay, toggleCartOverlay, toggleProfileOverlay } = useContext(UIContext);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const query = searchParams.get('query');    
+    if (query) {
+      setSearchQuery(query);
+    }
+  }, [location.search]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value.trim();
+    setSearchQuery(query);
+    if (query === '') {
+      navigate('/');
+    } else {
+      navigate(`/search?query=${query}`);
+    }
+  };
+
   return (
     <>
       <header className="bg-white fixed w-screen shadow-sm py-3 px-6 flex justify-between items-center gap-4 z-50">
-        <div className='flex'>
+        <div className='flex' onClick={()=>navigate('/')}>
           <h1 className="text-2xl font-bold text-yellow-400">Snap</h1>
           <h1 className="text-2xl font-bold text-green-600">Cart</h1>
         </div>
-        <Input id="username" placeholder='Search for "Milk" ' />
+        <Input id="searchField" placeholder='Search for "Milk" ' value={searchQuery} onChange={handleChange} />
         <div className="flex gap-2">
           {isAuthenticated ? (
             <div className="flex items-center gap-2 px-2" onClick={toggleProfileOverlay}>

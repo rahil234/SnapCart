@@ -57,14 +57,12 @@ function SortableImage({ image }: { image: VariantImage; }) {
 function AddProductCard({ onClose }: { onClose: () => void }) {
   const { register, handleSubmit, formState: { errors }, watch } = useForm<FormValues>();
 
-  const defaultVariant = { id: 0, name: `Variant 0`, price: '', stock: '', images: [] };
+  const defaultVariant = { id: 0, variantName: `Variant 0`, price: '', stock: '', images: [] };
 
   const [variants, setVariants] = useState<Variant[]>([defaultVariant]);
   const [activeTab, setActiveTab] = useState(defaultVariant.id);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategory, setSubcategory] = useState<Subcategory[]>([]);
-
-
 
   const [cropperOpen, setCropperOpen] = useState(false);
   const [currentImages, setCurrentImages] = useState<File[]>([]);
@@ -78,6 +76,8 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
   );
 
   const handleImageUpload = (variantId: number, files: FileList | null) => {
+    console.log("files", files);
+
     if (files) {
       const variant = variants.find((v: Variant) => v.id === variantId);
       if (variant && variant.images.length + files.length > 6) {
@@ -96,7 +96,6 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
 
   const closeImageCropper = () => {
     setCropperOpen(false);
-    // setCurrentImages([]);
   };
 
 
@@ -105,8 +104,8 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await categoryEndpoints.getCategories();
-        setCategories(response.data);
+        const data = await categoryEndpoints.getCategories();
+        setCategories(data);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
@@ -131,7 +130,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
       alert('You can only add up to 6 variants.');
       return;
     }
-    const newVariant = { id: variants.length, name: `Variant ${variants.length}`, price: '', stock: '', images: [] };
+    const newVariant = { id: variants.length, variantName: `Variant ${variants.length}`, price: '', stock: '', images: [] };
     setVariants(prev => [...prev, newVariant]);
     setActiveTab(newVariant.id);
   };
@@ -163,9 +162,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
   // };
 
   const removeVariant = (id: number) => {
-    console.log("removeVariantId", id);
     // setActiveTab('0');
-
     // Update variants state
     setVariants(prevVariants => {
       const updatedVariants = prevVariants
@@ -195,7 +192,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
       formData.append('subcategory', data.subcategory);
 
       variants.forEach((_variant, index) => {
-        formData.append(`variants[${index}][name]`, data.variants[index].name);
+        formData.append(`variants[${index}][name]`, data.variants[index].variantName);
         formData.append(`variants[${index}][price]`, data.variants[index].price);
         formData.append(`variants[${index}][stock]`, data.variants[index].stock);
 
@@ -341,16 +338,16 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
           </div>
           {variants.map((variant) => (
             <TabsContent value={String(variant.id)} key={variant.id}>
-              {cropperOpen && currentImages.length > 0 && <AddImageCropper currentImages={currentImages} pushCroppedImage={pushCroppedImage} currentImageIndex={currentImageIndex} setCurrentImageIndex={setCurrentImageIndex} currentVariantId={variant.id} onClose={closeImageCropper} />}
+              {cropperOpen && <AddImageCropper currentImages={currentImages} pushCroppedImage={pushCroppedImage} currentImageIndex={currentImageIndex} setCurrentImageIndex={setCurrentImageIndex} currentVariantId={variant.id} onClose={closeImageCropper} />}
               <Card>
                 <CardContent className="space-y-4 pt-6">
                   <div className="space-y-2">
                     <Label htmlFor={`variantName-${variant.id}`}>Variant Name</Label>
                     <Input
                       id={`variantName-${variant.id}`}
-                      {...register(`variants.${variant.id}.name`, { required: 'Variant Name is required' })}
+                      {...register(`variants.${variant.id}.variantName`, { required: 'Variant Name is required' })}
                     />
-                    {errors.variants?.[variant.id]?.name && <span className="text-red-500 text-xs">{errors.variants?.[variant.id]?.name?.message ?? ''}</span>}
+                    {errors.variants?.[variant.id]?.variantName && <span className="text-red-500 text-xs">{errors.variants?.[variant.id]?.variantName?.message ?? ''}</span>}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">

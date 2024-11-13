@@ -11,6 +11,12 @@ router.get(
 );
 
 router.get(
+  '/seller',
+  authenticateAndAuthorize(['seller']),
+  orderController.getSellerOrders
+);
+
+router.get(
   '/verify-checkout',
   authenticateAndAuthorize(['customer']),
   orderController.verifyCheckout

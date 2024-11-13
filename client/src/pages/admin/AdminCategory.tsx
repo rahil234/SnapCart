@@ -254,8 +254,9 @@ const AdminCategory = () => {
 
   useEffect(() => {
     categoryEndpoints.getCategories().then((response) => {
-      setCategories(response.data);
       console.log(response.data);
+      
+      setCategories(response.data);
     });
   }, []);
 

@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useDispatch } from 'react-redux'
 import { toast } from 'sonner'
 import { Loader2, Upload, User as UserIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -10,6 +9,7 @@ import { changeProfilePicture } from '@/features/auth/authSlice'
 import userEndpoints from '@/api/userEndpoints'
 import { Address } from '@/pages/user/MyAccount/Address'
 import { User, ImportMeta } from 'shared/types'
+import { useAppDispatch } from '@/app/store'
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl
 
@@ -23,7 +23,7 @@ function ProfileSection({ user }: { user: User }) {
     const [isLoading, setIsLoading] = useState(false)
     const [avatarSrc, setAvatarSrc] = useState(imageUrl + user?.profilePicture || '')
     const fileInputRef = useRef<HTMLInputElement>(null)
-    const dispatch = useDispatch()
+    const dispatch = useAppDispatch()
 
     const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormValues>({
         defaultValues: {
