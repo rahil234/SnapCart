@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Edit, Archive, ArchiveXIcon } from 'lucide-react';
 import AddCategoryCard from '@/components/admin/AddCategoryCard';
 import EditCategoryCard from '@/components/admin/EditCategoryCard';
@@ -20,6 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from 'sonner';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 type SubCategory = {
   _id: string;
@@ -38,14 +39,15 @@ type Category = {
 
 type CategoryTableProps = {
   categories: Category[];
-  setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
 };
 
-const CategoryTable: React.FC<CategoryTableProps> = ({ categories, setCategories }) => {
+const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
   const [isEditCardOpen, setIsEditCardOpen] = useState(false);
   const [editData, setEditData] = useState<SubCategory | null>(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState<SubCategory | null>(null);
   const [actionType, setActionType] = useState<'block' | 'unblock' | null>(null);
+
+  const queryClient = useQueryClient();
 
   const handleEditClick = (categoryName: string, subCategory: SubCategory, categoryId: string) => {
     setEditData({ ...subCategory, catId: categoryId, catName: categoryName });
@@ -55,19 +57,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories, setCategories
   const handleBlockSubCategory = async (subCategoryId: string) => {
     try {
       await categoryEndpoints.archiveCategory(subCategoryId);
-      // Update the subcategory status in the state
-      setCategories((prevCategories) =>
-        prevCategories.map((category) =>
-          category.subcategories.some((sub) => sub._id === subCategoryId)
-            ? {
-              ...category,
-              subcategories: category.subcategories.map((sub) =>
-                sub._id === subCategoryId ? { ...sub, status: 'Blocked' } : sub
-              ),
-            }
-            : category
-        )
-      );
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success('Subcategory archived successfully');
     } catch (error) {
       console.error('Failed to archive subcategory:', error);
@@ -78,19 +68,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories, setCategories
   const handleUnblockSubCategory = async (subCategoryId: string) => {
     try {
       await categoryEndpoints.unarchiveCategory(subCategoryId);
-      // Update the subcategory status in the state
-      setCategories((prevCategories) =>
-        prevCategories.map((category) =>
-          category.subcategories.some((sub) => sub._id === subCategoryId)
-            ? {
-              ...category,
-              subcategories: category.subcategories.map((sub) =>
-                sub._id === subCategoryId ? { ...sub, status: 'Active' } : sub
-              ),
-            }
-            : category
-        )
-      );
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success('Subcategory unarchived successfully');
     } catch (error) {
       console.error('Failed to unarchived subcategory:', error);
@@ -109,6 +87,11 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories, setCategories
       setActionType(null);
     }
   };
+
+
+  if (!categories) {
+    return <div className="text-center">No categories found</div>;
+  }
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -237,9 +220,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories, setCategories
         <EditCategoryCard
           editData={{ ...editData, subCategories: editData?.name || '' }}
           onClose={() => {
-            categoryEndpoints.getCategories().then((response) => {
-              setCategories(response.data);
-            });
+            queryClient.invalidateQueries({ queryKey: ['categories'] });
             setIsEditCardOpen(false)
           }}
         />
@@ -250,15 +231,17 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories, setCategories
 
 const AdminCategory = () => {
   const [isAddingCategory, setIsAddingCategory] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
 
-  useEffect(() => {
-    categoryEndpoints.getCategories().then((response) => {
-      console.log(response.data);
-      
-      setCategories(response.data);
-    });
-  }, []);
+  const queryClient = useQueryClient();
+
+  const { data: categories } = useQuery<Category[]>({
+    queryKey: ['categories'],
+    queryFn: categoryEndpoints.getCategories,
+  });
+
+  if (!categories) {
+    return <div className="text-center">No categories found</div>;
+  }
 
   return (
     <main className="p-6">
@@ -272,14 +255,12 @@ const AdminCategory = () => {
         {isAddingCategory && (
           <AddCategoryCard
             onClose={() => {
-              categoryEndpoints.getCategories().then((response) => {
-                setCategories(response.data);
-              });
+              queryClient.invalidateQueries({ queryKey: ['categories'] });
               setIsAddingCategory(false)
             }} />
         )}
       </div>
-      <CategoryTable categories={categories} setCategories={setCategories} />
+      <CategoryTable categories={categories!} />
     </main>
   );
 }

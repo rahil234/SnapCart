@@ -93,7 +93,7 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
     formData.append('category', data.category);
     formData.append('subcategory', data.subcategory);
     formData.append('price', data.price.toString());
-    formData.append('quantity', data.variantName.toString());
+    formData.append('variantName', data.variantName.toString());
     formData.append('stock', data.stock.toString());
 
     productImages.forEach((image) => {

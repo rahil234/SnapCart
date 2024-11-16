@@ -24,14 +24,12 @@ const getProduct = async (req: Request, res: Response) => {
       variantId: product.variantId,
     });
 
-    if (variants) {
-      x.variants = variants
-        .filter((variant) => variant._id.toString() !== productId)
-        .map((variant) => ({
-          _id: variant._id,
-          variantName: variant.variantName,
-          price: variant.price,
-        })) as any; //eslint-disable-line
+    if (variants.filter((variant) => variant._id.toString() !== productId)) {
+      x.variants = variants.map((variant) => ({
+        productId: variant._id,
+        variantName: variant.variantName,
+        price: variant.price,
+      })) as any; //eslint-disable-line
     }
 
     res.status(200).json(x);
@@ -46,8 +44,6 @@ const addProduct = async (req: Request, res: Response) => {
   try {
     const { productName, description, category, subcategory, variants } =
       req.body;
-
-    console.log(req.body);
 
     //chack the category and subcategory is valid
     const categoryExist = await categoryModel.findById(category);
@@ -121,6 +117,7 @@ const editProduct = async (req: Request, res: Response) => {
       price,
       quantity,
       stock,
+      variantName,
     } = req.body;
 
     const images = req.files as Express.Multer.File[];
@@ -135,6 +132,7 @@ const editProduct = async (req: Request, res: Response) => {
       price,
       quantity,
       stock,
+      variantName,
       images: imagePaths,
     });
 
@@ -354,15 +352,16 @@ const listProduct = async (req: Request, res: Response) => {
 
 const searchProducts = async (req: Request, res: Response) => {
   try {
-    const { query, category, minPrice, maxPrice, sort } = req.query as {
+    const { query, category, minPrice, maxPrice, sortBy } = req.query as {
       query: string;
       category: string;
       minPrice: string;
       maxPrice: string;
-      sort: string;
+      sortBy: string;
     };
 
-    const searchCriteria: any = {  //eslint-disable-line
+    //eslint-disable-next-line
+    const searchCriteria: any = {
       name: { $regex: new RegExp(query, 'i') },
       status: 'Active',
     };
@@ -382,7 +381,16 @@ const searchProducts = async (req: Request, res: Response) => {
       searchCriteria.price.$lte = Number(maxPrice);
     }
 
-    const findedProducts = await productModel.find(searchCriteria).sort(sort);
+    //eslint-disable-next-line
+    const sortOptions: any = {};
+    if (sortBy) {
+      const [field, order] = sortBy.split('.');
+      sortOptions[field] = order === 'desc' ? -1 : 1;
+    }
+
+    const findedProducts = await productModel
+      .find(searchCriteria)
+      .sort(sortOptions);
 
     const products = findedProducts;
 

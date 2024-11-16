@@ -14,6 +14,7 @@ import CategoryPage from '@/pages/user/CategoryPage';
 import { UIProvider } from '@/context/UIContext';
 import ChangePasswordPage from '@/pages/user/ChangePassword';
 import OrderSuccessPage from '@/pages/user/OrderSuccessPage';
+import OrderFailurePage from '@/pages/user/OrderFailurePage';
 import { AuthState } from '@/features/auth/authSlice';
 import SearchPage from '@/pages/user/SearchPage';
 
@@ -68,6 +69,7 @@ const UserRoutes = [
             { path: 'forgot-password', element: <ForgotPasswordPage /> },
             { path: 'checkout', element: <CheckoutPage /> },
             { path: 'order-success/:orderId', element: <OrderSuccessPage /> },
+            { path: 'order-failure', element: <OrderFailurePage /> },
         ]
     },
 ];

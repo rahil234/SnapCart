@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import offerModal from '@/models/offerModal';
+import offerModal from '@models/offerModel';
 
 const getOffers = async (req: Request, res: Response) => {
   try {

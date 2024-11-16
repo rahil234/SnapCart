@@ -1,6 +1,7 @@
 import React from 'react';
 import { useContext } from 'react';
 import { Outlet } from 'react-router-dom';
+import { AnimatePresence } from 'motion/react';
 import NavBar from '@/components/user/NavBar';
 import Footer from '@/components/user/Footer';
 import { UIContext } from '@/context/UIContext';
@@ -14,9 +15,11 @@ function UserLayout() {
   return (
     <>
       <NavBar />
-      {isLoginOverlayOpen && <LoginMain />}
-      {isCartOverlayOpen && <CartOverlay />}
-      {isProfileOverlayOpen && <ProfileOverlay />}
+      <AnimatePresence >
+        {isLoginOverlayOpen && <LoginMain />}
+        {isCartOverlayOpen && <CartOverlay />}
+        {isProfileOverlayOpen && <ProfileOverlay />}
+      </ AnimatePresence >
       <div className="pt-[63px] min-h-screen">
         <Outlet />
       </div>

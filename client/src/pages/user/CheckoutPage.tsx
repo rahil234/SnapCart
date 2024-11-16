@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -14,11 +14,11 @@ import PaymentButton from '@/components/user/PaymentButton'
 import { Separator } from '@/components/ui/separator'
 import { AuthState } from '@/features/auth/authSlice'
 import { CartState } from '@/features/cart/cartSlice'
-import orderEndpoints from '@/api/orderEndpoints'
 import { clearCart } from '@/features/cart/cartSlice'
-import { catchError, ImportMeta } from 'shared/types'
+import { catchError, ICoupon, ImportMeta } from 'shared/types'
 import { useAppDispatch } from '@/app/store'
 import userEndpoints from '@/api/userEndpoints'
+import orderEndpoints from '@/api/orderEndpoints'
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl
 
@@ -33,13 +33,20 @@ interface Address {
 export interface CheckoutFormValues {
     selectedAddressId: string
     addresses: Address[]
-    paymentMethod: 'cod' | 'upi' | 'razorpay' | 'wallet'
+    paymentMethod: 'cod' | 'razorpay' | 'wallet'
+}
+
+const calculateDiscount = (totalAmount: number | undefined, discount: number) => {
+    if (!totalAmount) return 0;
+    return totalAmount - (totalAmount * discount) / 100;
 }
 
 export default function CheckoutPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
     const [editingAddressIndex, setEditingAddressIndex] = useState<number | null>(null);
+    const couponInput = useRef<HTMLInputElement>(null);
+    const [appliedCoupon, setAppliedCoupon] = useState<ICoupon | undefined>(undefined);
 
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
@@ -79,10 +86,25 @@ export default function CheckoutPage() {
         setIsAddressDialogOpen(false);
     }
 
+
+    const handleCouponSubmit = async () => {
+        try {
+            const couponCode = couponInput.current?.value;
+            if (!couponCode) return;
+            const coupon = (await orderEndpoints.applyCoupon(couponCode)).coupon;
+            console.log(coupon);
+            setAppliedCoupon(coupon);
+        } catch (error) {
+            console.log(error);
+            setAppliedCoupon(undefined);
+            toast.error((error as catchError).response.data.message)
+        }
+    }
+
     const onSubmit = async (data: CheckoutFormValues) => {
         try {
             setIsLoading(true);
-            const response = await orderEndpoints.createOrder(data);
+            const response = await orderEndpoints.createOrder(data, appliedCoupon?.code || undefined);
             setIsLoading(false);
             dispatch(clearCart());
             navigate('/order-success/' + response.data.orderId, { replace: true });
@@ -233,6 +255,22 @@ export default function CheckoutPage() {
                 </div>
 
                 <div>
+                    <Card className='mb-5'>
+                        <CardHeader>
+                            <CardTitle>Coupon</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Input ref={couponInput} placeholder="Enter coupon code" />
+                        </CardContent>
+                        <CardFooter>
+                            <Button
+                                className="w-full"
+                                onClick={handleCouponSubmit}
+                            >
+                                Apply Coupon
+                            </Button>
+                        </CardFooter>
+                    </Card>
                     <Card>
                         <CardHeader>
                             <CardTitle>Price Details</CardTitle>
@@ -247,16 +285,30 @@ export default function CheckoutPage() {
                                     <span>Delivery Charges</span>
                                     <span className="text-green-600">Free</span>
                                 </div>
+                                {appliedCoupon &&
+                                    <div className="flex justify-between">
+                                        <span>Coupon</span>
+                                        <span>{(cartData?.totalAmount / 100) * appliedCoupon?.discount}</span>
+                                    </div>
+                                }
                                 <Separator />
-                                <div className="flex justify-between font-semibold">
-                                    <span>Total Amount</span>
-                                    <span>₹{cartData?.totalAmount}</span>
-                                </div>
+                                {appliedCoupon ? (
+                                    <div className="flex justify-between font-semibold">
+                                        <span>Total Amount</span>
+                                        <span>₹{calculateDiscount(cartData?.totalAmount, appliedCoupon.discount)}</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex justify-between font-semibold">
+                                        <span>Total Amount</span>
+                                        <span>₹{cartData?.totalAmount}</span>
+                                    </div>
+                                )}
                             </div>
                         </CardContent>
                         <CardFooter>{
                             selectedPaymentMethod === 'razorpay' ? (
-                                <PaymentButton getValues={getValues}>
+                                <PaymentButton getValues={getValues}
+                                    disabled={isLoading || !selectedAddressId || !selectedPaymentMethod}>
                                     Pay with Razorpay
                                 </PaymentButton>
                             ) : (
@@ -281,9 +333,9 @@ export default function CheckoutPage() {
                             )}
                         </CardFooter>
                     </Card>
-                </div>
-            </div>
-        </div>
+                </div >
+            </div >
+        </div >
     )
 }
 

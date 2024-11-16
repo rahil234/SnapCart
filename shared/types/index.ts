@@ -124,7 +124,7 @@ export interface CartItem {
 }
 
 export interface Variant {
-  id: number;
+  productId: string;
   variantName: string;
   price: string;
   stock: string;
@@ -180,6 +180,7 @@ export interface IOrderItem {
   seller: string;
   price: number;
   image: string;
+  status?: 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
 }
 
 export interface IOrder extends Document {
@@ -187,8 +188,10 @@ export interface IOrder extends Document {
   userId: string;
   customerName: string;
   orderId: string;
+  address: string;
+  paymentMethod: string;
   price: number;
-  status: string;
+  status: 'Payment Pending'| 'Processing' | 'Pending' | 'Completed' | 'Cancelled';
   orderDate: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -202,6 +205,20 @@ export interface Offer {
   endDate: string;
   status: 'Active' | 'Inactive';
 }
+
+export interface ICoupon {
+  _id: string
+  code: string
+  discount: number
+  type: 'percentage' | 'fixed'
+  startDate: string
+  endDate: string
+  status: 'Active' | 'Inactive'
+  applicableTo: 'All' | 'Products' | 'Categories'
+  products: string[]
+  categories: string[]
+}
+
 
 // export interface ICart {
 //   _id: string;

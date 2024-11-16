@@ -225,12 +225,14 @@ const ProductPage: React.FC = () => {
             <h2 className="text-2xl font-semibold mb-2">{product.name}</h2>
 
             {/* Product variants */}
-            {product.variants && "variants" in product && product.variants.map((variant, index) =>
-              <Link key={index} to={`/product/${product._id}`} className="mt-10 mb-4 border-2 w-fit p-1 px-4 border-green-500 rounded-lg flex flex-col">
-                <span className='text-green-700'>{`₹${variant.price}`}</span>
-                <span>{'100ml'}</span>
-              </Link>
-            )}
+            <div className='flex gap-2'>
+              {product.variants && "variants" in product && product.variants.map((variant, index) =>
+                <Link key={index} replace to={`/product/${variant.productId}`} className={`mt-10 mb-4 border-2 w-fit p-1 px-4 ${variant.productId === productId && 'border-green-500'} rounded-lg flex flex-col`}>
+                  <span className='text-green-700'>{`₹${variant.price}`}</span>
+                  <span>{variant.variantName}</span>
+                </Link>
+              )}
+            </div>
 
             {/* Product price */}
             {product.discount ? (
@@ -266,33 +268,35 @@ const ProductPage: React.FC = () => {
             </div>
 
             {/* Product Variants */}
-            {variants.map(variant => (
-              <div key={variant._id} className="mb-4">
-                <label
-                  htmlFor={variant.name}
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  {variant.name}
-                </label>
-                <div className="">
-                  <select
-                    id={variant.name}
-                    name={variant.name}
-                    className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md"
-                  // value={selectedVariants[variant.name] || ''}
-                  // onChange={e =>
-                  //   handleVariantChange(variant.name, e.target.value)
-                  // }
+            <div className='flex'>
+              {variants.map(variant => (
+                <div key={variant._id} className="mb-4">
+                  <label
+                    htmlFor={variant.name}
+                    className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    {/* {variant.options.map(option => (
+                    {variant.name}
+                  </label>
+                  <div className="">
+                    <select
+                      id={variant.name}
+                      name={variant.name}
+                      className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md"
+                    // value={selectedVariants[variant.name] || ''}
+                    // onChange={e =>
+                    //   handleVariantChange(variant.name, e.target.value)
+                    // }
+                    >
+                      {/* {variant.options.map(option => (
                       <option key={option} value={option}>
-                        {option}
+                      {option}
                       </option>
-                    ))} */}
-                  </select>
+                      ))} */}
+                    </select>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
 
             <div className="flex space-x-4 mb-6">
               <Button className="bg-[#0E8320] hover:bg-[#2ea940] text-white px-8 py-2 rounded-full"

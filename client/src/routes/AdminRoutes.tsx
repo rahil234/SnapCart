@@ -13,7 +13,7 @@ import AdminCoupons from '@/pages/admin/AdminCoupons';
 import AdminProducts from '@/pages/admin/AdminProducts';
 import AdminOrders from '@/pages/admin/AdminOrders';
 import AdminOffers from '@/pages/admin/AdminOffers';
-import SalesReport from '@/pages/admin/SalesReport';
+import SalesReport from '@/pages/admin/AdminSalesReport';
 
 
 const AdminRoutes = [

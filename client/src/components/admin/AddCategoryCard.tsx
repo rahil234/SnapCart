@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { useQuery } from '@tanstack/react-query';
 import { X } from 'lucide-react';
 import categoryEndpoints from '@/api/categoryEndpoints';
+import { catchError, Category } from 'shared/types';
 
 interface AddCategoryFormInputs {
   category: string;
@@ -10,15 +12,10 @@ interface AddCategoryFormInputs {
 }
 
 const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const [categories, setCategories] = useState<{ _id: string; name: string }[]>([]);
   const [isAddingMainCategory, setIsAddingMainCategory] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    categoryEndpoints.getCategories().then((response) => {
-      setCategories(response.data);
-    });
-  }, []);
+  const { data: categories } = useQuery<Category[]>({ queryKey: ['categories'], queryFn: categoryEndpoints.getCategories });
 
   const {
     register,
@@ -41,30 +38,28 @@ const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const onSubmit: SubmitHandler<AddCategoryFormInputs> = async data => {
     setError(null);
 
-    //if adding a new category
     if (isAddingMainCategory) {
       try {
         const formData = {
-        categoryName: data.newCategoryName,
-        subcategoryName: data.subcategoryName,
-      };
+          categoryName: data.newCategoryName,
+          subcategoryName: data.subcategoryName,
+        };
         await categoryEndpoints.addCategory(formData);
-      } catch (error: any) {
-        setError(error.response.data.message);
+      } catch (error) {
+        setError((error as catchError).response.data.message);
         return;
       }
     } else {
-      //if only adding a subcategory
-        const formData = {
-          categoryId: data.category,
-          subcategoryName: data.subcategoryName,
-        };
+      const formData = {
+        categoryId: data.category,
+        subcategoryName: data.subcategoryName,
+      };
 
-        try {
-          await categoryEndpoints.addCategory(formData);
-        } catch {
-          setError('Failed to add subcategories. Please try again.');
-        }
+      try {
+        await categoryEndpoints.addCategory(formData);
+      } catch {
+        setError('Failed to add subcategories. Please try again.');
+      }
     }
     onClose();
   };
@@ -75,6 +70,10 @@ const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setValue(field, value.trim());
     }
   };
+
+  if (!categories) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -95,7 +94,7 @@ const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="mb-4">
             <label className="block text-gray-700">Category</label>
             <select
-              {...register('category', {required: 'Main category is required'})}
+              {...register('category', { required: 'Main category is required' })}
               className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
             >
               <option value="">Select a category</option>

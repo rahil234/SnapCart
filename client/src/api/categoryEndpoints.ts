@@ -1,7 +1,10 @@
 import axiosInstance from './axiosInstance';
 
 const getCategories = async () => {
-  return (await axiosInstance.get('/api/category/get-categories')).data;
+  const response = await axiosInstance.get('/api/category/get-categories');
+  console.log(response.data);
+
+  return response.data;
 };
 
 const addCategory = (data: object) => {
@@ -13,11 +16,15 @@ const editCatogories = (data: object) => {
 };
 
 const archiveCategory = (subcategoryId: string) => {
-  return axiosInstance.patch('/api/category/archive-category', { subcategoryId });
+  return axiosInstance.patch('/api/category/archive-category', {
+    subcategoryId,
+  });
 };
 
-const unarchiveCategory = ( subcategoryId: string) => {
-  return axiosInstance.patch('/api/category/unarchive-category', { subcategoryId });
+const unarchiveCategory = (subcategoryId: string) => {
+  return axiosInstance.patch('/api/category/unarchive-category', {
+    subcategoryId,
+  });
 };
 
 export default {

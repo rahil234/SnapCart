@@ -16,33 +16,42 @@ const getOrder = async (orderId: string) => {
   return axiosInstance.get(`/api/order/${orderId}`);
 };
 
-const createOrder = async (orderData: object) => {
-  return axiosInstance.post('/api/order', orderData);
+const createOrder = async (orderData: object, coupon: string | undefined) => {
+  return axiosInstance.post('/api/order', { ...orderData, coupon });
 };
 
 const verifyCheckout = async () => {
   return axiosInstance.get('/api/order/verify-checkout');
 };
 
-const createPayment = async (orderData: object) => {
-  return axiosInstance.post('/api/order/create-payment', orderData);
+const createPayment = async (orderId: string) => {
+  return axiosInstance.post('/api/order/create-payment', { orderId });
 };
 
 const verifyPayment = async (response: object) => {
-  return axiosInstance.post('/api/order/verify-payment', response);
+  return (await axiosInstance.post('/api/order/verify-payment', response)).data;
 };
 
 const updateOrder = async (data: { orderId: number; orderData: object }) => {
-  return (await axiosInstance.put(`/orders/${data.orderId}`, data.orderData))
+  return (await axiosInstance.put(`/order/${data.orderId}`, data.orderData))
     .data;
 };
 
 const updateOrderStatus = async (data: { orderId: string; status: string }) => {
-  return (await axiosInstance.put(`/orders/${data.orderId}/status`, data)).data;
+  return (await axiosInstance.put(`/api/order/${data.orderId}/status`, data))
+    .data;
 };
 
 const deleteOrder = async (orderId: string) => {
-  return axiosInstance.delete(`/orders/${orderId}`);
+  return axiosInstance.delete(`/api/order/${orderId}`);
+};
+
+const cancelOrderItem = async (orderId: string, itemId: string) => {
+  return axiosInstance.delete(`/api/order/${orderId}/items/${itemId}`);
+};
+
+const applyCoupon = async (coupon: string) => {
+  return (await axiosInstance.post('/api/coupon/apply', { coupon })).data;
 };
 
 export default {
@@ -57,4 +66,6 @@ export default {
   updateOrder,
   updateOrderStatus,
   deleteOrder,
+  cancelOrderItem,
+  applyCoupon,
 };

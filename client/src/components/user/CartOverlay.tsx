@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { motion } from 'motion/react';
 import { UIContext } from '@/context/UIContext';
 import { Button } from '@/components/ui/button';
 import { ImportMeta } from 'shared/types';
@@ -43,7 +44,6 @@ const CartOverlay = () => {
       console.error('Error checking out cart:', error)
     }
   }
-
 
   function handleQuantityIncrease(_id: string, cartQuantity: number) {
     dispatch(updateQuantity({ _id, quantity: cartQuantity + 1 }));

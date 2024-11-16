@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Search, Edit, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Edit } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -23,8 +23,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import offerEndpoints from '@/api/offerEndpoints'
+import productEndpoints from '@/api/productEndpoints'
+import categoryEndpoints from '@/api/categoryEndpoints'
 import { toast } from 'sonner'
-import { Offer } from 'shared/types'
+import { Offer, Product, Category } from 'shared/types'
 
 function OfferManagement() {
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null)
@@ -36,6 +38,21 @@ function OfferManagement() {
     queryKey: ['offers'],
     queryFn: async () => {
       const { data } = await offerEndpoints.getOffers()
+      return data
+    },
+  })
+
+  const { data: products } = useQuery<Product[]>({
+    queryKey: ['products'],
+    queryFn: async () => {
+      return await productEndpoints.getAdminProducts()
+    },
+  })
+
+  const { data: categories } = useQuery<Category[]>({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const data = await categoryEndpoints.getCategories()
       return data
     },
   })
@@ -61,7 +78,6 @@ function OfferManagement() {
     onError: () => toast.error('Failed to update offer'),
   })
 
-
   const handleAddOffer = (newOffer: Omit<Offer, 'id'>) => {
     addOfferMutation.mutate(newOffer)
   }
@@ -69,7 +85,6 @@ function OfferManagement() {
   const handleEditOffer = (updatedOffer: Offer) => {
     editOfferMutation.mutate({ id: updatedOffer._id, updatedOffer: { ...updatedOffer } })
   }
-
 
   if (isLoading) return <div>Loading...</div>
   if (isError) return <div>Error loading offers</div>
@@ -84,28 +99,9 @@ function OfferManagement() {
               <Button>Add Offer</Button>
             </DialogTrigger>
             <DialogContent>
-              <OfferForm onSubmit={handleAddOffer} />
+              <OfferForm onSubmit={handleAddOffer} products={products} categories={categories} />
             </DialogContent>
           </Dialog>
-        </div>
-
-        <div className="flex justify-between items-center mb-4">
-          <div className="relative">
-            <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="relative">
-            <Input type="text" placeholder="Search offers" className="pl-10" />
-            <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
-          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -141,7 +137,7 @@ function OfferManagement() {
                       </DialogTrigger>
                       <DialogContent>
                         {selectedOffer && (
-                          <OfferForm offer={selectedOffer} onSubmit={handleEditOffer} />
+                          <OfferForm offer={selectedOffer} onSubmit={handleEditOffer} products={products} categories={categories} />
                         )}
                       </DialogContent>
                     </Dialog>
@@ -151,21 +147,6 @@ function OfferManagement() {
             </tbody>
           </table>
         </div>
-
-        <div className="mt-4 flex items-center justify-between">
-          <span className="text-sm text-gray-700">
-            Showing <span className="font-medium">1</span> to <span className="font-medium">{offers?.length || 0}</span> of{' '}
-            <span className="font-medium">{offers?.length || 0}</span> results
-          </span>
-          <div className="flex space-x-2">
-            <Button variant="outline" size="icon">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon">
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
       </CardContent>
     </Card>
   )
@@ -174,18 +155,25 @@ function OfferManagement() {
 interface OfferFormProps {
   offer?: Offer
   onSubmit: (offer: Offer | Omit<Offer, 'id'>) => void
+  products?: Product[]
+  categories?: Category[]
 }
 
-function OfferForm({ offer, onSubmit }: OfferFormProps) {
-  const { control, handleSubmit } = useForm<Omit<Offer, 'id'>>({
+function OfferForm({ offer, onSubmit, products, categories }: OfferFormProps) {
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<Omit<Offer, 'id'>>({
     defaultValues: {
       title: offer?.title || '',
       discount: offer?.discount || 0,
-      startDate: offer?.startDate || '',
-      endDate: offer?.endDate || '',
+      startDate: offer?.startDate ? new Date(offer.startDate).toISOString().split('T')[0] : '',
+      endDate: offer?.endDate ? new Date(offer.endDate).toISOString().split('T')[0] : '',
       status: offer?.status || 'Inactive',
+      productIds: offer?.productIds || [],
+      categoryIds: offer?.categoryIds || [],
     },
   })
+
+  const watchProductIds = watch('productIds')
+  const watchCategoryIds = watch('categoryIds')
 
   const onSubmitForm = (data: Omit<Offer, 'id'>) => {
     onSubmit(offer ? { ...data, _id: offer._id } : data)
@@ -204,53 +192,106 @@ function OfferForm({ offer, onSubmit }: OfferFormProps) {
           <Label htmlFor="title" className="text-right">
             Title
           </Label>
-          <Controller
-            name="title"
-            control={control}
-            rules={{ required: 'Name is required' }}
-            render={({ field }) => (
-              <Input id="title" {...field} className="col-span-3" />
-            )}
+          <Input
+            id="title"
+            className="col-span-3"
+            {...register('title', { required: 'Title is required' })}
           />
+          {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="discount" className="text-right">
             Discount (%)
           </Label>
-          <Controller
-            name="discount"
-            control={control}
-            rules={{ required: 'Discount is required', min: 0, max: 100 }}
-            render={({ field }) => (
-              <Input id="discount" type="number" {...field} className="col-span-3" />
-            )}
+          <Input
+            id="discount"
+            type="number"
+            className="col-span-3"
+            {...register('discount', {
+              required: 'Discount is required',
+              min: { value: 0, message: 'Discount must be at least 0' },
+              max: { value: 100, message: 'Discount must be at most 100' }
+            })}
           />
+          {errors.discount && <p className="text-red-500 text-sm">{errors.discount.message}</p>}
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="startDate" className="text-right">
             Start Date
           </Label>
-          <Controller
-            name="startDate"
-            control={control}
-            rules={{ required: 'Start date is required' }}
-            render={({ field }) => (
-              <Input id="startDate" type="date" {...field} className="col-span-3" />
-            )}
+          <Input
+            id="startDate"
+            type="date"
+            className="col-span-3"
+            {...register('startDate', { required: 'Start date is required' })}
           />
+          {errors.startDate && <p className="text-red-500 text-sm">{errors.startDate.message}</p>}
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="endDate" className="text-right">
             End Date
           </Label>
-          <Controller
-            name="endDate"
-            control={control}
-            rules={{ required: 'End date is required' }}
-            render={({ field }) => (
-              <Input id="endDate" type="date" {...field} className="col-span-3" />
-            )}
+          <Input
+            id="endDate"
+            type="date"
+            className="col-span-3"
+            {...register('endDate', { required: 'End date is required' })}
           />
+          {errors.endDate && <p className="text-red-500 text-sm">{errors.endDate.message}</p>}
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="status" className="text-right">
+            Status
+          </Label>
+          <Select onValueChange={(value) => setValue('status', value)} defaultValue={offer?.status || 'Inactive'}>
+            <SelectTrigger className="col-span-3">
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Active">Active</SelectItem>
+              <SelectItem value="Inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="products" className="text-right">
+            Products
+          </Label>
+          <Select
+            onValueChange={(value) => setValue('productIds', [...watchProductIds, value])}
+            value={watchProductIds}
+          >
+            <SelectTrigger className="col-span-3">
+              <SelectValue placeholder="Select products" />
+            </SelectTrigger>
+            <SelectContent>
+              {products?.map((product) => (
+                <SelectItem key={product._id} value={product._id}>
+                  {product.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="categories" className="text-right">
+            Categories
+          </Label>
+          <Select
+            onValueChange={(value) => setValue('categoryIds', [...watchCategoryIds, value])}
+            value={watchCategoryIds}
+          >
+            <SelectTrigger className="col-span-3">
+              <SelectValue placeholder="Select categories" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories?.map((category) => (
+                <SelectItem key={category._id} value={category._id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
       <DialogFooter>

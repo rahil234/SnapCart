@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import '@/config/configEnv';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import authRoute from './routes/authRoute';
@@ -14,8 +14,8 @@ import orderRoute from './routes/orderRoute';
 import cartRoute from './routes/cartRoute';
 import walletRoute from './routes/walletRoute';
 import offerRoute from '@/routes/offerRoute';
-
-dotenv.config();
+import salesRoute from '@/routes/salesRoute';
+import couponRoute from '@/routes/couponRoute';
 
 const app = express();
 
@@ -53,6 +53,8 @@ app.use('/api/order', orderRoute);
 app.use('/api/cart', cartRoute);
 app.use('/api/wallet', walletRoute);
 app.use('/api/offer', offerRoute);
+app.use('/api/coupon', couponRoute);
+app.use('/api/sales', salesRoute);
 
 const PORT = process.env.PORT || 3000;
 

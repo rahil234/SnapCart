@@ -2,19 +2,17 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { RazorpayOptions, RazorpayResponse } from 'types/razorpay';
 import { Button } from "../ui/button";
-import { UseFormGetValues } from "react-hook-form";
-import { CheckoutFormValues } from "@/pages/user/CheckoutPage";
 import { toast } from "sonner";
 import orderEndpoints from "@/api/orderEndpoints";
 import { ImportMeta, catchError } from "shared/types";
 
 interface PaymentButtonProps {
-   getValues: UseFormGetValues<CheckoutFormValues>;
+   orderId: string;
+   className?: string;
    children: React.ReactNode;
-   disabled: boolean;
 }
 
-const PaymentButton: React.FC<PaymentButtonProps> = ({ children, getValues, disabled }) => {
+const PaymentButton: React.FC<PaymentButtonProps> = ({className, children, orderId }) => {
 
    const navigate = useNavigate();
 
@@ -31,10 +29,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({ children, getValues, disa
 
    const handlePayment = async () => {
       try {
-         const orderData = getValues();
-         await orderEndpoints.verifyCheckout();
-         const ord = await orderEndpoints.createOrder(orderData);
-         const order = (await orderEndpoints.createPayment(ord.data.orderId)).data;
+         const order = (await orderEndpoints.createPayment(orderId)).data;
 
          if (!window.Razorpay) {
             alert("Razorpay SDK failed to load. Please check your connection.");
@@ -46,7 +41,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({ children, getValues, disa
             order_id: order.id,
             description: "Product Purchase",
             handler: (response) => {
-               verifyPayment({ ...response, orderId: ord.data.orderId });
+               verifyPayment({ ...response, orderId });
             },
             prefill: {
                name: "Rahil",
@@ -78,7 +73,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({ children, getValues, disa
       }
    };
 
-   return <Button className="w-full" onClick={handlePayment} disabled={disabled}>{children}</Button>;
+   return <Button className={className} onClick={handlePayment}>{children}</Button>;
 };
 
 export default PaymentButton;

@@ -33,39 +33,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from 'sonner'
 import productEndpoints from '@/api/productEndpoints'
 import categoryEndpoints from '@/api/categoryEndpoints'
-import { Category, Product } from 'shared/types'
-
-interface ICoupon {
-    id: string
-    code: string
-    discount: number
-    type: 'percentage' | 'fixed'
-    validFrom: string
-    validTo: string
-    status: 'Active' | 'Inactive'
-    applicableTo: 'All' | 'Products' | 'Categories'
-    products: string[]
-    categories: string[]
-}
-
-const getCoupons = async (): Promise<ICoupon[]> => {
-    // Replace this with your actual API call
-    return [
-        { id: '1', code: 'SUMMER10', discount: 10, type: 'percentage', validFrom: '2023-06-01', validTo: '2023-08-31', status: 'Active', applicableTo: 'All', products: [], categories: [] },
-        { id: '2', code: 'NEWUSER20', discount: 20, type: 'percentage', validFrom: '2023-01-01', validTo: '2023-12-31', status: 'Active', applicableTo: 'Products', products: ['1', '2'], categories: [] },
-        { id: '3', code: 'FLASH5', discount: 5, type: 'fixed', validFrom: '2023-07-01', validTo: '2023-07-07', status: 'Inactive', applicableTo: 'Categories', products: [], categories: ['1'] },
-    ]
-}
-
-const addCoupon = async (coupon: Omit<ICoupon, 'id'>): Promise<ICoupon> => {
-    console.log('Adding coupon:', coupon)
-    return { ...coupon, id: Date.now().toString() }
-}
-
-const updateCoupon = async (coupon: ICoupon): Promise<ICoupon> => {
-    console.log('Updating coupon:', coupon)
-    return coupon
-}
+import couponEndpoints from '@/api/couponEndpoints'
+import { Category, Product, ICoupon } from 'shared/types'
 
 
 function CouponManagement() {
@@ -76,11 +45,11 @@ function CouponManagement() {
 
     const { data: coupons, isLoading, isError } = useQuery<ICoupon[]>({
         queryKey: ['coupons'],
-        queryFn: getCoupons,
+        queryFn: couponEndpoints.getCoupons,
     })
 
     const addCouponMutation = useMutation({
-        mutationFn: addCoupon,
+        mutationFn: couponEndpoints.addCoupon,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['coupons'] })
             toast.success('Coupon added successfully')
@@ -90,7 +59,7 @@ function CouponManagement() {
     })
 
     const updateCouponMutation = useMutation({
-        mutationFn: updateCoupon,
+        mutationFn: couponEndpoints.updateCoupon,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['coupons'] })
             toast.success('Coupon updated successfully')
@@ -156,11 +125,11 @@ function CouponManagement() {
                         </TableHeader>
                         <TableBody>
                             {coupons && coupons.map((coupon) => (
-                                <TableRow key={coupon.id}>
+                                <TableRow key={coupon._id}>
                                     <TableCell>{coupon.code}</TableCell>
                                     <TableCell>{coupon.discount}{coupon.type === 'percentage' ? '%' : ' ₹'}</TableCell>
-                                    <TableCell>{coupon.validFrom}</TableCell>
-                                    <TableCell>{coupon.validTo}</TableCell>
+                                    <TableCell>{new Date(coupon.startDate).toLocaleDateString()}</TableCell>
+                                    <TableCell>{new Date(coupon.endDate).toLocaleDateString()}</TableCell>
                                     <TableCell>
                                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${coupon.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                             }`}>
@@ -226,11 +195,12 @@ function CouponForm({ coupon, onSubmit }: CouponFormProps) {
     })
 
     const [formData, setFormData] = useState<Omit<ICoupon, 'id'>>({
+        _id: coupon?._id || '',
         code: coupon?.code || '',
         discount: coupon?.discount || 0,
         type: coupon?.type || 'percentage',
-        validFrom: coupon?.validFrom || '',
-        validTo: coupon?.validTo || '',
+        startDate: coupon?.startDate || '',
+        endDate: coupon?.endDate || '',
         status: coupon?.status || 'Active',
         applicableTo: coupon?.applicableTo || 'All',
         products: coupon?.products || [],
@@ -257,7 +227,7 @@ function CouponForm({ coupon, onSubmit }: CouponFormProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        onSubmit(coupon ? { ...formData, id: coupon.id } : formData)
+        onSubmit(coupon ? { ...formData, _id: coupon._id } : formData)
     }
 
     return (
@@ -309,44 +279,30 @@ function CouponForm({ coupon, onSubmit }: CouponFormProps) {
                     </Select>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="validFrom" className="text-right">
-                        Valid From
+                    <Label htmlFor="startDate" className="text-right">
+                        Start From
                     </Label>
                     <Input
-                        id="validFrom"
-                        name="validFrom"
+                        id="startDate"
+                        name="startDate"
                         type="date"
-                        value={formData.validFrom}
+                        value={formData.startDate}
                         onChange={handleChange}
                         className="col-span-3"
                     />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="validTo" className="text-right">
-                        Valid To
+                    <Label htmlFor="endDate" className="text-right">
+                        End Date
                     </Label>
                     <Input
-                        id="validTo"
-                        name="validTo"
+                        id="endDate"
+                        name="endDate"
                         type="date"
-                        value={formData.validTo}
+                        value={formData.endDate}
                         onChange={handleChange}
                         className="col-span-3"
                     />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="status" className="text-right">
-                        Status
-                    </Label>
-                    <Select name="status" value={formData.status} onValueChange={(value) => handleSelectChange('status', value as 'Active' | 'Inactive')}>
-                        <SelectTrigger className="col-span-3">
-                            <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Active">Active</SelectItem>
-                            <SelectItem value="Inactive">Inactive</SelectItem>
-                        </SelectContent>
-                    </Select>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="applicableTo" className="text-right">

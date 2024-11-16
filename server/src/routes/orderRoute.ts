@@ -34,6 +34,12 @@ router.post(
   orderController.verifyPayment
 );
 
+router.delete(
+  '/:orderId/items/:itemId',
+  authenticateAndAuthorize(['customer']),
+  orderController.cancelOrderItem
+);
+
 router.get(
   '/:orderId',
   authenticateAndAuthorize(['customer']),

@@ -20,7 +20,7 @@ services:
     container_name: snapcart-node
     restart: always
     environment:
-      - MONGODB_URI=mongodb://mongo:27017/snapcart
+      - MONGODB_URI=mongodb+srv://rahilsardar234:rahil321@snapcart.gc4t3.mongodb.net/snapcart
       - RAZORPAY_KEY_ID=rzp_test_MW6mjPBNCHMnb7
       - RAZORPAY_KEY_SECRET=1bwVTSKirAfTXwrtnDw0D7Vd
       - PORT=3000
