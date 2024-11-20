@@ -2,10 +2,10 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { signAccessToken } from '@/utils/jwtUtils';
-import { setRefreshTokenCookie } from '../utils/cookieUtils';
-import userModel from '../models/userModel';
+import { setRefreshTokenCookie } from '@/utils/cookieUtils';
+import userModel from '@/models/userModel';
 import adminModel from '@models/adminModel';
-import sellerModel from '../models/sellerModel';
+import sellerModel from '@/models/sellerModel';
 import bannerModel from '@/models/bannerModel';
 import { catchError } from '@shared/types';
 
@@ -73,7 +73,7 @@ const adminLogin = async (req: Request, res: Response) => {
   }
 };
 
-const getUsers = async (req: Request, res: Response) => {
+const getUsers = async (_req: Request, res: Response) => {
   try {
     const users = await userModel.find();
     res.status(200).json(users);
@@ -82,7 +82,7 @@ const getUsers = async (req: Request, res: Response) => {
   }
 };
 
-const getSellers = async (req: Request, res: Response) => {
+const getSellers = async (_req: Request, res: Response) => {
   try {
     const sellers = await sellerModel.find();
     res.status(200).json(sellers);
@@ -120,7 +120,7 @@ const addSeller = async (req: Request, res: Response) => {
   }
 };
 
-const getBanners = async (req: Request, res: Response) => {
+const getBanners = async (_req: Request, res: Response) => {
   try {
     const banners = await bannerModel.find().sort({ order: 1 });
     res.status(200).json(banners);

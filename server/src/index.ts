@@ -1,10 +1,10 @@
 import express from 'express';
 import '@/config/configEnv';
-import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
-import { createClient } from 'redis';
 import cookieParser from 'cookie-parser';
+import connectToDatabase from '@/config/mongoDB';
+import connectToRedis from '@/config/redis';
 import authRoute from './routes/authRoute';
 import userRoute from './routes/userRoute';
 import sellerRoute from './routes/sellerRoute';
@@ -58,29 +58,11 @@ const PORT = process.env.PORT || 3000;
 
 const connectToDatabaseAndStartServer: () => void = async () => {
   try {
-    const DATABASE_URL =
-      process.env.MONGODB_URI || 'mongodb://mongo:27017/SnapCart';
-    console.log('connecting to database url:', DATABASE_URL);
-
-    await mongoose.connect(DATABASE_URL);
-    console.log('Database ✅: Connected to MongoDB');
-
-    const client = createClient({
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
-    });
-
-    client.on('connect', () => {
-      console.log('Redis ✅: Connected to Redis');
-    });
-
-    client.on('error', (err) => {
-      console.error('Redis ❌: Redis connection error:', err);
-    });
-
-    await client.connect();
+    await connectToDatabase();
+    await connectToRedis();
 
     app.listen(PORT, () => {
-      console.log(`Server   ✅: Running on port ${PORT}`);
+      console.log(`Server ✅: Running on port ${PORT}`);
     });
   } catch (err) {
     console.error('MongoDB connection error:', err);

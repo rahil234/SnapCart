@@ -1,7 +1,7 @@
 services:
   mongo:
-    image: mongo
     container_name: snapcart-mongodb
+    image: mongo
     restart: always
     ports:
       - "27000:27017"
@@ -13,14 +13,26 @@ services:
     networks:
       - app-network
 
+  redis:
+    container_name: snapcart-redis
+    image: redis
+    restart: always
+    volumes:
+      - redis_volume_data:/data
+    ports:
+      - 6379:6379
+    networks:
+      - app-network
+
   node:
+    container_name: snapcart-node
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: snapcart-node
     restart: always
     environment:
       - MONGODB_URI=mongodb+srv://rahilsardar234:rahil321@snapcart.gc4t3.mongodb.net/snapcart
+      - REDIS_URL=redis://redis:6379
       - RAZORPAY_KEY_ID=rzp_test_MW6mjPBNCHMnb7
       - RAZORPAY_KEY_SECRET=1bwVTSKirAfTXwrtnDw0D7Vd
       - PORT=3000
@@ -30,6 +42,7 @@ services:
     command: sh -c "npm install && cd server && npm run dev"
     depends_on:
       - mongo
+      - redis
     networks:
       - app-network
 
@@ -60,15 +73,6 @@ services:
       - nginx
     networks:
       - app-network
-
-  redis:
-      image: redis
-      container_name: snapcart-redis
-      restart: always
-      volumes:
-        - redis_volume_data:/data
-      ports:
-        - 6379:6379
 
 networks:
   app-network:
