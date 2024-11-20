@@ -1,8 +1,9 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
+import '@/config/configEnv';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import '@/config/configEnv';
 import path from 'path';
+import { createClient } from 'redis';
 import cookieParser from 'cookie-parser';
 import authRoute from './routes/authRoute';
 import userRoute from './routes/userRoute';
@@ -31,11 +32,8 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, '/images')));
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-  const currentTime =
-    new Date().toLocaleTimeString('en-US', { hour12: false }) +
-    '.' +
-    new Date().getMilliseconds();
+app.use((req, _res, next) => {
+  const currentTime = `${new Date().toLocaleTimeString('en-US', { hour12: false })}.${new Date().getMilliseconds()}`;
   const method = req.method;
   const url = req.url;
 
@@ -58,7 +56,7 @@ app.use('/api/sales', salesRoute);
 
 const PORT = process.env.PORT || 3000;
 
-const connectToDatabaseAndStartServer = async () => {
+const connectToDatabaseAndStartServer: () => void = async () => {
   try {
     const DATABASE_URL =
       process.env.MONGODB_URI || 'mongodb://mongo:27017/SnapCart';
@@ -66,6 +64,20 @@ const connectToDatabaseAndStartServer = async () => {
 
     await mongoose.connect(DATABASE_URL);
     console.log('Database ✅: Connected to MongoDB');
+
+    const client = createClient({
+      url: process.env.REDIS_URL || 'redis://localhost:6379',
+    });
+
+    client.on('connect', () => {
+      console.log('Redis ✅: Connected to Redis');
+    });
+
+    client.on('error', (err) => {
+      console.error('Redis ❌: Redis connection error:', err);
+    });
+
+    await client.connect();
 
     app.listen(PORT, () => {
       console.log(`Server   ✅: Running on port ${PORT}`);
@@ -75,5 +87,4 @@ const connectToDatabaseAndStartServer = async () => {
     process.exit(1);
   }
 };
-
 connectToDatabaseAndStartServer();

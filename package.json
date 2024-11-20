@@ -23,6 +23,9 @@
   },
   "dependencies": {
     "@testing-library/react": "^16.0.1",
-    "razorpay": "^2.9.5"
+    "install": "^0.13.0",
+    "npm": "^10.9.0",
+    "razorpay": "^2.9.5",
+    "redis": "^4.7.0"
   }
 }

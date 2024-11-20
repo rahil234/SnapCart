@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { motion } from 'motion/react';
@@ -18,22 +18,9 @@ const CartOverlay = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { isCartOverlayOpen, hideCartOverlay } = useContext(UIContext);
+  const { hideCartOverlay } = useContext(UIContext);
   const isAuthenticated = useSelector((state: { auth: AuthState }) => state.auth.user);
 
-  const [showCart, setShowCart] = useState(false);
-
-  useEffect(() => {
-    setShowCart(true);
-  }, [isCartOverlayOpen]);
-
-
-  const handleClose = () => {
-    setShowCart(false);
-    setTimeout(() => {
-      hideCartOverlay();
-    }, 290);
-  };
 
   const handleCheckout = async () => {
     if (!cartData) return
@@ -59,19 +46,26 @@ const CartOverlay = () => {
   };
 
   return (
-    <div
-      className={`fixed top-0 left-0 w-full h-full right bg-black ${showCart ? 'bg-opacity-20 backdrop-blur-sm' : 'bg-opacity-0'} z-40 transition-all duration-500 ease-in-out`}
-      onClick={handleClose}
+    <motion.div
+      className={`fixed top-0 left-0 w-full h-full right bg-black bg-opacity-20 backdrop-blur-sm z-40 transition-all duration-500 ease-in-out`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { delay: 0.5 } }}
+      onClick={() => hideCartOverlay()}
     >
-      <div
-        className={`absolute flex flex-col pb-14 top-14 ${showCart ? 'right-0' : '-right-full'} transition-all duration-500 ease-in-out h-full w-[471px] bg-white shadow-lg z-50`}
+      <motion.div
+        className={`absolute flex flex-col pb-14 top-14 right-0 transition-all duration-500 ease-in-out h-full w-[471px] bg-white shadow-lg z-50`}
+        initial={{ x: 471, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: 471 }}
+        transition={{ duration: 0., delay: 0.3 }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between p-[15px] bg-white">
           <div className="font-extrabold text-black text-lg">
             My Cart
           </div>
-          <button onClick={() => handleClose()} className="text-black">
+          <button onClick={() => hideCartOverlay()} className="text-black">
             ✕
           </button>
         </div>
@@ -134,8 +128,8 @@ const CartOverlay = () => {
             </Button>
           </div>
         </div>
-      </div>
-    </div >
+      </motion.div>
+    </motion.div >
   );
 };
 

@@ -7,7 +7,8 @@ import { Download, Filter } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import jsPDF from 'jspdf'
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
+import { saveAs } from 'file-saver'
 
 interface jsPDFWithAutoTable extends jsPDF {
     autoTable: (options: object) => void;
@@ -87,11 +88,45 @@ export default function SalesReport() {
         doc.save('sales_report.pdf')
     }
 
-    const downloadExcel = () => {
-        const worksheet = XLSX.utils.json_to_sheet(salesData)
-        const workbook = XLSX.utils.book_new()
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Sales Data")
-        XLSX.writeFile(workbook, "sales_report.xlsx")
+    // const downloadExcel = () => {
+    //     const worksheet = XLSX.utils.json_to_sheet(salesData)
+    //     const workbook = XLSX.utils.book_new()
+    //     XLSX.utils.book_append_sheet(workbook, worksheet, "Sales Data")
+    //     XLSX.writeFile(workbook, "sales_report.xlsx")
+    // }
+
+    const downloadExcel = async () => {
+        const workbook = new ExcelJS.Workbook()
+        const worksheet = workbook.addWorksheet("Sales Data")
+
+        // Add headers
+        worksheet.addRow(["Date", "Orders", "Sales", "Discount", "Net Sales", "Items Sold"])
+
+        // Add data rows
+        salesData.forEach(sale => {
+            worksheet.addRow([
+                sale.date || 'N/A',
+                sale.totalOrders,
+                sale.totalSales.toFixed(2),
+                sale.totalDiscountApplied.toFixed(2),
+                sale.netSales.toFixed(2),
+                sale.totalItemsSold,
+            ])
+        })
+
+        // Adjust column widths
+        worksheet.columns.forEach(column => {
+            column.width = 15
+        })
+
+        // Generate the Excel file
+        const buffer = await workbook.xlsx.writeBuffer()
+
+        // Save the file
+        const blob = new Blob([buffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        })
+        saveAs(blob, "sales_report.xlsx")
     }
 
     if (isLoading) return <div>Loading...</div>

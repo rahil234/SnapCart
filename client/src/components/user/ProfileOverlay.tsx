@@ -18,7 +18,7 @@ const ProfileOverlay = () => {
   const dispatch = useAppDispatch();
 
   const { hideProfileOverlay } = useContext(UIContext);
-  
+
   const handleLogout = () => {
     dispatch(logoutUser());
     hideProfileOverlay();
@@ -37,13 +37,13 @@ const ProfileOverlay = () => {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -50 }}
-        transition={{ duration: 0.3 }}
-        >
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+      >
         <motion.div
           initial={{ opacity: 0.5, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -50, transition: { duration: 0.3 } }}
-          transition={{ duration: 0.5, delay: 0.5 }}
+          transition={{ duration: 0.5, delay: 0.3, ease: 'easeInOut' }}
           className="flex flex-col items-center">
           <Avatar className="w-24 h-24">
             <AvatarImage src={imageUrl + user?.profilePicture} alt="Profile picture" />
