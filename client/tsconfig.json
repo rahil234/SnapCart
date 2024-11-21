@@ -13,7 +13,7 @@
     "outDir": "./dist",
     "paths": {
       "@/*": ["./src/*"],
-      "types": ["types/*"],
+      "@types": ["./types/index.ts"],
       "shared/*": ["../../shared/dist/*"]
     }
   }

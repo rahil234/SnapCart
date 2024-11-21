@@ -1,14 +1,14 @@
 import axiosInstance from './axiosInstance';
 
-const getBalance = () => {
-  return axiosInstance.get('/api/wallet');
+const getBalance = async () => {
+  return (await axiosInstance.get('/api/wallet')).data;
 };
 
-const getTransactions = () => {
-  return axiosInstance.get('/api/wallet/transactions');
+const getTransactions = async () => {
+  return (await axiosInstance.get('/api/wallet/transactions')).data;
 };
 
-const addFunds = (amount: number) => {
+const addFunds = async (amount: number) => {
   return axiosInstance.post('/api/wallet/add-funds', { amount });
 };
 

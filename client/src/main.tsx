@@ -1,25 +1,26 @@
 import React from 'react';
-import { Toaster } from "@/components/ui/sonner"
-import { TooltipProvider } from "@/components/ui/tooltip"
+import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import App from './App';
 import store from './app/store';
 import './index.css';
-import { ImportMeta } from 'shared/types';
+import { ImportMeta } from '@types';
 
-const googleOAuthClientId = (import.meta as unknown as ImportMeta).env.VITE_googleOAuthClientId;
+const GOOGLE_OAUTHCLIENTID = (import.meta as unknown as ImportMeta).env
+  .VITE_GOOGLE_OAUTHCLIENTID;
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={googleOAuthClientId}>
-      < Provider store={store} >
+    <GoogleOAuthProvider clientId={GOOGLE_OAUTHCLIENTID}>
+      <Provider store={store}>
         <TooltipProvider>
           <Toaster />
           <App />
         </TooltipProvider>
-      </Provider >
+      </Provider>
     </GoogleOAuthProvider>
   </React.StrictMode>
 );

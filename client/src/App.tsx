@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import NotAuthorised from './pages/NotAuthorised';
 import Page404 from './pages/Page404';
@@ -17,9 +14,8 @@ const routes = createBrowserRouter([
   ...AdminRoutes,
   ...SellerRoutes,
   { path: '/not-authorized', element: <NotAuthorised /> },
-  { path: '*', element: <Page404 /> }
+  { path: '*', element: <Page404 /> },
 ]);
-
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -28,16 +24,33 @@ const App: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      if (localStorage.getItem('sessionActive')) await 
-      store.dispatch(refreshAuthToken());
+      if (localStorage.getItem('sessionActive'))
+        await store.dispatch(refreshAuthToken());
       setIsLoading(false);
     })();
   }, []);
 
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <div className="spinner" style={{ border: '4px solid rgba(0, 0, 0, 0.1)', width: '36px', height: '36px', borderRadius: '50%', borderTopColor: '#3498db', animation: 'spin 1s ease-in-out infinite' }}></div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
+        <div
+          className="spinner"
+          style={{
+            border: '4px solid rgba(0, 0, 0, 0.1)',
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            borderTopColor: '#3498db',
+            animation: 'spin 1s ease-in-out infinite',
+          }}
+        ></div>
         <style>
           {`
           @keyframes spin {
@@ -46,13 +59,14 @@ const App: React.FC = () => {
             `}
         </style>
       </div>
-    )
+    );
   }
 
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={routes} />
-    </QueryClientProvider>)
+    </QueryClientProvider>
+  );
 };
 
 export default App;

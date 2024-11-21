@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 import { X, Image as ImageIcon, GripVertical } from 'lucide-react';
 import { Input } from "@/components/ui/input";

@@ -9,7 +9,7 @@ import { AuthState } from '@/features/auth/authSlice';
 import { UIContext } from '@/context/UIContext';
 import { toast } from 'sonner';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL;
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL+ '/';
 
 
 const ProductCard = ({ product }: { product: Product }) => {

@@ -8,17 +8,26 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import productEndpoints from '@/api/productEndpoints';
 import categoryEndpoints from '@/api/categoryEndpoints';
-import { Category as OriginalCategory, Subcategory, Variant, VariantImage } from 'shared/types';
-// import ProductAddTab from './ProductAddTab';
+import { Category as OriginalCategory, Subcategory, VariantImage } from 'shared/types';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent } from '../ui/card';
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
 import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import AddImageCropper from './addImageCropper';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
+// import ProductAddTab from './ProductAddTab';
 
 interface Category extends OriginalCategory {
   subcategories: Subcategory[];
+}
+
+interface Variant {
+  id: number
+  // productId: string;
+  variantName: string;
+  price: string;
+  stock: string;
+  images: VariantImage[];
 }
 
 interface FormValues {

@@ -30,7 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 // import { toast } from 'sonner';
-import { ImportMeta } from 'shared/types';
+import { ImportMeta } from '@types';
 // import { set } from 'date-fns';
 
 type IVariantGroup = {
@@ -48,7 +48,7 @@ interface Categories extends Category {
   subcategories: Subcategory[];
 }
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
 
 const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup, onEdit }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);

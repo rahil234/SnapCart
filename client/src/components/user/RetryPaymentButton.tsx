@@ -43,6 +43,9 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({className, children, order
             handler: (response) => {
                verifyPayment({ ...response, orderId });
             },
+            modal:{
+               "ondismiss": () => {},
+            },
             prefill: {
                name: "Rahil",
                email: "rahil@example.com",

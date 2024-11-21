@@ -6,7 +6,12 @@ export interface RazorpayOptions {
   description?: string;
   image?: string;
   order_id: string;
+
   handler(response: RazorpayResponse): void;
+
+  modal: {
+    ondismiss(): void;
+  };
   prefill?: RazorpayPrefill;
   theme?: RazorpayTheme;
 }
@@ -30,6 +35,7 @@ export interface RazorpayResponse {
 
 export interface RazorpayInstance {
   open(): void;
+
   on(event: string, callback: (response: any) => void): void;
 }
 

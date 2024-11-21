@@ -6,7 +6,7 @@ import { Product } from 'shared/types';
 import { ImportMeta } from 'shared/types';
 import productEndpoints from '@/api/productEndpoints';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL ;
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL+'/' ;
 interface Products {
   categoryId: number;
   category: string;

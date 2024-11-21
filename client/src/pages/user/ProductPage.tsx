@@ -1,21 +1,25 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useParams, ScrollRestoration, NavLink, Link } from 'react-router-dom';
 import { X, Star, ChevronRight } from 'lucide-react';
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from '@/components/ui/skeleton';
 import productEndpoints from '@/api/productEndpoints';
 import ProductCard from '@/components/user/ProductCard';
 import { Product } from 'shared/types';
 import { ImportMeta } from 'shared/types';
 import { Button } from '@/components/ui/button';
 import { useSelector } from 'react-redux';
-import { addItemToCart, CartState, updateQuantity } from '@/features/cart/cartSlice';
+import {
+  addItemToCart,
+  CartState,
+  updateQuantity,
+} from '@/features/cart/cartSlice';
 import { useAppDispatch } from '@/app/store';
 import { AuthState } from '@/features/auth/authSlice';
 import { UIContext } from '@/context/UIContext';
 import { toast } from 'sonner';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL;
-
+const imageUrl =
+  (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL + '/';
 
 const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
   src,
@@ -105,9 +109,10 @@ const ProductPage: React.FC = () => {
 
   useEffect(() => {
     if (product)
-      setCartQuantity(cartData?.items.find(item => item._id === product._id)?.quantity || 0);
+      setCartQuantity(
+        cartData?.items.find(item => item._id === product._id)?.quantity || 0
+      );
   }, [product, cartData]);
-
 
   useEffect(() => {
     if (product && product.subcategory?._id) {
@@ -122,10 +127,11 @@ const ProductPage: React.FC = () => {
     return Array.from({ length: 5 }).map((_, index) => (
       <Star
         key={index}
-        className={`w-5 h-5 ${index < Math.floor(rating)
-          ? 'text-yellow-400 fill-current'
-          : 'text-gray-300'
-          }`}
+        className={`w-5 h-5 ${
+          index < Math.floor(rating)
+            ? 'text-yellow-400 fill-current'
+            : 'text-gray-300'
+        }`}
       />
     ));
   };
@@ -153,7 +159,6 @@ const ProductPage: React.FC = () => {
     dispatch(addItemToCart({ _id: product!._id, product: product! }));
   };
 
-
   const handleIncreaseQuantity = () => {
     if (cartQuantity >= product.stock) {
       toast.error('Out of stock');
@@ -163,16 +168,15 @@ const ProductPage: React.FC = () => {
       return;
     }
     dispatch(updateQuantity({ _id: product!._id, quantity: cartQuantity + 1 }));
-  }
+  };
 
   const handleDecreaseQuantity = () => {
     dispatch(updateQuantity({ _id: product!._id, quantity: cartQuantity - 1 }));
-  }
+  };
 
   // const handleVariantChange = (variantName: string, option: string) => {
   //   setSelectedVariants(prev => ({ ...prev, [variantName]: option }));
   // };
-
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -188,16 +192,20 @@ const ProductPage: React.FC = () => {
               <ChevronRight size={16} className="mx-2" />
             </li>
             <li className="flex items-center">
-              <NavLink to={`/category/${product.category.name}`} className="text-gray-600">
-                {product.category &&
-                  product.category.name}
+              <NavLink
+                to={`/category/${product.category.name}`}
+                className="text-gray-600"
+              >
+                {product.category && product.category.name}
               </NavLink>
               <ChevronRight size={16} className="mx-2" />
             </li>
             <li className="flex items-center">
-              {product.subcategory &&
-                <span className="text-gray-800">{product.subcategory.name}</span>
-              }
+              {product.subcategory && (
+                <span className="text-gray-800">
+                  {product.subcategory.name}
+                </span>
+              )}
             </li>
           </ol>
         </nav>
@@ -225,13 +233,20 @@ const ProductPage: React.FC = () => {
             <h2 className="text-2xl font-semibold mb-2">{product.name}</h2>
 
             {/* Product variants */}
-            <div className='flex gap-2'>
-              {product.variants && "variants" in product && product.variants.map((variant, index) =>
-                <Link key={index} replace to={`/product/${variant.productId}`} className={`mt-10 mb-4 border-2 w-fit p-1 px-4 ${variant.productId === productId && 'border-green-500'} rounded-lg flex flex-col`}>
-                  <span className='text-green-700'>{`₹${variant.price}`}</span>
-                  <span>{variant.variantName}</span>
-                </Link>
-              )}
+            <div className="flex gap-2">
+              {product.variants &&
+                'variants' in product &&
+                product.variants.map((variant, index) => (
+                  <Link
+                    key={index}
+                    replace
+                    to={`/product/${variant.id}`}
+                    className={`mt-10 mb-4 border-2 w-fit p-1 px-4 ${variant.id === productId && 'border-green-500'} rounded-lg flex flex-col`}
+                  >
+                    <span className="text-green-700">{`₹${variant.price}`}</span>
+                    <span>{variant.variantName}</span>
+                  </Link>
+                ))}
             </div>
 
             {/* Product price */}
@@ -246,29 +261,30 @@ const ProductPage: React.FC = () => {
                 <p className="text-sm text-green-600 font-semibold">
                   {product.discount}% off
                 </p>
-              </div>) : (
+              </div>
+            ) : (
               <p className="text-3xl font-bold text-green-600 mb-1">
                 ₹{product.price}
               </p>
-            )
-            }
+            )}
 
             {/* Product stock */}
-            <div className='py-1'>
+            <div className="py-1">
               {product.stock && product.stock > 0 ? (
                 product.stock < 10 ? (
-                  <p className="text-yellow-600">Only {product.stock} left in stock</p>
+                  <p className="text-yellow-600">
+                    Only {product.stock} left in stock
+                  </p>
                 ) : (
                   <p className="text-green-600">In stock</p>
                 )
               ) : (
                 <p className="text-red-600">Out of stock</p>
               )}
-
             </div>
 
             {/* Product Variants */}
-            <div className='flex'>
+            <div className="flex">
               {variants.map(variant => (
                 <div key={variant._id} className="mb-4">
                   <label
@@ -282,10 +298,10 @@ const ProductPage: React.FC = () => {
                       id={variant.name}
                       name={variant.name}
                       className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md"
-                    // value={selectedVariants[variant.name] || ''}
-                    // onChange={e =>
-                    //   handleVariantChange(variant.name, e.target.value)
-                    // }
+                      // value={selectedVariants[variant.name] || ''}
+                      // onChange={e =>
+                      //   handleVariantChange(variant.name, e.target.value)
+                      // }
                     >
                       {/* {variant.options.map(option => (
                       <option key={option} value={option}>
@@ -299,22 +315,31 @@ const ProductPage: React.FC = () => {
             </div>
 
             <div className="flex space-x-4 mb-6">
-              <Button className="bg-[#0E8320] hover:bg-[#2ea940] text-white px-8 py-2 rounded-full"
-                disabled={product.stock === 0}>
+              <Button
+                className="bg-[#0E8320] hover:bg-[#2ea940] text-white px-8 py-2 rounded-full"
+                disabled={product.stock === 0}
+              >
                 Buy Now
               </Button>
               {cartQuantity ? (
                 <div className="flex items-center border border-[#0E8320] bg-white text-[#0E8320] px-4 py-1 rounded-full">
-                  <button className="px-2 text-[#0E8320] hover:text-[#2ea940]" onClick={handleDecreaseQuantity}>
+                  <button
+                    className="px-2 text-[#0E8320] hover:text-[#2ea940]"
+                    onClick={handleDecreaseQuantity}
+                  >
                     -
                   </button>
                   <span className="px-4">{cartQuantity}</span>
-                  <button className="px-2 text-[#0E8320] hover:text-[#2ea940]" onClick={handleIncreaseQuantity}>
+                  <button
+                    className="px-2 text-[#0E8320] hover:text-[#2ea940]"
+                    onClick={handleIncreaseQuantity}
+                  >
                     +
                   </button>
                 </div>
               ) : (
-                <Button className="border border-[#0E8320] bg-white hover:bg-white hover:border-[#0E8320a6] hover:text-[#0E8320a6] text-[#0E8320] px-8 py-2 rounded-full"
+                <Button
+                  className="border border-[#0E8320] bg-white hover:bg-white hover:border-[#0E8320a6] hover:text-[#0E8320a6] text-[#0E8320] px-8 py-2 rounded-full"
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
                 >
@@ -359,17 +384,18 @@ const ProductPage: React.FC = () => {
         </section>
 
         {/* Related products */}
-        {
-          relatedProducts.length > 0 &&
+        {relatedProducts.length > 0 && (
           <section className="mt-12">
-            <h3 className="text-2xl text-center font-semibold mb-4">You may also like</h3>
+            <h3 className="text-2xl text-center font-semibold mb-4">
+              You may also like
+            </h3>
             <div className="flex gap-4">
               {relatedProducts.map(product => (
                 <ProductCard key={product._id} product={product} />
               ))}
             </div>
           </section>
-        }
+        )}
 
         {/* Top categories */}
         {/* <section className="mt-12">
@@ -392,8 +418,8 @@ const ProductPage: React.FC = () => {
             ))}
           </div>
         </section> */}
-      </main >
-    </div >
+      </main>
+    </div>
   );
 };
 

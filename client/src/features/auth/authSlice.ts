@@ -19,7 +19,7 @@ export const refreshAuthToken = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${apiUrl}api/auth/refresh-token`,
+        `${apiUrl}/api/auth/refresh-token`,
         null,
         { withCredentials: true }
       );
@@ -36,7 +36,7 @@ export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
   async (_, { rejectWithValue }) => {
     try {
-      await axios.post(`${apiUrl}api/auth/logout`, null, {
+      await axios.post(`${apiUrl}/api/auth/logout`, null, {
         withCredentials: true,
       });
     } catch (error) {

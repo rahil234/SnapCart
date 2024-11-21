@@ -19,14 +19,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from '@/components/ui/tooltip';
 
-import { ImportMeta } from 'shared/types';
+import { ImportMeta } from 'types';
 
 type IVariantGroup = {
   _id: string;
@@ -38,11 +38,13 @@ interface ProductsTableProps {
   setVariantGroup: React.Dispatch<React.SetStateAction<IVariantGroup[]>>;
 }
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
+const imageUrl =
+  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
+
+console.log(imageUrl);
 
 const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup }) => {
   const [actionType, setActionType] = useState<'list' | 'unlist'>('list');
-
 
   const handleAction = async () => {
     //   if (selectedProduct) {
@@ -57,7 +59,6 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup }) => {
     //         toast.success('Product listed successfully');
     //       } else {
     //         await productEndpoints.unlistProduct(selectedProduct._id);
-
     //         setProducts((prevProducts) =>
     //           prevProducts.map((product) =>
     //             product._id === selectedProduct._id ? { ...product, status: 'Inactive' } : product
@@ -99,15 +100,27 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup }) => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {variantGroup.map((varientGroup) => (
+          {variantGroup.map(varientGroup => (
             <React.Fragment key={varientGroup._id}>
               {varientGroup.products.map((product, index) => (
                 <tr key={index}>
-                  {index === 0 && (<>
-                    <td className="px-2 py-4 whitespace-nowrap text-xs text-center" rowSpan={varientGroup.products.length}>{product.name}</td>
-                    <td className="px-2 py-4 whitespace-nowrap text-xs text-center" rowSpan={varientGroup.products.length}>{`${product.category.name}/ ${product.subcategory.name}`}</td>
-                  </>)}
-                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{product.variantName}</td>
+                  {index === 0 && (
+                    <>
+                      <td
+                        className="px-2 py-4 whitespace-nowrap text-xs text-center"
+                        rowSpan={varientGroup.products.length}
+                      >
+                        {product.name}
+                      </td>
+                      <td
+                        className="px-2 py-4 whitespace-nowrap text-xs text-center"
+                        rowSpan={varientGroup.products.length}
+                      >{`${product.category.name}/ ${product.subcategory.name}`}</td>
+                    </>
+                  )}
+                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">
+                    {product.variantName}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <img
                       src={imageUrl + product.images[0]}
@@ -115,14 +128,19 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup }) => {
                       className="w-12 h-12 object-cover rounded"
                     />
                   </td>
-                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">₹{product.price}</td>
-                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">{product.stock}</td>
+                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">
+                    ₹{product.name}
+                  </td>
+                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">
+                    {product.stock}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.status === 'Active'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                        }`}
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        product.status === 'Active'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
                     >
                       {product.status === 'Active' ? 'Active' : 'Inactive'}
                     </span>
@@ -133,12 +151,17 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup }) => {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <span
-                              className={`${product.status === 'Active'
-                                ? 'text-red-600 hover:text-red-900'
-                                : 'text-green-600 hover:text-green-900'
-                                } cursor-pointer`}
+                              className={`${
+                                product.status === 'Active'
+                                  ? 'text-red-600 hover:text-red-900'
+                                  : 'text-green-600 hover:text-green-900'
+                              } cursor-pointer`}
                               onClick={() => {
-                                setActionType(product.status === 'Active' ? 'unlist' : 'list');
+                                setActionType(
+                                  product.status === 'Active'
+                                    ? 'unlist'
+                                    : 'list'
+                                );
                               }}
                             >
                               {product.status === 'Active' ? (
@@ -149,20 +172,33 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup }) => {
                             </span>
                           </TooltipTrigger>
                           <TooltipContent className="bg-white text-black shadow-lg">
-                            <p>{product.status === 'Active' ? 'Unlist product' : 'List product'}</p>
+                            <p>
+                              {product.status === 'Active'
+                                ? 'Unlist product'
+                                : 'List product'}
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </AlertDialogTrigger>
                       <AlertDialogContent className="bg-gray-100">
                         <AlertDialogHeader>
-                          <AlertDialogTitle className="text-red-600">Are you sure?</AlertDialogTitle>
+                          <AlertDialogTitle className="text-red-600">
+                            Are you sure?
+                          </AlertDialogTitle>
                           <AlertDialogDescription className="text-gray-700">
                             Do you want to {actionType} the product.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel className="bg-gray-200 text-gray-700">Cancel</AlertDialogCancel>
-                          <AlertDialogAction className="bg-red-600 hover:bg-red-400 text-white" onClick={handleAction}>Continue</AlertDialogAction>
+                          <AlertDialogCancel className="bg-gray-200 text-gray-700">
+                            Cancel
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-red-600 hover:bg-red-400 text-white"
+                            onClick={handleAction}
+                          >
+                            Continue
+                          </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
@@ -214,24 +250,29 @@ export default function AdminProducts() {
           </div>
         </div>
       </div>
-      {variantGroup.length > 0 ? (<>
-        <ProductsTable variantGroup={variantGroup} setVariantGroup={setVariantGroup} />
-        <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-          <span>Showing 1-09 of 78</span>
-          <div className="flex space-x-2">
-            <button className="p-2 rounded-md bg-white shadow">
-              <ChevronLeft size={16} />
-            </button>
-            <button className="p-2 rounded-md bg-white shadow">
-              <ChevronRight size={16} />
-            </button>
+      {variantGroup.length > 0 ? (
+        <>
+          <ProductsTable
+            variantGroup={variantGroup}
+            setVariantGroup={setVariantGroup}
+          />
+          <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
+            <span>Showing 1-09 of 78</span>
+            <div className="flex space-x-2">
+              <button className="p-2 rounded-md bg-white shadow">
+                <ChevronLeft size={16} />
+              </button>
+              <button className="p-2 rounded-md bg-white shadow">
+                <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
+        </>
+      ) : (
+        <div className="text-center py-10">
+          <p className="text-gray-500">You have no products available.</p>
         </div>
-      </>
-      ) : (<div className="text-center py-10">
-        <p className="text-gray-500">You have no products available.</p>
-      </div>)
-      }
-    </main >
+      )}
+    </main>
   );
 }
