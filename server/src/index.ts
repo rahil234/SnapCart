@@ -56,17 +56,11 @@ app.use('/api/sales', salesRoute);
 
 const PORT = process.env.PORT || 3000;
 
-const connectToDatabaseAndStartServer: () => void = async () => {
-  try {
-    await connectToDatabase();
-    await connectToRedis();
+(async () => {
+  await connectToDatabase();
+  await connectToRedis();
 
-    app.listen(PORT, () => {
-      console.log(`Server ✅: Running on port ${PORT}`);
-    });
-  } catch (err) {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-  }
-};
-connectToDatabaseAndStartServer();
+  app.listen(PORT, () => {
+    console.log(`Server ✅: Running on port ${PORT}`);
+  });
+})();

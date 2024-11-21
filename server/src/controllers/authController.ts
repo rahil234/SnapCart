@@ -31,6 +31,7 @@ const getUserByRoleAndId = async (role: string, id: string) => {
 };
 
 const refreshToken = async (req: Request, res: Response) => {
+  console.log('refreshToken');
   const refreshToken = req.cookies['refreshToken'];
 
   if (!refreshToken) {

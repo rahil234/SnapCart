@@ -8,12 +8,15 @@ import { ICartP, IOrderItem } from '@shared/types';
 import userModel from '@models/userModel';
 import couponModel from '@models/couponModel';
 import productModel from '@models/productModel';
+import walletModel from '@models/walletTransactionModel';
 
 const razorpay = configRazorpay();
 
 const getOrders = async (req: Request, res: Response) => {
   try {
-    const orders = await orderModel.find({ userId: req.user?._id });
+    const orders = await orderModel
+      .find({ userId: req.user?._id })
+      .sort({ createdAt: -1 });
     res.status(200).json(orders);
   } catch (error) {
     console.log(error);
@@ -59,7 +62,7 @@ const getSellerOrders = async (req: Request, res: Response) => {
   }
 };
 
-const getAdminOrders = async (req: Request, res: Response) => {
+const getAdminOrders = async (_req: Request, res: Response) => {
   try {
     const orders = await orderModel.find();
     res.status(200).json(orders);
@@ -94,10 +97,6 @@ const createOrder = async (req: Request, res: Response) => {
   try {
     const { addresses, paymentMethod, coupon } = req.body;
 
-    if (coupon) {
-      console.log(coupon);
-    }
-
     const couponDoc = await couponModel.findOne({ code: coupon });
 
     let discount = 0;
@@ -107,15 +106,15 @@ const createOrder = async (req: Request, res: Response) => {
         return;
       }
 
-      const currentDate = new Date();
-      if (
-        couponDoc.status !== 'Active' ||
-        couponDoc.startDate > currentDate ||
-        couponDoc.endDate < currentDate
-      ) {
-        res.status(400).json({ message: 'Coupon is not valid at this time' });
-        return;
-      }
+      //   const currentDate = new Date();
+      //   if (
+      //     couponDoc.status !== 'Active' ||
+      //     couponDoc.startDate > currentDate ||
+      //     couponDoc.endDate < currentDate
+      //   ) {
+      //     res.status(400).json({ message: 'Coupon is not valid at this time' });
+      //     return;
+      //   }
     }
 
     const address = Object.values(addresses[0]);
@@ -174,9 +173,10 @@ const createOrder = async (req: Request, res: Response) => {
         discount = (couponDoc.discount / 100) * totalPrice;
       }
     }
-    console.log(discount);
-    totalPrice -= discount;
-    console.log(totalPrice);
+
+    totalPrice -= Math.round(discount);
+
+    console.log('totalPrice', totalPrice);
 
     if (paymentMethod === 'wallet') {
       const walletBalance = (await userModel.findById(req.user?._id))
@@ -191,6 +191,13 @@ const createOrder = async (req: Request, res: Response) => {
 
       await userModel.findByIdAndUpdate(req.user?._id, {
         $inc: { walletBalance: -totalPrice },
+      });
+
+      await walletModel.create({
+        userId: req.user?._id,
+        amount: -totalPrice,
+        description: 'Order payment #' + orderId,
+        type: 'debit',
       });
     }
 
@@ -212,7 +219,7 @@ const createOrder = async (req: Request, res: Response) => {
     });
 
     await order.save();
-    await cartModel.updateOne({ userId: req.user?._id }, { items: [] });
+    // await cartModel.updateOne({ userId: req.user?._id }, { items: [] });
     res.status(201).json({ orderId });
   } catch (error) {
     console.log(error);
@@ -231,6 +238,8 @@ const createPayment = async (req: Request, res: Response) => {
     res.status(404).json({ message: 'Order not found' });
     return;
   }
+
+  console.log('payment order ', order);
 
   const options = {
     amount: order.price * 100,

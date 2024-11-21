@@ -124,7 +124,8 @@ export interface CartItem {
 }
 
 export interface Variant {
-  productId: string;
+  id: string
+  // productId: string;
   variantName: string;
   price: string;
   stock: string;
@@ -203,6 +204,8 @@ export interface Offer {
   discount: number;
   startDate: string;
   endDate: string;
+  products: string[];
+  categories: string[];
   status: 'Active' | 'Inactive';
 }
 

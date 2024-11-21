@@ -26,7 +26,7 @@ const getProduct = async (req: Request, res: Response) => {
 
     if (variants.filter((variant) => variant._id.toString() !== productId)) {
       x.variants = variants.map((variant) => ({
-        productId: variant._id,
+        id: variant._id,
         variantName: variant.variantName,
         price: variant.price,
       })) as any; //eslint-disable-line
@@ -319,8 +319,6 @@ const getProductsBySeller = async (req: Request, res: Response) => {
       },
     ]);
 
-    console.log('p', productsByVariant[0].products);
-
     res.status(200).json(productsByVariant);
   } catch (error) {
     const myError = error as catchError;
@@ -328,7 +326,7 @@ const getProductsBySeller = async (req: Request, res: Response) => {
   }
 };
 
-const unlistProduct = async (req: Request, res: Response) => {
+const unListProduct = async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
     await productModel.findByIdAndUpdate(productId, { status: 'Inactive' });
@@ -410,7 +408,7 @@ export default {
   getProductsByUser,
   getProductsByAdmin,
   getProductsBySeller,
-  unlistProduct,
+  unListProduct,
   listProduct,
   searchProducts,
 };

@@ -10,8 +10,16 @@ router.get(
   walletController.getBalance
 );
 
-router.get('/transactions', walletController.getTransaction);
+router.get(
+  '/transactions',
+  authenticateAndAuthorize(['customer']),
+  walletController.getTransaction
+);
 
-router.post('/add-funds', walletController.getTransaction);
+router.post(
+  '/add-funds',
+  authenticateAndAuthorize(['customer']),
+  walletController.getTransaction
+);
 
 export default router;

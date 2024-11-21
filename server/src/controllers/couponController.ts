@@ -16,6 +16,22 @@ const applyCoupon = async (req: Request, res: Response) => {
     const { coupon } = req.body;
     console.log(coupon);
     const couponDoc = await couponModal.findOne({ code: coupon });
+
+    if (!couponDoc) {
+      res.status(404).json({ message: 'Coupon not found' });
+      return;
+    }
+
+    const currentDate = new Date();
+    if (
+      couponDoc.status !== 'Active' ||
+      couponDoc.startDate > currentDate ||
+      couponDoc.endDate < currentDate
+    ) {
+      res.status(400).json({ message: 'Coupon is not valid at this time' });
+      return;
+    }
+
     res.status(200).json({ message: 'Coupon applied', coupon: couponDoc });
   } catch (error) {
     console.log(error);
