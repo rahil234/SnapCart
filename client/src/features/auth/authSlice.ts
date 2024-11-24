@@ -26,7 +26,7 @@ export const refreshAuthToken = createAsyncThunk(
       return response.data;
     } catch {
       // store.dispatch(clearUser());
-      // localStorage.removeItem('sessionActive');
+      localStorage.removeItem('sessionActive');
       return rejectWithValue('Failed to refresh token');
     }
   }

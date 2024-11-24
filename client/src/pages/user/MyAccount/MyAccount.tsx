@@ -59,7 +59,7 @@ function AccountPage() {
   return (
     <div className="mx-auto p-6">
       <div className="flex gap-6">
-        <Card className="w-64 h-fit">
+        <Card className="w-64 h-fit sticky top-5">
           <CardHeader>
             <CardTitle>My Account</CardTitle>
             <CardDescription>Manage your account</CardDescription>

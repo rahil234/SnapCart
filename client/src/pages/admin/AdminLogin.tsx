@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useSelector } from 'react-redux';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';

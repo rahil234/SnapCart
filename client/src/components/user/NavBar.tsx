@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 import { useSelector } from 'react-redux';
 import { Button } from '@/components/ui/button';
 import { CircleUserRound } from 'lucide-react';
@@ -8,9 +8,9 @@ import { Input } from '@/components/ui/input';
 import { UIContext } from '@/context/UIContext';
 import { AuthState } from '@/features/auth/authSlice';
 import { AvatarFallback } from '@radix-ui/react-avatar';
-import { ImportMeta } from 'shared/types';
+import { ImportMeta } from '@types';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL+'/';
 
 const NavBar = () => {
   const [searchQuery, setSearchQuery] = useState('');

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useNavigate, useParams, Link } from 'react-router-dom'
+import { useNavigate, useParams, Link } from 'react-router'
 import { CheckCircle, ArrowRight, ShoppingBag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'

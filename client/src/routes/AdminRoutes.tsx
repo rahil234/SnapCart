@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router';
 import AdminLayout from '@/Layouts/AdminLayout';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminCategory from '@/pages/admin/AdminCategory';

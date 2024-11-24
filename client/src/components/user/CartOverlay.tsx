@@ -1,16 +1,16 @@
 import React, { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useSelector } from 'react-redux';
 import { motion } from 'motion/react';
 import { UIContext } from '@/context/UIContext';
 import { Button } from '@/components/ui/button';
-import { ImportMeta } from 'shared/types';
+import { ImportMeta } from 'types';
 import { AuthState } from '@/features/auth/authSlice';
 import { CartState, updateQuantity } from '@/features/cart/cartSlice';
 import { useAppDispatch } from '@/app/store';
 import orderEndpoints from '@/api/orderEndpoints';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
 
 const CartOverlay = () => {
   const { cartData } = useSelector((state: { cart: CartState }) => state.cart);

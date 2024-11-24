@@ -1,26 +1,23 @@
-//@ts-nocheck
-
 import orderModel from '@models/orderModel';
 
-const fetchSalesReport = async (timeFrame, startDate, endDate) => {
+const fetchSalesReport = async (
+  sellerId: string,
+  timeFrame: string | undefined,
+  startDate: string | undefined,
+  endDate: string | undefined
+) => {
   const defaultStartDate = '2020-01-01';
 
-  const start =
-    startDate === 'undefined'
-      ? new Date(defaultStartDate)
-      : new Date(startDate);
-  const end = endDate === 'undefined' ? new Date() : new Date(endDate);
+  const start = startDate ? new Date(startDate) : new Date(defaultStartDate);
+  const end = endDate ? new Date(endDate) : new Date();
 
-  // Adjust the end date based on the time frame
   switch (timeFrame) {
     case 'daily':
       end.setHours(23, 59, 59, 999);
       break;
 
     case 'weekly':
-      //eslint-disable-next-line
-      const dayOfWeek = end.getDay(); // 0 (Sunday) to 6 (Saturday)
-      end.setDate(end.getDate() + (7 - dayOfWeek)); // Move to next Sunday
+      end.setDate(end.getDate() + (7 - end.getDay()));
       end.setHours(23, 59, 59, 999);
       break;
 
@@ -38,7 +35,7 @@ const fetchSalesReport = async (timeFrame, startDate, endDate) => {
       throw new Error('Invalid time frame');
   }
 
-  const groupBy = (timeFrame) => {
+  const groupBy = (timeFrame: string) => {
     switch (timeFrame) {
       case 'daily':
         return {
@@ -70,9 +67,10 @@ const fetchSalesReport = async (timeFrame, startDate, endDate) => {
     }
   };
 
-  const salesData = await orderModel.aggregate([
+  return orderModel.aggregate([
     {
       $match: {
+        sellerId,
         paymentMethod: { $ne: 'pending' },
         orderDate: { $gte: start, $lte: end },
       },
@@ -167,8 +165,6 @@ const fetchSalesReport = async (timeFrame, startDate, endDate) => {
       $sort: { date: -1 },
     },
   ]);
-
-  return salesData;
 };
 
 export default fetchSalesReport;

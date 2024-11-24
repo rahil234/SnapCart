@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import adminEndpoints from '@/api/adminEndpoints';
 import ProductCard from '@/components/user/ProductCard';
 import { Product } from 'shared/types';
@@ -17,13 +17,11 @@ function HomePage() {
   const [data, setData] = useState<Products[]>([]);
   const [banners, setBanners] = useState<{ _id: number; image: string; order: number }[]>([]);
 
-  const naviagate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     productEndpoints.getLatestProducts().then(response => {
       setData(response.data);
-      console.log(response.data);
-      
     });
 
     // Fetch banners
@@ -65,7 +63,7 @@ function HomePage() {
                   <h2 className="text-2xl font-semibold mb-4">
                     {category.category}
                   </h2>
-                  <p className="font-medium mb-4 text-green-700" onClick={()=>naviagate(`/category/${category.categoryId}`)}>
+                  <p className="font-medium mb-4 text-green-700" onClick={()=>navigate(`/category/${category.categoryId}`)}>
                     see all
                   </p>
                 </div>

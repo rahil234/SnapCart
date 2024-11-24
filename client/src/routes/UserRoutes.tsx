@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router';
 import { useSelector } from 'react-redux';
 import store from '@/app/store';
 import { fetchCart } from '@/features/cart/cartSlice';

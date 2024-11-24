@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { RazorpayOptions, RazorpayResponse } from 'types/razorpay';
 import { Button } from '../ui/button';
 import { UseFormGetValues } from 'react-hook-form';

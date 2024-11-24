@@ -1,6 +1,6 @@
 import React from 'react';
 import { useContext } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router';
 import { AnimatePresence } from 'motion/react';
 import NavBar from '@/components/user/NavBar';
 import Footer from '@/components/user/Footer';

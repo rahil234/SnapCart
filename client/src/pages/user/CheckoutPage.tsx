@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { Loader2, Plus, Edit2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,12 +28,14 @@ import { Separator } from '@/components/ui/separator';
 import { AuthState } from '@/features/auth/authSlice';
 import { CartState } from '@/features/cart/cartSlice';
 import { clearCart } from '@/features/cart/cartSlice';
-import { catchError, ICoupon, ImportMeta } from 'shared/types';
 import { useAppDispatch } from '@/app/store';
 import userEndpoints from '@/api/userEndpoints';
 import orderEndpoints from '@/api/orderEndpoints';
+import { catchError, ICoupon } from 'shared/types';
+import { ImportMeta } from '@types';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
+const imageUrl =
+  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
 
 interface Address {
   id: string;
@@ -347,7 +349,8 @@ export default function CheckoutPage() {
                   <div className="flex justify-between">
                     <span>Coupon</span>
                     <span>
-                      - ₹{Math.round(
+                      - ₹
+                      {Math.round(
                         (cartData?.totalAmount / 100) * appliedCoupon?.discount
                       )}
                     </span>

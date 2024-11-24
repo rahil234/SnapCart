@@ -329,6 +329,25 @@ const cancelOrderItem = async (req: Request, res: Response) => {
   }
 };
 
+const getReceipt = async (req: Request, res: Response) => {
+  try {
+    const order = await orderModel.findOne({
+      userId: req.user?._id,
+      orderId: req.params.orderId,
+    });
+
+    if (!order) {
+      res.status(404).json({ message: 'Order not found' });
+      return;
+    }
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
 export default {
   getOrders,
   getSellerOrders,
@@ -339,4 +358,5 @@ export default {
   createPayment,
   verifyPayment,
   cancelOrderItem,
+  getReceipt,
 };

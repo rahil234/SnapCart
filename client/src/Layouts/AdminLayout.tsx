@@ -1,7 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Outlet, NavLink } from 'react-router';
 import { useAppDispatch } from '@/app/store';
-import { Outlet, NavLink } from 'react-router-dom';
 import { Search, Bell, ChevronDown } from 'lucide-react';
 import { logoutUser } from '@/features/auth/authSlice';
 

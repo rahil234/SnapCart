@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import NotAuthorised from './pages/NotAuthorised';
 import Page404 from './pages/Page404';

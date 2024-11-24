@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
 import { Download, Filter } from 'lucide-react';
 import {
   Select,
@@ -18,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -40,7 +40,7 @@ interface SalesData {
   endDate: string | null;
 }
 
-export default function SalesReport() {
+function SellerSalesReport() {
   const [salesData, setSalesData] = useState<SalesData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -270,3 +270,5 @@ export default function SalesReport() {
     </Card>
   );
 }
+
+export default SellerSalesReport;

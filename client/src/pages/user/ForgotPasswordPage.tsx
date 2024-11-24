@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Loader2, ArrowLeft } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

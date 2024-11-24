@@ -13,13 +13,20 @@ import { catchError } from '@shared/types';
 
 const fetchSalesReport = async (req: Request, res: Response) => {
   try {
-    const { tf, sd, ed } = req.query;
+    const { tf, sd, ed } = req.query as {
+      tf?: string;
+      sd?: string;
+      ed?: string;
+    };
 
-    const salesReport = await SalesService(tf, sd, ed);
+    if (req.user?._id === undefined) {
+      throw new Error('User not found');
+    }
+
+    const salesReport = await SalesService(req.user?._id, tf, sd, ed);
     res.status(200).json({ report: salesReport });
   } catch (error) {
     console.log(error);
-
     res.status(500).json({ error: (error as catchError).message });
   }
 };

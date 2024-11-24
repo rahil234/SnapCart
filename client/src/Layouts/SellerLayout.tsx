@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Outlet, NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router';
+import { Outlet, NavLink } from 'react-router';
 import { Search, Bell, ChevronDown } from 'lucide-react';
 import { logoutUser } from '@/features/auth/authSlice';
 import { useAppDispatch } from '@/app/store';
@@ -23,6 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sellerLogout }) => (
         { name: 'Inbox', path: '/seller/inbox' },
         { name: 'Products', path: '/seller/products' },
         { name: 'Orders', path: '/seller/orders' },
+        { name: 'Sales Report', path: '/seller/sales-report' },
         { name: 'Settings', path: '/seller/settings' },
       ].map(item => (
         <NavLink

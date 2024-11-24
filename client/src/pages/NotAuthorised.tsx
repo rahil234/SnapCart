@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { logoutUser } from '@/features/auth/authSlice';
 import { useAppDispatch } from '@/app/store';
@@ -20,12 +20,20 @@ const NotAuthorised: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
       <h1 className="text-3xl font-bold mb-4">Not Authorized</h1>
-      <p className="text-lg mb-8">You do not have permission to access this page.</p>
+      <p className="text-lg mb-8">
+        You do not have permission to access this page.
+      </p>
       <div className="flex flex-col items-center gap-2">
-        <Button onClick={handleGoBack} className="bg-red-500 text-white px-4 py-2 rounded text-sm">
+        <Button
+          onClick={handleGoBack}
+          className="bg-red-500 text-white px-4 py-2 rounded text-sm"
+        >
           Go Back
         </Button>
-        <button onClick={handleLogout} className="text-blue-500 underline bg-transparent border-none p-0 text-sm">
+        <button
+          onClick={handleLogout}
+          className="text-blue-500 underline bg-transparent border-none p-0 text-sm"
+        >
           Logout
         </button>
       </div>

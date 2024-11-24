@@ -1,7 +1,7 @@
 import axiosInstance from './axiosInstance';
 
 const getOrders = async () => {
-  return axiosInstance.get('/api/order');
+  return (await axiosInstance.get('/api/order')).data;
 };
 
 const getSellerOrders = async () => {

@@ -3,7 +3,6 @@ import walletModel from '@models/walletTransactionModel';
 import userModel from '@models/userModel';
 
 const getTransaction = async (req: Request, res: Response) => {
-  console.log(req?.user?._id);
   try {
     const transactions = await walletModel.find({ userId: req?.user?._id });
     res.status(200).json({ message: 'success', transactions });

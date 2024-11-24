@@ -41,6 +41,12 @@ router.delete(
 );
 
 router.get(
+  '/:orderId/receipt',
+  authenticateAndAuthorize(['customer']),
+  orderController.getReceipt
+);
+
+router.get(
   '/:orderId',
   authenticateAndAuthorize(['customer']),
   orderController.getOrder

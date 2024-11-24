@@ -6,7 +6,7 @@ import React, {
   ReactNode,
   useLayoutEffect,
 } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 interface UIContextProps {
   isLoginOverlayOpen: boolean; 

@@ -7,10 +7,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { UIContext } from '@/context/UIContext';
 import { AuthState, logoutUser } from '@/features/auth/authSlice';
 import { useAppDispatch } from '@/app/store';
-import { Link } from 'react-router-dom';
-import { ImportMeta } from 'shared/types';
+import { Link } from 'react-router';
+import { ImportMeta } from '@types';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL+'/';
 
 const ProfileOverlay = () => {
   const user = useSelector((state: { auth: AuthState }) => state.auth.user);
