@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
-    "preview": "vite preview"
+    "start": "vite preview"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
