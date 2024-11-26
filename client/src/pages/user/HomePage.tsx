@@ -6,7 +6,9 @@ import { Product } from 'shared/types';
 import { ImportMeta } from 'shared/types';
 import productEndpoints from '@/api/productEndpoints';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL+'/' ;
+const imageUrl =
+  (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL + '/';
+
 interface Products {
   categoryId: number;
   category: string;
@@ -15,7 +17,9 @@ interface Products {
 
 function HomePage() {
   const [data, setData] = useState<Products[]>([]);
-  const [banners, setBanners] = useState<{ _id: number; image: string; order: number }[]>([]);
+  const [banners, setBanners] = useState<
+    { _id: number; image: string; order: number }[]
+  >([]);
 
   const navigate = useNavigate();
 
@@ -33,17 +37,17 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-gray-100">
       <main className="px-4 mx-auto py-8">
-        <div className="flex gap-1 mb-8">
-          {banners.map((banner) => (
+        <div className="flex overflow-x-auto hide-scroll gap-2 lg:gap-1 mb-8">
+          {banners.map(banner => (
             <div
               key={banner._id}
-              className="rounded-lg text-white w-full"
+              className="text-white flex-shrink-0 w-full lg:w-1/3 h-50 lg:h-60"
             >
               {banner.image ? (
                 <img
                   src={imageUrl + banner.image}
                   alt="Banner"
-                  className="w-full h-full object-cover rounded-lg"
+                  className="w-full h-full object-cover rounded-lg lg:rounded-xl"
                 />
               ) : (
                 <>
@@ -55,21 +59,24 @@ function HomePage() {
           ))}
         </div>
 
-        {data.map((category) => (
+        {data.map(category => (
           <React.Fragment key={category.categoryId}>
             {category.products.length === 0 ? null : (
               <section className="mb-8">
-                <div className='flex justify-between items-center'>
-                  <h2 className="text-2xl font-semibold mb-4">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg lg:text-2xl font-semibold mb-4">
                     {category.category}
                   </h2>
-                  <p className="font-medium mb-4 text-green-700" onClick={()=>navigate(`/category/${category.categoryId}`)}>
+                  <p
+                    className="font-medium mb-4 text-green-700"
+                    onClick={() => navigate(`/category/${category.categoryId}`)}
+                  >
                     see all
                   </p>
                 </div>
-                <div className="flex gap-2 overflow-scroll hide-scroll">
+                <div className="flex gap-2 overflow-x-auto hide-scroll">
                   {category.products.map(product => (
-                    <ProductCard key={product._id} product={product}/>
+                    <ProductCard key={product._id} product={product} />
                   ))}
                 </div>
               </section>

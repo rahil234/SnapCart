@@ -54,7 +54,7 @@ const CartOverlay = () => {
       onClick={() => hideCartOverlay()}
     >
       <motion.div
-        className={`absolute flex flex-col pb-14 top-14 right-0 transition-all duration-500 ease-in-out h-full w-[471px] bg-white shadow-lg z-50`}
+        className={`absolute flex flex-col pb-14 top-14 right-0 transition-all duration-500 ease-in-out h-full w-[340px] lg:w-[471px] bg-white shadow-lg z-50`}
         initial={{ x: 471, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: 471 }}

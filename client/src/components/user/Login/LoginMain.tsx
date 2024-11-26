@@ -14,11 +14,10 @@ import { setCredentials } from '@/features/auth/authSlice';
 import { useAppDispatch } from '@/app/store';
 
 const LoginMain = (): JSX.Element => {
-
   return (
     <div className="bg-black fixed w-screen p-7 bg-opacity-55 h-screen overflow-hidden z-50">
-      <div className="relative top-1/2 flex left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[900px] h-[522px] rounded-3xl overflow-hidden">
-        <div className="bg-[#FFDB00] flex-1">
+      <div className="relative top-1/2 flex left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[900px] h-[522px] rounded-3xl overflow-hidden max-w-[96vw]">
+        <div className="bg-[#FFDB00] flex-1 hidden lg:block">
           <div className="absolute left-1/4 -translate-x-1/2 top-11 w-[229px] h-[53px] mx-auto text-center">
             <p className="absolute w-[229px] [font-family:'Poppins-Bold',Helvetica] font-bold text-transparent text-[45.5px] tracking-[0.45px] leading-[normal] whitespace-nowrap">
               <span className="text-white tracking-[0.21px]">Snap</span>
@@ -34,9 +33,8 @@ const LoginMain = (): JSX.Element => {
             alt="Gift box top open"
             src={giftBoxTopOpenBackgroundRemoved1}
           />
-        </div>
-
-        <div className="absolute w-[461px] h-[282px] top-[220px] left-0 bg-[url(@/assets/3d-rendering-shopping-concept-23-2149877666-1-background-removed-1.png)] bg-cover bg-[50%_50%]">
+          <div className="absolute w-[461px] h-[282px] top-[220px] left-0 bg-[url(@/assets/3d-rendering-shopping-concept-23-2149877666-1-background-removed-1.png)] bg-cover bg-[50%_50%]">
+          </div>
           <img
             className="absolute w-[146px] h-[140px] top-[155px] left-[276px] rotate-[15deg] object-cover"
             alt="Gift box top"
@@ -57,7 +55,13 @@ const LoginMain = (): JSX.Element => {
 function LoginController() {
   const { hideLoginOverlay } = useContext(UIContext);
   const [activeTab, setActiveTab] = useState<
-    'login' | 'signup' | 'forgotPassword' | 'verifyOtp' | 'forgot-verify' | 'new-password'>('login');
+    | 'login'
+    | 'signup'
+    | 'forgotPassword'
+    | 'verifyOtp'
+    | 'forgot-verify'
+    | 'new-password'
+  >('login');
   const [signupData, setSignupData] = useState<SignUpFormInputs>();
   const [email, setEmail] = useState<string>();
 
@@ -79,11 +83,11 @@ function LoginController() {
         hideLoginOverlay();
       } else {
         console.error('Failed to verify OTP');
-        setSignupData(undefined)
+        setSignupData(undefined);
       }
     } catch (error) {
       console.error('Error verifying OTP:', error);
-      setSignupData(undefined)
+      setSignupData(undefined);
     }
   };
 
@@ -98,11 +102,11 @@ function LoginController() {
         setActiveTab('new-password');
       } else {
         console.error('Failed to verify OTP');
-        setSignupData(undefined)
+        setSignupData(undefined);
       }
     } catch (error) {
       console.error('Error verifying OTP:', error);
-      setSignupData(undefined)
+      setSignupData(undefined);
     }
   };
 
@@ -133,10 +137,18 @@ function LoginController() {
         />
       );
     case 'forgotPassword':
-      return <ForgotPasswordCard setActiveTab={setActiveTab} setEmail={setEmail} />;
+      return (
+        <ForgotPasswordCard setActiveTab={setActiveTab} setEmail={setEmail} />
+      );
 
     case 'forgot-verify':
-      return <ForgetPasswordVerifyOTPCard email={email!} setActiveTab={setActiveTab} onOTPSubmit={onOtpSubmitForget} />;
+      return (
+        <ForgetPasswordVerifyOTPCard
+          email={email!}
+          setActiveTab={setActiveTab}
+          onOTPSubmit={onOtpSubmitForget}
+        />
+      );
 
     case 'new-password':
       return <NewPassword email={email} setActiveTab={setActiveTab} />;
