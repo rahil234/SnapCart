@@ -180,7 +180,7 @@ const ProductPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <ScrollRestoration />
+      {/*<ScrollRestoration />*/}
       <main className="flex-grow container mx-auto px-4 py-8">
         {/* Breadcrumbs */}
         <nav className="text-sm mb-4">
@@ -214,7 +214,7 @@ const ProductPage: React.FC = () => {
           {/* Product images */}
           <div className="md:w-1/2">
             <ZoomableImage src={imageUrl + mainImage} alt={product.name} />
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 flex-wrap">
               {product.images.map((image, index) => (
                 <img
                   key={index}

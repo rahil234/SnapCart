@@ -69,7 +69,7 @@ function HomePage() {
                 </div>
                 <div className="flex gap-2 overflow-scroll hide-scroll">
                   {category.products.map(product => (
-                    <ProductCard key={product._id} product={product} />
+                    <ProductCard key={product._id} product={product}/>
                   ))}
                 </div>
               </section>

@@ -24,7 +24,7 @@ const fetchSalesReport = async (req: Request, res: Response) => {
     }
 
     const salesReport = await SalesService(req.user?._id, tf, sd, ed);
-    console.log('report is', salesReport);
+    // console.log('report is', salesReport);
     res.status(200).json({ report: salesReport });
   } catch (error) {
     console.log(error);

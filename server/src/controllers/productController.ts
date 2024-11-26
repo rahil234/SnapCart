@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import moogose from 'mongoose';
 import productModel from '@/models/productModel';
 import { catchError, Product } from '@shared/types';
 import categoryModel from '@models/categoryModel';
@@ -285,6 +286,7 @@ const getProductsByAdmin = async (req: Request, res: Response) => {
 const getProductsBySeller = async (req: Request, res: Response) => {
   try {
     const productsByVariant = await productModel.aggregate([
+      { $match: { seller: new moogose.Types.ObjectId(req.user?._id) } },
       {
         $lookup: {
           from: 'variants',
@@ -333,8 +335,8 @@ const getProductsBySeller = async (req: Request, res: Response) => {
 
     res.status(200).json(productsByVariant);
   } catch (error) {
-    const myError = error as catchError;
-    res.status(400).json({ message: myError.message });
+    console.log(error);
+    res.status(400).json({ message: (error as catchError).message });
   }
 };
 

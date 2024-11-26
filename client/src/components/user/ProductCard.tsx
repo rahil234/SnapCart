@@ -51,7 +51,7 @@ const ProductCard = ({ product }: { product: Product }) => {
 
     return (
         <Link key={String(product._id)} to={'/product/' + product._id} >
-            <div className="bg-white rounded-lg object-center shadow p-2 w-[170px] h-[260px] flex flex-col">
+            <div className="bg-white rounded-lg object-center shadow p-2 lg:w-[170px] lg:h-[260px] flex flex-col">
                 <div className="rounded-sm overflow-hidden">
                     <img
                         src={imageUrl + product.images[0]}
