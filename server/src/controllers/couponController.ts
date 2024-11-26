@@ -23,6 +23,7 @@ const applyCoupon = async (req: Request, res: Response) => {
     }
 
     const currentDate = new Date();
+    console.log(couponDoc.startDate, currentDate, couponDoc.endDate);
     if (
       couponDoc.status !== 'Active' ||
       couponDoc.startDate > currentDate ||
@@ -41,7 +42,8 @@ const applyCoupon = async (req: Request, res: Response) => {
 
 const createCoupon = async (req: Request, res: Response) => {
   try {
-    const { code, discount, type, startDate, endDate } = req.body;
+    const { code, discount, minAmount, maxDiscount, type, startDate, endDate } =
+      req.body;
 
     const parseDate = (dateStr: string): Date => {
       const [year, month, day] = dateStr.split('-').map(Number);
@@ -52,6 +54,8 @@ const createCoupon = async (req: Request, res: Response) => {
       code,
       discount,
       type,
+      minAmount,
+      maxDiscount,
       startDate: parseDate(startDate),
       endDate: parseDate(endDate),
     });

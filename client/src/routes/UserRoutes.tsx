@@ -18,60 +18,58 @@ import OrderFailurePage from '@/pages/user/OrderFailurePage';
 import { AuthState } from '@/features/auth/authSlice';
 import SearchPage from '@/pages/user/SearchPage';
 
-
 function Root() {
-    const { user } = useSelector((state: { auth: AuthState }) => state.auth);
-    useEffect(() => {
-        if (user && user?.role === 'customer')
-            store.dispatch(fetchCart());
-        else
-            store.dispatch({ type: 'cart/clearCart' });
-    }, [user]);
-    return <Outlet />;
-};
+  const { user } = useSelector((state: { auth: AuthState }) => state.auth);
+  useEffect(() => {
+    if (user && user?.role === 'customer') store.dispatch(fetchCart());
+    else store.dispatch({ type: 'cart/clearCart' });
+  }, [user]);
+  return <Outlet />;
+}
 
 const UserRoutes = [
-    {
-        path: '/',
-        element: <Root />,
+  {
+    path: '/',
+    element: <Root />,
+    children: [
+      {
+        path: '',
+        element: (
+          <UIProvider>
+            <UserLayout />
+          </UIProvider>
+        ),
         children: [
-            {
-                path: '',
-                element:
-                    <UIProvider>
-                        <UserLayout />
-                    </UIProvider>,
-                children: [
-                    {
-                        path: '',
-                        element: <Home />,
-                    },
-                    {
-                        path: 'search',
-                        element: <SearchPage />,
-                    },
-                    {
-                        path: 'product/:productId',
-                        element: <ProductPage />,
-                    },
-                    {
-                        path: 'category/:category',
-                        element: <CategoryPage />,
-                    },
-                    {
-                        path: 'cart',
-                        element: <CartPage />,
-                    }
-                ],
-            },
-            { path: 'my-account', element: <ProfilePage /> },
-            { path: 'change-password', element: <ChangePasswordPage /> },
-            { path: 'forgot-password', element: <ForgotPasswordPage /> },
-            { path: 'checkout', element: <CheckoutPage /> },
-            { path: 'order-success/:orderId', element: <OrderSuccessPage /> },
-            { path: 'order-failure', element: <OrderFailurePage /> },
-        ]
-    },
+          {
+            path: '',
+            element: <Home />,
+          },
+          {
+            path: 'search',
+            element: <SearchPage />,
+          },
+          {
+            path: 'product/:productId',
+            element: <ProductPage />,
+          },
+          {
+            path: 'category/:category',
+            element: <CategoryPage />,
+          },
+          {
+            path: 'cart',
+            element: <CartPage />,
+          },
+        ],
+      },
+      { path: 'my-account', element: <ProfilePage /> },
+      { path: 'change-password', element: <ChangePasswordPage /> },
+      { path: 'forgot-password', element: <ForgotPasswordPage /> },
+      { path: 'checkout', element: <CheckoutPage /> },
+      { path: 'order-success/:orderId', element: <OrderSuccessPage /> },
+      { path: 'order-failure', element: <OrderFailurePage /> },
+    ],
+  },
 ];
 
 export default UserRoutes;

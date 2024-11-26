@@ -17,7 +17,7 @@ const fetchSalesData = async (
     await axiosInstance.get(
       `/api/sales?tf=${timeframe}&sd=${startDate}&ed=${endDate}`
     )
-  ).data;
+  ).data.report;
 };
 
 const SalesData = async () => {

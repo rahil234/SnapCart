@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
+import PDFDocument from 'pdfkit';
 import cartModel from '@/models/cartModel';
 import configRazorpay from '@/config/Razorpay';
 import orderModel from '@models/orderModel';
@@ -9,13 +10,17 @@ import userModel from '@models/userModel';
 import couponModel from '@models/couponModel';
 import productModel from '@models/productModel';
 import walletModel from '@models/walletTransactionModel';
+import fs from 'fs';
+import path from 'path';
+import categoryModel from '@models/categoryModel';
+import subcategoryModel from '@models/subcategoryModel';
 
 const razorpay = configRazorpay();
 
 const getOrders = async (req: Request, res: Response) => {
   try {
     const orders = await orderModel
-      .find({ userId: req.user?._id })
+      .find({ orderedBy: req.user?._id })
       .sort({ createdAt: -1 });
     res.status(200).json(orders);
   } catch (error) {
@@ -26,8 +31,9 @@ const getOrders = async (req: Request, res: Response) => {
 
 const getOrder = async (req: Request, res: Response) => {
   try {
+    console.log(req.params.orderId);
     const order = await orderModel.findOne({
-      userId: req.user?._id,
+      orderedBy: req.user?._id,
       orderId: req.params.orderId,
     });
 
@@ -45,7 +51,7 @@ const getOrder = async (req: Request, res: Response) => {
 
 const getSellerOrders = async (req: Request, res: Response) => {
   try {
-    const allOrders = await orderModel.find();
+    const allOrders = await orderModel.find().sort({ orderDate: -1 });
     const orders = allOrders.filter((order) =>
       order.items.some((item) => item.seller === req.user?._id)
     );
@@ -133,6 +139,13 @@ const createOrder = async (req: Request, res: Response) => {
       return;
     }
 
+    if (paymentMethod === 'cod' && cart.totalAmount > 1000) {
+      res
+        .status(400)
+        .json({ message: 'COD is not available for orders above 1000' });
+      return;
+    }
+
     let stockerror = {};
 
     cart.items.forEach((item) => {
@@ -176,7 +189,9 @@ const createOrder = async (req: Request, res: Response) => {
 
     totalPrice -= Math.round(discount);
 
-    console.log('totalPrice', totalPrice);
+    const deliveryCharge = totalPrice > 500 ? 0 : 50;
+
+    totalPrice += deliveryCharge;
 
     if (paymentMethod === 'wallet') {
       const walletBalance = (await userModel.findById(req.user?._id))
@@ -204,22 +219,35 @@ const createOrder = async (req: Request, res: Response) => {
     cart.items.forEach(async (item) => {
       await productModel.updateOne(
         { _id: item.product._id },
-        { stock: item.product.stock - item.quantity }
+        {
+          stock: item.product.stock - item.quantity,
+          soldCount: item.product.soldCount + item.quantity,
+        }
+      );
+      await categoryModel.updateOne(
+        { _id: item.product.category },
+        { $inc: { soldCount: item.quantity } }
+      );
+      await subcategoryModel.updateOne(
+        { _id: item.product.subcategory },
+        { $inc: { soldCount: item.quantity } }
       );
     });
 
     const order = new orderModel({
-      userId: req.user?._id,
+      orderedBy: req.user?._id,
       orderId,
       address,
       paymentMethod,
       items: orderItems,
       price: totalPrice,
+      deliveryCharge,
+      discount,
       status: paymentMethod === 'razorpay' ? 'Payment Pending' : 'Pending',
     });
 
     await order.save();
-    // await cartModel.updateOne({ userId: req.user?._id }, { items: [] });
+    await cartModel.updateOne({ userId: req.user?._id }, { items: [] });
     res.status(201).json({ orderId });
   } catch (error) {
     console.log(error);
@@ -332,7 +360,7 @@ const cancelOrderItem = async (req: Request, res: Response) => {
 const getReceipt = async (req: Request, res: Response) => {
   try {
     const order = await orderModel.findOne({
-      userId: req.user?._id,
+      orderedBy: req.user?._id,
       orderId: req.params.orderId,
     });
 
@@ -341,7 +369,80 @@ const getReceipt = async (req: Request, res: Response) => {
       return;
     }
 
-    res.status(200).json(order);
+    const doc = new PDFDocument();
+    const receiptPath = path.join(__dirname, `receipt-${order.orderId}.pdf`);
+    const writeStream = fs.createWriteStream(receiptPath);
+
+    doc.pipe(writeStream);
+
+    doc.fontSize(20).text('Order Receipt', { align: 'center' });
+    doc.moveDown();
+
+    doc.fontSize(14).text(`Order ID: ${order.orderId}`);
+    doc.text(`User ID: ${order.orderedBy}`);
+    doc.text(`Order Date: ${order.orderDate}`);
+    doc.text(`Total Amount: ${order.price}`);
+    doc.moveDown();
+
+    doc.text('Items:', { underline: true });
+    order.items.forEach((item: IOrderItem, index: number) => {
+      doc.text(
+        `${index + 1}. ${item.name} - ${item.quantity} x ${item.price} = ${
+          item.quantity * item.price
+        }`
+      );
+    });
+
+    doc.text(`\nTotal: ${order.price}`);
+    doc.end();
+
+    writeStream.on('finish', () => {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="receipt-${order.orderId}.pdf"`
+      );
+
+      res.sendFile(receiptPath, (err) => {
+        if (err) {
+          console.error('Error sending file:', err);
+          res.status(500).json({ message: 'Error sending receipt' });
+        }
+        fs.unlink(receiptPath, (unlinkErr) => {
+          if (unlinkErr) {
+            console.error('Error deleting temporary file:', unlinkErr);
+          }
+        });
+      });
+    });
+
+    writeStream.on('error', (err) => {
+      console.error('Error writing to file:', err);
+      res.status(500).json({ message: 'Error generating receipt' });
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+const updateOrderStatus = async (req: Request, res: Response) => {
+  try {
+    const { orderId, status } = req.body;
+    const orders = await orderModel.findOne({ orderId });
+
+    if (!orders) {
+      res.status(404).json({ message: 'Order not found' });
+      return;
+    }
+
+    orders.items.forEach(async (item) => {
+      item.status = status;
+    });
+    orders.status = status;
+    await orders.save();
+
+    res.status(200).json({ message: 'Order status updated' });
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
@@ -359,4 +460,5 @@ export default {
   verifyPayment,
   cancelOrderItem,
   getReceipt,
+  updateOrderStatus,
 };

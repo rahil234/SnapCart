@@ -10,15 +10,14 @@ const orderItemSchema = new Schema<IOrderItem>({
   image: { type: String, required: true },
   status: {
     type: String,
-    enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled'],
-    default: 'Processing',
+    enum: ['Processing', 'Pending', 'Shipped', 'Completed', 'Cancelled'],
+    default: 'Pending',
   },
 });
 
 const orderSchema = new Schema<IOrder>(
   {
     items: { type: [orderItemSchema], required: true },
-    userId: { type: String, required: true },
     customerName: String,
     orderId: { type: String, required: true, unique: true },
     price: { type: Number, required: true },
@@ -27,10 +26,13 @@ const orderSchema = new Schema<IOrder>(
     status: {
       type: String,
       required: true,
-      enum: ['Payment Pending', 'Pending', 'Completed', 'Cancelled'],
+      enum: ['Payment Pending', 'Pending', 'Shipped', 'Completed', 'Cancelled'],
       default: 'Pending',
     },
+    discount: { type: Number, default: 0 },
+    deliveryCharge: { type: Number, default: 0 },
     orderDate: { type: Date, default: Date.now },
+    orderedBy: { type: String, ref: 'User' },
   },
   {
     autoIndex: true,

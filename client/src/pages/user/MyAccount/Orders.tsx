@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import orderEndpoints from '@/api/orderEndpoints';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Package, Plus } from 'lucide-react';
-import { toast } from 'sonner';
+import { Package } from 'lucide-react';
 import { ImportMeta } from '@types';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -22,8 +21,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
+import RetryPaymentButton from '@/components/user/RetryPaymentButton';
 
 const imageUrl =
   (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
@@ -57,16 +56,6 @@ const OrdersSection = () => {
         return 'bg-gray-500';
       default:
         return 'bg-gray-500';
-    }
-  };
-
-  const handleCancelItem = async (orderId: string, itemId: string) => {
-    try {
-      await orderEndpoints.cancelOrderItem(orderId, itemId);
-      toast.success('Item cancelled successfully');
-    } catch (error) {
-      console.error('Failed to cancel item:', error);
-      toast.error('Failed to cancel item. Please try again.');
     }
   };
 
@@ -133,8 +122,6 @@ const OrdersSection = () => {
                       <TableHead>Price</TableHead>
                       <TableHead>Quantity</TableHead>
                       <TableHead>Total</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -153,35 +140,27 @@ const OrdersSection = () => {
                         <TableCell>
                           ₹{(item.price * item.quantity).toFixed(2)}
                         </TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(item.status!)}>
-                            {item.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() =>
-                              handleCancelItem(order.orderId, item._id)
-                            }
-                            disabled={
-                              item.status === 'Delivered' ||
-                              item.status === 'Shipped' ||
-                              item.status === 'Cancelled'
-                            }
-                          >
-                            Cancel Item
-                          </Button>
-                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
                 <div className="flex justify-between mt-4 space-y-2">
-                  <p>
-                    <strong>Total:</strong> ₹{order.price.toFixed(2)}
-                  </p>
+                  <div>
+                    {order.deliveryCharge > 0 && (
+                      <p>
+                        <strong>Delivery Charge:</strong>{' '}
+                        ₹{order.deliveryCharge.toFixed(2)}
+                      </p>
+                    )}
+                    {order.discount > 0 && (
+                      <p className='text-green-500'>
+                        <strong>Discount:</strong> -₹{order.discount.toFixed(2)}
+                      </p>
+                    )}
+                    <p className='font-bold'>
+                      <strong>Total:</strong> ₹{order.price.toFixed(2)}
+                    </p>
+                  </div>
                   {/*<div>*/}
                   {/*  <strong>Shipping Address:</strong>*/}
                   {/*  {order.address.map((address, index) => (*/}
@@ -193,22 +172,27 @@ const OrdersSection = () => {
                   {/*    <strong>Tracking Number:</strong> {order.trackingNumber}*/}
                   {/*  </p>*/}
                   {/*)}*/}
-                  {/*  {order.status === 'Payment Pending' && (*/}
-                  {/*    <div className="flex justify-end">*/}
-                  {/*      <RetryPaymentButton orderId={order.orderId}>*/}
-                  {/*        Retry Payment*/}
-                  {/*      </RetryPaymentButton>*/}
-                  {/*    </div>*/}
-                  {/*  )}*/}
-                  <Button
-                    className=""
-                    onClick={() => {
-                      setShowOrderDetails(true);
-                      setOrder(order);
-                    }}
-                  >
-                    View
-                  </Button>
+                  <div className="flex gap-2">
+                    {order.status === 'Payment Pending' && (
+                      <div className="flex justify-end">
+                        <RetryPaymentButton
+                          orderId={order.orderId}
+                          className="bg-green-700"
+                        >
+                          Retry Payment
+                        </RetryPaymentButton>
+                      </div>
+                    )}
+                    <Button
+                      className=""
+                      onClick={() => {
+                        setShowOrderDetails(true);
+                        setOrder(order);
+                      }}
+                    >
+                      View
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -216,12 +200,6 @@ const OrdersSection = () => {
         </div>
       )}
       <Dialog open={showOrderDetails} onOpenChange={handleOrderDetailsClose}>
-        <DialogTrigger asChild>
-          <Button type="button" variant="outline" className="mt-2">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Address
-          </Button>
-        </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Order Details</DialogTitle>

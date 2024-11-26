@@ -81,7 +81,7 @@ export default function CheckoutPage() {
       defaultValues: {
         selectedAddressId: user?.addresses ? '' : '',
         addresses: user?.addresses || [],
-        paymentMethod: 'cod',
+        paymentMethod: 'wallet',
       },
     });
 
@@ -264,16 +264,32 @@ export default function CheckoutPage() {
                     className="space-y-4"
                   >
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="cod" id="cod" />
-                      <Label htmlFor="cod">Cash on Delivery</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
                       <RadioGroupItem value="razorpay" id="razorpay" />
                       <Label htmlFor="razorpay">Razorpay</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="wallet" id="wallet" />
                       <Label htmlFor="wallet">Wallet</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem
+                        value="cod"
+                        id="cod"
+                        disabled={cartData.totalAmount > 1000}
+                      />
+                      <div>
+                        <Label
+                          htmlFor="cod"
+                          className={`${cartData.totalAmount > 1000 && 'text-gray-500'}`}
+                        >
+                          Cash on Delivery
+                        </Label>
+                        {cartData.totalAmount > 1000 && (
+                          <p className="text-red-400 text-xs">
+                            Not available for orders above 1000
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </RadioGroup>
                 )}
@@ -343,35 +359,55 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery Charges</span>
-                  <span className="text-green-600">Free</span>
+                  <span className="text-green-600">
+                    ₹{cartData.totalAmount > 500 ? 'Free' : '50'}
+                  </span>
                 </div>
                 {appliedCoupon && (
                   <div className="flex justify-between">
                     <span>Coupon</span>
-                    <span>
-                      - ₹
-                      {Math.round(
-                        (cartData?.totalAmount / 100) * appliedCoupon?.discount
-                      )}
-                    </span>
+                    {appliedCoupon.type === 'percentage' ? (
+                      <span>
+                        - ₹
+                        {Math.round(
+                          (cartData?.totalAmount / 100) *
+                            appliedCoupon?.discount
+                        )}
+                      </span>
+                    ) : (
+                      <span>- ₹{Math.round(appliedCoupon?.discount)}</span>
+                    )}
                   </div>
                 )}
                 <Separator />
                 {appliedCoupon ? (
                   <div className="flex justify-between font-semibold">
                     <span>Total Amount</span>
-                    <span>
-                      ₹
-                      {calculateDiscount(
-                        cartData?.totalAmount,
-                        appliedCoupon.discount
-                      )}
-                    </span>
+                    {appliedCoupon.type === 'percentage' ? (
+                      <span>
+                        ₹
+                        {calculateDiscount(
+                          cartData?.totalAmount,
+                          appliedCoupon.discount
+                        ) + (cartData.totalAmount > 500 ? 0 : 50)}
+                      </span>
+                    ) : (
+                      <span>
+                        ₹
+                        {cartData?.totalAmount -
+                          appliedCoupon.discount +
+                          (cartData.totalAmount > 500 ? 0 : 50)}
+                      </span>
+                    )}
                   </div>
                 ) : (
                   <div className="flex justify-between font-semibold">
                     <span>Total Amount</span>
-                    <span>₹{cartData?.totalAmount}</span>
+                    <span>
+                      ₹
+                      {cartData?.totalAmount +
+                        (cartData.totalAmount > 500 ? 0 : 50)}
+                    </span>
                   </div>
                 )}
               </div>

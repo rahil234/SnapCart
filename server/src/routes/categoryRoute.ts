@@ -11,6 +11,8 @@ categoryRoute.patch('/edit-categories', categoryController.editCategories);
 
 categoryRoute.patch('/archive-category', categoryController.archiveCategory);
 
+categoryRoute.get('/top-categories', categoryController.getTopCategories);
+
 categoryRoute.patch(
   '/unarchive-category',
   categoryController.unarchiveCategory

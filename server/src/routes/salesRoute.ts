@@ -6,7 +6,7 @@ const router = Router();
 
 router.get(
   '/',
-  authenticateAndAuthorize(['seller']),
+  authenticateAndAuthorize(['seller', 'admin']),
   salesController.fetchSalesReport
 );
 

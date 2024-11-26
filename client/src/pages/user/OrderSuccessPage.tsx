@@ -12,7 +12,8 @@ function OrderSuccessPage() {
   useEffect(() => {
     (async () => {
       try {
-        await orderEndpoints.getOrder(orderId!);
+        const response = await orderEndpoints.getOrder(orderId!);
+        console.log(response);
       } catch (error) {
         navigate('/');
         console.log(error);

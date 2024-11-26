@@ -7,7 +7,11 @@ interface ICoupon extends Document {
   endDate: Date;
   type: 'percentage' | 'fixed';
   status: 'Active' | 'Inactive';
+  minAmount: number;
+  maxDiscount: number;
   products: string[];
+  categories: string[];
+  subCategories: string[];
 }
 
 const couponSchema = new Schema<ICoupon>(
@@ -20,9 +24,13 @@ const couponSchema = new Schema<ICoupon>(
       enum: ['percentage', 'fixed'],
       default: 'percentage',
     },
+    minAmount: { type: Number, default: 0 },
+    maxDiscount: { type: Number, default: 0 },
     endDate: { type: Date, required: true },
     status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
     products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+    categories: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
+    subCategories: [{ type: Schema.Types.ObjectId, ref: 'Subcategory' }],
   },
   {
     timestamps: true,

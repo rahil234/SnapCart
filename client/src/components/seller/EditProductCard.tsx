@@ -3,7 +3,8 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Save, X, Image as ImageIcon } from 'lucide-react';
 import ImageCropper from './ImageCropper';
 import { Area } from 'react-easy-crop';
-import { Product, Category, Subcategory, ImportMeta } from 'shared/types';
+import { Product, Category, Subcategory } from 'shared/types';
+import { ImportMeta } from '@types';
 import productEndpoints from '@/api/productEndpoints';
 
 interface EditProductFormInputs {
@@ -25,20 +26,32 @@ interface Categories extends Category {
   subcategories: Subcategory[];
 }
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_imageUrl;
+const imageUrl =
+  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
 
-const EditProductCard: React.FC<{ product: Product; categories: Categories[]; onClose: () => void }> = ({ product, categories, onClose }) => {
-  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<EditProductFormInputs>();
+const EditProductCard: React.FC<{
+  product: Product;
+  categories: Categories[];
+  onClose: () => void;
+}> = ({ product, categories, onClose }) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    watch,
+  } = useForm<EditProductFormInputs>();
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [imagesToCrop, setImagesToCrop] = useState<string[]>([]);
   const [currentCropIndex, setCurrentCropIndex] = useState<number>(0);
   const [subCategories, setSubCategories] = useState<Subcategory[]>([]);
 
-
   const selectedCategory = watch('category');
 
   useEffect(() => {
-    const category = categories.find((cat: Category) => cat._id === selectedCategory);
+    const category = categories.find(
+      (cat: Category) => cat._id === selectedCategory
+    );
     if (category) {
       setSubCategories(category.subcategories);
     } else {
@@ -46,11 +59,12 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
     }
   }, [selectedCategory, categories]);
 
-
   const fetchImageFile = async (url: string): Promise<File> => {
     const response = await fetch(url);
     const blob = await response.blob();
-    return new File([blob], url.split('/').pop() || 'image.jpg', { type: blob.type });
+    return new File([blob], url.split('/').pop() || 'image.jpg', {
+      type: blob.type,
+    });
   };
 
   useEffect(() => {
@@ -63,26 +77,23 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
       stock: product.stock,
     });
 
-    const fetchImages = async () => {
-      const imagesWithFiles = await Promise.all(product.images.map(async (image, index) => {
-        const file = await fetchImageFile(imageUrl + image);
-        return {
-          id: `existing-${index}`,
-          file,
-          preview: URL.createObjectURL(file),
-        };
-      }));
+    (async () => {
+      const imagesWithFiles = await Promise.all(
+        product.images.map(async (image, index) => {
+          const file = await fetchImageFile(imageUrl + image);
+          return {
+            id: `existing-${index}`,
+            file,
+            preview: URL.createObjectURL(file),
+          };
+        })
+      );
       setProductImages(imagesWithFiles);
       console.log(imagesWithFiles);
-    };
-
-    fetchImages();
-
+    })();
   }, [product, categories]);
 
-
-  const onSubmit: SubmitHandler<EditProductFormInputs> = async (data) => {
-
+  const onSubmit: SubmitHandler<EditProductFormInputs> = async data => {
     if (productImages.length < 3) {
       alert('Please add at least 3 images');
       return;
@@ -96,13 +107,11 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
     formData.append('variantName', data.variantName.toString());
     formData.append('stock', data.stock.toString());
 
-    productImages.forEach((image) => {
+    productImages.forEach(image => {
       formData.append('images', image.file);
     });
 
     try {
-
-
       const response = await productEndpoints.editProduct(formData);
       console.log(response);
       onClose();
@@ -118,7 +127,7 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
     }
     const imageUrls = files.map(file => URL.createObjectURL(file));
     setImagesToCrop(prevImages => [...prevImages, ...imageUrls]);
-    setCurrentCropIndex(prevIndex => prevIndex === 0 ? 0 : prevIndex);
+    setCurrentCropIndex(prevIndex => (prevIndex === 0 ? 0 : prevIndex));
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +139,7 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
     new Promise((resolve, reject) => {
       const image = new Image();
       image.addEventListener('load', () => resolve(image));
-      image.addEventListener('error', (error) => reject(error));
+      image.addEventListener('error', error => reject(error));
       image.setAttribute('crossOrigin', 'anonymous');
       image.src = url;
     });
@@ -178,7 +187,10 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
       const croppedImage = await getCroppedImg(currentImage, croppedAreaPixels);
       if (croppedImage) {
         const preview = URL.createObjectURL(croppedImage);
-        setProductImages((prev) => [...prev, { id: `image-${Date.now()}`, file: croppedImage, preview }]);
+        setProductImages(prev => [
+          ...prev,
+          { id: `image-${Date.now()}`, file: croppedImage, preview },
+        ]);
       }
     }
 
@@ -191,7 +203,7 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
   };
 
   const removeImage = (id: string) => {
-    setProductImages((prev) => prev.filter((img) => img.id !== id));
+    setProductImages(prev => prev.filter(img => img.id !== id));
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -206,103 +218,159 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
     handleImageUpload(files);
   };
 
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto overflow-hidden">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Edit Product</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <X size={24} />
           </button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label htmlFor="productName" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="productName"
+              className="block text-sm font-medium text-gray-700"
+            >
               Product Name
             </label>
             <input
               type="text"
               id="productName"
-              {...register("productName", { required: "Product name is required" })}
+              {...register('productName', {
+                required: 'Product name is required',
+              })}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
-            {errors.productName && <p className="mt-1 text-sm text-red-600">{errors.productName.message}</p>}
+            {errors.productName && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.productName.message}
+              </p>
+            )}
           </div>
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="category"
+              className="block text-sm font-medium text-gray-700"
+            >
               Category
             </label>
             <select
               id="category"
-              {...register("category", { required: "Category is required" })}
+              {...register('category', { required: 'Category is required' })}
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
             >
               <option value="">Select Category</option>
               {categories.map((category: Category) => (
-                <option key={category._id} value={category._id}>{category.name}</option>
+                <option key={category._id} value={category._id}>
+                  {category.name}
+                </option>
               ))}
             </select>
-            {errors.category && <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>}
+            {errors.category && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.category.message}
+              </p>
+            )}
           </div>
           {subCategories.length > 0 && (
             <div>
-              <label htmlFor="subcategory" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="subcategory"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Sub Category
               </label>
               <select
                 id="subcategory"
-                {...register("subcategory", { required: "Subcategory is required" })}
+                {...register('subcategory', {
+                  required: 'Subcategory is required',
+                })}
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
               >
                 <option value="">Select Sub Category</option>
                 {subCategories.map((subCategory: Subcategory) => (
-                  <option key={subCategory._id} value={subCategory._id}>{subCategory.name}</option>
+                  <option key={subCategory._id} value={subCategory._id}>
+                    {subCategory.name}
+                  </option>
                 ))}
               </select>
-              {errors.subcategory && <p className="mt-1 text-sm text-red-600">{errors.subcategory.message}</p>}
+              {errors.subcategory && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.subcategory.message}
+                </p>
+              )}
             </div>
           )}
           <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="price"
+              className="block text-sm font-medium text-gray-700"
+            >
               Price (₹)
             </label>
             <input
               type="number"
               id="price"
-              {...register("price", { required: "Price is required", min: 1 })}
-              onWheel={(e) => e.currentTarget.blur()}
+              {...register('price', { required: 'Price is required', min: 1 })}
+              onWheel={e => e.currentTarget.blur()}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
-            {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>}
+            {errors.price && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.price.message}
+              </p>
+            )}
           </div>
           <div>
-            <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="quantity"
+              className="block text-sm font-medium text-gray-700"
+            >
               Variant Name
             </label>
             <input
               type="text"
               id="variantName"
-              {...register("variantName", { required: "variantName is required" })}
+              {...register('variantName', {
+                required: 'variantName is required',
+              })}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
-            {errors.variantName && <p className="mt-1 text-sm text-red-600">{errors.variantName.message}</p>}
+            {errors.variantName && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.variantName.message}
+              </p>
+            )}
           </div>
           <div>
-            <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="stock"
+              className="block text-sm font-medium text-gray-700"
+            >
               Stock
             </label>
             <input
               type="number"
               id="stock"
-              {...register("stock", { required: "Stock is required", min: 0 })}
-              onWheel={(e) => e.currentTarget.blur()}
+              {...register('stock', { required: 'Stock is required', min: 0 })}
+              onWheel={e => e.currentTarget.blur()}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
-            {errors.stock && <p className="mt-1 text-sm text-red-600">{errors.stock.message}</p>}
+            {errors.stock && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.stock.message}
+              </p>
+            )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Product Images (3-6 images required)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Product Images (3-6 images required)
+            </label>
             <div
               className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"
               onDragOver={handleDragOver}
@@ -328,15 +396,24 @@ const EditProductCard: React.FC<{ product: Product; categories: Categories[]; on
                   </label>
                   <p className="pl-1">or drag and drop</p>
                 </div>
-                <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                <p className="text-xs text-gray-500">
+                  PNG, JPG, GIF up to 10MB
+                </p>
               </div>
             </div>
           </div>
           {productImages.length > 0 && (
             <div className="space-y-2">
-              {productImages.map((image) => (
-                <div key={image.id} className="flex items-center bg-gray-100 p-2 rounded-md">
-                  <img src={image.preview} alt="Product" className="w-16 h-16 object-cover rounded mr-2" />
+              {productImages.map(image => (
+                <div
+                  key={image.id}
+                  className="flex items-center bg-gray-100 p-2 rounded-md"
+                >
+                  <img
+                    src={image.preview}
+                    alt="Product"
+                    className="w-16 h-16 object-cover rounded mr-2"
+                  />
                   <div className="flex-grow">
                     <p className="text-sm font-medium">Image</p>
                   </div>

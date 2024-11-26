@@ -37,6 +37,8 @@ router.patch(
   productController.editProduct
 );
 
+router.get('/topProduct', productController.getTopProducts);
+
 router.patch('/unlist-product/:productId', productController.unListProduct);
 
 router.patch('/list-product/:productId', productController.listProduct);

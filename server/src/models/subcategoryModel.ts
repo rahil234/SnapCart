@@ -4,6 +4,7 @@ interface ISubCategory extends Document {
   name: string;
   status: string;
   category: mongoose.Schema.Types.ObjectId;
+  soldCount: number;
 }
 
 const SubCategorySchema: Schema = new Schema({
@@ -14,6 +15,7 @@ const SubCategorySchema: Schema = new Schema({
     ref: 'Category',
     required: true,
   },
+  soldCount: { type: Number, default: 0 },
 });
 
 const subcategoryModel = mongoose.model<ISubCategory>(

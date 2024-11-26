@@ -45,7 +45,7 @@ const ProductSchema: Schema = new Schema({
     required: true,
     ref: 'Seller',
   },
-  sold: { type: Number, default: 0 },
+  soldCount: { type: Number, default: 0 },
 });
 
 const productModel = mongoose.model<Product>('Product', ProductSchema);

@@ -40,6 +40,21 @@ const getProduct = async (req: Request, res: Response) => {
   }
 };
 
+const getTopProducts = async (req: Request, res: Response) => {
+  try {
+    const products = await productModel
+      .find({ status: 'Active' })
+      .sort({ soldCount: -1 })
+      .limit(10);
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.log('Error fetching top products', error);
+
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 const addProduct = async (req: Request, res: Response) => {
   try {
     const { productName, description, category, subcategory, variants } =
@@ -106,8 +121,6 @@ const addProduct = async (req: Request, res: Response) => {
 };
 
 const editProduct = async (req: Request, res: Response) => {
-  console.log(req.body);
-
   try {
     const {
       productId,
@@ -122,7 +135,6 @@ const editProduct = async (req: Request, res: Response) => {
 
     const images = req.files as Express.Multer.File[];
 
-    // Save images to the uploads folder
     const imagePaths = images.map((image) => image.filename);
 
     const newProduct = await productModel.findByIdAndUpdate(productId, {
@@ -411,4 +423,5 @@ export default {
   unListProduct,
   listProduct,
   searchProducts,
+  getTopProducts,
 };

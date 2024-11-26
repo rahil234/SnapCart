@@ -102,6 +102,10 @@ const searchProducts = async ({
   return response.data;
 };
 
+const getTopProducts = async () => {
+  return (await axiosInstance.get('/api/product/topProduct')).data;
+};
+
 export default {
   getLatestProducts,
   fetchProductById,
@@ -114,4 +118,5 @@ export default {
   unlistProduct,
   listProduct,
   searchProducts,
+  getTopProducts,
 };

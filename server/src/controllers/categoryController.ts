@@ -115,10 +115,26 @@ const unarchiveCategory = async (req: Request, res: Response) => {
   }
 };
 
+const getTopCategories = async (req: Request, res: Response) => {
+  try {
+    const categories = await categoryModel
+      .find({ status: 'Active' })
+      .sort({ soldCount: -1 })
+      .limit(10);
+
+    res.status(200).json(categories);
+    console.log(categories);
+  } catch (error) {
+    console.error('Error fetching top categories:', error);
+    res.status(500).json({ message: 'Failed to fetch top categories' });
+  }
+};
+
 export default {
   getCategories,
   addCategory,
   editCategories,
   archiveCategory,
   unarchiveCategory,
+  getTopCategories,
 };

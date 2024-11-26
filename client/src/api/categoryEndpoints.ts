@@ -27,10 +27,17 @@ const unarchiveCategory = (subcategoryId: string) => {
   });
 };
 
+const getTopCategories = async () => {
+  const response = await axiosInstance.get('/api/category/top-categories');
+  console.log(response.data);
+  return response.data;
+};
+
 export default {
   getCategories,
   addCategory,
   editCatogories,
   archiveCategory,
   unarchiveCategory,
+  getTopCategories
 };

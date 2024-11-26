@@ -54,6 +54,12 @@ const applyCoupon = async (coupon: string) => {
   return (await axiosInstance.post('/api/coupon/apply', { coupon })).data;
 };
 
+const getInvoice = async (orderId: string) => {
+  return axiosInstance.get(`/api/order/${orderId}/receipt`, {
+    responseType: 'blob',
+  });
+};
+
 export default {
   getOrders,
   getOrder,
@@ -68,4 +74,5 @@ export default {
   deleteOrder,
   cancelOrderItem,
   applyCoupon,
+  getInvoice,
 };

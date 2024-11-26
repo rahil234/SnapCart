@@ -15,22 +15,18 @@ const fetchSalesReport = async (
     case 'daily':
       end.setHours(23, 59, 59, 999);
       break;
-
     case 'weekly':
       end.setDate(end.getDate() + (7 - end.getDay()));
       end.setHours(23, 59, 59, 999);
       break;
-
     case 'monthly':
-      end.setMonth(end.getMonth() + 1, 0); // Last day of the current month
+      end.setMonth(end.getMonth() + 1, 0);
       end.setHours(23, 59, 59, 999);
       break;
-
     case 'yearly':
-      end.setFullYear(end.getFullYear(), 11, 31); // December 31st
+      end.setFullYear(end.getFullYear(), 11, 31);
       end.setHours(23, 59, 59, 999);
       break;
-
     default:
       throw new Error('Invalid time frame');
   }
@@ -38,30 +34,13 @@ const fetchSalesReport = async (
   const groupBy = (timeFrame: string) => {
     switch (timeFrame) {
       case 'daily':
-        return {
-          $dateToString: { format: '%Y-%m-%d', date: '$dateOrdered' },
-        };
+        return { $dateToString: { format: '%Y-%m-%d', date: '$orderDate' } };
       case 'weekly':
-        return {
-          $dateToString: {
-            format: '%Y-%m-%d',
-            date: {
-              $subtract: [
-                '$dateOrdered',
-                {
-                  $multiply: [
-                    { $dayOfWeek: '$dateOrdered' },
-                    24 * 60 * 60 * 1000,
-                  ],
-                },
-              ],
-            },
-          },
-        };
+        return { $week: '$orderDate' };
       case 'monthly':
-        return { $dateToString: { format: '%Y-%m', date: '$dateOrdered' } };
+        return { $dateToString: { format: '%Y-%m', date: '$orderDate' } };
       case 'yearly':
-        return { $year: '$dateOrdered' };
+        return { $year: '$orderDate' };
       default:
         throw new Error('Invalid time frame');
     }
@@ -70,8 +49,8 @@ const fetchSalesReport = async (
   return orderModel.aggregate([
     {
       $match: {
-        sellerId,
-        paymentMethod: { $ne: 'pending' },
+        'items.seller': sellerId,
+        status: { $nin: ['Payment Pending', 'Cancelled'] },
         orderDate: { $gte: start, $lte: end },
       },
     },
@@ -79,9 +58,14 @@ const fetchSalesReport = async (
       $group: {
         _id: groupBy(timeFrame),
         totalOrders: { $sum: 1 },
-        totalSales: { $sum: '$totalAmount' },
-        totalDiscountApplied: { $sum: '$discountApplied' },
-        netSales: { $sum: '$finalAmount' },
+        totalSales: { $sum: '$price' },
+        totalDiscountApplied: { $sum: '$discount' },
+        deliveryCharges: { $sum: '$deliveryCharge' },
+        netSales: {
+          $sum: {
+            $subtract: ['$price', '$discount'],
+          },
+        },
         totalItemsSold: {
           $sum: {
             $reduce: {
@@ -91,15 +75,6 @@ const fetchSalesReport = async (
             },
           },
         },
-        // totalCouponDiscount: {
-        //   $sum: {
-        //     $reduce: {
-        //       input: '$couponsApplied',
-        //       initialValue: 0,
-        //       in: { $add: ['$$value', '$$this.discountAmount'] },
-        //     },
-        //   },
-        // },
       },
     },
     {
@@ -108,62 +83,14 @@ const fetchSalesReport = async (
         totalOrders: 1,
         totalSales: 1,
         totalDiscountApplied: 1,
+        deliveryCharges: 1,
         netSales: 1,
         totalItemsSold: 1,
-        // totalCouponDiscount: 1,
-        startDate:
-          timeFrame === 'yearly'
-            ? {
-                $dateFromString: {
-                  dateString: { $concat: [{ $toString: '$_id' }, '-01-01'] },
-                },
-              }
-            : {
-                $dateFromString: {
-                  dateString: {
-                    $dateToString: {
-                      format: '%Y-%m-%d',
-                      date: {
-                        $subtract: [
-                          { $dateFromString: { dateString: '$_id' } },
-                          {
-                            $dayOfWeek: {
-                              $dateFromString: { dateString: '$_id' },
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  },
-                },
-              },
-        endDate:
-          timeFrame === 'yearly'
-            ? {
-                $dateFromString: {
-                  dateString: { $concat: [{ $toString: '$_id' }, '-12-31'] },
-                },
-              }
-            : {
-                $dateFromString: {
-                  dateString: {
-                    $dateToString: {
-                      format: '%Y-%m-%d',
-                      date: {
-                        $add: [
-                          { $dateFromString: { dateString: '$_id' } },
-                          { $multiply: [6, 24 * 60 * 60 * 1000] },
-                        ],
-                      },
-                    },
-                  },
-                },
-              },
       },
     },
-    {
-      $sort: { date: -1 },
-    },
+    // {
+    //   $sort: { date: -1 },
+    // },
   ]);
 };
 

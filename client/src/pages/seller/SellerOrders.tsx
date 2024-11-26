@@ -74,10 +74,12 @@ const OrdersTable: React.FC<{ orders: IOrder[], onViewDetails: (order: IOrder) =
                                         <SelectValue placeholder="Update Status" />
                                     </SelectTrigger>
                                     <SelectContent>
+                                        <SelectItem value="Payment Pending">Payment Pending</SelectItem>
                                         <SelectItem value="Pending">Pending</SelectItem>
                                         <SelectItem value="Processing">Processing</SelectItem>
                                         <SelectItem value="Completed">Completed</SelectItem>
                                         <SelectItem value="Cancelled">Cancelled</SelectItem>
+                                        <SelectItem value="Shipped">Shipped</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

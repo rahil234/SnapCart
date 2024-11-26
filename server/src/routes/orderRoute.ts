@@ -46,6 +46,12 @@ router.get(
   orderController.getReceipt
 );
 
+router.put(
+  '/:orderId/status',
+  authenticateAndAuthorize(['seller']),
+  orderController.updateOrderStatus
+);
+
 router.get(
   '/:orderId',
   authenticateAndAuthorize(['customer']),

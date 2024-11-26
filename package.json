@@ -23,9 +23,12 @@
   },
   "dependencies": {
     "@testing-library/react": "^16.0.1",
+    "add": "^2.0.6",
+    "chart": "^0.1.2",
     "install": "^0.13.0",
     "npm": "^10.9.0",
     "razorpay": "^2.9.5",
-    "redis": "^4.7.0"
+    "redis": "^4.7.0",
+    "shadcn": "^2.1.6"
   }
 }
