@@ -38,7 +38,7 @@ services:
     volumes:
       - ../snapcart:/app/snapcart
     working_dir: /app/snapcart
-    command: sh -c "npm install && cd server && npm run dev"
+    command: sh -c "npm install && cd server && npm run build && npm run start"
     depends_on:
       - redis
     networks:
@@ -49,7 +49,7 @@ services:
     build:
       context: ./nginx
       dockerfile: Dockerfile
-    restart: always
+    # command: sh -c "cat /etc/nginx/certs/testpem/fullchain.pem"
     ports:
       - "80:80"
       - "443:443"
@@ -61,16 +61,16 @@ services:
     networks:
       - app-network
 
-  certbot:
-    image: certbot/certbot
-    container_name: snapcart-certbot
-    volumes:
-      - ./nginx/certs:/etc/letsencrypt
-      - certbot-www:/var/www/certbot
-    depends_on:
-      - nginx
-    networks:
-      - app-network
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: snapcart-certbot
+  #   volumes:
+  #     - ./nginx/certs:/etc/letsencrypt
+  #     - certbot-www:/var/www/certbot
+  #   depends_on:
+  #     - nginx
+  #   networks:
+  #     - app-network
 
 networks:
   app-network:
