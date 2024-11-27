@@ -40,7 +40,7 @@ services:
     working_dir: /app/snapcart
     command: sh -c "npm install && cd server && npm run dev"
     depends_on:
-#      - mongo
+      # - mongo
       - redis
     networks:
       - app-network
@@ -61,22 +61,6 @@ services:
     networks:
       - app-network
 
-#  nginx:
-#    container_name: snapcart-nginx
-#    build:
-#      context: ./nginx
-#      dockerfile: Dockerfile
-#    restart: always
-#    ports:
-#      - "80:80"
-#      - "443:443"
-#    volumes:
-#      - ./nginx/nginx-dev.conf:/etc/nginx/conf.d/default.conf
-#      - ./nginx/certs:/etc/nginx/certs
-#    depends_on:
-#      - node
-#    networks:
-#      - app-network
 
 networks:
   app-network:
