@@ -1,17 +1,17 @@
 services:
-  mongo:
-    container_name: snapcart-mongodb
-    image: mongo
-    restart: always
-    ports:
-      - "27000:27017"
-    environment:
-      MONGO_INITDB_DATABASE: snapcart
-    volumes:
-      - /Users/rahilk/Documents/mongodb:/data/db
-      # - mongo-data:/data/db
-    networks:
-      - app-network
+  #  mongo:
+  #    container_name: snapcart-mongodb
+  #    image: mongo
+  #    restart: always
+  #    ports:
+  #      - "27000:27017"
+  #    environment:
+  #      MONGO_INITDB_DATABASE: snapcart
+  #    volumes:
+  #      - /Users/rahilk/Documents/mongodb:/data/db
+  #      # - mongo-data:/data/db
+  #    networks:
+  #      - app-network
 
   redis:
     container_name: snapcart-redis
@@ -40,7 +40,7 @@ services:
     working_dir: /app/snapcart
     command: sh -c "npm install && cd server && npm run dev"
     depends_on:
-      - mongo
+      # - mongo
       - redis
     networks:
       - app-network
@@ -50,26 +50,14 @@ services:
     build:
       context: ./nginx
       dockerfile: Dockerfile
-    restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx-dev.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/certs:/etc/nginx/certs
     depends_on:
       - node
-    networks:
-      - app-network
-
-  certbot:
-    image: certbot/certbot
-    container_name: snapcart-certbot
-    volumes:
-      - ./nginx/certs:/etc/letsencrypt
-      - certbot-www:/var/www/certbot
-    depends_on:
-      - nginx
     networks:
       - app-network
 
