@@ -72,6 +72,8 @@ const addProduct = async (req: Request, res: Response) => {
       return;
     }
 
+    console.log(req.files);
+
     const images = req.files as Express.Multer.File[];
 
     const variantImagesMap: { [key: string]: string[] } = {};
@@ -85,7 +87,7 @@ const addProduct = async (req: Request, res: Response) => {
         if (!variantImagesMap[variantIndex]) {
           variantImagesMap[variantIndex] = [];
         }
-        variantImagesMap[variantIndex].push(image.filename);
+        variantImagesMap[variantIndex].push(image.filename.split('/')[1]);
       }
     });
 
@@ -136,7 +138,7 @@ const editProduct = async (req: Request, res: Response) => {
 
     const images = req.files as Express.Multer.File[];
 
-    const imagePaths = images.map((image) => image.filename);
+    const imagePaths = images.map((image) => image.filename.split('/')[1]);
 
     const newProduct = await productModel.findByIdAndUpdate(productId, {
       name: productName,

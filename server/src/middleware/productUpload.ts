@@ -11,11 +11,10 @@ cloudinary.config({
 
 const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (_req, file) => {
-    const ext = file.originalname.split('.').pop();
-    const uniqueName = `${uuidv4()}.${ext}`;
+  params: async () => {
+    const uniqueName = uuidv4();
     return {
-      folder: 'images',
+      folder: 'products',
       public_id: uniqueName,
     };
   },

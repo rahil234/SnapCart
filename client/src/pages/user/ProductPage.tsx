@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import { useParams, ScrollRestoration, NavLink, Link } from 'react-router';
+import { useParams, NavLink, Link } from 'react-router';
 import { X, Star, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import productEndpoints from '@/api/productEndpoints';

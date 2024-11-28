@@ -1,7 +1,7 @@
 import express from 'express';
 import productController from '@/controllers/productController';
 import authenticateAndAuthorize from '@/middleware/authenticateAndAuthorize';
-import upload from '@/middleware/upload';
+import upload from '@/middleware/productUpload';
 
 const router = express.Router();
 
@@ -33,7 +33,7 @@ router.post(
 
 router.patch(
   '/edit-product',
-  upload.array('images', 8),
+  upload.array('images', 7),
   productController.editProduct
 );
 

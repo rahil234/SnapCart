@@ -14,7 +14,7 @@ import { UIContext } from '@/context/UIContext';
 import { toast } from 'sonner';
 
 const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL + '/';
+  'https://res.cloudinary.com/snapcart-website/image/upload/f_auto/v1732799293/products/';
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [cartQuantity, setCartQuantity] = useState<number>(0);

@@ -47,7 +47,7 @@ const getCroppedImg = async (imageSrc: string, pixelCrop: Area): Promise<Blob> =
 };
 
 interface AddImageCropperProps {
-    pushCroppedImage: any, //eslint-disable-line 
+    pushCroppedImage: any, //eslint-disable-line
     currentImageIndex: number,
     currentVariantId: number
     setCurrentImageIndex: any, //eslint-disable-line
@@ -55,7 +55,7 @@ interface AddImageCropperProps {
     onClose: () => void
 }
 
-const AddImageCropper: React.FC<AddImageCropperProps> = ({ pushCroppedImage, setCurrentImageIndex, currentImages, currentImageIndex, currentVariantId, onClose }) => {
+const AddImageCropper: React.FC<AddImageCropperProps> = ({ pushCroppedImage, currentImageIndex, setCurrentImageIndex, currentImages, currentVariantId, onClose }) => {
     const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -71,7 +71,7 @@ const AddImageCropper: React.FC<AddImageCropperProps> = ({ pushCroppedImage, set
             const croppedImageBlob = await getCroppedImg(URL.createObjectURL(currentFile), croppedAreaPixels);
             const croppedImageFile = new File([croppedImageBlob], `cropped_image_${Date.now()}.jpg`, { type: 'image/jpeg' });
 
-            pushCroppedImage({ id: currentImageIndex + 1, file: croppedImageFile, preview: URL.createObjectURL(croppedImageFile) });
+            pushCroppedImage({ id: currentImageIndex , file: croppedImageFile, preview: URL.createObjectURL(croppedImageFile) });
 
             if (currentImageIndex < currentImages.length - 1) {
                 setCurrentImageIndex(currentImageIndex + 1);
