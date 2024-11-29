@@ -5,10 +5,16 @@ import { catchError, Product } from '@shared/types';
 import categoryModel from '@models/categoryModel';
 import variantModel from '@models/variantModel';
 import subcategoryModel from '@models/subcategoryModel';
+import mongoose from 'mongoose';
 
 const getProduct = async (req: Request, res: Response) => {
   try {
     const productId = req.params.productId;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      res.status(400).json({ message: 'Invalid product ID format' });
+      return;
+    }
 
     const product = await productModel
       .findById(productId)
@@ -36,7 +42,6 @@ const getProduct = async (req: Request, res: Response) => {
     res.status(200).json(x);
   } catch (error) {
     console.log('Error fetching product', error);
-
     res.status(500).json({ message: 'Internal server error' });
   }
 };

@@ -17,9 +17,10 @@ import { useAppDispatch } from '@/app/store';
 import { AuthState } from '@/features/auth/authSlice';
 import { UIContext } from '@/context/UIContext';
 import { toast } from 'sonner';
+import ProductNotFound from '@/components/user/ProductNotFound';
 
 const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL + '/';
+  (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL + '/products/';
 
 const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
   src,
@@ -82,13 +83,13 @@ const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
 };
 
 const ProductPage: React.FC = () => {
-  // const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const { productId } = useParams<{ productId: string }>();
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [variants] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product | null>(null);
   const [mainImage, setMainImage] = useState<string | undefined>(undefined);
   const [cartQuantity, setCartQuantity] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const { showLoginOverlay } = useContext(UIContext);
   const { user } = useSelector((state: { auth: AuthState }) => state.auth);
@@ -100,9 +101,15 @@ const ProductPage: React.FC = () => {
   useEffect(() => {
     if (productId) {
       (async () => {
-        const response = await productEndpoints.fetchProductById(productId);
-        setProduct(response.data);
-        setMainImage(response.data.images[0]);
+        try {
+          const response = await productEndpoints.fetchProductById(productId);
+          setProduct(response.data);
+          setMainImage(response.data.images[0]);
+          setLoading(false);
+        } catch (error) {
+          console.log('Error fetching product:', error);
+          setLoading(false);
+        }
       })();
     }
   }, [productId]);
@@ -117,8 +124,14 @@ const ProductPage: React.FC = () => {
   useEffect(() => {
     if (product && product.subcategory?._id) {
       (async () => {
-        const response = await productEndpoints.getRelatedProduct(product._id);
-        setRelatedProducts(response.data);
+        try {
+          const response = await productEndpoints.getRelatedProduct(
+            product._id
+          );
+          setRelatedProducts(response.data);
+        } catch (error) {
+          console.log('Error fetching related products:', error);
+        }
       })();
     }
   }, [product]);
@@ -140,16 +153,27 @@ const ProductPage: React.FC = () => {
     return Math.floor(originalPrice - (originalPrice * discount) / 100);
   };
 
-  if (!product) {
+  if (loading) {
     return (
-      <div className="p-8">
-        <Skeleton />
-        <Skeleton />
-        <Skeleton />
-        <Skeleton />
-      </div>
+      <main>
+        <div className="flex flex-col md:flex-row gap-8 m-4">
+          <div className="md:w-1/2 flex flex-col justify-center items-center">
+            <Skeleton className="w-96 h-96 mb-4" />
+            <div className="flex space-x-2 flex-wrap">
+              {[1, 2, 3, 4, 5, 6].map(value => (
+                <Skeleton key={value} className={`w-20 h-20`} />
+              ))}
+            </div>
+          </div>
+          <div>
+            <Skeleton className="mt-5 w-96 h-5"></Skeleton>
+          </div>
+        </div>
+      </main>
     );
   }
+
+  if (!product) return <ProductNotFound></ProductNotFound>;
 
   const handleAddToCart = () => {
     if (!user) {

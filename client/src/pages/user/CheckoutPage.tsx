@@ -35,7 +35,7 @@ import { catchError, ICoupon } from 'shared/types';
 import { ImportMeta } from '@types';
 
 const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
+  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
 
 interface Address {
   id: string;

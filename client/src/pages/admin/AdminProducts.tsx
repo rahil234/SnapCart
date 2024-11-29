@@ -39,7 +39,7 @@ interface ProductsTableProps {
 }
 
 const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
+  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
 
 const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup }) => {
   const [actionType, setActionType] = useState<'list' | 'unlist'>('list');

@@ -23,7 +23,7 @@ import orderEndpoints from '@/api/orderEndpoints';
 import { ImportMeta } from '@types';
 
 const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
+  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
 
 const CartPage = () => {
   const { cartData } = useSelector((state: { cart: CartState }) => state.cart);

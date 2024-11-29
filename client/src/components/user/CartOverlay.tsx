@@ -10,7 +10,7 @@ import { CartState, updateQuantity } from '@/features/cart/cartSlice';
 import { useAppDispatch } from '@/app/store';
 import orderEndpoints from '@/api/orderEndpoints';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
 
 const CartOverlay = () => {
   const { cartData } = useSelector((state: { cart: CartState }) => state.cart);

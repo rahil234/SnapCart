@@ -1,10 +1,10 @@
 import orderModel from '@models/orderModel';
 
 const fetchSalesReport = async (
-  sellerId: string,
   timeFrame: string | undefined,
   startDate: string | undefined,
-  endDate: string | undefined
+  endDate: string | undefined,
+  sellerId?: string
 ) => {
   const defaultStartDate = '2020-01-01';
 
@@ -93,5 +93,4 @@ const fetchSalesReport = async (
     // },
   ]);
 };
-
 export default fetchSalesReport;

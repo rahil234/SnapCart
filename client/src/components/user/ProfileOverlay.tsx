@@ -10,7 +10,7 @@ import { useAppDispatch } from '@/app/store';
 import { Link } from 'react-router';
 import { ImportMeta } from '@types';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL+'/';
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL+'/profiles/';
 
 const ProfileOverlay = () => {
   const user = useSelector((state: { auth: AuthState }) => state.auth.user);
