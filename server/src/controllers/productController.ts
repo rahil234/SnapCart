@@ -140,16 +140,20 @@ const editProduct = async (req: Request, res: Response) => {
 
     const imagePaths = images.map((image) => image.filename.split('/')[1]);
 
-    const newProduct = await productModel.findByIdAndUpdate(productId, {
-      name: productName,
-      category,
-      subcategory,
-      price,
-      quantity,
-      stock,
-      variantName,
-      images: imagePaths,
-    });
+    const newProduct = await productModel.findByIdAndUpdate(
+      productId,
+      {
+        name: productName,
+        category,
+        subcategory,
+        price,
+        quantity,
+        stock,
+        variantName,
+        images: imagePaths,
+      },
+      { new: true }
+    );
 
     res
       .status(200)

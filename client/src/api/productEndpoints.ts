@@ -12,8 +12,8 @@ const getProductByCategory = (category: string) => {
   return axiosInstance.get('/api/product/category/' + category);
 };
 
-const getSellerProducts = () => {
-  return axiosInstance.get('/api/product/seller');
+const getSellerProducts = async () => {
+  return (await axiosInstance.get('/api/product/seller')).data;
 };
 
 const getAdminProducts = async () => {

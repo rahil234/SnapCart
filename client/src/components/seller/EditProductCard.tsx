@@ -27,7 +27,7 @@ interface Categories extends Category {
 }
 
 const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
+  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
 
 const EditProductCard: React.FC<{
   product: Product;
