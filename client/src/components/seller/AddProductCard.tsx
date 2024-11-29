@@ -128,6 +128,31 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
     })
   );
 
+  const category = watch('category');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await categoryEndpoints.getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    const selectedCategory = categories.find(cat => cat._id === category);
+    if (selectedCategory) {
+      const activeSubcategories = selectedCategory.subcategories.filter(
+        subcat => subcat.status !== 'Blocked'
+      );
+      setSubcategory(activeSubcategories);
+    } else {
+      setSubcategory([]);
+    }
+  }, [category, categories]);
+
   const handleImageUpload = (variantId: number, files: FileList | null) => {
     if (files) {
       const variant = variants.find((v: Variant) => v.id === variantId);
@@ -157,31 +182,6 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
   const closeImageCropper = () => {
     setCropperOpen(false);
   };
-
-  const category = watch('category');
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await categoryEndpoints.getCategories();
-        setCategories(data);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    const selectedCategory = categories.find(cat => cat._id === category);
-    if (selectedCategory) {
-      const activeSubcategories = selectedCategory.subcategories.filter(
-        subcat => subcat.status !== 'Blocked'
-      );
-      setSubcategory(activeSubcategories);
-    } else {
-      setSubcategory([]);
-    }
-  }, [category, categories]);
 
   const addVariant = () => {
     if (variants.length >= 6) {
@@ -219,7 +219,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
 
   const removeVariantImage = (variantId: number, id: number) => {
     console.log('removeVariantImage', variantId, ' ', id);
-    setVariants(prevVariants =>{
+    setVariants(prevVariants => {
       return prevVariants.map(variant => {
         if (variant.id === variantId) {
           return {
@@ -229,7 +229,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
         }
         return variant;
       });
-    })
+    });
   };
 
   const onSubmit: SubmitHandler<FormValues> = async data => {

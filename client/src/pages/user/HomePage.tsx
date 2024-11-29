@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router';
 import adminEndpoints from '@/api/adminEndpoints';
 import ProductCard from '@/components/user/ProductCard';
 import { Product } from 'shared/types';
-import { ImportMeta } from 'shared/types';
+import { ImportMeta } from '@types';
 import productEndpoints from '@/api/productEndpoints';
 
 const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL + '/';
+  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/banners/';
 
 interface Products {
   categoryId: number;
@@ -28,7 +28,6 @@ function HomePage() {
       setData(response.data);
     });
 
-    // Fetch banners
     adminEndpoints.getBanners().then(response => {
       setBanners(response.data);
     });

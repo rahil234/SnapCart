@@ -138,7 +138,7 @@ const uploadBannerImage = async (req: Request, res: Response) => {
       res.status(400).json({ message: 'No image uploaded' });
       return;
     }
-    const imageUrl = req.file.filename;
+    const imageUrl = req.file.filename.split('/').pop();
 
     // const banner = await bannerModel.findById(bannerId);
     // if (banner) {
