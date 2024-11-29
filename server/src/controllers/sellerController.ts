@@ -49,7 +49,6 @@ const addSeller = async (req: Request, res: Response) => {
   try {
     const { firstName, email, password } = req.body;
 
-    // Check if the seller already exists
     const existingSeller = await sellerModel.findOne({ email });
 
     if (existingSeller) {
@@ -57,10 +56,8 @@ const addSeller = async (req: Request, res: Response) => {
       return;
     }
 
-    // Hash the password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new seller
     const newSeller = new sellerModel({
       firstName,
       email,

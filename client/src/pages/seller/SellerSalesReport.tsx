@@ -58,7 +58,7 @@ function SellerSalesReport() {
           startDate,
           endDate
         );
-        setSalesData(data.report);
+        setSalesData(data);
       } catch (err) {
         console.error(err);
         setError('Failed to fetch sales data');
