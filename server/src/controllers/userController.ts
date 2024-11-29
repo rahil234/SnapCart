@@ -305,7 +305,7 @@ const uploadProfilePicture = async (req: Request, res: Response) => {
     const user = await userModel.findByIdAndUpdate(
       req.user?._id,
       {
-        $set: { profilePicture: req.file.filename },
+        $set: { profilePicture: req.file.filename.split('/').pop() },
       },
       { new: true }
     );

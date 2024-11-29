@@ -11,7 +11,7 @@ import { AvatarFallback } from '@radix-ui/react-avatar';
 import { ImportMeta } from '@types';
 
 const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
+  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/profiles/';
 
 const NavBar = () => {
   const [searchQuery, setSearchQuery] = useState('');

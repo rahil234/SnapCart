@@ -28,12 +28,14 @@ const addProduct = (data: FormData) => {
   });
 };
 
-const editProduct = (data: FormData) => {
-  return axiosInstance.patch('/api/product/edit-product', data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+const editProduct = async (data: FormData) => {
+  return (
+    await axiosInstance.patch('/api/product/edit-product', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  ).data;
 };
 
 const unlistProduct = (productId: string) => {

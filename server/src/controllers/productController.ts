@@ -155,9 +155,7 @@ const editProduct = async (req: Request, res: Response) => {
       { new: true }
     );
 
-    res
-      .status(200)
-      .json({ message: 'Product edited successfully', product: newProduct });
+    res.status(200).json(newProduct);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Error adding product' });

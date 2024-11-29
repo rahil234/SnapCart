@@ -89,7 +89,6 @@ const EditProductCard: React.FC<{
         })
       );
       setProductImages(imagesWithFiles);
-      console.log(imagesWithFiles);
     })();
   }, [product, categories]);
 
@@ -113,7 +112,7 @@ const EditProductCard: React.FC<{
 
     try {
       const response = await productEndpoints.editProduct(formData);
-      console.log(response);
+      console.log('Product updated:', response);
       onClose();
     } catch (error) {
       console.error('Error updating product:', error);

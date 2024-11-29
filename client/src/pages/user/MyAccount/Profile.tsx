@@ -13,7 +13,7 @@ import { ImportMeta } from '@types';
 import { useAppDispatch } from '@/app/store';
 
 const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/';
+  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/profiles/';
 
 export interface ProfileFormValues {
   name: string;
