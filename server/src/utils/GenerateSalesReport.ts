@@ -45,11 +45,57 @@ const fetchSalesReport = async (
         throw new Error('Invalid time frame');
     }
   };
-
+  if (sellerId) {
+    return orderModel.aggregate([
+      {
+        $match: {
+          'items.seller': sellerId,
+          status: { $nin: ['Payment Pending', 'Cancelled'] },
+          orderDate: { $gte: start, $lte: end },
+        },
+      },
+      {
+        $group: {
+          _id: groupBy(timeFrame),
+          totalOrders: { $sum: 1 },
+          totalSales: { $sum: '$price' },
+          totalDiscountApplied: { $sum: '$discount' },
+          deliveryCharges: { $sum: '$deliveryCharge' },
+          netSales: {
+            $sum: {
+              $subtract: ['$price', '$discount'],
+            },
+          },
+          totalItemsSold: {
+            $sum: {
+              $reduce: {
+                input: '$items',
+                initialValue: 0,
+                in: { $add: ['$$value', '$$this.quantity'] },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          date: '$_id',
+          totalOrders: 1,
+          totalSales: 1,
+          totalDiscountApplied: 1,
+          deliveryCharges: 1,
+          netSales: 1,
+          totalItemsSold: 1,
+        },
+      },
+      // {
+      //   $sort: { date: -1 },
+      // },
+    ]);
+  }
   return orderModel.aggregate([
     {
       $match: {
-        'items.seller': sellerId,
         status: { $nin: ['Payment Pending', 'Cancelled'] },
         orderDate: { $gte: start, $lte: end },
       },

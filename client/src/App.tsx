@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Analytics } from '@vercel/analytics/react';
 import NotAuthorised from './pages/NotAuthorised';
 import Page404 from './pages/Page404';
 import store from './app/store';
@@ -64,6 +65,7 @@ const App: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Analytics />
       <RouterProvider router={routes} />
     </QueryClientProvider>
   );

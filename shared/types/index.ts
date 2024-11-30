@@ -1,4 +1,4 @@
-import { Document, Schema } from "mongoose";
+import { Document, Schema } from 'mongoose';
 
 interface Review {
   _id: string;
@@ -22,7 +22,7 @@ export interface Product {
   tags?: string[];
   discount?: number;
   seller: string;
-  status: "Active" | "Inactive";
+  status: 'Active' | 'Inactive';
   variants?: Variant[];
   reviews?: Review[];
   soldCount: number;
@@ -38,10 +38,10 @@ export interface Category {
 export interface Subcategory {
   _id: string;
   name: string;
-  status: "Active" | "Blocked";
+  status: 'Active' | 'Blocked';
 }
 
-export type UserRole = "admin" | "customer" | "seller";
+export type UserRole = 'admin' | 'customer' | 'seller';
 
 export interface User {
   _id: string;
@@ -52,7 +52,7 @@ export interface User {
   role: UserRole;
   addresses: [];
   profilePicture: string;
-  status: "Active" | "Blocked";
+  status: 'Active' | 'Blocked';
 }
 
 export interface IUsers extends Document {
@@ -66,7 +66,7 @@ export interface IUsers extends Document {
   walletBalance: number;
   password: string;
   profilePicture: string | null;
-  status: "Active" | "Blocked";
+  status: 'Active' | 'Blocked';
 }
 
 export interface ISeller extends Document {
@@ -78,7 +78,7 @@ export interface ISeller extends Document {
   email: string;
   password: string;
   profilePicture: string | null;
-  status: "Active" | "Blocked";
+  status: 'Active' | 'Blocked';
 }
 
 export interface IAdmin extends Document {
@@ -87,7 +87,7 @@ export interface IAdmin extends Document {
   email: string;
   password: string;
   profilePicture: string | null;
-  status: "Active" | "Blocked";
+  status: 'Active' | 'Blocked';
 }
 
 export interface Credentials {
@@ -183,7 +183,7 @@ export interface IOrderItem {
   seller: string;
   price: number;
   image: string;
-  status?: "Processing" | "Shipped" | "Completed" | "Cancelled";
+  status?: 'Processing' | 'Shipped' | 'Completed' | 'Cancelled';
 }
 
 export interface IOrder extends Document {
@@ -195,12 +195,12 @@ export interface IOrder extends Document {
   paymentMethod: string;
   price: number;
   status:
-    | "Payment Pending"
-    | "Processing"
-    | "Pending"
-    | "Shipped"
-    | "Completed"
-    | "Cancelled";
+    | 'Payment Pending'
+    | 'Processing'
+    | 'Pending'
+    | 'Shipped'
+    | 'Completed'
+    | 'Cancelled';
   orderDate: Date;
   discount: number;
   deliveryCharge: number;
@@ -212,25 +212,29 @@ export interface IOrder extends Document {
 export interface Offer {
   _id: string;
   title: string;
+  type: 'percentage' | 'fixed';
+  description: string;
   discount: number;
   startDate: string;
-  endDate: string;
+  minPrice: number;
+  expiryDate: string;
   products: string[];
   categories: string[];
-  status: "Active" | "Inactive";
+  status: 'Active' | 'Inactive';
+  limit: number;
 }
 
 export interface ICoupon {
   _id: string;
   code: string;
   discount: number;
-  type: "percentage" | "fixed";
+  type: 'percentage' | 'fixed';
   minAmount: number;
   maxDiscount: number;
   startDate: string;
   endDate: string;
-  status: "Active" | "Inactive";
-  applicableTo: "All" | "Products" | "Categories";
+  status: 'Active' | 'Inactive';
+  applicableTo: 'All' | 'Products' | 'Categories';
   products: string[];
   categories: string[];
 }
