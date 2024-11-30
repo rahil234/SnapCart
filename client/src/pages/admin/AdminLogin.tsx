@@ -39,10 +39,7 @@ const AdminLogin: React.FC = () => {
     try {
       const response = await adminEndpoints.adminLogin(data);
       dispatch(setCredentials(response.data));
-      console.log('data', response.data);
-
       navigate('/admin/dashboard');
-      console.log(response.data);
     } catch (error) {
       const newError = error as catchError;
       console.error('error', error);
