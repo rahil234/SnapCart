@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -29,6 +29,7 @@ import { useQuery } from '@tanstack/react-query';
 import productEndpoints from '@/api/productEndpoints';
 import ProductCard from '@/components/user/ProductCard';
 import categoryEndpoints from '@/api/categoryEndpoints';
+import { Category, Product } from 'shared/types';
 
 interface SalesReport {
   _id: number;
@@ -52,15 +53,23 @@ function SellerDashboard() {
       salesEndpoints.fetchSalesData(timeFrame, '2021-01-01', '2024-12-31'),
   });
 
-  const { data: topProducts, isLoading: isProductLoading } = useQuery<any>({
+  const { data: topProducts, isLoading: isProductLoading } = useQuery<
+    Product[]
+  >({
     queryKey: ['topProducts'],
     queryFn: () => productEndpoints.getTopProducts(),
   });
 
-  const { data: topCategories, isLoading: isCatLoading } = useQuery<any>({
-    queryKey: ['topProducts'],
-    queryFn: () => categoryEndpoints.getTopCategories(),
-  });
+  const { data: topCategories, isLoading: isCatLoading } = useQuery<Category[]>(
+    {
+      queryKey: ['topCategories'],
+      queryFn: () => categoryEndpoints.getTopCategories(),
+    }
+  );
+
+  useEffect(() => {
+    console.log(topCategories);
+  }, [topCategories]);
 
   if (isLoading || isProductLoading || isCatLoading) {
     return <div>Loading...</div>;
@@ -291,20 +300,26 @@ function SellerDashboard() {
           </Card>
           <div>
             <h1 className="text-xl font-bold mb-4">Top Products</h1>
-            <div className="flex gap-3">
-              {topProducts.map((product: any, index: number) => (
-                <React.Fragment key={index}>
-                  <ProductCard product={product} />
-                </React.Fragment>
-              ))}
+            <div className="grid grid-cols-2 place-items-end gap-1">
+              {topProducts &&
+                topProducts.map((product: Product, index) => (
+                  <div key={product._id} className="flex gap-2 pe-10">
+                    <h2 className="text-4xl font-bold">{index + 1}</h2>
+                    <ProductCard product={product} />
+                  </div>
+                ))}
             </div>
           </div>
           <div>
             <h1 className="text-xl font-bold mb-4">Top Category</h1>
-            <div className="flex gap-3">
-              {topCategories.map((category: any) => {
-                <span>{category.name}</span>;
-              })}
+            <div className="grid grid-cols-2 gap-5">
+              {topCategories &&
+                topCategories.map((category: Category, index) => (
+                  <div key={category._id} className="flex gap-5 pe-10">
+                    <h2 className="text-4xl font-bold">{index + 1}</h2>
+                    <span className="text-xl">{category.name}</span>
+                  </div>
+                ))}
             </div>
           </div>
         </div>

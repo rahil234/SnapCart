@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
+import { Plus, Trash2, Edit2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -9,109 +10,10 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Trash2, Edit2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import AddressForm from '@/components/user/AddressForm';
 import { ProfileFormValues } from '@/pages/user/MyAccount/Profile';
 import userEndpoints from '@/api/userEndpoints';
-
-export interface Address {
-  id?: string;
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-}
-
-interface AddressFormProps {
-  onSubmit: (address: Address) => void;
-  initialData?: Address;
-}
-
-function AddressForm({ onSubmit, initialData }: AddressFormProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Address>({
-    defaultValues: initialData,
-  });
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div>
-        <label
-          htmlFor="street"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Street
-        </label>
-        <Input
-          id="street"
-          {...register('street', { required: 'Street is required' })}
-          className="mt-1"
-        />
-        {errors.street && (
-          <p className="mt-1 text-sm text-red-600">{errors.street.message}</p>
-        )}
-      </div>
-      <div>
-        <label
-          htmlFor="city"
-          className="block text-sm font-medium text-gray-700"
-        >
-          City
-        </label>
-        <Input
-          id="city"
-          {...register('city', { required: 'City is required' })}
-          className="mt-1"
-        />
-        {errors.city && (
-          <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
-        )}
-      </div>
-      <div>
-        <label
-          htmlFor="state"
-          className="block text-sm font-medium text-gray-700"
-        >
-          State
-        </label>
-        <Input
-          id="state"
-          {...register('state', { required: 'State is required' })}
-          className="mt-1"
-        />
-        {errors.state && (
-          <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
-        )}
-      </div>
-      <div>
-        <label
-          htmlFor="zipCode"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Zip Code
-        </label>
-        <Input
-          id="zipCode"
-          {...register('zipCode', { required: 'Zip Code is required' })}
-          className="mt-1"
-        />
-        {errors.zipCode && (
-          <p className="mt-1 text-sm text-red-600">{errors.zipCode.message}</p>
-        )}
-      </div>
-      <Button
-        type="submit"
-        className="w-full"
-        onClick={e => e.stopPropagation()}
-      >
-        {initialData ? 'Update Address' : 'Add Address'}
-      </Button>
-    </form>
-  );
-}
+import { catchError, Address } from 'shared/types';
 
 function AddressesSection({
   addresses: initialAddresses,
@@ -122,6 +24,7 @@ function AddressesSection({
   const [editingAddressIndex, setEditingAddressIndex] = useState<number | null>(
     null
   );
+  const [error, setError] = useState<string | null>(null);
 
   const { control } = useForm<ProfileFormValues>({
     defaultValues: {
@@ -140,18 +43,21 @@ function AddressesSection({
       append(address);
       setIsAddressDialogOpen(false);
     } catch (error) {
+      setError((error as catchError).response.data.message);
       console.log(error);
     }
   };
 
-  const handleEditAddress = (index: number, address: Address) => {
+  const handleEditAddress = async (index: number, address: Address) => {
+    await userEndpoints.editAddress(fields[index]._id!, address);
     update(index, address);
     setEditingAddressIndex(null);
     setIsAddressDialogOpen(false);
   };
 
-  const handleRemoveAddress = (index: number) => {
+  const handleRemoveAddress = async (index: number) => {
     if (window.confirm('Are you sure you want to delete this address?')) {
+      await userEndpoints.deleteAddress(fields[index]._id!);
       remove(index);
     }
   };
@@ -172,7 +78,7 @@ function AddressesSection({
               <strong>State:</strong> {field.state}
             </p>
             <p>
-              <strong>Zip Code:</strong> {field.zipCode}
+              <strong>Pin Code:</strong> {field.pinCode}
             </p>
             <div className="mt-2 flex justify-end space-x-2">
               <Button
@@ -181,6 +87,7 @@ function AddressesSection({
                 size="sm"
                 onClick={() => {
                   setEditingAddressIndex(index);
+                  setError(null);
                   setIsAddressDialogOpen(true);
                 }}
               >
@@ -202,7 +109,12 @@ function AddressesSection({
       ))}
       <Dialog open={isAddressDialogOpen} onOpenChange={setIsAddressDialogOpen}>
         <DialogTrigger asChild>
-          <Button type="button" variant="outline" className="mt-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-2"
+            onClick={() => setError(null)}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Address
           </Button>
@@ -221,6 +133,7 @@ function AddressesSection({
                 ? address => handleEditAddress(editingAddressIndex, address)
                 : handleAddAddress
             }
+            error={error}
             initialData={
               editingAddressIndex !== null
                 ? fields[editingAddressIndex]

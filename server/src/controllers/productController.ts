@@ -39,6 +39,8 @@ const getProduct = async (req: Request, res: Response) => {
       })) as any; //eslint-disable-line
     }
 
+    console.log('product', JSON.stringify(x.description));
+
     res.status(200).json(x);
   } catch (error) {
     console.log('Error fetching product', error);
@@ -49,7 +51,7 @@ const getProduct = async (req: Request, res: Response) => {
 const getTopProducts = async (req: Request, res: Response) => {
   try {
     const products = await productModel
-      .find({ status: 'Active' })
+      .find({ seller: req.user?._id, status: 'Active', soldCount: { $gt: 0 } })
       .sort({ soldCount: -1 })
       .limit(10);
 

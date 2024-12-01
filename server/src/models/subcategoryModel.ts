@@ -1,11 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-
-interface ISubCategory extends Document {
-  name: string;
-  status: string;
-  category: mongoose.Schema.Types.ObjectId;
-  soldCount: number;
-}
+import { Subcategory } from '@shared/types';
 
 const SubCategorySchema: Schema = new Schema({
   name: { type: String, required: true, unique: true },
@@ -18,7 +12,7 @@ const SubCategorySchema: Schema = new Schema({
   soldCount: { type: Number, default: 0 },
 });
 
-const subcategoryModel = mongoose.model<ISubCategory>(
+const subcategoryModel = mongoose.model<Subcategory & Document>(
   'Subcategory',
   SubCategorySchema
 );

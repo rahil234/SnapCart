@@ -14,9 +14,11 @@ import CategoryPage from '@/pages/user/CategoryPage';
 import { UIProvider } from '@/context/UIContext';
 import ChangePasswordPage from '@/pages/user/ChangePassword';
 import OrderSuccessPage from '@/pages/user/OrderSuccessPage';
+import PaymentFailurePage from '@/pages/user/PaymentFailurePage';
 import OrderFailurePage from '@/pages/user/OrderFailurePage';
 import { AuthState } from '@/features/auth/authSlice';
 import SearchPage from '@/pages/user/SearchPage';
+import ReferPage from '@/pages/user/ReferPage';
 
 function Root() {
   const { user } = useSelector((state: { auth: AuthState }) => state.auth);
@@ -66,7 +68,9 @@ const UserRoutes = [
       { path: 'change-password', element: <ChangePasswordPage /> },
       { path: 'forgot-password', element: <ForgotPasswordPage /> },
       { path: 'checkout', element: <CheckoutPage /> },
+      { path: 'refer', element: <ReferPage /> },
       { path: 'order-success/:orderId', element: <OrderSuccessPage /> },
+      { path: 'payment-failure', element: <PaymentFailurePage /> },
       { path: 'order-failure', element: <OrderFailurePage /> },
     ],
   },

@@ -10,11 +10,7 @@ function TypeGuard(
   role: string,
   user: IUsers | ISeller | IAdmin | null
 ): user is IUsers {
-  if (role === 'customer') {
-    return true;
-  } else {
-    return false;
-  }
+  return role === 'customer';
 }
 
 const getUserByRoleAndId = async (role: string, id: string) => {
@@ -31,7 +27,6 @@ const getUserByRoleAndId = async (role: string, id: string) => {
 };
 
 const refreshToken = async (req: Request, res: Response) => {
-  console.log('refreshToken');
   const refreshToken = req.cookies['refreshToken'];
 
   if (!refreshToken) {
@@ -46,6 +41,8 @@ const refreshToken = async (req: Request, res: Response) => {
   }
   try {
     const user = await getUserByRoleAndId(decodedToken.role, decodedToken._id);
+
+    console.log('user', user);
 
     if (!user) {
       clearRefreshTokenCookie(res);
@@ -73,7 +70,7 @@ const refreshToken = async (req: Request, res: Response) => {
       email: user.email,
       role: decodedToken.role,
     };
-
+    console.log('newUser', newUser);
     res.status(200).json({ accessToken, user: newUser });
   } catch (error) {
     console.error('Error refreshing token:', error);
@@ -82,7 +79,7 @@ const refreshToken = async (req: Request, res: Response) => {
   }
 };
 
-const logout = (req: Request, res: Response) => {
+const logout = (_req: Request, res: Response) => {
   res.clearCookie('refreshToken', {
     httpOnly: true,
     secure: true,

@@ -148,16 +148,16 @@ const OrdersSection = () => {
                   <div>
                     {order.deliveryCharge > 0 && (
                       <p>
-                        <strong>Delivery Charge:</strong>{' '}
-                        ₹{order.deliveryCharge.toFixed(2)}
+                        <strong>Delivery Charge:</strong> ₹
+                        {order.deliveryCharge.toFixed(2)}
                       </p>
                     )}
                     {order.discount > 0 && (
-                      <p className='text-green-500'>
+                      <p className="text-green-500">
                         <strong>Discount:</strong> -₹{order.discount.toFixed(2)}
                       </p>
                     )}
-                    <p className='font-bold'>
+                    <p className="font-bold">
                       <strong>Total:</strong> ₹{order.price.toFixed(2)}
                     </p>
                   </div>
@@ -200,10 +200,10 @@ const OrdersSection = () => {
         </div>
       )}
       <Dialog open={showOrderDetails} onOpenChange={handleOrderDetailsClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Order Details</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-h-[90vh] overflow-auto">
+        <DialogHeader>
+          <DialogTitle>Order Details</DialogTitle>
+        </DialogHeader>
           <OrderDetails order={order!} onClose={handleOrderDetailsClose} />
         </DialogContent>
       </Dialog>

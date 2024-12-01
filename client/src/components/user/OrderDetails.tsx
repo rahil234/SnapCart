@@ -14,8 +14,14 @@ interface IOrderDetails {
 }
 
 const OrderDetails = ({ order }: IOrderDetails) => {
-  const handleCancelOrder = () => {
-    console.log(`Cancelling order ₹{order.orderId}`);
+  const handleCancelOrder = async () => {
+    try {
+      console.log(order.orderId);
+      await orderEndpoints.cancelOrder(order.orderId);
+      console.log(`Cancelling order ₹{order.orderId}`);
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+    }
   };
 
   const handleCancelItem = async (itemId: string) => {
@@ -24,6 +30,15 @@ const OrderDetails = ({ order }: IOrderDetails) => {
       console.log(`Cancelling item ₹{itemId} from order ₹{order.orderId}`);
     } catch (error) {
       console.error('Error cancelling item:', error);
+    }
+  };
+
+  const handleReturnOrder = async () => {
+    try {
+      await orderEndpoints.cancelOrder(order.orderId);
+      console.log(`Returning order ₹{order.orderId}`);
+    } catch (error) {
+      console.error('Error returning order:', error);
     }
   };
 
@@ -74,7 +89,10 @@ const OrderDetails = ({ order }: IOrderDetails) => {
         {/*</div>*/}
         <div className="flex justify-between">
           <p className="font-semibold">Shipping Address:</p>
-          <p>{String(...order.address)}</p>
+          <p>
+            {order.address &&
+              order.address.map((address: string) => `${address},\n`)}
+          </p>
         </div>
         {/*<div className="flex justify-between">*/}
         {/*  <p className="font-semibold">Shipping Method:</p>*/}
@@ -99,19 +117,16 @@ const OrderDetails = ({ order }: IOrderDetails) => {
       </div>
       <div className="mt-5 felx gap-3 justify-end w-full">
         {order.status === 'Completed' ? (
-          <div>
-            <Button
-              className="mt-6"
-              onClick={() => handleGetInvoice(order.orderId)}
-            >
+          <div className="flex gap-2 justify-end items-center">
+            <Button onClick={handleReturnOrder}>Return Item</Button>
+            <Button onClick={() => handleGetInvoice(order.orderId)}>
               invoice
               <Download className="w-5 h-5 ml-2" />
             </Button>
-            <Button>Return Item</Button>
           </div>
         ) : (
           <div>
-            <Button>Cancel Order</Button>
+            <Button onClick={handleCancelOrder}>Cancel Order</Button>
           </div>
         )}
       </div>
@@ -159,17 +174,17 @@ const OrderDetails = ({ order }: IOrderDetails) => {
           ))}
         </div>
       </div>
-      {order.status === 'Processing' && (
-        <div className="mt-6 flex justify-between items-center">
-          <Button variant="destructive" onClick={handleCancelOrder}>
-            Cancel Order
-          </Button>
-          <div className="flex items-center text-yellow-600">
-            <AlertCircle className="w-5 h-5 mr-2" />
-            <span>Cancellation is only available for processing orders</span>
-          </div>
-        </div>
-      )}
+      {/*{order.status === 'Processing' && (*/}
+      {/*  <div className="mt-6 flex justify-between items-center">*/}
+      {/*    <Button variant="destructive" onClick={handleCancelOrder}>*/}
+      {/*      Cancel Order*/}
+      {/*    </Button>*/}
+      {/*    <div className="flex items-center text-yellow-600">*/}
+      {/*      <AlertCircle className="w-5 h-5 mr-2" />*/}
+      {/*      <span>Cancellation is only available for processing orders</span>*/}
+      {/*    </div>*/}
+      {/*  </div>*/}
+      {/*)}*/}
       {order.status === 'Completed' && (
         <div className="mt-6 flex justify-between items-center">
           <div className="flex items-center text-green-600">

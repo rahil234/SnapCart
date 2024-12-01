@@ -31,19 +31,12 @@ import { clearCart } from '@/features/cart/cartSlice';
 import { useAppDispatch } from '@/app/store';
 import userEndpoints from '@/api/userEndpoints';
 import orderEndpoints from '@/api/orderEndpoints';
-import { catchError, ICoupon } from 'shared/types';
+import { catchError, ICoupon, Address } from 'shared/types';
+import AddressForm from '@/components/user/AddressForm';
 import { ImportMeta } from '@types';
 
 const imageUrl =
   (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
-
-interface Address {
-  id: string;
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-}
 
 export interface CheckoutFormValues {
   selectedAddressId: string;
@@ -107,8 +100,16 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleEditAddress = (index: number, address: Address) => {
+  const handleEditAddress = async (index: number, address: Address) => {
+    await userEndpoints.editAddress(fields[index]._id!, address);
     update(index, address);
+    setEditingAddressIndex(null);
+    setIsAddressDialogOpen(false);
+  };
+
+  const handleRemoveAddress = async (index: number) => {
+    await userEndpoints.deleteAddress(fields[index]._id!);
+    remove(index);
     setEditingAddressIndex(null);
     setIsAddressDialogOpen(false);
   };
@@ -127,8 +128,11 @@ export default function CheckoutPage() {
     }
   };
 
+  const handlePaymentDismissed = () => {
+    navigate('/payment-failure', { replace: true });
+  };
+
   const onSubmit = async (data: CheckoutFormValues) => {
-    // console.log('submitCoupon',appliedCoupon);
     console.log('data', data);
     try {
       setIsLoading(true);
@@ -139,8 +143,7 @@ export default function CheckoutPage() {
       );
       setIsLoading(false);
       dispatch(clearCart());
-      // navigate('/order-success/' + response.data.orderId, { replace: true });
-      navigate('/order-success/' + response.data.orderId);
+      navigate('/order-success/' + response.data.orderId, { replace: true });
     } catch (error) {
       setIsLoading(false);
       console.log(error);
@@ -181,7 +184,7 @@ export default function CheckoutPage() {
                           <Label htmlFor={address.id} className="flex-grow">
                             <div>
                               <p>{address.street}</p>
-                              <p>{`${address.city}, ${address.state} ${address.zipCode}`}</p>
+                              <p>{`${address.city}, ${address.state} ${address.pinCode}`}</p>
                             </div>
                           </Label>
                           <Button
@@ -199,7 +202,7 @@ export default function CheckoutPage() {
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => remove(index)}
+                            onClick={() => handleRemoveAddress(index)}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -420,6 +423,7 @@ export default function CheckoutPage() {
                   disabled={
                     isLoading || !selectedAddressId || !selectedPaymentMethod
                   }
+                  handleDismiss={handlePaymentDismissed}
                 >
                   Pay with Razorpay
                 </PaymentButton>
@@ -452,69 +456,70 @@ export default function CheckoutPage() {
   );
 }
 
-interface AddressFormProps {
-  onSubmit: (address: Address) => void;
-  initialData?: Address;
-}
 
-function AddressForm({ onSubmit, initialData }: AddressFormProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Address>({
-    defaultValues: initialData,
-  });
+// interface AddressFormProps {
+//   onSubmit: (address: Address) => void;
+//   initialData?: Address;
+// }
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div>
-        <Label htmlFor="street">Street</Label>
-        <Input
-          id="street"
-          {...register('street', { required: 'Street is required' })}
-          className="mt-1"
-        />
-        {errors.street && (
-          <p className="mt-1 text-sm text-red-600">{errors.street.message}</p>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="city">City</Label>
-        <Input
-          id="city"
-          {...register('city', { required: 'City is required' })}
-          className="mt-1"
-        />
-        {errors.city && (
-          <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="state">State</Label>
-        <Input
-          id="state"
-          {...register('state', { required: 'State is required' })}
-          className="mt-1"
-        />
-        {errors.state && (
-          <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="zipCode">Zip Code</Label>
-        <Input
-          id="zipCode"
-          {...register('zipCode', { required: 'Zip Code is required' })}
-          className="mt-1"
-        />
-        {errors.zipCode && (
-          <p className="mt-1 text-sm text-red-600">{errors.zipCode.message}</p>
-        )}
-      </div>
-      <Button type="submit" className="w-full">
-        {initialData ? 'Update Address' : 'Add Address'}
-      </Button>
-    </form>
-  );
-}
+// function AddressForm({ onSubmit, initialData }: AddressFormProps) {
+//   const {
+//     register,
+//     handleSubmit,
+//     formState: { errors },
+//   } = useForm<Address>({
+//     defaultValues: initialData,
+//   });
+//
+//   return (
+//     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+//       <div>
+//         <Label htmlFor="street">Street</Label>
+//         <Input
+//           id="street"
+//           {...register('street', { required: 'Street is required' })}
+//           className="mt-1"
+//         />
+//         {errors.street && (
+//           <p className="mt-1 text-sm text-red-600">{errors.street.message}</p>
+//         )}
+//       </div>
+//       <div>
+//         <Label htmlFor="city">City</Label>
+//         <Input
+//           id="city"
+//           {...register('city', { required: 'City is required' })}
+//           className="mt-1"
+//         />
+//         {errors.city && (
+//           <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
+//         )}
+//       </div>
+//       <div>
+//         <Label htmlFor="state">State</Label>
+//         <Input
+//           id="state"
+//           {...register('state', { required: 'State is required' })}
+//           className="mt-1"
+//         />
+//         {errors.state && (
+//           <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
+//         )}
+//       </div>
+//       <div>
+//         <Label htmlFor="zipCode">Zip Code</Label>
+//         <Input
+//           id="zipCode"
+//           {...register('zipCode', { required: 'Zip Code is required' })}
+//           className="mt-1"
+//         />
+//         {errors.zipCode && (
+//           <p className="mt-1 text-sm text-red-600">{errors.zipCode.message}</p>
+//         )}
+//       </div>
+//       <Button type="submit" className="w-full">
+//         {initialData ? 'Update Address' : 'Add Address'}
+//       </Button>
+//     </form>
+//   );
+// }

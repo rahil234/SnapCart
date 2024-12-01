@@ -42,7 +42,7 @@ const updateOrderStatus = async (data: { orderId: string; status: string }) => {
     .data;
 };
 
-const deleteOrder = async (orderId: string) => {
+const cancelOrder = async (orderId: string) => {
   return axiosInstance.delete(`/api/order/${orderId}`);
 };
 
@@ -71,7 +71,7 @@ export default {
   verifyPayment,
   updateOrder,
   updateOrderStatus,
-  deleteOrder,
+  cancelOrder,
   cancelOrderItem,
   applyCoupon,
   getInvoice,

@@ -7,23 +7,26 @@ const userLogin = (data: object) => {
 };
 
 const userGoogleLogin = async (access_token: string) => {
-  const response = await axiosInstance.post(
+  return await axiosInstance.post(
     '/api/user/google-login',
     {
       googleAccessToken: access_token,
+      referralCode: localStorage.getItem('referralCode'),
     },
     {
       withCredentials: true,
     }
   );
-  console.log('Google login', response);
-  return response;
 };
 
 const userSignUp = (data: object) => {
-  return axiosInstance.post('/api/user/signup', data, {
-    withCredentials: true,
-  });
+  return axiosInstance.post(
+    '/api/user/signup',
+    { ...data, referralCode: localStorage.getItem('referralCode') },
+    {
+      withCredentials: true,
+    }
+  );
 };
 
 const sendOtp = (email: string) => {
@@ -90,7 +93,19 @@ const allowUser = async (userId: string) => {
 };
 
 const addAddress = async (address: object) => {
-  return axiosInstance.post('/api/user/add-address', address);
+  return axiosInstance.post('/api/user/address', address);
+};
+
+const editAddress = async (addressId: string, address: object) => {
+  return axiosInstance.put('/api/user/address/' + addressId, address);
+};
+
+const deleteAddress = async (addressId: string) => {
+  return axiosInstance.delete(`/api/user/address/${addressId}`);
+};
+
+const getReferralCode = async () => {
+  return axiosInstance.get('/api/user/referral-code');
 };
 
 export default {
@@ -108,4 +123,7 @@ export default {
   userGoogleLogin,
   userSignUp,
   addAddress,
+  editAddress,
+  deleteAddress,
+  getReferralCode,
 };

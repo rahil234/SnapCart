@@ -268,7 +268,7 @@ function SellerProducts() {
           Add Products
         </button>
         {showAddProduct && (
-          <AddProductCard onClose={() => setShowAddProduct(false)} />
+          <AddProductCard onClose={() => setShowAddProduct(true)} />
         )}
         {showEditProduct && selectedProduct && (
           <EditProductCard

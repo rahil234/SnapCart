@@ -31,6 +31,7 @@ import {
 } from '@dnd-kit/core';
 import AddImageCropper from './addImageCropper';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
+import { AxiosProgressEvent } from 'axios';
 
 interface Category extends OriginalCategory {
   subcategories: Subcategory[];
@@ -233,8 +234,6 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
   };
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
-    console.log('data', data);
-
     try {
       const formData = new FormData();
       formData.append('productName', data.productName);
@@ -265,11 +264,20 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
         });
       });
 
-      formData.forEach((value, key) => {
-        console.log(key, value);
-      });
+      // formData.forEach((value, key) => {
+      //   console.log(key, value);
+      // });
 
-      const response = await productEndpoints.addProduct(formData);
+      const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
+        if (progressEvent.progress) {
+          console.log(progressEvent.progress * 100 + '%');
+        }
+      };
+
+      const response = await productEndpoints.addProduct(
+        formData,
+        onUploadProgress
+      );
 
       if (response.status === 201) {
         alert('Product added successfully!');

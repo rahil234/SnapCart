@@ -1,10 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-
-interface ICategory extends Document {
-  name: string;
-  status: string;
-  soldCount: number;
-}
+import { Category } from '@shared/types';
 
 const CategorySchema: Schema = new Schema({
   name: { type: String, required: true, unique: true },
@@ -12,6 +7,9 @@ const CategorySchema: Schema = new Schema({
   soldCount: { type: Number, default: 0 },
 });
 
-const categoryModel = mongoose.model<ICategory>('Category', CategorySchema);
+const categoryModel = mongoose.model<Category & Document>(
+  'Category',
+  CategorySchema
+);
 
 export default categoryModel;

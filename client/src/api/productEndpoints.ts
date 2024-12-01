@@ -1,4 +1,5 @@
 import axiosInstance from './axiosInstance';
+import { AxiosProgressEvent } from 'axios';
 
 const getLatestProducts = () => {
   return axiosInstance.get('/api/product');
@@ -20,22 +21,28 @@ const getAdminProducts = async () => {
   return (await axiosInstance.get('/api/product/admin')).data;
 };
 
-const addProduct = (data: FormData) => {
-  return axiosInstance.post('/api/product/add-product', data, {
+const addProduct = async (
+  data: FormData,
+  onUploadProgress: (progressEvent: AxiosProgressEvent) => void
+) => {
+  return axiosInstance.post(
+    'https://api.snapcart.website/api/product/add-product',
+    data,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: onUploadProgress,
+    }
+  );
+};
+
+const editProduct = async (data: FormData) => {
+  return await axiosInstance.patch('/api/product/edit-product', data, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
-};
-
-const editProduct = async (data: FormData) => {
-  return (
-    await axiosInstance.patch('/api/product/edit-product', data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-  ).data;
 };
 
 const unlistProduct = (productId: string) => {

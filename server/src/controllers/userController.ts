@@ -10,12 +10,13 @@ import {
 import otpModel from '@models/otpModel';
 import userModel from '@models/userModel';
 import { catchError } from 'shared/types';
+import createWalletTransaction from '@/utils/generateWalletTransaction';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'snapcart.website@gmail.com',
-    pass: 'blik rpge njhj aose',
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
   },
 });
 
@@ -30,7 +31,7 @@ const sendOtp = async (email: string) => {
     <div style="font-family: Arial, sans-serif; text-align: center; background-color: #FFDC02; color:#000000; padding: 20px; border-radius: 10px;">
     <h1 style="color: #000000; font-size:35px;">Welcome to SnapCart</h1>
     <p>Use the following OTP to verify your email:</p>
-    <h2 style="color: #198C05; line-width: 1.5; font-size:35px">${otp}</h2>
+    <h2 style="color: #198C05; font-size:35px">${otp}</h2>
     <p>This OTP is valid for 10 minutes.</p>
     <p>If you did not request this, please ignore this email.</p>
     <br>
@@ -99,7 +100,7 @@ const login = async (req: Request, res: Response) => {
 
 const googleLogin = async (req: Request, res: Response) => {
   try {
-    const { googleAccessToken } = req.body;
+    const { googleAccessToken, referralCode } = req.body;
     const response = await axios.get(
       `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${googleAccessToken}`,
       {
@@ -121,9 +122,35 @@ const googleLogin = async (req: Request, res: Response) => {
         email,
         firstName: given_name,
         password: hashedPassword,
+        referral: { referLimit: 5 },
       });
       await newUser.save();
       userData = newUser;
+
+      if (referralCode) {
+        const referredBy = await userModel.findOne({
+          'referral.code': referralCode,
+        });
+        if (referredBy && referredBy.referral.referLimit > 0) {
+          referredBy.walletBalance += 250;
+          referredBy.referral.referLimit--;
+          await createWalletTransaction(
+            250,
+            'Referral Bonus',
+            'credit',
+            referredBy._id
+          );
+          await referredBy.save();
+          await createWalletTransaction(
+            50,
+            'Referral Bonus',
+            'credit',
+            newUser._id
+          );
+          newUser.walletBalance += 50;
+          await newUser.save();
+        }
+      }
     } else if (userData.status === 'Blocked') {
       clearRefreshTokenCookie(res);
       res.status(403).json({ message: 'User is blocked' });
@@ -157,7 +184,7 @@ const googleLogin = async (req: Request, res: Response) => {
 
 const signup = async (req: Request, res: Response) => {
   try {
-    const { email, name } = req.body;
+    const { email, name, referralCode } = req.body;
     const [firstName, lastName] = name.split(' ');
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -166,8 +193,9 @@ const signup = async (req: Request, res: Response) => {
       firstName,
       lastName,
       password: hashedPassword,
+      referral: { referLimit: 5 },
     });
-    userData.save();
+    await userData.save();
 
     const user = {
       _id: userData._id,
@@ -175,6 +203,31 @@ const signup = async (req: Request, res: Response) => {
       email: userData.email,
       role: 'customer',
     };
+
+    if (referralCode) {
+      const referredBy = await userModel.findOne({
+        'referral.code': referralCode,
+      });
+      if (referredBy && referredBy.referral.referLimit > 0) {
+        referredBy.walletBalance += 250;
+        referredBy.referral.referLimit--;
+        await createWalletTransaction(
+          250,
+          'Referral Bonus',
+          'credit',
+          referredBy._id
+        );
+        await referredBy.save();
+        await createWalletTransaction(
+          50,
+          'Referral Bonus',
+          'credit',
+          userData._id
+        );
+        userData.walletBalance += 50;
+        await userData.save();
+      }
+    }
 
     setRefreshTokenCookie(res, { _id: user._id, role: 'customer' });
 
@@ -385,6 +438,81 @@ const addAddress = async (req: Request, res: Response) => {
   }
 };
 
+const editAddress = async (req: Request, res: Response) => {
+  try {
+    const { addressId } = req.params;
+
+    if (!addressId) {
+      res.status(400).json({ message: 'Address ID is required' });
+      return;
+    }
+
+    const user = await userModel.findOneAndUpdate(
+      { _id: req.user?._id, 'addresses._id': addressId },
+      {
+        $set: { 'addresses.$': req.body },
+      }
+    );
+    res.status(200).json({ message: 'Address added successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+};
+
+const deleteAddress = async (req: Request, res: Response) => {
+  try {
+    const addressId = req.params.addressId;
+
+    console.log(addressId);
+
+    if (!addressId) {
+      res.status(400).json({ message: 'Address ID is required' });
+      return;
+    }
+
+    const user = await userModel.findByIdAndUpdate(req.user?._id, {
+      $pull: { addresses: { _id: addressId } },
+    });
+    console.log(user?.addresses);
+    res.status(200).json({ message: 'Address deleted successfully', user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+};
+
+const getReferralCode = async (req: Request, res: Response) => {
+  try {
+    const user = await userModel.findById(req.user?._id);
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    if (user?.referral && user?.referral?.code) {
+      res.json({ referralCode: user.referral.code });
+      return;
+    }
+
+    const referralCode = Math.random()
+      .toString(36)
+      .substring(2, 8)
+      .toUpperCase();
+
+    user.referral.code = referralCode;
+
+    await user.save();
+
+    res.json({ referralCode: referralCode });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: (error as catchError).message || 'Internal server error',
+    });
+  }
+};
+
 export default {
   login,
   googleLogin,
@@ -399,4 +527,7 @@ export default {
   blockUser,
   allowUser,
   addAddress,
+  editAddress,
+  deleteAddress,
+  getReferralCode,
 };

@@ -40,6 +40,12 @@ router.delete(
   orderController.cancelOrderItem
 );
 
+router.delete(
+  '/:orderId',
+  authenticateAndAuthorize(['customer']),
+  orderController.cancelOrderItem
+);
+
 router.get(
   '/:orderId/receipt',
   authenticateAndAuthorize(['customer']),

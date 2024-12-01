@@ -38,6 +38,7 @@ axiosInstance.interceptors.response.use(
   },
   async error => {
     const originalRequest = error.config;
+    console.log('Error response:', error.response);
     if (
       error.response.status === 403 &&
       error.response.data.message === 'Token expired' &&
@@ -50,14 +51,11 @@ axiosInstance.interceptors.response.use(
         });
         const newToken = response.data.accessToken;
         console.log('New token:', newToken);
-        
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
-        // Update the app state with the new token
         store.dispatch({ type: 'auth/updateToken', payload: newToken });
-
         return axiosInstance(originalRequest);
       } catch (refreshError) {
+        console.error('Refresh token error:', refreshError);
         return Promise.reject(refreshError);
       }
     }

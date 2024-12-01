@@ -12,8 +12,8 @@ import SellerRoutes from '@/routes/SellerRoutes';
 
 const routes = createBrowserRouter([
   ...UserRoutes,
-  ...AdminRoutes,
   ...SellerRoutes,
+  ...AdminRoutes,
   { path: '/not-authorized', element: <NotAuthorised /> },
   { path: '*', element: <Page404 /> },
 ]);

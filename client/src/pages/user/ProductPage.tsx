@@ -374,7 +374,7 @@ const ProductPage: React.FC = () => {
             <p className="text-sm text-gray-600 mb-4">
               Estimated delivery time is 3:00PM - 24 min
             </p>
-            <p className="mb-4">{product.description}</p>
+            <span className="mb-4 whitespace-pre-wrap">{product.description}</span>
             {/* <div className="flex flex-wrap gap-2 mb-4">
               {product.tags.map((tag, index) => (
                 <span

@@ -9,11 +9,9 @@ import { ICartP, IOrderItem } from '@shared/types';
 import userModel from '@models/userModel';
 import couponModel from '@models/couponModel';
 import productModel from '@models/productModel';
-import walletModel from '@models/walletTransactionModel';
 import fs from 'fs';
 import path from 'path';
-import categoryModel from '@models/categoryModel';
-import subcategoryModel from '@models/subcategoryModel';
+import createWalletTransaction from '@/utils/generateWalletTransaction';
 
 const razorpay = configRazorpay();
 
@@ -112,22 +110,29 @@ const createOrder = async (req: Request, res: Response) => {
         return;
       }
 
-      //   const currentDate = new Date();
-      //   if (
-      //     couponDoc.status !== 'Active' ||
-      //     couponDoc.startDate > currentDate ||
-      //     couponDoc.endDate < currentDate
-      //   ) {
-      //     res.status(400).json({ message: 'Coupon is not valid at this time' });
-      //     return;
-      //   }
+      const currentDate = new Date();
+      if (
+        couponDoc.status !== 'Active' ||
+        couponDoc.startDate > currentDate ||
+        couponDoc.endDate < currentDate
+      ) {
+        res.status(400).json({ message: 'Coupon is not valid at this time' });
+        return;
+      }
     }
-
-    const address = Object.values(addresses[0]);
 
     if (!addresses || !paymentMethod) {
       res.status(400).json({ message: 'Invalid data' });
       return;
+    }
+
+    const address: Array<string> = [];
+
+    console.log('addresses', addresses[0]);
+    for (const addr in addresses[0]) {
+      if (addr !== '_id') {
+        address.push(addresses[0][addr]);
+      }
     }
 
     const cart = (await cartModel
@@ -199,7 +204,7 @@ const createOrder = async (req: Request, res: Response) => {
 
       if (!walletBalance || walletBalance - totalPrice < 0) {
         res.status(400).json({
-          message: 'Insufficient wallet balance choose another payment methoed',
+          message: 'Insufficient wallet balance choose another payment method',
         });
         return;
       }
@@ -208,31 +213,24 @@ const createOrder = async (req: Request, res: Response) => {
         $inc: { walletBalance: -totalPrice },
       });
 
-      await walletModel.create({
-        userId: req.user?._id,
-        amount: -totalPrice,
-        description: 'Order payment #' + orderId,
-        type: 'debit',
-      });
+      await createWalletTransaction(
+        totalPrice,
+        'Order payment #' + orderId,
+        'debit',
+        req.user?._id
+      );
     }
 
-    cart.items.forEach(async (item) => {
-      await productModel.updateOne(
-        { _id: item.product._id },
-        {
-          stock: item.product.stock - item.quantity,
-          soldCount: item.product.soldCount + item.quantity,
-        }
-      );
-      await categoryModel.updateOne(
-        { _id: item.product.category },
-        { $inc: { soldCount: item.quantity } }
-      );
-      await subcategoryModel.updateOne(
-        { _id: item.product.subcategory },
-        { $inc: { soldCount: item.quantity } }
-      );
-    });
+    if (paymentMethod !== 'razorpay') {
+      for (const item of cart.items) {
+        await productModel.updateOne(
+          { _id: item.product._id },
+          {
+            $inc: { stock: -item.quantity },
+          }
+        );
+      }
+    }
 
     const order = new orderModel({
       orderedBy: req.user?._id,
@@ -309,7 +307,23 @@ const verifyPayment = async (req: Request, res: Response) => {
     const generated_signature = hmac.digest('hex');
 
     if (generated_signature === razorpay_signature) {
-      await orderModel.updateOne({ orderId }, { status: 'Pending' });
+      const order = await orderModel.findOne({ orderId });
+      if (!order) {
+        res.status(404).json({ message: 'Order not found' });
+        return;
+      }
+      order.status = 'Pending';
+
+      for (const item of order.items) {
+        await productModel.updateOne(
+          { _id: item._id },
+          {
+            $inc: { stock: -item.quantity },
+          }
+        );
+      }
+
+      await order.save();
       res
         .status(200)
         .json({ message: 'Payment verification Success', orderId });

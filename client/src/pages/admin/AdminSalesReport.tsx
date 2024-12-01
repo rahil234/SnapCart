@@ -23,6 +23,8 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
+import DatePickerWithRange from '@/components/ui/DatePickerWithRange';
+import { DateRange } from 'react-day-picker';
 
 interface jsPDFWithAutoTable extends jsPDF {
   autoTable: (options: object) => void;
@@ -67,6 +69,13 @@ export default function SalesReport() {
       }
     })();
   }, [timeframe, startDate, endDate]);
+
+  const handleDateChange = (range: DateRange | undefined) => {
+    if (range?.from && range?.to) {
+      setStartDate(range.from.toISOString().split('T')[0]);
+      setEndDate(range.to.toISOString().split('T')[0]);
+    }
+  };
 
   const totalOrders = salesData.reduce(
     (sum, sale) => sum + sale.totalOrders,
@@ -191,6 +200,10 @@ export default function SalesReport() {
               className="w-full px-3 py-2 border rounded-md"
             />
           </div>
+          <DatePickerWithRange
+            disabled={date => date < new Date()}
+            onDateChange={handleDateChange}
+          />
           <div className="space-y-2">
             <Label htmlFor="endDate">End Date</Label>
             <input

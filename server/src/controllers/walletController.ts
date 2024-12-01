@@ -4,7 +4,9 @@ import userModel from '@models/userModel';
 
 const getTransaction = async (req: Request, res: Response) => {
   try {
-    const transactions = await walletModel.find({ userId: req?.user?._id });
+    const transactions = await walletModel
+      .find({ userId: req?.user?._id })
+      .sort({ date: -1 });
     res.status(200).json({ message: 'success', transactions });
   } catch (error) {
     res.status(500).json({ message: 'error', error });

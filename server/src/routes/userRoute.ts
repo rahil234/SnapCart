@@ -11,11 +11,7 @@ router.post('/google-login', userController.googleLogin);
 
 router.post('/signup', userController.signup);
 
-router.post(
-  '/send-otp',
-  authenticateAndAuthorize(['customer']),
-  userController.verifySignUp
-);
+router.post('/send-otp', userController.verifySignUp);
 
 router.post('/verify-otp', userController.verifyOtp);
 
@@ -49,9 +45,27 @@ router.patch(
 );
 
 router.post(
-  '/add-address',
+  '/address',
   authenticateAndAuthorize(['customer']),
   userController.addAddress
+);
+
+router.put(
+  '/address/:addressId',
+  authenticateAndAuthorize(['customer']),
+  userController.editAddress
+);
+
+router.delete(
+  '/address/:addressId',
+  authenticateAndAuthorize(['customer']),
+  userController.deleteAddress
+);
+
+router.get(
+  '/referral-code',
+  authenticateAndAuthorize(['customer']),
+  userController.getReferralCode
 );
 
 export default router;

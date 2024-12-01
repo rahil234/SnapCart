@@ -13,6 +13,7 @@ interface PaymentButtonProps {
   children: React.ReactNode;
   couponCode: string | undefined;
   disabled: boolean;
+  handleDismiss?: () => void;
 }
 
 const PaymentButton: React.FC<PaymentButtonProps> = ({
@@ -20,6 +21,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   children,
   getValues,
   disabled,
+  handleDismiss,
 }) => {
   const navigate = useNavigate();
 
@@ -58,9 +60,11 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           verifyPayment({ ...response, orderId: ord.data.orderId });
         },
         modal: {
-          ondismiss: () => {
-            console.log('dismissed');
-          },
+          ondismiss: handleDismiss
+            ? handleDismiss
+            : () => {
+                console.log('Payment cancelled');
+              },
         },
         prefill: {
           name: 'Rahil',

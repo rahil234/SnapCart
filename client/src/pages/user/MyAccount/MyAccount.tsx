@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { User, MapPin, ShoppingBag, Shield, Wallet } from 'lucide-react'
+import { User, MapPin, ShoppingBag, Shield, Wallet, HandCoins } from 'lucide-react';
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthState } from '@/features/auth/authSlice'
@@ -8,6 +8,7 @@ import OrdersSection from '@/pages/user/MyAccount/Orders'
 import WalletSection from '@/pages/user/MyAccount/Wallet'
 import AddressesSection from '@/pages/user/MyAccount/Address'
 import SecuritySection from '@/pages/user/MyAccount/Security'
+import ReferSection from '@/pages/user/MyAccount/ReferSection'
 import ProfileSection from '@/pages/user/MyAccount/Profile'
 
 
@@ -18,7 +19,7 @@ function AccountPage() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1)
-      if (['profile', 'addresses', 'orders', 'security', 'wallet'].includes(hash)) {
+      if (['profile', 'addresses', 'orders', 'security', 'wallet','refer'].includes(hash)) {
         setActiveSection(hash)
       }
     }
@@ -51,6 +52,8 @@ function AccountPage() {
         return <OrdersSection />
       case 'security':
         return <SecuritySection />
+      case 'refer':
+        return <ReferSection />
       default:
         return <ProfileSection user={user} />
     }
@@ -105,6 +108,14 @@ function AccountPage() {
               >
                 <Shield className="mr-2 h-4 w-4" />
                 Security
+              </Button>
+              <Button
+                variant={activeSection === 'refer' ? 'secondary' : 'ghost'}
+                className="justify-start"
+                onClick={() => handleSectionChange('refer')}
+              >
+                <HandCoins className="mr-2 h-4 w-4" />
+                Refer a Friend
               </Button>
             </nav>
           </CardContent>

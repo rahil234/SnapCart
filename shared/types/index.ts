@@ -1,4 +1,4 @@
-import { Document, Schema } from 'mongoose';
+import { Document, Schema } from "mongoose";
 
 interface Review {
   _id: string;
@@ -22,7 +22,7 @@ export interface Product {
   tags?: string[];
   discount?: number;
   seller: string;
-  status: 'Active' | 'Inactive';
+  status: "Active" | "Inactive";
   variants?: Variant[];
   reviews?: Review[];
   soldCount: number;
@@ -32,16 +32,18 @@ export interface Category {
   _id: string;
   name: string;
   status: string;
-  subcategory: Subcategory;
+  soldCount: number;
 }
 
 export interface Subcategory {
   _id: string;
   name: string;
-  status: 'Active' | 'Blocked';
+  status: "Active" | "Blocked";
+  category: string;
+  soldCount: number;
 }
 
-export type UserRole = 'admin' | 'customer' | 'seller';
+export type UserRole = "admin" | "customer" | "seller";
 
 export interface User {
   _id: string;
@@ -52,7 +54,14 @@ export interface User {
   role: UserRole;
   addresses: [];
   profilePicture: string;
-  status: 'Active' | 'Blocked';
+  status: "Active" | "Blocked";
+}
+
+export interface IReferal {
+  code: string;
+  referredBy?: string;
+  referredUsers?: string[];
+  referLimit: number;
 }
 
 export interface IUsers extends Document {
@@ -66,7 +75,8 @@ export interface IUsers extends Document {
   walletBalance: number;
   password: string;
   profilePicture: string | null;
-  status: 'Active' | 'Blocked';
+  status: "Active" | "Blocked";
+  referral: IReferal;
 }
 
 export interface ISeller extends Document {
@@ -78,7 +88,7 @@ export interface ISeller extends Document {
   email: string;
   password: string;
   profilePicture: string | null;
-  status: 'Active' | 'Blocked';
+  status: "Active" | "Blocked";
 }
 
 export interface IAdmin extends Document {
@@ -87,13 +97,13 @@ export interface IAdmin extends Document {
   email: string;
   password: string;
   profilePicture: string | null;
-  status: 'Active' | 'Blocked';
+  status: "Active" | "Blocked";
 }
-
-export interface Credentials {
-  email: string;
-  password: string;
-}
+//
+// export interface Credentials {
+//   email: string;
+//   password: string;
+// }
 
 export type ObjectId = Schema.Types.ObjectId;
 
@@ -139,12 +149,12 @@ export interface VariantImage {
   file: File;
   preview: string;
 }
-
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message?: string;
-}
+//
+// export interface ApiResponse<T> {
+//   success: boolean;
+//   data: T;
+//   message?: string;
+// }
 
 interface ImportMetaEnv {
   readonly VITE_googleOAuthClientId: string;
@@ -183,7 +193,7 @@ export interface IOrderItem {
   seller: string;
   price: number;
   image: string;
-  status?: 'Processing' | 'Shipped' | 'Completed' | 'Cancelled';
+  status?: "Processing" | "Shipped" | "Completed" | "Cancelled";
 }
 
 export interface IOrder extends Document {
@@ -191,16 +201,16 @@ export interface IOrder extends Document {
   userId: string;
   customerName: string;
   orderId: string;
-  address: string;
+  address: [];
   paymentMethod: string;
   price: number;
   status:
-    | 'Payment Pending'
-    | 'Processing'
-    | 'Pending'
-    | 'Shipped'
-    | 'Completed'
-    | 'Cancelled';
+    | "Payment Pending"
+    | "Processing"
+    | "Pending"
+    | "Shipped"
+    | "Completed"
+    | "Cancelled";
   orderDate: Date;
   discount: number;
   deliveryCharge: number;
@@ -212,33 +222,37 @@ export interface IOrder extends Document {
 export interface Offer {
   _id: string;
   title: string;
-  type: 'percentage' | 'fixed';
-  description: string;
   discount: number;
   startDate: string;
-  minPrice: number;
-  expiryDate: string;
+  endDate: string;
   products: string[];
   categories: string[];
-  status: 'Active' | 'Inactive';
-  limit: number;
+  status: "Active" | "Inactive";
 }
 
 export interface ICoupon {
   _id: string;
   code: string;
   discount: number;
-  type: 'percentage' | 'fixed';
+  type: "percentage" | "fixed";
   minAmount: number;
   maxDiscount: number;
   startDate: string;
   endDate: string;
-  status: 'Active' | 'Inactive';
-  applicableTo: 'All' | 'Products' | 'Categories';
+  status: "Active" | "Inactive";
+  applicableTo: "All" | "Products" | "Categories";
   products: string[];
   categories: string[];
 }
 
+export interface Address {
+  id?: string;
+  _id: string;
+  street: string;
+  city: string;
+  state: string;
+  pinCode: string;
+}
 
 // export interface ICart {
 //   _id: string;

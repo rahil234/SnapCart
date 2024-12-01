@@ -118,7 +118,7 @@ const unarchiveCategory = async (req: Request, res: Response) => {
 const getTopCategories = async (req: Request, res: Response) => {
   try {
     const categories = await categoryModel
-      .find({ status: 'Active' })
+      .find({ status: 'Active', soldCount: { $gt: 0 } })
       .sort({ soldCount: -1 })
       .limit(10);
 
