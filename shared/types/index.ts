@@ -99,6 +99,7 @@ export interface IAdmin extends Document {
   profilePicture: string | null;
   status: "Active" | "Blocked";
 }
+
 //
 // export interface Credentials {
 //   email: string;
@@ -149,6 +150,7 @@ export interface VariantImage {
   file: File;
   preview: string;
 }
+
 //
 // export interface ApiResponse<T> {
 //   success: boolean;
@@ -224,9 +226,12 @@ export interface Offer {
   title: string;
   discount: number;
   startDate: string;
-  endDate: string;
+  type: "percentage" | "fixed";
+  expiryDate: string;
   products: string[];
   categories: string[];
+  description: string;
+  minPrice: number;
   status: "Active" | "Inactive";
 }
 

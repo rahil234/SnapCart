@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { changeProfilePicture } from '@/features/auth/authSlice';
 import userEndpoints from '@/api/userEndpoints';
-import { Address } from '@/pages/user/MyAccount/Address';
+import { Address } from 'shared/types';
 import { User } from 'shared/types';
 import { ImportMeta } from '@types';
 import { useAppDispatch } from '@/app/store';

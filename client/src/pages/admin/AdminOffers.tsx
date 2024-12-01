@@ -150,7 +150,7 @@ function OfferManagement() {
                       {new Date(offer.startDate).toLocaleDateString()}
                     </td>
                     <td className="whitespace-nowrap">
-                      {new Date(offer.endDate).toLocaleDateString()}
+                      {new Date(offer.expiryDate).toLocaleDateString()}
                     </td>
                     <td className="whitespace-nowrap">
                       <span
@@ -220,8 +220,8 @@ function OfferForm({ offer, onSubmit, products, categories }: OfferFormProps) {
       startDate: offer?.startDate
         ? new Date(offer.startDate).toISOString().split('T')[0]
         : '',
-      endDate: offer?.endDate
-        ? new Date(offer.endDate).toISOString().split('T')[0]
+      expiryDate: offer?.expiryDate
+        ? new Date(offer.expiryDate).toISOString().split('T')[0]
         : '',
       status: offer?.status || 'Inactive',
       products: offer?.products || [],
@@ -293,17 +293,17 @@ function OfferForm({ offer, onSubmit, products, categories }: OfferFormProps) {
           )}
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="endDate" className="text-right">
+          <Label htmlFor="expiryDate" className="text-right">
             End Date
           </Label>
           <Input
-            id="endDate"
+            id="expiryDate"
             type="date"
             className="col-span-3"
-            {...register('endDate', { required: 'End date is required' })}
+            {...register('expiryDate', { required: 'End date is required' })}
           />
-          {errors.endDate && (
-            <p className="text-red-500 text-sm">{errors.endDate.message}</p>
+          {errors.expiryDate && (
+            <p className="text-red-500 text-sm">{errors.expiryDate.message}</p>
           )}
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
