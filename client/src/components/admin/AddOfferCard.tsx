@@ -172,7 +172,7 @@ function OfferForm() {
             <DatePicker
               id="startDate"
               selected={field.value ? new Date(field.value) : null}
-              onChange={date => field.onChange(date)}
+              onChange={(date: Date | null) => field.onChange(date)}
               className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm"
             />
           )}
@@ -200,7 +200,7 @@ function OfferForm() {
             <DatePicker
               id="expiryDate"
               selected={field.value ? new Date(field.value) : null}
-              onChange={date => field.onChange(date)}
+              onChange={(date: Date| null) => field.onChange(date)}
               className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm"
             />
           )}
