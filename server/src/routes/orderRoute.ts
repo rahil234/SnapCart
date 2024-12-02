@@ -43,7 +43,7 @@ router.delete(
 router.delete(
   '/:orderId',
   authenticateAndAuthorize(['customer']),
-  orderController.cancelOrderItem
+  orderController.cancelOrder
 );
 
 router.get(

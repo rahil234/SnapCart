@@ -351,8 +351,14 @@ const cancelOrderItem = async (req: Request, res: Response) => {
     }
 
     await userModel.findByIdAndUpdate(req.user?._id, {
-      $inc: { walletBalance: item.price },
+      $inc: { walletBalance: item.price * item.quantity },
     });
+    await createWalletTransaction(
+      item.price,
+      'Refund for order item cancellation',
+      'credit',
+      req.user?._id
+    );
 
     item.status = 'Cancelled';
 
@@ -362,6 +368,40 @@ const cancelOrderItem = async (req: Request, res: Response) => {
     if (allItemsCancelled) {
       order.status = 'Cancelled';
     }
+
+    await order.save();
+    res.status(200).json(order);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const cancelOrder = async (req: Request, res: Response) => {
+  try {
+    const { orderId } = req.params;
+    const order = await orderModel.findOne({ orderId });
+    if (!order) {
+      res.status(404).json({ message: 'Order not found' });
+      return;
+    }
+
+    await userModel.findByIdAndUpdate(req.user?._id, {
+      $inc: { walletBalance: order.price },
+    });
+
+    await createWalletTransaction(
+      order.price,
+      'Refund for order item cancellation',
+      'credit',
+      req.user?._id
+    );
+
+    order.status = 'Cancelled';
+
+    order.items.forEach(async (item) => {
+      item.status = 'Cancelled';
+    });
 
     await order.save();
     res.status(200).json(order);
@@ -475,4 +515,5 @@ export default {
   cancelOrderItem,
   getReceipt,
   updateOrderStatus,
+  cancelOrder,
 };
