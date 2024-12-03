@@ -57,7 +57,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
   const handleBlockSubCategory = async (subCategoryId: string) => {
     try {
       await categoryEndpoints.archiveCategory(subCategoryId);
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      await queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success('Subcategory archived successfully');
     } catch (error) {
       console.error('Failed to archive subcategory:', error);
@@ -68,7 +68,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
   const handleUnblockSubCategory = async (subCategoryId: string) => {
     try {
       await categoryEndpoints.unarchiveCategory(subCategoryId);
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      await queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success('Subcategory unarchived successfully');
     } catch (error) {
       console.error('Failed to unarchived subcategory:', error);

@@ -73,11 +73,27 @@ const SignUpCard: React.FC<SignUpCardProps> = ({
               Signup
             </motion.button>
           </div>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col space-y-4"
+          >
             <p className="text-red-500 text-sm h-[5px] text-center">
               {error && error}
             </p>
-            <div>
+            <motion.div
+              initial={{
+                opacity: 0,
+                y: -10,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              exit={{
+                opacity: 0,
+                y: -10,
+              }}
+            >
               <InputField
                 placeholder="Name"
                 className="w-full border border-gray-300 rounded-lg p-2"
@@ -93,8 +109,21 @@ const SignUpCard: React.FC<SignUpCardProps> = ({
               <p className="text-red-500 text-sm h-1 mb-1">
                 {errors.name && errors.name.message}
               </p>
-            </div>
-            <div>
+            </motion.div>
+            <motion.div
+              initial={{
+                opacity: 0,
+                y: -10,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              exit={{
+                opacity: 0,
+                y: -10,
+              }}
+            >
               <InputField
                 placeholder="Email"
                 className="w-full border border-gray-300 rounded-lg p-2"
@@ -108,12 +137,23 @@ const SignUpCard: React.FC<SignUpCardProps> = ({
                 })}
               />
               <p className="text-red-500 h-1 text-sm mb-1">
-                {errors.email &&
-                  errors.email.message
-                }
+                {errors.email && errors.email.message}
               </p>
-            </div>
-            <div>
+            </motion.div>
+            <motion.div
+              initial={{
+                opacity: 0,
+                y: -10,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              exit={{
+                opacity: 0,
+                y: -10,
+              }}
+            >
               <InputField
                 placeholder="Password"
                 className="w-full border border-gray-300 rounded-lg p-2"
@@ -127,12 +167,23 @@ const SignUpCard: React.FC<SignUpCardProps> = ({
                 })}
               />
               <p className="text-red-500 text-sm h-1 mb-1">
-                {errors.password &&
-                  errors.password.message
-                }
+                {errors.password && errors.password.message}
               </p>
-            </div>
-            <div>
+            </motion.div>
+            <motion.div
+              initial={{
+                opacity: 0,
+                y: -10,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              exit={{
+                opacity: 0,
+                y: -10,
+              }}
+            >
               <InputField
                 placeholder="Confirm Password"
                 className="w-full border border-gray-300 rounded-lg p-2"
@@ -144,10 +195,9 @@ const SignUpCard: React.FC<SignUpCardProps> = ({
                 })}
               />
               <p className="text-red-500 text-sm h-1 mb-1">
-                {errors.confirmPassword && errors.confirmPassword.message
-                }
+                {errors.confirmPassword && errors.confirmPassword.message}
               </p>
-            </div>
+            </motion.div>
             <button
               type="submit"
               className="mx-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-8 rounded-lg"
@@ -160,11 +210,11 @@ const SignUpCard: React.FC<SignUpCardProps> = ({
       <footer className="p-4">
         <p className="text-gray-500 text-xs text-center">
           By continuing, you agree to our{' '}
-          <a href="#terms-of-service" className="underline">
+          <a href="/terms-of-service" className="underline">
             Terms of service
           </a>{' '}
           &{' '}
-          <a href="#privacy-policy" className="underline">
+          <a href="/privacy-policy" className="underline">
             Privacy policy
           </a>
         </p>

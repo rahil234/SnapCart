@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
-import moogose from 'mongoose';
+import mongoose from 'mongoose';
 import productModel from '@/models/productModel';
 import { catchError, Product } from '@shared/types';
 import categoryModel from '@models/categoryModel';
 import variantModel from '@models/variantModel';
 import subcategoryModel from '@models/subcategoryModel';
-import mongoose from 'mongoose';
 
 const getProduct = async (req: Request, res: Response) => {
   try {
@@ -68,7 +67,7 @@ const addProduct = async (req: Request, res: Response) => {
     const { productName, description, category, subcategory, variants } =
       req.body;
 
-    //chack the category and subcategory is valid
+    //check the category and subcategory is valid
     const categoryExist = await categoryModel.findById(category);
     const subcategoryExist = await subcategoryModel.findById(subcategory);
 
@@ -86,9 +85,7 @@ const addProduct = async (req: Request, res: Response) => {
     const variantImagesMap: { [key: string]: string[] } = {};
 
     images.forEach((image) => {
-      const match = image.fieldname.match(
-        /variants\[(\d+)\]\[images\]\[(\d+)\]/
-      );
+      const match = image.fieldname.match(/variants\[(\d+)]\[images]\[(\d+)]/);
       if (match) {
         const variantIndex = match[1];
         if (!variantImagesMap[variantIndex]) {
@@ -180,7 +177,7 @@ const getRelatedProducts = async (req: Request, res: Response) => {
       return;
     }
 
-    const relatedProducts = await productModel
+    const products = await productModel
       .find({
         subcategory: currentProduct.subcategory
           ? currentProduct.subcategory._id
@@ -189,7 +186,6 @@ const getRelatedProducts = async (req: Request, res: Response) => {
       })
       .limit(7);
 
-    const products = relatedProducts;
     res.status(200).json(products);
   } catch (error) {
     console.log(error);
@@ -211,7 +207,7 @@ const getProductByCategory = async (req: Request, res: Response) => {
   }
 };
 
-const getProductsByUser = async (req: Request, res: Response) => {
+const getProductsByUser = async (_req: Request, res: Response) => {
   try {
     const categories = await categoryModel.find();
 
@@ -236,7 +232,7 @@ const getProductsByUser = async (req: Request, res: Response) => {
   }
 };
 
-const getProductsByAdmin = async (req: Request, res: Response) => {
+const getProductsByAdmin = async (_req: Request, res: Response) => {
   try {
     const productsByVariant = await productModel.aggregate([
       {
@@ -297,7 +293,7 @@ const getProductsByAdmin = async (req: Request, res: Response) => {
 const getProductsBySeller = async (req: Request, res: Response) => {
   try {
     const productsByVariant = await productModel.aggregate([
-      { $match: { seller: new moogose.Types.ObjectId(req.user?._id) } },
+      { $match: { seller: new mongoose.Types.ObjectId(req.user?._id) } },
       {
         $lookup: {
           from: 'variants',
@@ -358,7 +354,7 @@ const unListProduct = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'Product unlisted successfully' });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: 'Error unlisting product' });
+    res.status(500).json({ message: 'Error un-listing product' });
   }
 };
 
@@ -411,11 +407,7 @@ const searchProducts = async (req: Request, res: Response) => {
       sortOptions[field] = order === 'desc' ? -1 : 1;
     }
 
-    const findedProducts = await productModel
-      .find(searchCriteria)
-      .sort(sortOptions);
-
-    const products = findedProducts;
+    const products = await productModel.find(searchCriteria).sort(sortOptions);
 
     res.status(200).json(products);
   } catch (error) {

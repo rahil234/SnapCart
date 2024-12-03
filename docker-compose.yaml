@@ -20,7 +20,7 @@ services:
     volumes:
       - redis_volume_data:/data
     ports:
-      - 6379:6379
+      - "6379:6379"
     networks:
       - app-network
 
@@ -44,6 +44,7 @@ services:
       - redis
     networks:
       - app-network
+    image: rahil234/snapcart
 
   nginx:
     container_name: snapcart-nginx

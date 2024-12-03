@@ -399,9 +399,9 @@ const cancelOrder = async (req: Request, res: Response) => {
 
     order.status = 'Cancelled';
 
-    order.items.forEach(async (item) => {
+    for (const item of order.items) {
       item.status = 'Cancelled';
-    });
+    }
 
     await order.save();
     res.status(200).json(order);
@@ -490,9 +490,9 @@ const updateOrderStatus = async (req: Request, res: Response) => {
       return;
     }
 
-    orders.items.forEach(async (item) => {
+    for (const item of orders.items) {
       item.status = status;
-    });
+    }
     orders.status = status;
     await orders.save();
 

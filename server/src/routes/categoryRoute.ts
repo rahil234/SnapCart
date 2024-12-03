@@ -13,9 +13,6 @@ categoryRoute.patch('/archive-category', categoryController.archiveCategory);
 
 categoryRoute.get('/top-categories', categoryController.getTopCategories);
 
-categoryRoute.patch(
-  '/unarchive-category',
-  categoryController.unarchiveCategory
-);
+categoryRoute.patch('/list-category', categoryController.listCategory);
 
 export default categoryRoute;

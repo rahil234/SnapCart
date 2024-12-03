@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import sellerEndpoints from '@/api/sellerEndpoints';
+import { catchError } from 'shared/types';
 
 interface AddSellerCardProps {
   onClose: () => void;
@@ -22,8 +23,8 @@ const AddSellerCard: React.FC<AddSellerCardProps> = ({ onClose }) => {
     try {
       await sellerEndpoints.addSeller(data);
       onClose();
-    } catch (error: any) {
-      console.error('Failed to add seller:', error.response?.data?.message || error.message);
+    } catch (error) {
+      console.error('Failed to add seller:', (error as catchError).response?.data?.message || (error as catchError).message);
       setFormError('Failed to add seller. Please try again.');
     }
   };

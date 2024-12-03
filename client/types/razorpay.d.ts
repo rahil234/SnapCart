@@ -35,8 +35,7 @@ export interface RazorpayResponse {
 
 export interface RazorpayInstance {
   open(): void;
-
-  on(event: string, callback: (response: any) => void): void;
+  on(event: string, callback: (response: never) => void): void;
 }
 
 declare global {

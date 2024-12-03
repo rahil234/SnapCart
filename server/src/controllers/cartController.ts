@@ -109,9 +109,9 @@ const updateItem = async (req: Request, res: Response) => {
     const adjustedQuantity =
       quantity > product.stock ? product.stock : quantity;
 
-    let cart = null;
     const cartData = await cartModel.findOne({ userId: req.user?._id });
 
+    let cart;
     if (cartData) {
       const item = cartData.items.find(
         (item) => String(item.product) === productId

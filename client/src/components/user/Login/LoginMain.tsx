@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { motion } from 'motion/react';
 import giftBoxTopOpenBackgroundRemoved1 from '@/assets/gift-box-top-open-background-removed-1.png';
 import giftBoxTopOpen2BackgroundRemoved1 from '@/assets/gift-box-top-open2-background-removed-1.png';
 import { UIContext } from '@/context/UIContext';
@@ -13,10 +14,14 @@ import userEndpoints from '@/api/userEndpoints';
 import { setCredentials } from '@/features/auth/authSlice';
 import { useAppDispatch } from '@/app/store';
 
-const LoginMain = (): JSX.Element => {
+const LoginMain = () => {
   return (
-    <div className="bg-black fixed w-screen p-7 bg-opacity-55 h-screen overflow-hidden z-50">
-      <div className="relative top-1/2 flex left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[900px] h-[522px] rounded-3xl overflow-hidden max-w-[96vw]">
+    <motion.div
+      className="bg-black fixed w-screen p-7 bg-opacity-55 h-screen overflow-hidden z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1, transition: { duration: 0.3, ease: 'easeOut' } }}
+    >
+      <motion.div className="relative top-1/2 flex left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[900px] h-[522px] rounded-3xl overflow-hidden max-w-[96vw]">
         <div className="bg-[#FFDB00] flex-1 hidden lg:block">
           <div className="absolute left-1/4 -translate-x-1/2 top-11 w-[229px] h-[53px] mx-auto text-center">
             <p className="absolute w-[229px] [font-family:'Poppins-Bold',Helvetica] font-bold text-transparent text-[45.5px] tracking-[0.45px] leading-[normal] whitespace-nowrap">
@@ -33,8 +38,7 @@ const LoginMain = (): JSX.Element => {
             alt="Gift box top open"
             src={giftBoxTopOpenBackgroundRemoved1}
           />
-          <div className="absolute w-[461px] h-[282px] top-[220px] left-0 bg-[url(@/assets/3d-rendering-shopping-concept-23-2149877666-1-background-removed-1.png)] bg-cover bg-[50%_50%]">
-          </div>
+          <div className="absolute w-[461px] h-[282px] top-[220px] left-0 bg-[url(@/assets/3d-rendering-shopping-concept-23-2149877666-1-background-removed-1.png)] bg-cover bg-[50%_50%]"></div>
           <img
             className="absolute w-[146px] h-[140px] top-[155px] left-[276px] rotate-[15deg] object-cover"
             alt="Gift box top"
@@ -47,28 +51,21 @@ const LoginMain = (): JSX.Element => {
         <div className="flex-1 w-full h-full">
           <LoginController />
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
 function LoginController() {
   const { hideLoginOverlay } = useContext(UIContext);
-  const [activeTab, setActiveTab] = useState<
-    | 'login'
-    | 'signup'
-    | 'forgotPassword'
-    | 'verifyOtp'
-    | 'forgot-verify'
-    | 'new-password'
-  >('login');
   const [signupData, setSignupData] = useState<SignUpFormInputs>();
   const [email, setEmail] = useState<string>();
+
+  const { activeTab, setActiveTab } = useContext(UIContext);
 
   const dispatch = useAppDispatch();
 
   const onOtpSubmit = async (otp: string) => {
-    console.log('OTP submitted:', otp);
     try {
       if (!signupData) {
         throw new Error('no data found');
@@ -94,7 +91,7 @@ function LoginController() {
   const onOtpSubmitForget = async (otp: string) => {
     try {
       if (!email) {
-        throw new Error('no data found');
+        throw new Error('No email provided');
       }
       const response = await userEndpoints.verifyOtp(email, otp);
       if (response.data.success) {
@@ -153,7 +150,7 @@ function LoginController() {
     case 'new-password':
       return <NewPassword email={email} setActiveTab={setActiveTab} />;
     default:
-      return null;
+      return <></>;
   }
 }
 

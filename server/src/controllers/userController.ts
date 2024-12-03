@@ -256,7 +256,7 @@ const verifySignUp = async (req: Request, res: Response) => {
       return;
     }
 
-    sendOtp(email);
+    await sendOtp(email);
     res.json({ message: 'OTP sent to your email' });
   } catch (err) {
     console.log(err);
@@ -295,9 +295,7 @@ const resetPassword = async (req: Request, res: Response) => {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-    existingUser.password = hashedPassword;
+    existingUser.password = await bcrypt.hash(req.body.password, 10);
 
     await existingUser.save();
 

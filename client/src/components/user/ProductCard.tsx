@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Product, ImportMeta } from 'shared/types';
+import { Product } from 'shared/types';
 import { useSelector } from 'react-redux';
 import {
   CartState,
@@ -11,10 +12,9 @@ import {
 import { useAppDispatch } from '@/app/store';
 import { AuthState } from '@/features/auth/authSlice';
 import { UIContext } from '@/context/UIContext';
-import { toast } from 'sonner';
+import { ImportMeta } from '@types';
 
-const imageUrl =
-  'https://res.cloudinary.com/snapcart-website/image/upload/f_auto/v1732799293/products/';
+const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [cartQuantity, setCartQuantity] = useState<number>(0);
@@ -27,7 +27,7 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   useEffect(() => {
     setCartQuantity(
-      cartData?.items.find(item => item._id === product._id)?.quantity || 0
+      cartData?.items.find(item => item._id === product._id)?.quantity || 0,
     );
   }, [cartData]);
 

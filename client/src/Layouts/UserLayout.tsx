@@ -10,16 +10,17 @@ import CartOverlay from '@/components/user/CartOverlay';
 import ProfileOverlay from '@/components/user/ProfileOverlay';
 
 function UserLayout() {
-  const { isLoginOverlayOpen, isCartOverlayOpen, isProfileOverlayOpen } = useContext(UIContext);
+  const { isLoginOverlayOpen, isCartOverlayOpen, isProfileOverlayOpen } =
+    useContext(UIContext);
 
   return (
     <>
       <NavBar />
-      <AnimatePresence >
+      <AnimatePresence>
         {isLoginOverlayOpen && <LoginMain />}
         {isCartOverlayOpen && <CartOverlay />}
         {isProfileOverlayOpen && <ProfileOverlay />}
-      </ AnimatePresence >
+      </AnimatePresence>
       <div className="pt-[63px] min-h-screen">
         <Outlet />
       </div>

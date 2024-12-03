@@ -93,11 +93,11 @@ export default function ForgotPasswordCard({ email, setActiveTab }: ForgotPasswo
       <footer className="p-4">
         <p className="text-gray-500 text-xs text-center">
           By continuing, you agree to our{' '}
-          <a href="#terms-of-service" className="underline">
+          <a href="/terms-of-service" className="underline">
             Terms of service
           </a>{' '}
           &{' '}
-          <a href="#privacy-policy" className="underline">
+          <a href="/privacy-policy" className="underline">
             Privacy policy
           </a>
         </p>

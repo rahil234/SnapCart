@@ -9,7 +9,7 @@ import React, {
 import { useLocation } from 'react-router';
 
 interface UIContextProps {
-  isLoginOverlayOpen: boolean; 
+  isLoginOverlayOpen: boolean;
   showLoginOverlay: () => void;
   hideLoginOverlay: () => void;
   isCartOverlayOpen: boolean;
@@ -18,18 +18,38 @@ interface UIContextProps {
   isProfileOverlayOpen: boolean;
   toggleProfileOverlay: () => void;
   hideProfileOverlay: () => void;
+  activeTab: 'login'
+    | 'signup'
+    | 'forgotPassword'
+    | 'verifyOtp'
+    | 'forgot-verify'
+    | 'new-password';
+  setActiveTab: (activeTab: 'login'
+    | 'signup'
+    | 'forgotPassword'
+    | 'verifyOtp'
+    | 'forgot-verify'
+    | 'new-password') => void;
 }
 
 export const UIContext = createContext<UIContextProps>({
   isLoginOverlayOpen: false,
-  showLoginOverlay: () => { },
-  hideLoginOverlay: () => { },
+  showLoginOverlay: () => {
+  },
+  hideLoginOverlay: () => {
+  },
   isCartOverlayOpen: false,
-  toggleCartOverlay: () => { },
-  hideCartOverlay: () => { },
+  toggleCartOverlay: () => {
+  },
+  hideCartOverlay: () => {
+  },
   isProfileOverlayOpen: false,
-  toggleProfileOverlay: () => { },
-  hideProfileOverlay: () => { },
+  toggleProfileOverlay: () => {
+  },
+  hideProfileOverlay: () => {
+  },
+  activeTab: 'login',
+  setActiveTab: () => 'login',
 });
 
 interface UIProviderProps {
@@ -39,7 +59,17 @@ interface UIProviderProps {
 export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
   const [isLoginOverlayOpen, setIsLoginOverlayOpen] = useState<boolean>(false);
   const [isCartOverlayOpen, setIsCartOverlayOpen] = useState<boolean>(false);
-  const [isProfileOverlayOpen, setIsProfileOverlayOpen] = useState<boolean>(false);
+  const [isProfileOverlayOpen, setIsProfileOverlayOpen] =
+    useState<boolean>(false);
+
+  const [activeTab, setActiveTab] = useState<
+    | 'login'
+    | 'signup'
+    | 'forgotPassword'
+    | 'verifyOtp'
+    | 'forgot-verify'
+    | 'new-password'
+  >('login');
 
   const location = useLocation();
 
@@ -116,6 +146,8 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
         isProfileOverlayOpen,
         toggleProfileOverlay,
         hideProfileOverlay,
+        activeTab,
+        setActiveTab,
       }}
     >
       {children}

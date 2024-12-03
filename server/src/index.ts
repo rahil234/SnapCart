@@ -19,6 +19,7 @@ import salesRoute from '@/routes/salesRoute';
 import couponRoute from '@/routes/couponRoute';
 import limiter from '@/config/rateLimmiter';
 import helmet from 'helmet';
+import errorHandler from '@/middleware/errorHandler';
 
 const app = express();
 
@@ -43,6 +44,7 @@ const app = express();
 
   app.use(cookieParser());
   app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
   app.use('/api/auth', authRoute);
   app.use('/api/user', userRoute);
@@ -56,6 +58,8 @@ const app = express();
   app.use('/api/offer', offerRoute);
   app.use('/api/coupon', couponRoute);
   app.use('/api/sales', salesRoute);
+
+  app.use(errorHandler);
 
   const PORT = process.env.PORT || 3000;
 

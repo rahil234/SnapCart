@@ -26,10 +26,8 @@ const authenticateAndAuthorize = (
         return;
       }
 
-      // Attach the user to the request
       req.user = user as Request['user'];
 
-      // Check if roles are specified and if the user's role is allowed
       if (roles.length && (!req.user || !roles.includes(req.user.role))) {
         res.status(403).json({ message: 'Permission denied' });
         return;

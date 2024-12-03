@@ -19,7 +19,7 @@ const archiveCategory = (subcategoryId: string) => {
 };
 
 const unarchiveCategory = (subcategoryId: string) => {
-  return axiosInstance.patch('/api/category/unarchive-category', {
+  return axiosInstance.patch('/api/category/list-category', {
     subcategoryId,
   });
 };

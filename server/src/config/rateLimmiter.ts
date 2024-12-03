@@ -5,7 +5,7 @@ import { client } from '@/config/redis';
 const limiter = async () => {
   return rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    limit: 100,
     standardHeaders: true,
     legacyHeaders: false,
 

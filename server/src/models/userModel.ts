@@ -9,13 +9,6 @@ const AddressSchema: Schema = new Schema(
     pinCode: {
       type: Number,
       required: true,
-      validate: {
-        validator: function (value: number) {
-          return /^\d{6}$/.test(value.toString());
-        },
-        message: (props: any) =>
-          `${props.value} is not a valid 6-digit pin code!`,
-      },
     },
   },
   { _id: true }

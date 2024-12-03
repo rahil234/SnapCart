@@ -6,7 +6,7 @@ services:
     volumes:
       - redis_volume_data:/data
     ports:
-      - 6379:6379
+      - "6379:6379"
     networks:
       - app-network
 
@@ -47,16 +47,16 @@ services:
     networks:
       - app-network
 
-  certbot:
-    container_name: snapcart-certbot
-    image: certbot/certbot
-    volumes:
-      - ./nginx/certs:/etc/letsencrypt
-      - ./nginx/certs:/var/www/certbot
-    depends_on:
-      - nginx
-    networks:
-      - app-network
+#  certbot:
+#    container_name: snapcart-certbot
+#    image: certbot/certbot
+#    volumes:
+#      - ./nginx/certs:/etc/letsencrypt
+#      - ./nginx/certs:/var/www/certbot
+#    depends_on:
+#      - nginx
+#    networks:
+#      - app-network
 
 networks:
   app-network:

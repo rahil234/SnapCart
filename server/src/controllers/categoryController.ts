@@ -3,7 +3,7 @@ import categoryModel from '../models/categoryModel';
 import subcategoryModel from '../models/subcategoryModel';
 import { catchError } from 'shared/types';
 
-const getCategories = async (req: Request, res: Response) => {
+const getCategories = async (_req: Request, res: Response) => {
   try {
     const categories = await categoryModel.find();
     const categoriesWithSubcategories = await Promise.all(
@@ -32,7 +32,7 @@ const addCategory = async (req: Request, res: Response) => {
         name: subcategoryName,
         category: categoryId,
       });
-      newSubCategory.save();
+      await newSubCategory.save();
       res.status(200).json({ message: 'Subcategories added successfully' });
     } else {
       // Create new category with subcategories
@@ -44,7 +44,7 @@ const addCategory = async (req: Request, res: Response) => {
         category: newCategory._id,
       });
 
-      newSubCategory.save();
+      await newSubCategory.save();
       res.status(200).json({ message: 'Category added successfully' });
     }
   } catch (error) {
@@ -102,7 +102,7 @@ const archiveCategory = async (req: Request, res: Response) => {
   }
 };
 
-const unarchiveCategory = async (req: Request, res: Response) => {
+const listCategory = async (req: Request, res: Response) => {
   try {
     const { subcategoryId } = req.body;
 
@@ -115,7 +115,7 @@ const unarchiveCategory = async (req: Request, res: Response) => {
   }
 };
 
-const getTopCategories = async (req: Request, res: Response) => {
+const getTopCategories = async (_req: Request, res: Response) => {
   try {
     const categories = await categoryModel
       .find({ status: 'Active', soldCount: { $gt: 0 } })
@@ -135,6 +135,6 @@ export default {
   addCategory,
   editCategories,
   archiveCategory,
-  unarchiveCategory,
+  listCategory,
   getTopCategories,
 };

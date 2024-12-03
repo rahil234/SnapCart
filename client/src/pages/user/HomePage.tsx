@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import adminEndpoints from '@/api/adminEndpoints';
 import ProductCard from '@/components/user/ProductCard';
 import { Product } from 'shared/types';
@@ -19,7 +19,6 @@ interface Products {
 }
 
 function HomePage() {
-  const { referalId } = useParams();
 
   const [data, setData] = useState<Products[]>([]);
   const [banners, setBanners] = useState<

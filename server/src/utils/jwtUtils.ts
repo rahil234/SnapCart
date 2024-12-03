@@ -16,10 +16,10 @@ export const signRefreshToken = (payload: object): string => {
   });
 };
 
-export const verifyAccessToken = (token: string): JwtPayload | null => {
-  const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as Secret;
-  return verifyToken(token, ACCESS_TOKEN_SECRET);
-};
+// export const verifyAccessToken = (token: string): JwtPayload | null => {
+//   const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as Secret;
+//   return verifyToken(token, ACCESS_TOKEN_SECRET);
+// };
 
 export const verifyRefreshToken = (token: string): JwtPayload | null => {
   const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as Secret;
