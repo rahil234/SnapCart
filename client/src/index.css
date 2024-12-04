@@ -40,6 +40,12 @@ body.no-scroll-padding {
   padding-right: 15px;
 }
 
+.animate-scroll {
+  display: flex;
+  width: calc(100%);
+  animation: scroll 15s linear infinite;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

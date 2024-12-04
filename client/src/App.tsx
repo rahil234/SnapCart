@@ -66,7 +66,7 @@ const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <Analytics />
-      <RouterProvider router={routes} />
+        <RouterProvider router={routes} />
     </QueryClientProvider>
   );
 };

@@ -1,8 +1,8 @@
 import axiosInstance from './axiosInstance';
 import { AxiosProgressEvent } from 'axios';
 
-const getLatestProducts = () => {
-  return axiosInstance.get('/api/product');
+const getLatestProducts = async () => {
+  return (await axiosInstance.get('/api/product')).data;
 };
 
 const fetchProductById = (productId: string) => {

@@ -72,22 +72,12 @@ const Header = () => {
             3
           </span>
         </div>
-        {/* Lamguage disabled */}
-        {/* <div className="flex items-center space-x-2">
-        <img
-          src="/placeholder.svg?height=24&width=24"
-          alt="UK flag"
-          className="w-6 h-6 rounded-full"
-        />
-        <span className="text-gray-600">English</span>
-        <ChevronDown size={16} className="text-gray-400" />
-      </div> */}
         <div className="flex items-center space-x-2">
-          {/* <img
-          src="/placeholder.svg?height=32&width=32"
-          alt="User avatar"
-          className="w-8 h-8 rounded-full"
-        /> */}
+          <img
+            src="https://avatar.iran.liara.run/public/38"
+            alt="User avatar"
+            className="w-8 h-8 rounded-full"
+          />
           <div>
             <div className="text-sm font-semibold">{user?.firstName}</div>
             <div className="text-xs text-gray-500">Seller</div>

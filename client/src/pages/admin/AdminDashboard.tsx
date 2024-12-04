@@ -143,51 +143,51 @@ const SalesChart = () => {
   );
 };
 
-const DealsTable = () => (
-  <div className="bg-white rounded-lg p-6 mt-6">
-    <div className="flex justify-between items-center mb-4">
-      <h2 className="text-xl font-semibold">Deals Details</h2>
-      <select className="border rounded px-2 py-1">
-        <option>October</option>
-      </select>
-    </div>
-    <table className="w-full">
-      <thead>
-        <tr className="text-left text-gray-500">
-          <th className="pb-4">Product Name</th>
-          <th className="pb-4">Location</th>
-          <th className="pb-4">Date - Time</th>
-          <th className="pb-4">Piece</th>
-          <th className="pb-4">Amount</th>
-          <th className="pb-4">Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td className="py-2">
-            <div className="flex items-center">
-              <img
-                src="/placeholder.svg?height=40&width=40"
-                alt="Apple Watch"
-                className="w-10 h-10 rounded mr-2"
-              />
-              Apple Watch
-            </div>
-          </td>
-          <td>6096 Marjolaine Landing</td>
-          <td>12.09.2019 - 12:53 PM</td>
-          <td>423</td>
-          <td>$34,295</td>
-          <td>
-            <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs">
-              Delivered
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-);
+// const DealsTable = () => (
+//   <div className="bg-white rounded-lg p-6 mt-6">
+//     <div className="flex justify-between items-center mb-4">
+//       <h2 className="text-xl font-semibold">Deals Details</h2>
+//       <select className="border rounded px-2 py-1">
+//         <option>October</option>
+//       </select>
+//     </div>
+//     <table className="w-full">
+//       <thead>
+//         <tr className="text-left text-gray-500">
+//           <th className="pb-4">Product Name</th>
+//           <th className="pb-4">Location</th>
+//           <th className="pb-4">Date - Time</th>
+//           <th className="pb-4">Piece</th>
+//           <th className="pb-4">Amount</th>
+//           <th className="pb-4">Status</th>
+//         </tr>
+//       </thead>
+//       <tbody>
+//         <tr>
+//           <td className="py-2">
+//             <div className="flex items-center">
+//               <img
+//                 src="/placeholder.svg?height=40&width=40"
+//                 alt="Apple Watch"
+//                 className="w-10 h-10 rounded mr-2"
+//               />
+//               Apple Watch
+//             </div>
+//           </td>
+//           <td>6096 Marjolaine Landing</td>
+//           <td>12.09.2019 - 12:53 PM</td>
+//           <td>423</td>
+//           <td>$34,295</td>
+//           <td>
+//             <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs">
+//               Delivered
+//             </span>
+//           </td>
+//         </tr>
+//       </tbody>
+//     </table>
+//   </div>
+// );
 
 export default function AdminDashboard() {
   return (
@@ -223,7 +223,7 @@ export default function AdminDashboard() {
         />
       </div>
       <SalesChart />
-      <DealsTable />
+      {/*<DealsTable />*/}
     </main>
   );
 }

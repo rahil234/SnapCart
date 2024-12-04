@@ -90,7 +90,7 @@ const Header = () => {
       </div> */}
         <div className="flex items-center space-x-2">
           <img
-            src="/placeholder.svg?height=32&width=32"
+            src="https://avatar.iran.liara.run/public/38"
             alt="User avatar"
             className="w-8 h-8 rounded-full"
           />

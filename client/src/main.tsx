@@ -8,16 +8,21 @@ import App from './App';
 import store from './app/store';
 import './index.css';
 import { ImportMeta } from '@types';
+import { Toaster as HotToaster } from 'react-hot-toast';
 
-const GOOGLE_OAUTHCLIENTID = (import.meta as unknown as ImportMeta).env
+const GOOGLE_OAUTH_CLIENT_ID = (import.meta as unknown as ImportMeta).env
   .VITE_GOOGLE_OAUTHCLIENTID;
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={GOOGLE_OAUTHCLIENTID}>
+    <GoogleOAuthProvider clientId={GOOGLE_OAUTH_CLIENT_ID}>
       <Provider store={store}>
         <TooltipProvider>
           <Toaster />
+          <HotToaster
+            position="top-right"
+            reverseOrder={false}
+          />
           <App />
         </TooltipProvider>
       </Provider>

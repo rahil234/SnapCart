@@ -15,7 +15,7 @@ const getSellers = () => {
 };
 
 const getBanners = async () => {
-  return axiosInstance.get('/api/admin/get-banners');
+  return (await axiosInstance.get('/api/admin/get-banners')).data;
 };
 
 const uploadBannerImage = async (data: FormData) => {

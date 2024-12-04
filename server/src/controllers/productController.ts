@@ -225,10 +225,11 @@ const getProductsByUser = async (_req: Request, res: Response) => {
       })
     );
 
-    res.json(categoryProducts);
+    res.status(200).json(categoryProducts);
   } catch (err) {
     console.error('Error:', err);
     res.status(404).json({ message: err });
+    throw err;
   }
 };
 
