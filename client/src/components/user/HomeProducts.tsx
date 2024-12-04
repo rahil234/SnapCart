@@ -47,7 +47,6 @@ const HomeProducts = () => {
           )}
         </React.Fragment>
       ))}
-      ;
     </>
   );
 };
