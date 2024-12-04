@@ -4,7 +4,16 @@ SnapCart is a quick delivery website for groceries and foods, designed to provid
 
 ---
 
-![img.png](img.png)
+# SnapCart
+
+Here are some images:
+
+<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;">
+  <img src="img.png" alt="Image Description" style="border-radius: 10px;">
+  <img src="IMG_2.jpg" alt="Image Description" style="width: 300px; border-radius: 10px;">
+</div>
+
+---
 
 ## Features ✨
 
