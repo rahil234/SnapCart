@@ -1,12 +1,10 @@
 # SnapCart 🛒
 
-SnapCart is a quick delivery website for groceries and foods, designed to provide users with a seamless shopping experience. It focuses on efficiency, scalability, and user satisfaction.
+SnapCart is a quick delivery website for groceries and foods, designed to provide users with a seamless shopping
+experience. It focuses on efficiency, scalability, and user satisfaction.
 
 ---
-
-# SnapCart
-
-Here are some images:
+images:
 
 <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;">
   <img src="img.png" alt="Image Description" style="border-radius: 10px;">
@@ -29,16 +27,20 @@ Here are some images:
 ## Tech Stack 🛠
 
 **Frontend**:
+
 - React
 - Redux (for state management)
 - Tailwind CSS (for styling)
 
 **Backend**:
+
 - Node.js
 - Express.js
 - MongoDB
+- Redis
 
 **Other Tools**:
+
 - TypeScript (strong typing)
 - Axios (API communication)
 - Docker (containerization for deployment)
@@ -49,11 +51,13 @@ Here are some images:
 ## Installation 🚀
 
 ### Prerequisites
-- Node.js (v16 or higher)
+
+- Node.js (v18 or higher)
 - MongoDB (Community version 7.0 or higher)
 - Docker & Docker Compose
 
 ### Clone the repository
+
 ```bash
 git clone https://github.com/<your-username>/snapcart.git
 cd snapcart
@@ -92,6 +96,7 @@ docker-compose up --build
 	•	GET /api/cart - Fetch cart items
 	•	POST /api/cart - Add items to cart
 
+---
 
 ## Project Structure 📂
 
@@ -105,22 +110,10 @@ snapcart/
   └── README.md        # Project documentation
 ```
 
-
-## Contributing 🤝
-
-Contributions are welcome! Follow these steps to contribute:
-1.	Fork the repository.
-2.	Create a new branch: git checkout -b feature/your-feature-name.
-3.	Commit your changes: git commit -m "Add your feature".
-4.	Push to the branch: git push origin feature/your-feature-name.
-5.	Open a pull request.
-
-## License 📜
-
-This project is licensed under the MIT License. See the LICENSE file for details.
+---
 
 Contact 📧
 
 For inquiries, please contact:
 Rahil Sardar
-Email: rahil.sardar@example.com
+Email: rahilsardar234@gmail.com
