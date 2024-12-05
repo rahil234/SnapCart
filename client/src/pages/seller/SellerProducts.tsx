@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
 import { ImportMeta } from '@types';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 type IVariantGroup = {
   _id: string;
@@ -59,32 +59,81 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
 
   const queryClient = useQueryClient();
 
-  const handleAction = async () => {
-    if (selectedProduct) {
-      try {
-        if (actionType === 'list') {
-          await productEndpoints.listProduct(selectedProduct._id);
-          await queryClient.invalidateQueries({
-            queryKey: ['seller-products'],
-          });
-          toast.success(
-            `Product ${selectedProduct.name} ${selectedProduct.variantName} listed successfully`
-          );
-        } else {
-          await productEndpoints.unlistProduct(selectedProduct._id);
-          await queryClient.invalidateQueries({
-            queryKey: ['seller-products'],
-          });
-          toast.success(
-            `Product ${selectedProduct.name} ${selectedProduct.variantName} unlisted successfully`
-          );
-        }
-      } catch (error) {
-        console.error(`Failed to ${actionType} product:`, error);
-        toast.error(`Failed to ${actionType} product`);
-      }
+  // const handleAction = async () => {
+  //   if (selectedProduct) {
+  //     try {
+  //       if (actionType === 'list') {
+  //         await productEndpoints.listProduct(selectedProduct._id);
+  //         await queryClient.invalidateQueries({
+  //           queryKey: ['seller-products'],
+  //         });
+  //         toast.success(
+  //           `Product ${selectedProduct.name} ${selectedProduct.variantName} listed successfully`
+  //         );
+  //       } else {
+  //         await productEndpoints.unlistProduct(selectedProduct._id);
+  //         await queryClient.invalidateQueries({
+  //           queryKey: ['seller-products'],
+  //         });
+  //         toast.success(
+  //           `Product ${selectedProduct.name} ${selectedProduct.variantName} unlisted successfully`
+  //         );
+  //       }
+  //     } catch (error) {
+  //       console.error(`Failed to ${actionType} product:`, error);
+  //       toast.error(`Failed to ${actionType} product`);
+  //     }
+  //     setSelectedProduct(null);
+  //     setActionType('list');
+  //   }
+  // };
+
+  // Mutation for listing a product
+  const listProductMutation = useMutation({
+    mutationFn: (productId: string) => productEndpoints.listProduct(productId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['seller-products'] });
+      toast.success(
+        `Product ${selectedProduct?.name} ${selectedProduct?.variantName} listed successfully`
+      );
       setSelectedProduct(null);
       setActionType('list');
+    },
+    onError: error => {
+      console.error('Failed to list product:', error);
+      toast.error('Failed to list product');
+      setSelectedProduct(null);
+      setActionType('list');
+    },
+  });
+
+  // Mutation for unlisting a product
+  const unlistProductMutation = useMutation({
+    mutationFn: (productId: string) =>
+      productEndpoints.unlistProduct(productId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['seller-products'] });
+      toast.success(
+        `Product ${selectedProduct?.name} ${selectedProduct?.variantName} unlisted successfully`
+      );
+      setSelectedProduct(null);
+      setActionType('list');
+    },
+    onError: error => {
+      console.error('Failed to unlist product:', error);
+      toast.error('Failed to unlist product');
+      setSelectedProduct(null);
+      setActionType('list');
+    },
+  });
+
+  const handleAction = () => {
+    if (selectedProduct) {
+      if (actionType === 'list') {
+        listProductMutation.mutate(selectedProduct._id);
+      } else {
+        unlistProductMutation.mutate(selectedProduct._id);
+      }
     }
   };
 
@@ -120,13 +169,13 @@ const ProductsTable: React.FC<ProductsTableProps> = ({
                   {index === 0 && (
                     <>
                       <td
-                        className="px-2 py-4 whitespace-nowrap text-xs text-center"
+                        className="px-2 py-4 text-xs text-center"
                         rowSpan={variantGroup.products.length}
                       >
                         {product.name}
                       </td>
                       <td
-                        className="px-2 py-4 whitespace-nowrap text-xs text-center"
+                        className="px-2 py-4 text-xs text-center"
                         rowSpan={variantGroup.products.length}
                       >{`${product.category.name}/ ${product.subcategory.name}`}</td>
                     </>

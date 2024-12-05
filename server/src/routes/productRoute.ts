@@ -37,11 +37,23 @@ router.patch(
   productController.editProduct
 );
 
-router.get('/topProduct', productController.getTopProducts);
+router.get(
+  '/topProduct',
+  authenticateAndAuthorize(['admin', 'seller']),
+  productController.getTopProducts
+);
 
-router.patch('/unlist-product/:productId', productController.unListProduct);
+router.patch(
+  '/list-product/:productId',
+  authenticateAndAuthorize(['admin', 'seller']),
+  productController.listProduct
+);
 
-router.patch('/list-product/:productId', productController.listProduct);
+router.patch(
+  '/un-list-product/:productId',
+  authenticateAndAuthorize(['admin', 'seller']),
+  productController.unListProduct
+);
 
 router.get('/search', productController.searchProducts);
 

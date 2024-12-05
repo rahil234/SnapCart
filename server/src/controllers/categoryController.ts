@@ -111,7 +111,7 @@ const listCategory = async (req: Request, res: Response) => {
     });
     res.status(200).json({ message: 'Category unarchived successfully' });
   } catch (error) {
-    console.error('Failed to unarchive category:', error);
+    console.error('Failed to un-archive category:', error);
   }
 };
 
@@ -123,7 +123,6 @@ const getTopCategories = async (_req: Request, res: Response) => {
       .limit(10);
 
     res.status(200).json(categories);
-    console.log(categories);
   } catch (error) {
     console.error('Error fetching top categories:', error);
     res.status(500).json({ message: 'Failed to fetch top categories' });

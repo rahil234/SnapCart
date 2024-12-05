@@ -235,6 +235,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
     try {
+      console.log(data);
       const formData = new FormData();
       formData.append('productName', data.productName);
       formData.append('description', data.description);

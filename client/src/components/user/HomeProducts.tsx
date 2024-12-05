@@ -33,7 +33,7 @@ const HomeProducts = () => {
                 </h2>
                 <p
                   className="font-medium mb-4 text-green-700"
-                  onClick={() => navigate(`/category/${category.categoryId}`)}
+                  onClick={() => navigate(`/category/${category.category}`)}
                 >
                   see all
                 </p>

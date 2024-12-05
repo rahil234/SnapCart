@@ -38,8 +38,6 @@ const getProduct = async (req: Request, res: Response) => {
       })) as any; //eslint-disable-line
     }
 
-    console.log('product', JSON.stringify(x.description));
-
     res.status(200).json(x);
   } catch (error) {
     console.log('Error fetching product', error);
@@ -49,8 +47,9 @@ const getProduct = async (req: Request, res: Response) => {
 
 const getTopProducts = async (req: Request, res: Response) => {
   try {
+    console.log(req.user?._id);
     const products = await productModel
-      .find({ seller: req.user?._id, status: 'Active', soldCount: { $gt: 0 } })
+      .find({ status: 'Active', soldCount: { $gt: 0 } })
       .sort({ soldCount: -1 })
       .limit(10);
 
@@ -196,14 +195,15 @@ const getRelatedProducts = async (req: Request, res: Response) => {
 
 const getProductByCategory = async (req: Request, res: Response) => {
   try {
-    const { category } = req.params;
-    const products = await productModel
-      .find({ category, status: 'Active' })
-      .populate('category')
-      .populate('subcategory');
+    const { category: categoryName } = req.params;
+    const category = (await categoryModel.findOne({ name: categoryName }))?._id;
+    console.log('category', category);
+    const products = await productModel.find({ category, status: 'Active' });
+    console.log('products', products);
     res.status(200).json(products);
   } catch (error) {
     const myError = error as catchError;
+    console.log('Error fetching products by category', myError);
     res.status(400).json({ message: myError.message });
   }
 };
@@ -286,8 +286,6 @@ const getProductsByAdmin = async (_req: Request, res: Response) => {
       },
     ]);
 
-    console.log('p', productsByVariant[0].products);
-
     res.status(200).json(productsByVariant);
   } catch (error) {
     const myError = error as catchError;
@@ -342,6 +340,9 @@ const getProductsBySeller = async (req: Request, res: Response) => {
           category: { $first: '$category' },
           subcategory: { $first: '$subcategory' },
         },
+      },
+      {
+        $sort: { 'products.createdAt': -1 },
       },
     ]);
 

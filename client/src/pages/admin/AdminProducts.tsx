@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Search,
   ChevronDown,
@@ -27,6 +27,8 @@ import {
 } from '@/components/ui/tooltip';
 
 import { ImportMeta } from 'types';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 type IVariantGroup = {
   _id: string;
@@ -35,42 +37,36 @@ type IVariantGroup = {
 
 interface ProductsTableProps {
   variantGroup: IVariantGroup[];
-  setVariantGroup: React.Dispatch<React.SetStateAction<IVariantGroup[]>>;
 }
 
 const imageUrl =
   (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
 
 const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup }) => {
-  const [actionType, setActionType] = useState<'list' | 'unlist'>('list');
+  const [actionType, setActionType] = useState<'list' | 'un-list'>('list');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const queryClient = useQueryClient();
 
   const handleAction = async () => {
-    //   if (selectedProduct) {
-    //     try {
-    //       if (actionType === 'list') {
-    //         await productEndpoints.listProduct(selectedProduct._id);
-    //         setProducts((prevProducts) =>
-    //           prevProducts.map((product) =>
-    //             product._id === selectedProduct._id ? { ...product, status: 'Active' } : product
-    //           )
-    //         );
-    //         toast.success('Product listed successfully');
-    //       } else {
-    //         await productEndpoints.unlistProduct(selectedProduct._id);
-    //         setProducts((prevProducts) =>
-    //           prevProducts.map((product) =>
-    //             product._id === selectedProduct._id ? { ...product, status: 'Inactive' } : product
-    //           )
-    //         );
-    //         toast.success('Product unlisted successfully');
-    //       }
-    //     } catch (error) {
-    //       console.error(`Failed to ${actionType} product:`, error);
-    //       toast.error(`Failed to ${actionType} product`);
-    //     }
-    //     setSelectedProduct(null);
-    //     setActionType('list');
-    //   }
+    if (selectedProduct) {
+      try {
+        if (actionType === 'list') {
+          await productEndpoints.listProduct(selectedProduct._id);
+          await queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+          toast.success('Product listed successfully');
+        } else {
+          await productEndpoints.unlistProduct(selectedProduct._id);
+          await queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+          toast.success('Product unlisted successfully');
+        }
+      } catch (error) {
+        console.error(`Failed to ${actionType} product:`, error);
+        toast.error(`Failed to ${actionType} product`);
+      }
+      setSelectedProduct(null);
+      setActionType('list');
+    }
   };
 
   return (
@@ -98,41 +94,41 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup }) => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {variantGroup.map(varientGroup => (
-            <React.Fragment key={varientGroup._id}>
-              {varientGroup.products.map((product, index) => (
+          {variantGroup.map(variantGroup => (
+            <React.Fragment key={variantGroup._id}>
+              {variantGroup.products.map((product, index) => (
                 <tr key={index}>
                   {index === 0 && (
                     <>
                       <td
-                        className="px-2 py-4 whitespace-nowrap text-xs text-center"
-                        rowSpan={varientGroup.products.length}
+                        className="px-2 py-4 text-xs text-center"
+                        rowSpan={variantGroup.products.length}
                       >
                         {product.name}
                       </td>
                       <td
-                        className="px-2 py-4 whitespace-nowrap text-xs text-center"
-                        rowSpan={varientGroup.products.length}
+                        className="px-2 py-4 text-xs text-center"
+                        rowSpan={variantGroup.products.length}
                       >{`${product.category.name}/ ${product.subcategory.name}`}</td>
                     </>
                   )}
-                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">
+                  <td className="px-2 py-4 text-xs text-center">
                     {product.variantName}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4">
                     <img
                       src={imageUrl + product.images[0]}
                       alt={product.name}
                       className="w-12 h-12 object-cover rounded"
                     />
                   </td>
-                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">
-                    ₹{product.name}
+                  <td className="px-2 py-4 text-xs text-center">
+                    ₹{product.price}
                   </td>
-                  <td className="px-2 py-4 whitespace-nowrap text-xs text-center">
+                  <td className="px-2 py-4 text-xs text-center">
                     {product.stock}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                  <td className="px-6 py-4 text-center">
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         product.status === 'Active'
@@ -155,9 +151,10 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup }) => {
                                   : 'text-green-600 hover:text-green-900'
                               } cursor-pointer`}
                               onClick={() => {
+                                setSelectedProduct(product);
                                 setActionType(
                                   product.status === 'Active'
-                                    ? 'unlist'
+                                    ? 'un-list'
                                     : 'list'
                                 );
                               }}
@@ -172,7 +169,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup }) => {
                           <TooltipContent className="bg-white text-black shadow-lg">
                             <p>
                               {product.status === 'Active'
-                                ? 'Unlist product'
+                                ? 'Un-list product'
                                 : 'List product'}
                             </p>
                           </TooltipContent>
@@ -212,14 +209,28 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ variantGroup }) => {
 };
 
 export default function AdminProducts() {
-  const [variantGroup, setVariantGroup] = useState<IVariantGroup[]>([]);
+  // const [variantGroup, setVariantGroup] = useState<IVariantGroup[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      const data = await productEndpoints.getAdminProducts();
-      setVariantGroup(data);
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     const data = await productEndpoints.getAdminProducts();
+  //     setVariantGroup(data);
+  //   })();
+  // }, []);
+  const { data: variantGroup, isLoading } = useQuery({
+    queryKey: ['admin-products'],
+    queryFn: productEndpoints.getAdminProducts,
+  });
+
+  if (isLoading) {
+    return (
+      <main className="p-8">
+        <div className="text-center py-10">
+          <p className="text-gray-500">Loading...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="p-8 overflow-x-auto">
@@ -250,10 +261,7 @@ export default function AdminProducts() {
       </div>
       {variantGroup.length > 0 ? (
         <>
-          <ProductsTable
-            variantGroup={variantGroup}
-            setVariantGroup={setVariantGroup}
-          />
+          <ProductsTable variantGroup={variantGroup} />
           <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
             <span>Showing 1-09 of 78</span>
             <div className="flex space-x-2">

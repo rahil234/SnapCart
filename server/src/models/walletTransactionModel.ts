@@ -8,13 +8,18 @@ interface IWalletTransaction extends Document {
   type: 'debit' | 'credit';
 }
 
-const walletSchama: Schema = new Schema({
-  userId: Schema.Types.ObjectId,
-  amount: Number,
-  description: String,
-  date: { type: Date, default: Date.now() },
-  type: { enum: ['debit', 'credit'], type: String },
-});
+const walletSchama: Schema = new Schema(
+  {
+    userId: Schema.Types.ObjectId,
+    amount: Number,
+    description: String,
+    date: { type: Date, default: Date.now() },
+    type: { enum: ['debit', 'credit'], type: String },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 const walletModel = model<IWalletTransaction>('Wallet', walletSchama);
 

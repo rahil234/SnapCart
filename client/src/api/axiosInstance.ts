@@ -10,7 +10,7 @@ interface ImportMeta {
 }
 
 const apiUrl = (import.meta as unknown as ImportMeta).env
-  .VITE_API_URL as string;
+  .VITE_API_URL;
 
 const axiosInstance = axios.create({
   baseURL: apiUrl,
