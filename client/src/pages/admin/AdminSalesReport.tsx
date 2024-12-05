@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import salesEndpoints from '@/api/salesEndpoints';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -25,6 +25,7 @@ import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import DatePickerWithRange from '@/components/ui/DatePickerWithRange';
 import { DateRange } from 'react-day-picker';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface jsPDFWithAutoTable extends jsPDF {
   autoTable: (options: object) => void;
@@ -43,38 +44,46 @@ interface SalesData {
 }
 
 export default function SalesReport() {
-  const [salesData, setSalesData] = useState<SalesData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [timeframe, setTimeframe] = useState('daily');
-  const [startDate, setStartDate] = useState<string>('2020-01-01');
-  const [endDate, setEndDate] = useState<string>('2024-12-31');
+  const [startDate, setStartDate] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
+  const [endDate, setEndDate] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
+
+  const queryClient = useQueryClient();
+
+  const {
+    data: salesData,
+    isLoading,
+    error,
+  } = useQuery<SalesData[]>({
+    queryKey: ['sales'],
+    queryFn: async () =>
+      await salesEndpoints.fetchSalesData(timeframe, startDate, endDate),
+  });
 
   useEffect(() => {
-    (async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await salesEndpoints.fetchSalesData(
-          timeframe,
-          startDate,
-          endDate
-        );
-        setSalesData(data);
-      } catch (err) {
-        console.error(err);
-        setError('Failed to fetch sales data');
-      } finally {
-        setIsLoading(false);
-      }
-    })();
-  }, [timeframe, startDate, endDate]);
+    console.log(salesData);
+  }, [salesData]);
+
+  const fetchSalesReport = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['sales'] });
+  };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error || !salesData) return <div>Error: {error?.message}</div>;
 
   const handleDateChange = (range: DateRange | undefined) => {
     if (range?.from && range?.to) {
       setStartDate(range.from.toISOString().split('T')[0]);
       setEndDate(range.to.toISOString().split('T')[0]);
     }
+  };
+
+  const handleApplyFilter = async () => {
+    await fetchSalesReport();
   };
 
   const totalOrders = salesData.reduce(
@@ -89,12 +98,18 @@ export default function SalesReport() {
 
   const downloadPDF = () => {
     const doc = new jsPDF() as jsPDFWithAutoTable;
+
+    // Embed and use the font
+    // doc.addFileToVFS('Roboto-Regular-normal.ts', robotoRegular);
+    // doc.addFont('Roboto-Regular-normal.ttf', 'Roboto', 'normal');
+    // doc.setFont('Roboto');
+
+    doc.text('₹ Test', 10, 10);
     doc.text('Sales Report', 14, 15);
     doc.setFontSize(11);
     doc.text(`Total Orders: ${totalOrders}`, 14, 25);
     doc.text(`Total Sales: ₹${totalSales.toFixed(2)}`, 14, 32);
     doc.text(`Total Items Sold: ${totalItemsSold}`, 14, 39);
-    doc.text(`Timeframe: ${timeframe}`, 14, 46);
     doc.text(`Date Range: ${startDate} to ${endDate}`, 14, 53);
 
     const tableColumn = ['Date', 'Orders', 'Sales', 'Items Sold', 'Net Sales'];
@@ -119,7 +134,6 @@ export default function SalesReport() {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sales Data');
 
-    // Add headers
     worksheet.addRow([
       'Date',
       'Orders',
@@ -129,7 +143,6 @@ export default function SalesReport() {
       'Items Sold',
     ]);
 
-    // Add data rows
     salesData.forEach(sale => {
       worksheet.addRow([
         sale.date || 'N/A',
@@ -156,9 +169,6 @@ export default function SalesReport() {
     saveAs(blob, 'sales_report.xlsx');
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-
   return (
     <Card className="m-4">
       <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
@@ -175,8 +185,8 @@ export default function SalesReport() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-2">
+        <div className="mb-6 flex gap-4 items-end w-full">
+          <div className="space-y-2 w-[130px]">
             <Label htmlFor="timeframe">Timeframe</Label>
             <Select value={timeframe} onValueChange={setTimeframe}>
               <SelectTrigger id="timeframe">
@@ -191,32 +201,19 @@ export default function SalesReport() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="startDate">Start Date</Label>
-            <input
-              type="date"
-              id="startDate"
-              value={startDate}
-              onChange={e => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md"
-            />
-          </div>
-          <DatePickerWithRange
-            disabled={date => date < new Date()}
-            onDateChange={handleDateChange}
-          />
-          <div className="space-y-2">
             <Label htmlFor="endDate">End Date</Label>
-            <input
-              type="date"
-              id="endDate"
-              value={endDate}
-              onChange={e => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md"
+            <DatePickerWithRange
+              disabled={date => date > new Date()}
+              initialDate={{
+                from: new Date(startDate),
+                to: new Date(endDate),
+              }}
+              onDateChange={handleDateChange}
             />
           </div>
-          <div className="flex items-end">
-            <Button onClick={() => {}} className="w-full">
-              <Filter className="mr-2 h-4 w-4" />
+          <div className="space-y-2 justify-self-end">
+            <Button onClick={handleApplyFilter}>
+              <Filter className="w-4" />
               Apply Filters
             </Button>
           </div>
@@ -255,6 +252,7 @@ export default function SalesReport() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Date</TableHead>
                 <TableHead>Orders</TableHead>
                 <TableHead>Sales</TableHead>
                 <TableHead>Discount</TableHead>
@@ -266,6 +264,7 @@ export default function SalesReport() {
               {salesData.map((sale, index) => (
                 <React.Fragment key={sale._id || index}>
                   <TableRow key={sale._id || index}>
+                    <TableCell>{sale.date?.toString()}</TableCell>
                     <TableCell>{sale.totalOrders}</TableCell>
                     <TableCell>₹{sale.totalSales.toFixed(2)}</TableCell>
                     <TableCell>

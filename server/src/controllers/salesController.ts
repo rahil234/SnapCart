@@ -21,6 +21,7 @@ const fetchSalesReport = async (req: Request, res: Response) => {
       ed,
       req.user.role === 'seller' ? req.user?._id : undefined
     );
+    console.log(salesReport);
     res.status(200).json(salesReport);
   } catch (error) {
     console.log(error);

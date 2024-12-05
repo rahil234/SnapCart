@@ -22,8 +22,10 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   config => {
     const token = store.getState().auth.accessToken;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (!config.headers.Authorization) {
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -33,29 +35,34 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-  response => {
-    return response;
-  },
+  response => response,
   async error => {
     const originalRequest = error.config;
-    console.log('Error response:', error.response);
+
+    if (!error.response) {
+      return Promise.reject(error);
+    }
+
     if (
       error.response.status === 403 &&
-      error.response.data.message === 'Token expired' &&
+      error.response.data.code === 'TOKEN_EXPIRED' &&
       !originalRequest._retry
     ) {
       originalRequest._retry = true;
       try {
-        const response = await axios.post(apiUrl+'/api/refreshToken', null, {
-          withCredentials: true,
-        });
+        const response = await axios.post(
+          apiUrl + '/api/auth/refresh-token',
+          null,
+          {
+            withCredentials: true,
+          }
+        );
         const newToken = response.data.accessToken;
-        console.log('New token:', newToken);
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         store.dispatch({ type: 'auth/updateToken', payload: newToken });
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        console.error('Refresh token error:', refreshError);
+        console.log('Error refreshing token:', refreshError);
         return Promise.reject(refreshError);
       }
     }

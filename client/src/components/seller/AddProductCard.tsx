@@ -326,6 +326,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
           <Label htmlFor="description">Description</Label>
           <Textarea
             id="description"
+            className="max-h-[250px] h-fit"
             {...register('description', {
               required: 'Description is required',
             })}
@@ -509,6 +510,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
                       onDragOver={e => e.preventDefault()}
                       onDrop={e => {
                         e.preventDefault();
+                        handleImageUpload(variant.id, e.dataTransfer.files);
                       }}
                     >
                       <Input

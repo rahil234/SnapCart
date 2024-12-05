@@ -54,6 +54,7 @@ const getTopProducts = async (req: Request, res: Response) => {
       .sort({ soldCount: -1 })
       .limit(10);
 
+    console.log('top products', products);
     res.status(200).json(products);
   } catch (error) {
     console.log('Error fetching top products', error);
@@ -279,6 +280,9 @@ const getProductsByAdmin = async (_req: Request, res: Response) => {
           category: { $first: '$category' },
           subcategory: { $first: '$subcategory' },
         },
+      },
+      {
+        $sort: { 'products.createdAt': -1 },
       },
     ]);
 
