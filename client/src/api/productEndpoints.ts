@@ -26,7 +26,7 @@ const addProduct = async (
   onUploadProgress: (progressEvent: AxiosProgressEvent) => void
 ) => {
   return axiosInstance.post(
-    'https://api.snapcart.website/api/product/add-product',
+    '/api/product/add-product',
     data,
     {
       headers: {
@@ -46,7 +46,7 @@ const editProduct = async (data: FormData) => {
 };
 
 const unlistProduct = (productId: string) => {
-  return axiosInstance.patch('/api/product/unlist-product/' + productId);
+  return axiosInstance.patch('/api/product/un-list-product/' + productId);
 };
 
 const listProduct = (productId: string) => {
@@ -74,16 +74,16 @@ const searchProducts = async ({
   page?: number;
   limit?: number;
 }) => {
-  console.log(
-    'searchProducts',
-    query,
-    category,
-    minPrice,
-    maxPrice,
-    sortBy,
-    page,
-    limit
-  );
+  // console.log(
+  //   'searchProducts',
+  //   query,
+  //   category,
+  //   minPrice,
+  //   maxPrice,
+  //   sortBy,
+  //   page,
+  //   limit
+  // );
 
   const params = new URLSearchParams();
   params.append('query', query);

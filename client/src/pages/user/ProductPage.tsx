@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import { useParams, NavLink, Link } from 'react-router';
+import { useParams, NavLink, Link, ScrollRestoration } from 'react-router';
 import { X, Star, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import productEndpoints from '@/api/productEndpoints';
@@ -204,7 +204,7 @@ const ProductPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/*<ScrollRestoration />*/}
+      <ScrollRestoration />
       <main className="flex-grow container mx-auto px-4 py-8">
         {/* Breadcrumbs */}
         <nav className="text-sm mb-4">

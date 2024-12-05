@@ -116,7 +116,7 @@ function BannerManagement() {
     (async () => {
       try {
         const response = await adminEndpoints.getBanners();
-        setBanners(response.data);
+        setBanners(response);
       } catch (error) {
         console.error('Error fetching banners:', error);
         toast.error('Failed to fetch banners');

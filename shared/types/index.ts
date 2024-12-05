@@ -26,6 +26,8 @@ export interface Product {
   variants?: Variant[];
   reviews?: Review[];
   soldCount: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Category {

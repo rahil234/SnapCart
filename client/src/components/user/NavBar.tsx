@@ -34,7 +34,7 @@ const NavBar = () => {
   }, [location.search]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value.trim();
+    const query = e.target.value.trim() ? e.target.value : '';
     setSearchQuery(query);
     if (query === '') {
       navigate('/');
