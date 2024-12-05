@@ -85,7 +85,6 @@ function SellerSalesReport() {
     doc.text(`Total Orders: ${totalOrders}`, 14, 25);
     doc.text(`Total Sales: ₹${totalSales.toFixed(2)}`, 14, 32);
     doc.text(`Total Items Sold: ${totalItemsSold}`, 14, 39);
-    doc.text(`Timeframe: ${timeframe}`, 14, 46);
     doc.text(`Date Range: ${startDate} to ${endDate}`, 14, 53);
 
     const tableColumn = ['Date', 'Orders', 'Sales', 'Items Sold', 'Net Sales'];
@@ -110,7 +109,6 @@ function SellerSalesReport() {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sales Data');
 
-    // Add headers
     worksheet.addRow([
       'Date',
       'Orders',
@@ -120,7 +118,6 @@ function SellerSalesReport() {
       'Items Sold',
     ]);
 
-    // Add data rows
     salesData.forEach(sale => {
       worksheet.addRow([
         sale.date || 'N/A',

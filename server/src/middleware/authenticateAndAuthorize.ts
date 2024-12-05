@@ -21,8 +21,7 @@ const authenticateAndAuthorize = (
 
     jwt.verify(token, JWT_SECRET, async (err, user) => {
       if (err) {
-        console.error(err);
-        res.status(403).json({ message: 'Token expired' });
+        next(err);
         return;
       }
 
@@ -32,7 +31,6 @@ const authenticateAndAuthorize = (
         res.status(403).json({ message: 'Permission denied' });
         return;
       }
-
       next();
     });
   };

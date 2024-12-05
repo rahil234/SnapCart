@@ -58,7 +58,7 @@ const getSellerOrders = async (req: Request, res: Response) => {
       order.items = order.items.filter((item) => item.seller === req.user?._id);
     });
 
-    console.log(orders);
+    // console.log(orders);
     res.status(200).json(orders);
   } catch (error) {
     console.log(error);
@@ -145,6 +145,7 @@ const createOrder = async (req: Request, res: Response) => {
     }
 
     if (paymentMethod === 'cod' && cart.totalAmount > 1000) {
+      console.log(cart.totalAmount);
       res
         .status(400)
         .json({ message: 'COD is not available for orders above 1000' });
@@ -245,7 +246,7 @@ const createOrder = async (req: Request, res: Response) => {
     });
 
     await order.save();
-    await cartModel.updateOne({ userId: req.user?._id }, { items: [] });
+    await cartModel.updateOne({ userId: req.user?._id }, { items: [],totalAmount: 0 });
     res.status(201).json({ orderId });
   } catch (error) {
     console.log(error);

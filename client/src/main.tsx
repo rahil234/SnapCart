@@ -14,7 +14,7 @@ const GOOGLE_OAUTH_CLIENT_ID = (import.meta as unknown as ImportMeta).env
   .VITE_GOOGLE_OAUTHCLIENTID;
 
 createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <GoogleOAuthProvider clientId={GOOGLE_OAUTH_CLIENT_ID}>
       <Provider store={store}>
         <TooltipProvider>
@@ -27,5 +27,5 @@ createRoot(document.getElementById('root')!).render(
         </TooltipProvider>
       </Provider>
     </GoogleOAuthProvider>
-  </React.StrictMode>
+  // </React.StrictMode>
 );

@@ -42,11 +42,10 @@ const refreshToken = async (req: Request, res: Response) => {
   try {
     const user = await getUserByRoleAndId(decodedToken.role, decodedToken._id);
 
-    console.log('user', user);
-
     if (!user) {
       clearRefreshTokenCookie(res);
-      res.status(404).json({ message: 'User not found' });
+      // res.status(404).json({ message: 'User not found' });
+      res.status(429).json({ message: 'User not found' });
       return;
     }
 

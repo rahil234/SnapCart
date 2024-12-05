@@ -40,7 +40,7 @@ const AdminRoutes = [
                     { path: 'offers', element: <AdminOffers /> },
                     { path: 'orders', element: <AdminOrders /> },
                     { path: 'deals', element: <ComingSoon /> },
-                    { path: 'sales-report', element: <SalesReport /> },
+                    { path: 'sales', element: <SalesReport /> },
                     { path: 'settings', element: <ComingSoon /> },
                 ],
             },

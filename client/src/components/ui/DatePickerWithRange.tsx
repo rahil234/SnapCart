@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { addDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { DateRange, Matcher } from 'react-day-picker';
 import { cn } from '@/lib/utils';
@@ -15,18 +15,17 @@ function DatePickerWithRange({
   className,
   disabled,
   onDateChange,
+  initialDate,
 }: React.HTMLAttributes<HTMLDivElement> & {
   disabled?: Matcher | Matcher[];
   date?: DateRange;
+  initialDate?: DateRange;
   onDateChange?: (date: DateRange | undefined) => void;
 }) {
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(),
-    to: addDays(new Date(), 7),
-  });
+  const [date, setDate] = React.useState<DateRange | undefined>(initialDate);
 
-  // Handle date selection and notify parent
   const handleDateChange = (newDate: DateRange | undefined) => {
+    console.log(newDate);
     setDate(newDate);
     if (onDateChange) {
       onDateChange(newDate);

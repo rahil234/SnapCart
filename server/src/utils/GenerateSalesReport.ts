@@ -6,7 +6,7 @@ const fetchSalesReport = async (
   endDate: string | undefined,
   sellerId?: string
 ) => {
-  const defaultStartDate = '2020-01-01';
+  const defaultStartDate = '2024-01-01';
 
   const start = startDate ? new Date(startDate) : new Date(defaultStartDate);
   const end = endDate ? new Date(endDate) : new Date();
@@ -31,6 +31,8 @@ const fetchSalesReport = async (
       throw new Error('Invalid time frame');
   }
 
+  console.log(timeFrame, start, end);
+
   const groupBy = (timeFrame: string) => {
     switch (timeFrame) {
       case 'daily':
@@ -40,7 +42,7 @@ const fetchSalesReport = async (
       case 'monthly':
         return { $dateToString: { format: '%Y-%m', date: '$orderDate' } };
       case 'yearly':
-        return { $year: '$orderDate' };
+        return { $dateToString: { format: '%Y', date: '$orderDate' } };
       default:
         throw new Error('Invalid time frame');
     }
@@ -88,9 +90,9 @@ const fetchSalesReport = async (
           totalItemsSold: 1,
         },
       },
-      // {
-      //   $sort: { date: -1 },
-      // },
+      {
+        $sort: { date: -1 },
+      },
     ]);
   }
   return orderModel.aggregate([
@@ -134,9 +136,9 @@ const fetchSalesReport = async (
         totalItemsSold: 1,
       },
     },
-    // {
-    //   $sort: { date: -1 },
-    // },
+    {
+      $sort: { date: -1 },
+    },
   ]);
 };
 export default fetchSalesReport;

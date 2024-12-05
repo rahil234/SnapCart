@@ -23,6 +23,7 @@ const CartSchema: Schema = new Schema(
   },
   {
     timestamps: true,
+    index: { userId: 1 },
   }
 );
 
