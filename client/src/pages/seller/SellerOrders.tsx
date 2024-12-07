@@ -43,7 +43,7 @@ const OrdersTable: React.FC<{
 
   const updateOrderMutation = useMutation<unknown, Error, UpdateOrderData>({
     mutationFn: (data: UpdateOrderData) =>
-      orderEndpoints.updateOrderStatus(data),
+      orderEndpoints.updateOrderStatus(data.orderId,data.status),
     onSuccess: () => {
       toast.success('Order status updated successfully');
       queryClient.invalidateQueries({ queryKey: ['adminOrders'] });
@@ -206,7 +206,7 @@ function AdminOrders() {
 
   const updateOrderMutation = useMutation<unknown, Error, UpdateOrderData>({
     mutationFn: (data: UpdateOrderData) =>
-      orderEndpoints.updateOrderStatus(data),
+      orderEndpoints.updateOrderStatus(data.orderId,data.status),
     onSuccess: () => {
       toast.success('Order status updated successfully');
       queryClient.invalidateQueries({ queryKey: ['sellerOrders'] });
