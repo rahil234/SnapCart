@@ -307,21 +307,32 @@ const resetPassword = async (req: Request, res: Response) => {
 
 const changePassword = async (req: Request, res: Response) => {
   try {
-    const { email } = req.body;
+    const { password, newPassword } = req.body;
 
-    if (!email) {
-      res.status(400).json({ message: 'Email is required' });
+    console.log('pass changing', password, newPassword);
+
+    if (!password || !newPassword) {
+      res.status(400).json({ message: 'Invalid data' });
       return;
     }
 
-    const existingUser = await userModel.findOne({ email });
+    const existingUser = await userModel.findById(req.user?._id);
+
     if (!existingUser) {
       res.status(400).json({ message: 'User not found' });
       return;
     }
 
-    await sendOtp(email);
-    res.json({ message: 'OTP sent to your email' });
+    const isMatch = await bcrypt.compare(password, existingUser.password);
+
+    if (!isMatch) {
+      res.status(400).json({ message: 'Invalid password' });
+      return;
+    }
+
+    existingUser.password = await bcrypt.hash(newPassword, 10);
+
+    await existingUser.save();
   } catch (err) {
     res.status(500).json({ message: 'Internal server error' + err });
   }

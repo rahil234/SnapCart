@@ -45,14 +45,8 @@ const forgotPassword = (email: string) => {
   return axiosInstance.post('/api/user/forgot-password', { email });
 };
 
-const changePassword = ({
-  password,
-  newPassword,
-}: {
-  password: string;
-  newPassword: string;
-}) => {
-  return axiosInstance.post('/api/user/reset-password', {
+const changePassword = (password: string, newPassword: string) => {
+  return axiosInstance.post('/api/user/change-password', {
     password,
     newPassword,
   });

@@ -1,4 +1,4 @@
-import { Document, Schema } from "mongoose";
+import { Document, Schema } from 'mongoose';
 
 interface Review {
   _id: string;
@@ -22,7 +22,7 @@ export interface Product {
   tags?: string[];
   discount?: number;
   seller: string;
-  status: "Active" | "Inactive";
+  status: 'Active' | 'Inactive';
   variants?: Variant[];
   reviews?: Review[];
   soldCount: number;
@@ -40,12 +40,12 @@ export interface Category {
 export interface Subcategory {
   _id: string;
   name: string;
-  status: "Active" | "Blocked";
+  status: 'Active' | 'Blocked';
   category: string;
   soldCount: number;
 }
 
-export type UserRole = "admin" | "customer" | "seller";
+export type UserRole = 'admin' | 'customer' | 'seller';
 
 export interface User {
   _id: string;
@@ -56,7 +56,7 @@ export interface User {
   role: UserRole;
   addresses: [];
   profilePicture: string;
-  status: "Active" | "Blocked";
+  status: 'Active' | 'Blocked';
 }
 
 export interface IReferal {
@@ -77,8 +77,10 @@ export interface IUsers extends Document {
   walletBalance: number;
   password: string;
   profilePicture: string | null;
-  status: "Active" | "Blocked";
+  status: 'Active' | 'Blocked';
   referral: IReferal;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ISeller extends Document {
@@ -90,7 +92,7 @@ export interface ISeller extends Document {
   email: string;
   password: string;
   profilePicture: string | null;
-  status: "Active" | "Blocked";
+  status: 'Active' | 'Blocked';
 }
 
 export interface IAdmin extends Document {
@@ -99,7 +101,7 @@ export interface IAdmin extends Document {
   email: string;
   password: string;
   profilePicture: string | null;
-  status: "Active" | "Blocked";
+  status: 'Active' | 'Blocked';
 }
 
 //
@@ -197,7 +199,7 @@ export interface IOrderItem {
   seller: string;
   price: number;
   image: string;
-  status?: "Processing" | "Shipped" | "Completed" | "Cancelled";
+  status?: 'Processing' | 'Shipped' | 'Completed' | 'Cancelled';
 }
 
 export interface IOrder extends Document {
@@ -209,12 +211,12 @@ export interface IOrder extends Document {
   paymentMethod: string;
   price: number;
   status:
-    | "Payment Pending"
-    | "Processing"
-    | "Pending"
-    | "Shipped"
-    | "Completed"
-    | "Cancelled";
+    | 'Payment Pending'
+    | 'Processing'
+    | 'Pending'
+    | 'Shipped'
+    | 'Completed'
+    | 'Cancelled';
   orderDate: Date;
   discount: number;
   deliveryCharge: number;
@@ -223,33 +225,60 @@ export interface IOrder extends Document {
   updatedAt: Date;
 }
 
-export interface Offer {
+// interface Offer {
+//   _id: string;
+//   title: string;
+//   discount: number;
+//   startDate: string;
+//   type: 'percentage' | 'fixed';
+//   products: string[];
+//   categories: string[];
+//   maxDiscount: number;
+//   status: 'Active' | 'Inactive';
+//   expiryDate: string;
+// }
+
+export interface IOffer {
   _id: string;
   title: string;
+  type: 'Percentage' | 'Fixed';
   discount: number;
-  startDate: string;
-  type: "percentage" | "fixed";
-  expiryDate: string;
+  startDate: Date;
+  expiryDate: Date;
   products: string[];
   categories: string[];
-  description: string;
-  minPrice: number;
-  status: "Active" | "Inactive";
+  status: 'Active' | 'Inactive';
+  limit: number;
+  maxDiscount: number;
 }
+
+// export interface ICoupon {
+//   _id: string;
+//   code: string;
+//   discount: number;
+//   type: "percentage" | "fixed";
+//   minAmount: number;
+//   maxDiscount: number;
+//   startDate: string;
+//   endDate: string;
+//   status: "Active" | "Inactive";
+//   applicableTo: "All" | "Products" | "Categories";
+//   products: string[];
+//   categories: string[];
+// }
 
 export interface ICoupon {
   _id: string;
   code: string;
   discount: number;
-  type: "percentage" | "fixed";
+  startDate: Date;
+  endDate: Date;
+  type: 'percentage' | 'fixed';
+  status: 'Active' | 'Inactive';
   minAmount: number;
   maxDiscount: number;
-  startDate: string;
-  endDate: string;
-  status: "Active" | "Inactive";
-  applicableTo: "All" | "Products" | "Categories";
-  products: string[];
-  categories: string[];
+  limit: number;
+  applicableTo: 'All' | 'New' | 'Existing' | 'Exclusive';
 }
 
 export interface Address {

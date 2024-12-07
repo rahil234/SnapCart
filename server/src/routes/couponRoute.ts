@@ -3,12 +3,14 @@ import couponController from '../controllers/couponController';
 
 const router = Router();
 
-router.get('/', couponController.getAllCoupons);
-
 router.post('/apply', couponController.applyCoupon);
+
+router.put('/:couponId', couponController.updateCoupon);
 
 router.post('/', couponController.createCoupon);
 
-router.put('/:couponId', couponController.updateCoupon);
+router.get('/available', couponController.getAvailableCoupons);
+
+router.get('/', couponController.getAllCoupons);
 
 export default router;

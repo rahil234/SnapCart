@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, Package, DollarSign, Clock } from 'lucide-react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -50,6 +50,10 @@ const SalesChart = () => {
     queryFn: async () =>
       (await axios.get(`/api/sales?period=${selectedPeriod}`)).data,
   });
+
+  useEffect(() => {
+    console.log('chartData:', chartData);
+  }, []);
 
   if (isLoading) return <p>Loading chart...</p>;
   if (isError) return <p>Error loading chart data.</p>;

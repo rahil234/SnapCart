@@ -9,8 +9,8 @@ const fetchProductById = (productId: string) => {
   return axiosInstance.get(`/api/product/${productId}`);
 };
 
-const getProductByCategory = (category: string) => {
-  return axiosInstance.get('/api/product/category/' + category);
+const getProductByCategory = async (category: string) => {
+  return (await axiosInstance.get('/api/product/category/' + category)).data;
 };
 
 const getSellerProducts = async () => {
@@ -25,16 +25,12 @@ const addProduct = async (
   data: FormData,
   onUploadProgress: (progressEvent: AxiosProgressEvent) => void
 ) => {
-  return axiosInstance.post(
-    '/api/product/add-product',
-    data,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: onUploadProgress,
-    }
-  );
+  return axiosInstance.post('/api/product/add-product', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    onUploadProgress: onUploadProgress,
+  });
 };
 
 const editProduct = async (data: FormData) => {

@@ -20,6 +20,12 @@ router.post('/forgot-password', userController.forgotPassword);
 router.post('/reset-password', userController.resetPassword);
 
 router.post(
+  '/change-password',
+  authenticateAndAuthorize(['customer']),
+  userController.changePassword
+);
+
+router.post(
   '/upload-profile-picture',
   authenticateAndAuthorize(['customer']),
   upload.single('file'),

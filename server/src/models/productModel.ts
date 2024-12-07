@@ -46,6 +46,10 @@ const ProductSchema: Schema = new Schema(
       required: true,
       ref: 'Seller',
     },
+    offer: {
+      type: mongoose.Types.ObjectId,
+      ref: 'Offer',
+    },
     soldCount: { type: Number, default: 0 },
   },
   {
