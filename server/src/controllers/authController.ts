@@ -69,7 +69,6 @@ const refreshToken = async (req: Request, res: Response) => {
       email: user.email,
       role: decodedToken.role,
     };
-    console.log('newUser', newUser);
     res.status(200).json({ accessToken, user: newUser });
   } catch (error) {
     console.error('Error refreshing token:', error);

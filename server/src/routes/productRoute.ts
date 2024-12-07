@@ -6,13 +6,6 @@ import upload from '@/middleware/productUpload';
 const router = express.Router();
 
 router.get(
-  '/related-products/:productId',
-  productController.getRelatedProducts
-);
-
-router.get('/category/:category', productController.getProductByCategory);
-
-router.get(
   '/seller',
   authenticateAndAuthorize(['seller']),
   productController.getProductsBySeller
@@ -34,6 +27,7 @@ router.post(
 router.patch(
   '/edit-product',
   upload.array('images', 7),
+  authenticateAndAuthorize(['seller']),
   productController.editProduct
 );
 
@@ -54,6 +48,13 @@ router.patch(
   authenticateAndAuthorize(['admin', 'seller']),
   productController.unListProduct
 );
+
+router.get(
+  '/related-products/:productId',
+  productController.getRelatedProducts
+);
+
+router.get('/category/:category', productController.getProductByCategory);
 
 router.get('/search', productController.searchProducts);
 

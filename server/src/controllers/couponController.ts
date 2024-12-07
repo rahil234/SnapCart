@@ -86,20 +86,27 @@ const updateCoupon = async (req: Request, res: Response) => {
   }
 };
 
+const getAvailableCoupons = async (req: Request, res: Response) => {
+  try {
+    const currentDate = new Date();
+    const coupons = await couponModal.find({
+      status: 'Active',
+      applicableTo: 'All',
+      startDate: { $lte: currentDate },
+      endDate: { $gte: currentDate },
+      limit: { $gt: 0 },
+    });
+    res.status(200).json(coupons);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Failed to get available coupons' });
+  }
+};
+
 export default {
   getAllCoupons,
   applyCoupon,
   createCoupon,
   updateCoupon,
+  getAvailableCoupons,
 };
-
-// Get a single coupon by ID
-// const getCouponById = (req: Request, res: Response) => {
-//     const id = parseInt(req.params.id);
-//     const coupon = coupons.find((c) => c.id === id);
-//     if (coupon) {
-//       res.json(coupon);
-//     } else {
-//       res.status(404).json({ message: 'Coupon not found' });
-//     }
-//   };

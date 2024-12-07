@@ -1,112 +1,73 @@
-import React, { useEffect } from 'react';
-import { toast } from 'sonner';
+import React from 'react';
 import { useForm } from 'react-hook-form';
-import 'react-datepicker/dist/react-datepicker.css';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { IOffer } from 'shared/types';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import offerEndpoints from '@/api/offerEndpoints';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { ICoupon } from 'shared/types';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import couponEndpoints from '@/api/couponEndpoints';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
-function EditOfferCard({
-  offer,
-  onClose,
-}: {
-  offer: IOffer;
-  onClose: () => void;
-}) {
+function AddCouponCard({ onClose }: { onClose: () => void }) {
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
+    watch,
     formState: { errors },
-  } = useForm<IOffer>({
-    defaultValues: offer,
-  });
+  } = useForm<ICoupon>();
 
   const queryClient = useQueryClient();
 
-  console.log(offer);
-
-  useEffect(() => {
-    const expiryDate = offer.expiryDate
-      .toString()
-      .split('T')[0] as unknown as Date;
-    const startDate = offer.startDate
-      .toString()
-      .split('T')[0] as unknown as Date;
-    setValue('startDate', startDate);
-    setValue('expiryDate', expiryDate);
-    setValue('type', offer.type);
-  }, []);
-
-  const editOfferMutation = useMutation({
-    mutationFn: (updatedOffer: IOffer) =>
-      offerEndpoints.updateOffer(offer._id, updatedOffer),
+  const addCouponMutation = useMutation({
+    mutationFn: couponEndpoints.addCoupon,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['admin-offers'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
+      toast.success('Coupon added successfully');
       onClose();
-      toast.success('Offer updated successfully');
     },
-    onError: () => toast.error('Failed to update offer'),
+    onError: () => toast.error('Failed to add coupon'),
   });
 
-  const onSubmit = (data: IOffer) => {
-    editOfferMutation.mutate(data);
+  const onSubmit = (data: ICoupon) => {
+    addCouponMutation.mutate(data);
   };
 
+  const codeValue = watch('code');
+
+  React.useEffect(() => {
+    if (codeValue) {
+      setValue('code', codeValue.toUpperCase());
+    }
+  }, [codeValue, setValue]);
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="max-h-[70vh] overflow-y-auto"
+    >
       <div className="grid gap-4 py-4">
+        {/* Code Field */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="code" className="text-right">
-            Title
+            Code
           </Label>
           <Input
+            id="code"
             className="col-span-3"
-            {...register('title', {
-              required: 'Title is required',
+            {...register('code', {
+              required: 'Code is required',
               maxLength: {
                 value: 10,
-                message: 'Title is too long (max 10 characters)',
-              },
-              pattern: {
-                value: /^[a-zA-Z0-9\s]+$/,
-                message: 'Only alphanumeric characters and spaces are allowed',
+                message: 'Code is too long (max 10 characters)',
               },
             })}
           />
-          {errors.title && (
+          {errors.code && (
             <span className="text-red-500 text-xs col-span-4 justify-self-end">
-              {errors.title.message}
+              {errors.code.message}
             </span>
           )}
         </div>
-
-        {/* Type Field */}
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="type" className="text-right">
-            Discount Type
-          </Label>
-          <select
-            className="border outline-black border-gray-400 rounded-md p-2 col-span-3"
-            {...register('type', {
-              required: 'Type is required ',
-            })}
-          >
-            <option value="">Select Offer Type</option>
-            <option value="percentage">Percentage</option>
-            <option value="fixed">Fixed Amount</option>
-          </select>
-          {errors.type && (
-            <span className="text-red-500 text-xs col-span-4 justify-self-end">
-              {errors.type.message}
-            </span>
-          )}
-        </div>
-
         {/* Discount Field */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="discount" className="text-right">
@@ -127,19 +88,59 @@ function EditOfferCard({
             </span>
           )}
         </div>
-
-        {/* max Discount Field */}
+        {/* Type Field */}
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="maxDiscount" className="text-right">
-            Max Discount(%)
+          <Label htmlFor="type" className="text-right">
+            Type
+          </Label>
+          <select
+            className="border outline-black border-gray-400 rounded-md p-2 col-span-3"
+            {...register('type', {
+              required: 'Type is required ',
+            })}
+          >
+            <option value="">Select Offer Type</option>
+            <option value="percentage">Percentage</option>
+            <option value="fixed">Fixed Amount</option>
+          </select>
+          {errors.type && (
+            <span className="text-red-500 text-xs col-span-4 justify-self-end">
+              {errors.type.message}
+            </span>
+          )}
+        </div>
+        {/* Min Amount Field */}
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="minAmount" className="text-right">
+            Min Amount
           </Label>
           <Input
+            id="minAmount"
+            type="number"
+            className="col-span-3"
+            {...register('minAmount', {
+              required: 'Minimum amount is required',
+              min: { value: 1, message: 'Minimum amount must be at least 1' },
+            })}
+          />
+          {errors.minAmount && (
+            <span className="text-red-500 text-xs col-span-4 justify-self-end">
+              {errors.minAmount.message}
+            </span>
+          )}
+        </div>
+        {/* Max Discount Field */}
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="maxDiscount" className="text-right">
+            Max Discount
+          </Label>
+          <Input
+            id="maxDiscount"
             type="number"
             className="col-span-3"
             {...register('maxDiscount', {
-              required: 'Maximum amount is required',
-              min: { value: 1, message: 'Max Discount must be at least 1' },
-              max: { value: 100, message: 'Max Discount must be at most 100' },
+              required: 'Maximum discount is required',
+              min: { value: 1, message: 'Maximum discount must be at least 1' },
             })}
           />
           {errors.maxDiscount && (
@@ -152,15 +153,14 @@ function EditOfferCard({
         {/* Limit Field */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="limit" className="text-right">
-            Limit
+            Usage Limit
           </Label>
           <Input
             type="number"
             className="col-span-3"
             {...register('limit', {
-              required: 'Limit is required',
+              required: 'limit is required',
               min: { value: 1, message: 'Limit must be at least 1' },
-              max: { value: 100, message: 'Limit must be at most 100' },
             })}
           />
           {errors.limit && (
@@ -176,17 +176,16 @@ function EditOfferCard({
             Start From
           </Label>
           <Input
+            id="startDate"
             type="date"
-            min={new Date(offer.startDate).toISOString().split('T')[0]}
-            max={watch('expiryDate') as unknown as string}
+            min={new Date().toISOString().split('T')[0]}
+            max={watch('endDate') as unknown as string}
             className="col-span-3"
             {...register('startDate', {
               required: 'Start date is required',
-              validate: value =>
-                // @ts-expect-error the value is a string
-                value >=
-                  new Date(offer.startDate).toISOString().split('T')[0] ||
-                'Start date must be in the future',
+              validate: (value) => // @ts-expect-error the value is a string
+                value >= new Date().toISOString().split('T')[0] ||
+                'Start date must be after today',
             })}
           />
           {errors.startDate && (
@@ -197,50 +196,56 @@ function EditOfferCard({
         </div>
         {/* End Date Field */}
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="expiryDate" className="text-right">
-            Expiry Date
+          <Label htmlFor="endDate" className="text-right">
+            End Date
           </Label>
           <Input
+            id="endDate"
             type="date"
             min={watch('startDate') as unknown as string}
             className="col-span-3"
-            {...register('expiryDate', {
+            {...register('endDate', {
               required: 'End date is required',
               validate: value =>
                 value > watch('startDate') ||
                 'End date must be after start date',
             })}
           />
-          {errors.expiryDate && (
+          {errors.endDate && (
             <span className="text-red-500 text-xs col-span-4 justify-self-end">
-              {errors.expiryDate.message}
+              {errors.endDate.message}
             </span>
           )}
         </div>
-        {/* Type Field */}
+        {/* Applicable To Field */}
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="status" className="text-right">
-            Status
+          <Label htmlFor="applicableTo" className="text-right">
+            Applicable To
           </Label>
           <select
             className="border outline-black border-gray-400 rounded-md p-2 col-span-3"
-            {...register('status')}
+            {...register('applicableTo', {
+              required: 'Applicability is required',
+            })}
           >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
+            <option value="">Select</option>
+            <option value="All">All</option>
+            <option value="New">New</option>
+            <option value="Existing">Existing</option>
+            <option value="Exclusive">Exclusive</option>
           </select>
-          {errors.status && (
+          {errors.applicableTo && (
             <span className="text-red-500 text-xs col-span-4 justify-self-end">
-              {errors.status.message}
+              {errors.applicableTo.message}
             </span>
           )}
         </div>
         <div className="flex justify-end">
-          <Button type="submit">Update Coupon</Button>
+          <Button type="submit">Add Coupon</Button>
         </div>
       </div>
     </form>
   );
 }
 
-export default EditOfferCard;
+export default AddCouponCard;

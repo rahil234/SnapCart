@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   Search,
   ChevronDown,
@@ -28,55 +28,29 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { toast } from 'sonner';
 import couponEndpoints from '@/api/couponEndpoints';
 import { ICoupon } from 'shared/types';
-import CouponForm from '@/components/admin/CouponForm';
+import AddCouponCard from '@/components/admin/AddCouponCard';
+import EditCouponCard from '@/components/admin/EditCouponCard';
 
 function CouponManagement() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState<ICoupon | null>(null);
-  const queryClient = useQueryClient();
 
   const {
     data: coupons,
     isLoading,
     isError,
   } = useQuery<ICoupon[]>({
-    queryKey: ['coupons'],
+    queryKey: ['admin-coupons'],
     queryFn: couponEndpoints.getCoupons,
   });
-
-  const addCouponMutation = useMutation({
-    mutationFn: couponEndpoints.addCoupon,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['coupons'] });
-      toast.success('Coupon added successfully');
-      setIsAddModalOpen(false);
-    },
-    onError: () => toast.error('Failed to add coupon'),
-  });
-
-  const updateCouponMutation = useMutation({
-    mutationFn: couponEndpoints.updateCoupon,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['coupons'] });
-      toast.success('Coupon updated successfully');
-      setIsEditModalOpen(false);
-    },
-    onError: () => toast.error('Failed to update coupon'),
-  });
-
-  const handleAddCoupon = (coupon: Omit<ICoupon, 'id'>) => {
-    addCouponMutation.mutate(coupon);
-  };
-
-  const handleUpdateCoupon = (coupon: ICoupon) => {
-    updateCouponMutation.mutate(coupon);
-  };
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading coupons</div>;
@@ -91,11 +65,32 @@ function CouponManagement() {
               <Button>Add Coupon</Button>
             </DialogTrigger>
             <DialogContent>
-              <CouponForm onSubmit={handleAddCoupon} />
+              <DialogHeader>
+                <DialogTitle>Add New Coupon</DialogTitle>
+                <DialogDescription>
+                  Create a new coupon to add to your store.
+                </DialogDescription>
+              </DialogHeader>
+              <AddCouponCard onClose={() => setIsAddModalOpen(false)} />
+            </DialogContent>
+          </Dialog>
+          <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Coupon</DialogTitle>
+                <DialogDescription>
+                  Edit an existing coupon.
+                </DialogDescription>
+              </DialogHeader>
+              {selectedCoupon && (
+                <EditCouponCard
+                  coupon={selectedCoupon}
+                  onClose={() => setIsEditModalOpen(false)}
+                />
+              )}
             </DialogContent>
           </Dialog>
         </div>
-
         <div className="flex justify-between items-center mb-4">
           <div className="relative">
             <Select>
@@ -131,6 +126,8 @@ function CouponManagement() {
                   'Discount',
                   'Valid From',
                   'Valid To',
+                  'Min Amount',
+                  'Max Discount',
                   'Status',
                   'Applicable To',
                   'Actions',
@@ -154,6 +151,8 @@ function CouponManagement() {
                     <TableCell>
                       {new Date(coupon.endDate).toLocaleDateString()}
                     </TableCell>
+                    <TableCell>{coupon.minAmount}</TableCell>
+                    <TableCell>{coupon.maxDiscount}</TableCell>
                     <TableCell>
                       <span
                         className={`px-2 py-1 text-xs font-semibold rounded-full ${
@@ -167,29 +166,17 @@ function CouponManagement() {
                     </TableCell>
                     <TableCell>{coupon.applicableTo}</TableCell>
                     <TableCell>
-                      <div className="flex space-x-2">
-                        <Dialog
-                          open={isEditModalOpen}
-                          onOpenChange={setIsEditModalOpen}
+                      <div className=" space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setIsEditModalOpen(true);
+                            setSelectedCoupon(coupon);
+                          }}
                         >
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setSelectedCoupon(coupon)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            {selectedCoupon && (
-                              <CouponForm
-                                coupon={selectedCoupon}
-                                onSubmit={handleUpdateCoupon}
-                              />
-                            )}
-                          </DialogContent>
-                        </Dialog>
+                          <Edit className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

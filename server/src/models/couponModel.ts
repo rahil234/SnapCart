@@ -1,18 +1,5 @@
-import { Schema, model, Document } from 'mongoose';
-
-interface ICoupon extends Document {
-  code: string;
-  discount: number;
-  startDate: Date;
-  endDate: Date;
-  type: 'percentage' | 'fixed';
-  status: 'Active' | 'Inactive';
-  minAmount: number;
-  maxDiscount: number;
-  products: string[];
-  categories: string[];
-  subCategories: string[];
-}
+import { Schema, model } from 'mongoose';
+import { ICoupon } from '@shared/types';
 
 const couponSchema = new Schema<ICoupon>(
   {
@@ -28,9 +15,12 @@ const couponSchema = new Schema<ICoupon>(
     maxDiscount: { type: Number, default: 0 },
     endDate: { type: Date, required: true },
     status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
-    products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
-    categories: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
-    subCategories: [{ type: Schema.Types.ObjectId, ref: 'Subcategory' }],
+    applicableTo: {
+      type: String,
+      enum: ['All', 'New', 'Existing', 'Exclusive'],
+      default: 'All',
+    },
+    limit: { type: Number, default: 1 },
   },
   {
     timestamps: true,

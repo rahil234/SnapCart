@@ -246,7 +246,10 @@ const createOrder = async (req: Request, res: Response) => {
     });
 
     await order.save();
-    await cartModel.updateOne({ userId: req.user?._id }, { items: [],totalAmount: 0 });
+    await cartModel.updateOne(
+      { userId: req.user?._id },
+      { items: [], totalAmount: 0 }
+    );
     res.status(201).json({ orderId });
   } catch (error) {
     console.log(error);

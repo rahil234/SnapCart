@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
@@ -17,6 +17,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -34,6 +35,7 @@ import orderEndpoints from '@/api/orderEndpoints';
 import { catchError, ICoupon, Address } from 'shared/types';
 import AddressForm from '@/components/user/AddressForm';
 import { ImportMeta } from '@types';
+import AvailableCoupons from '@/components/user/AvailableCoupons';
 
 const imageUrl =
   (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
@@ -46,22 +48,24 @@ export interface CheckoutFormValues {
 
 const calculateDiscount = (
   totalAmount: number | undefined,
-  discount: number
+  discount: number,
 ) => {
   if (!totalAmount) return 0;
   return totalAmount - Math.round((totalAmount * discount) / 100);
 };
 
-export default function CheckoutPage() {
+function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
   const [editingAddressIndex, setEditingAddressIndex] = useState<number | null>(
-    null
+    null,
   );
-  const couponInput = useRef<HTMLInputElement>(null);
+  const [couponCode, setCouponCode] = useState<string>('');
   const [appliedCoupon, setAppliedCoupon] = useState<ICoupon | undefined>(
-    undefined
+    undefined,
   );
+  const [couponError, setCouponError] = useState<string | undefined>(undefined);
+  const [couponsModal, setCouponsModal] = useState(false);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -114,16 +118,15 @@ export default function CheckoutPage() {
     setIsAddressDialogOpen(false);
   };
 
-  const handleCouponSubmit = async () => {
+  const handleCouponSubmit = async (code: string) => {
     try {
-      const couponCode = couponInput.current?.value;
-      if (!couponCode) return;
-      const coupon = (await orderEndpoints.applyCoupon(couponCode)).coupon;
-      console.log(coupon);
+      setCouponError(undefined);
+      if (!code) return;
+      const coupon = (await orderEndpoints.applyCoupon(code)).coupon;
       setAppliedCoupon(coupon);
     } catch (error) {
-      console.log(error);
       setAppliedCoupon(undefined);
+      setCouponError((error as catchError).response.data.message);
       toast.error((error as catchError).response.data.message);
     }
   };
@@ -139,7 +142,7 @@ export default function CheckoutPage() {
       console.log('coupon', appliedCoupon);
       const response = await orderEndpoints.createOrder(
         data,
-        appliedCoupon?.code || undefined
+        appliedCoupon?.code || undefined,
       );
       setIsLoading(false);
       dispatch(clearCart());
@@ -234,7 +237,7 @@ export default function CheckoutPage() {
                     onSubmit={
                       editingAddressIndex !== null
                         ? address =>
-                            handleEditAddress(editingAddressIndex, address)
+                          handleEditAddress(editingAddressIndex, address)
                         : handleAddAddress
                     }
                     initialData={
@@ -337,20 +340,67 @@ export default function CheckoutPage() {
         </div>
 
         <div>
-          <Card className="mb-5">
+          <Card className="mb-5 sticky top-5">
             <CardHeader>
               <CardTitle>Coupon</CardTitle>
             </CardHeader>
             <CardContent>
-              <Input ref={couponInput} placeholder="Enter coupon code" />
+              <Input
+                onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                value={couponCode}
+                placeholder="Enter coupon code"
+              />
+              <div className="flex justify-end">
+                <Dialog open={couponsModal} onOpenChange={setCouponsModal}>
+                  <DialogTrigger asChild>
+                    <button className="text-green-500 text-xs mt-2">
+                      show available coupons
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Available Coupons</DialogTitle>
+                      <DialogDescription>
+                        this is your available coupons
+                      </DialogDescription>
+                    </DialogHeader>
+                    <AvailableCoupons
+                      handleCouponSubmit={handleCouponSubmit}
+                      setCouponCode={setCouponCode}
+                      onclose={() => setCouponsModal(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
+              </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={handleCouponSubmit}>
+              <Button
+                className="w-full"
+                onClick={() => handleCouponSubmit(couponCode)}
+              >
                 Apply Coupon
               </Button>
             </CardFooter>
+            {appliedCoupon && (
+              <CardContent>
+                <div className="flex justify-between">
+                  <span className="text-green-500">
+                    {appliedCoupon.type === 'percentage'
+                      ? `coupon applied: ${appliedCoupon.discount}% off`
+                      : `coupon applied: ₹${appliedCoupon.discount} off`}
+                  </span>
+                </div>
+              </CardContent>
+            )}
+            {couponError && (
+              <CardContent>
+                <p className="text-red-600">{couponError}</p>
+              </CardContent>
+            )}
           </Card>
-          <Card>
+          <Card
+            className={`sticky ${(appliedCoupon || couponError) ? 'top-72' : 'top-64'}`}
+          >
             <CardHeader>
               <CardTitle>Price Details</CardTitle>
             </CardHeader>
@@ -374,7 +424,7 @@ export default function CheckoutPage() {
                         - ₹
                         {Math.round(
                           (cartData?.totalAmount / 100) *
-                            appliedCoupon?.discount
+                          appliedCoupon?.discount,
                         )}
                       </span>
                     ) : (
@@ -391,7 +441,7 @@ export default function CheckoutPage() {
                         ₹
                         {calculateDiscount(
                           cartData?.totalAmount,
-                          appliedCoupon.discount
+                          appliedCoupon.discount,
                         ) + (cartData.totalAmount > 500 ? 0 : 50)}
                       </span>
                     ) : (
@@ -456,70 +506,4 @@ export default function CheckoutPage() {
   );
 }
 
-
-// interface AddressFormProps {
-//   onSubmit: (address: Address) => void;
-//   initialData?: Address;
-// }
-
-// function AddressForm({ onSubmit, initialData }: AddressFormProps) {
-//   const {
-//     register,
-//     handleSubmit,
-//     formState: { errors },
-//   } = useForm<Address>({
-//     defaultValues: initialData,
-//   });
-//
-//   return (
-//     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-//       <div>
-//         <Label htmlFor="street">Street</Label>
-//         <Input
-//           id="street"
-//           {...register('street', { required: 'Street is required' })}
-//           className="mt-1"
-//         />
-//         {errors.street && (
-//           <p className="mt-1 text-sm text-red-600">{errors.street.message}</p>
-//         )}
-//       </div>
-//       <div>
-//         <Label htmlFor="city">City</Label>
-//         <Input
-//           id="city"
-//           {...register('city', { required: 'City is required' })}
-//           className="mt-1"
-//         />
-//         {errors.city && (
-//           <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
-//         )}
-//       </div>
-//       <div>
-//         <Label htmlFor="state">State</Label>
-//         <Input
-//           id="state"
-//           {...register('state', { required: 'State is required' })}
-//           className="mt-1"
-//         />
-//         {errors.state && (
-//           <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
-//         )}
-//       </div>
-//       <div>
-//         <Label htmlFor="zipCode">Zip Code</Label>
-//         <Input
-//           id="zipCode"
-//           {...register('zipCode', { required: 'Zip Code is required' })}
-//           className="mt-1"
-//         />
-//         {errors.zipCode && (
-//           <p className="mt-1 text-sm text-red-600">{errors.zipCode.message}</p>
-//         )}
-//       </div>
-//       <Button type="submit" className="w-full">
-//         {initialData ? 'Update Address' : 'Add Address'}
-//       </Button>
-//     </form>
-//   );
-// }
+export default CheckoutPage;

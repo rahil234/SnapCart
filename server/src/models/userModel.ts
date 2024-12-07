@@ -31,7 +31,7 @@ const ReferralSchema: Schema = new Schema(
   { _id: false }
 );
 
-const UsersSchema: Schema = new Schema(
+const UsersSchema = new Schema<IUsers>(
   {
     firstName: String,
     lastName: String,
