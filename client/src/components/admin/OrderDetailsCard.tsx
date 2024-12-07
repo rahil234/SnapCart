@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -34,21 +35,28 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 }) => {
   if (!order) return null;
 
+  useEffect(() => {
+    console.log('OrderDetailsModal mounted', order);
+  }, []);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl max-h-[70vh] overflow-auto">
         <DialogHeader>
-          <DialogTitle>Order Details - {order.orderId}</DialogTitle>
+          <DialogTitle>Order Details</DialogTitle>
+          <DialogDescription>
+            # {order.orderId} | Order status: <strong>{order.status}</strong>
+          </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <h3 className="text-lg font-semibold mb-2">Customer Information</h3>
             <p>
-              <strong>Name:</strong> {order.customerName}
+              <strong>Name:</strong> {order.orderedBy.firstName}
             </p>
-            {/* <p><strong>Email:</strong> {order.customerEmail}</p>
-            <p><strong>Phone:</strong> {order.customerPhone}</p>
-            <p><strong>Address:</strong> {order.shippingAddress}</p> */}
+            <p>
+              <strong>Email:</strong> {order.orderedBy.email}
+            </p>
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-2">Order Information</h3>
@@ -58,6 +66,12 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             </p>
             <p>
               <strong>Total:</strong> ₹{order.price.toFixed(2)}
+            </p>
+            <p>
+              <strong>Payment Method:</strong> {order.paymentMethod}
+            </p>
+            <p>
+              <strong>Address:</strong> {order.address.join(', ')}
             </p>
           </div>
         </div>
@@ -91,9 +105,6 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               ))}
             </TableBody>
           </Table>
-        </div>
-        <div className="mt-4 flex justify-end">
-          <Button onClick={onClose}>Close</Button>
         </div>
       </DialogContent>
     </Dialog>

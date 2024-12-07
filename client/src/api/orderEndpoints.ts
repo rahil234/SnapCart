@@ -37,13 +37,17 @@ const updateOrder = async (data: { orderId: number; orderData: object }) => {
     .data;
 };
 
-const updateOrderStatus = async (data: { orderId: string; status: string }) => {
-  return (await axiosInstance.put(`/api/order/${data.orderId}/status`, data))
+const updateOrderStatus = async (orderId: string, status: string) => {
+  return (await axiosInstance.put(`/api/order/${orderId}/status`, { status }))
     .data;
 };
 
 const cancelOrder = async (orderId: string) => {
   return axiosInstance.delete(`/api/order/${orderId}`);
+};
+
+const updateOrderItemStatus = async (orderId: string, itemId: string) => {
+  return axiosInstance.delete(`/api/order/${orderId}/items/${itemId}`);
 };
 
 const cancelOrderItem = async (orderId: string, itemId: string) => {
@@ -60,6 +64,19 @@ const getInvoice = async (orderId: string) => {
   });
 };
 
+interface IReturnOrder {
+  orderId: string;
+  itemsToReturn: string[];
+  returnReason: string;
+  description: string;
+  preferredSolution: string;
+}
+
+const submitReturnRequest = async (data: IReturnOrder) => {
+  console.log(data);
+  return axiosInstance.post(`/api/order/${data.orderId}/return`, data);
+};
+
 export default {
   getOrders,
   getOrder,
@@ -71,8 +88,10 @@ export default {
   verifyPayment,
   updateOrder,
   updateOrderStatus,
+  updateOrderItemStatus,
   cancelOrder,
   cancelOrderItem,
   applyCoupon,
   getInvoice,
+  submitReturnRequest,
 };

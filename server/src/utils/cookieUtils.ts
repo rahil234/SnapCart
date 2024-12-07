@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { signRefreshToken } from './jwtUtils';
 import { UserRole } from '@shared/types';
+import * as process from 'node:process';
 
 export const setRefreshTokenCookie = (
   res: Response,
@@ -10,8 +11,8 @@ export const setRefreshTokenCookie = (
 
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none',
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     path: '/',
   });
 };

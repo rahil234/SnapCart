@@ -49,7 +49,11 @@ const getOrder = async (req: Request, res: Response) => {
 
 const getSellerOrders = async (req: Request, res: Response) => {
   try {
-    const allOrders = await orderModel.find().sort({ orderDate: -1 });
+    const allOrders = await orderModel
+      .find()
+      .sort({ orderDate: -1 })
+      .populate('orderedBy', 'firstName email')
+      .lean();
     const orders = allOrders.filter((order) =>
       order.items.some((item) => item.seller === req.user?._id)
     );
@@ -58,7 +62,6 @@ const getSellerOrders = async (req: Request, res: Response) => {
       order.items = order.items.filter((item) => item.seller === req.user?._id);
     });
 
-    // console.log(orders);
     res.status(200).json(orders);
   } catch (error) {
     console.log(error);
@@ -68,7 +71,12 @@ const getSellerOrders = async (req: Request, res: Response) => {
 
 const getAdminOrders = async (_req: Request, res: Response) => {
   try {
-    const orders = await orderModel.find();
+    const orders = await orderModel
+      .find()
+      .sort({ orderDate: -1 })
+      .populate('orderedBy', 'firstName email')
+      .lean();
+
     res.status(200).json(orders);
   } catch (error) {
     console.log(error);
@@ -415,12 +423,103 @@ const cancelOrder = async (req: Request, res: Response) => {
   }
 };
 
+const returnOrder = async (req: Request, res: Response) => {
+  try {
+    const { orderId } = req.params;
+    console.log('return order', req.body);
+    const order = await orderModel.findOne({ orderId });
+    if (!order) {
+      res.status(404).json({ message: 'Order not found' });
+      return;
+    }
+
+    order.status = 'Return Requested';
+
+    await order.save();
+    res.status(200).json(order);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// const getReceipt = async (req: Request, res: Response) => {
+//   try {
+//     const order = await orderModel.findOne({
+//       orderedBy: req.user?._id,
+//       orderId: req.params.orderId,
+//     });
+//
+//     if (!order) {
+//       res.status(404).json({ message: 'Order not found' });
+//       return;
+//     }
+//
+//     const doc = new PDFDocument();
+//     const receiptPath = path.join(__dirname, `receipt-${order.orderId}.pdf`);
+//     const writeStream = fs.createWriteStream(receiptPath);
+//
+//     doc.pipe(writeStream);
+//
+//     doc.fontSize(20).text('Order Receipt', { align: 'center' });
+//     doc.moveDown();
+//
+//     doc.fontSize(14).text(`Order ID: #${order.orderId}`);
+//     doc.text(`User ID: ${order.orderedBy}`);
+//     doc.text(`Order Date: ${order.orderDate}`);
+//     doc.text(`Total Amount: ${order.price}`);
+//     doc.moveDown();
+//
+//     doc.text('Items:', { underline: true });
+//     order.items.forEach((item: IOrderItem, index: number) => {
+//       doc.text(
+//         `${index + 1}. ${item.name} - ${item.quantity} x ${item.price} = ${
+//           item.quantity * item.price
+//         }`
+//       );
+//     });
+//
+//     doc.text(`\nTotal: ${order.price}`);
+//     doc.end();
+//
+//     writeStream.on('finish', () => {
+//       res.setHeader('Content-Type', 'application/pdf');
+//       res.setHeader(
+//         'Content-Disposition',
+//         `attachment; filename="receipt-${order.orderId}.pdf"`
+//       );
+//
+//       res.sendFile(receiptPath, (err) => {
+//         if (err) {
+//           console.error('Error sending file:', err);
+//           res.status(500).json({ message: 'Error sending receipt' });
+//         }
+//         fs.unlink(receiptPath, (unlinkErr) => {
+//           if (unlinkErr) {
+//             console.error('Error deleting temporary file:', unlinkErr);
+//           }
+//         });
+//       });
+//     });
+//
+//     writeStream.on('error', (err) => {
+//       console.error('Error writing to file:', err);
+//       res.status(500).json({ message: 'Error generating receipt' });
+//     });
+//   } catch (error) {
+//     console.error('Error:', error);
+//     res.status(500).json({ message: 'Internal Server Error' });
+//   }
+// };
+
 const getReceipt = async (req: Request, res: Response) => {
   try {
-    const order = await orderModel.findOne({
-      orderedBy: req.user?._id,
-      orderId: req.params.orderId,
-    });
+    const order = await orderModel
+      .findOne({
+        orderedBy: req.user?._id,
+        orderId: req.params.orderId,
+      })
+      .populate('orderedBy');
 
     if (!order) {
       res.status(404).json({ message: 'Order not found' });
@@ -433,15 +532,33 @@ const getReceipt = async (req: Request, res: Response) => {
 
     doc.pipe(writeStream);
 
+    // Title
     doc.fontSize(20).text('Order Receipt', { align: 'center' });
     doc.moveDown();
 
-    doc.fontSize(14).text(`Order ID: ${order.orderId}`);
-    doc.text(`User ID: ${order.orderedBy}`);
-    doc.text(`Order Date: ${order.orderDate}`);
+    // Order Details
+    doc.fontSize(14).text(`Order ID: #${order.orderId}`);
+    doc.text(`Order Date: ${order.orderDate.toDateString()}`);
     doc.text(`Total Amount: ${order.price}`);
     doc.moveDown();
 
+    // Shipping and Billing Information
+    doc.text('Shipping Address:', { underline: true });
+    doc.text(`${order.orderedBy.firstName}`);
+    doc.text(`${order.address.join('\n')}`);
+    doc.moveDown();
+
+    doc.text('Billing Address:', { underline: true });
+    doc.text(`${order.orderedBy.firstName}`);
+    doc.text(`${order.address.join('\n')}`);
+    doc.moveDown();
+
+    // Payment Method
+    doc.text('Payment Method:', { underline: true });
+    doc.text(order.paymentMethod);
+    doc.moveDown();
+
+    // Order Items
     doc.text('Items:', { underline: true });
     order.items.forEach((item: IOrderItem, index: number) => {
       doc.text(
@@ -451,7 +568,8 @@ const getReceipt = async (req: Request, res: Response) => {
       );
     });
 
-    doc.text(`\nTotal: ${order.price}`);
+    // Total
+    doc.text(`\nTotal: ₹${order.price}`);
     doc.end();
 
     writeStream.on('finish', () => {
@@ -486,7 +604,9 @@ const getReceipt = async (req: Request, res: Response) => {
 
 const updateOrderStatus = async (req: Request, res: Response) => {
   try {
-    const { orderId, status } = req.body;
+    const { status } = req.body;
+    const { orderId } = req.params;
+    console.log('status', status, orderId);
     const orders = await orderModel.findOne({ orderId });
 
     if (!orders) {
@@ -494,8 +614,18 @@ const updateOrderStatus = async (req: Request, res: Response) => {
       return;
     }
 
-    for (const item of orders.items) {
-      item.status = status;
+    if (
+      status !== 'Payment Pending' &&
+      status !== 'Processing' &&
+      status !== 'Return Pending' &&
+      status !== 'Return Requested' &&
+      status !== 'Return Approved' &&
+      status !== 'Returned'
+    ) {
+      console.log('status', status);
+      for (const item of orders.items) {
+        item.status = status;
+      }
     }
     orders.status = status;
     await orders.save();
@@ -520,4 +650,5 @@ export default {
   getReceipt,
   updateOrderStatus,
   cancelOrder,
+  returnOrder,
 };
