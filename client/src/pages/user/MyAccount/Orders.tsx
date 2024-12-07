@@ -146,6 +146,14 @@ const OrdersSection = () => {
                 </Table>
                 <div className="flex justify-between mt-4 space-y-2">
                   <div>
+                    {order.items.length > 0 && (
+                      <p>
+                        <strong>Price:</strong> ₹
+                        {order.items
+                          .reduce((total, item) => total + item.price, 0)
+                          .toFixed(2)}
+                      </p>
+                    )}
                     {order.deliveryCharge > 0 && (
                       <p>
                         <strong>Delivery Charge:</strong> ₹
@@ -154,7 +162,7 @@ const OrdersSection = () => {
                     )}
                     {order.discount > 0 && (
                       <p className="text-green-500">
-                        <strong>Discount:</strong> -₹{order.discount.toFixed(2)}
+                        <strong>Discount:</strong> - ₹{Math.ceil(order.discount)}
                       </p>
                     )}
                     <p className="font-bold">
@@ -201,9 +209,9 @@ const OrdersSection = () => {
       )}
       <Dialog open={showOrderDetails} onOpenChange={handleOrderDetailsClose}>
         <DialogContent className="max-h-[90vh] overflow-auto">
-        <DialogHeader>
-          <DialogTitle>Order Details</DialogTitle>
-        </DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Order Details</DialogTitle>
+          </DialogHeader>
           <OrderDetails order={order!} onClose={handleOrderDetailsClose} />
         </DialogContent>
       </Dialog>

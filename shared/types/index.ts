@@ -199,7 +199,7 @@ export interface IOrderItem {
   seller: string;
   price: number;
   image: string;
-  status?: 'Processing' | 'Shipped' | 'Completed' | 'Cancelled';
+  status?: 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Return Approved' | 'Returned';
 }
 
 export interface IOrder extends Document {
@@ -215,12 +215,17 @@ export interface IOrder extends Document {
     | 'Processing'
     | 'Pending'
     | 'Shipped'
-    | 'Completed'
-    | 'Cancelled';
+    | 'Delivered'
+    | 'Cancelled'
+    | 'Return Pending'
+    | 'Return Requested'
+    | 'Return Approved'
+    | 'Return Cancelled'
+    | 'Returned';
   orderDate: Date;
   discount: number;
   deliveryCharge: number;
-  orderedBy: String;
+  orderedBy: IUsers;
   createdAt: Date;
   updatedAt: Date;
 }

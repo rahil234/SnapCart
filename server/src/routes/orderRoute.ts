@@ -34,14 +34,27 @@ router.post(
   orderController.verifyPayment
 );
 
+
 router.delete(
   '/:orderId/items/:itemId',
   authenticateAndAuthorize(['customer']),
   orderController.cancelOrderItem
 );
 
+router.post(
+  '/:orderId/return',
+  authenticateAndAuthorize(['customer']),
+  orderController.returnOrder
+);
+
 router.delete(
   '/:orderId',
+  authenticateAndAuthorize(['customer']),
+  orderController.cancelOrder
+);
+
+router.delete(
+  '/return',
   authenticateAndAuthorize(['customer']),
   orderController.cancelOrder
 );
@@ -54,7 +67,7 @@ router.get(
 
 router.put(
   '/:orderId/status',
-  authenticateAndAuthorize(['seller']),
+  authenticateAndAuthorize(['admin', 'seller']),
   orderController.updateOrderStatus
 );
 
