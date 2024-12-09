@@ -48,7 +48,7 @@ export interface CheckoutFormValues {
 
 const calculateDiscount = (
   totalAmount: number | undefined,
-  discount: number,
+  discount: number
 ) => {
   if (!totalAmount) return 0;
   return totalAmount - Math.round((totalAmount * discount) / 100);
@@ -58,11 +58,11 @@ function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
   const [editingAddressIndex, setEditingAddressIndex] = useState<number | null>(
-    null,
+    null
   );
   const [couponCode, setCouponCode] = useState<string>('');
   const [appliedCoupon, setAppliedCoupon] = useState<ICoupon | undefined>(
-    undefined,
+    undefined
   );
   const [couponError, setCouponError] = useState<string | undefined>(undefined);
   const [couponsModal, setCouponsModal] = useState(false);
@@ -142,7 +142,7 @@ function CheckoutPage() {
       console.log('coupon', appliedCoupon);
       const response = await orderEndpoints.createOrder(
         data,
-        appliedCoupon?.code || undefined,
+        appliedCoupon?.code || undefined
       );
       setIsLoading(false);
       dispatch(clearCart());
@@ -237,7 +237,7 @@ function CheckoutPage() {
                     onSubmit={
                       editingAddressIndex !== null
                         ? address =>
-                          handleEditAddress(editingAddressIndex, address)
+                            handleEditAddress(editingAddressIndex, address)
                         : handleAddAddress
                     }
                     initialData={
@@ -323,7 +323,7 @@ function CheckoutPage() {
                       <div>
                         <p className="font-semibold">{item.product.name}</p>
                         <p className="text-sm text-gray-500">
-                          Price: ₹{item.product.price}
+                          Price: ₹{item.offerPrice || item.product.price}
                         </p>
                         <p className="text-sm text-gray-500">
                           Quantity: {item.quantity}
@@ -331,7 +331,7 @@ function CheckoutPage() {
                       </div>
                     </div>
                     <span className="font-bold">
-                      ₹{item.product.price * item.quantity}
+                      ₹{item.offerPrice || item.product.price * item.quantity}
                     </span>
                   </div>
                 ))}
@@ -399,7 +399,7 @@ function CheckoutPage() {
             )}
           </Card>
           <Card
-            className={`sticky ${(appliedCoupon || couponError) ? 'top-72' : 'top-64'}`}
+            className={`sticky ${appliedCoupon || couponError ? 'top-72' : 'top-64'}`}
           >
             <CardHeader>
               <CardTitle>Price Details</CardTitle>
@@ -424,7 +424,7 @@ function CheckoutPage() {
                         - ₹
                         {Math.round(
                           (cartData?.totalAmount / 100) *
-                          appliedCoupon?.discount,
+                            appliedCoupon?.discount
                         )}
                       </span>
                     ) : (
@@ -441,7 +441,7 @@ function CheckoutPage() {
                         ₹
                         {calculateDiscount(
                           cartData?.totalAmount,
-                          appliedCoupon.discount,
+                          appliedCoupon.discount
                         ) + (cartData.totalAmount > 500 ? 0 : 50)}
                       </span>
                     ) : (

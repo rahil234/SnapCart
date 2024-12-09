@@ -17,7 +17,9 @@ const getProduct = async (req: Request, res: Response) => {
 
     const product = await productModel
       .findById(productId)
-      .populate(['category', 'subcategory']);
+      .populate(['category', 'subcategory', 'offer']);
+
+    console.log('product', product);
 
     if (!product) {
       res.status(404).json({ message: 'Product not found' });
@@ -42,6 +44,16 @@ const getProduct = async (req: Request, res: Response) => {
   } catch (error) {
     console.log('Error fetching product', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const getAllProducts = async (_req: Request, res: Response) => {
+  try {
+    const products = await productModel.find();
+    res.status(200).json(products);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error fetching products' });
   }
 };
 
@@ -138,6 +150,7 @@ const editProduct = async (req: Request, res: Response) => {
       quantity,
       stock,
       variantName,
+      offer,
     } = req.body;
 
     const images = req.files as Express.Multer.File[];
@@ -154,10 +167,13 @@ const editProduct = async (req: Request, res: Response) => {
         quantity,
         stock,
         variantName,
+        offer: offer || null,
         images: imagePaths,
       },
       { new: true }
     );
+
+    console.log('offer', offer);
 
     res.status(200).json(newProduct);
   } catch (error) {
@@ -216,7 +232,8 @@ const getProductsByUser = async (_req: Request, res: Response) => {
       categories.map(async (category) => {
         const products = await productModel
           .find({ category: category._id, status: 'Active', stock: { $gt: 0 } })
-          .limit(10);
+          .limit(10)
+          .populate('offer');
 
         return {
           categoryId: category._id,
@@ -346,6 +363,7 @@ const getProductsBySeller = async (req: Request, res: Response) => {
       },
     ]);
 
+    console.log(productsByVariant[0].products);
     res.status(200).json(productsByVariant);
   } catch (error) {
     console.log(error);
@@ -424,6 +442,7 @@ const searchProducts = async (req: Request, res: Response) => {
 
 export default {
   getProduct,
+  getAllProducts,
   addProduct,
   editProduct,
   getRelatedProducts,

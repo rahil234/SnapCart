@@ -17,6 +17,8 @@ router.get(
   productController.getProductsByAdmin
 );
 
+router.get('/all', productController.getAllProducts);
+
 router.post(
   '/add-product',
   authenticateAndAuthorize(['seller']),
@@ -60,6 +62,6 @@ router.get('/search', productController.searchProducts);
 
 router.get('/:productId', productController.getProduct);
 
-router.get('', productController.getProductsByUser);
+router.get('/', productController.getProductsByUser);
 
 export default router;

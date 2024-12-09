@@ -25,6 +25,7 @@ export interface Product {
   status: 'Active' | 'Inactive';
   variants?: Variant[];
   reviews?: Review[];
+  offer?: IOffer;
   soldCount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -125,11 +126,7 @@ export interface ICart extends Document {
 
 export interface ICartP {
   userId?: string;
-  items: Array<{
-    _id: string;
-    product: Product;
-    quantity: number;
-  }>;
+  items: Array<CartItem>;
   totalAmount: number;
   totalItems: number;
 }
@@ -138,6 +135,7 @@ export interface CartItem {
   _id: string;
   quantity: number;
   product: Product;
+  offerPrice?: number;
 }
 
 export interface Variant {
@@ -198,6 +196,7 @@ export interface IOrderItem {
   quantity: number;
   seller: string;
   price: number;
+  offerPrice: number;
   image: string;
   status?: 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Return Approved' | 'Returned';
 }
@@ -250,6 +249,7 @@ export interface IOffer {
   discount: number;
   startDate: Date;
   expiryDate: Date;
+  applicableTo?: 'All' | 'Products' | 'Categories';
   products: string[];
   categories: string[];
   status: 'Active' | 'Inactive';

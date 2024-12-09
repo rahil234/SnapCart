@@ -1,7 +1,11 @@
 import axiosInstance from './axiosInstance';
 
 const getCategories = async () => {
-  return  (await axiosInstance.get('/api/category/get-categories')).data;
+  return (await axiosInstance.get('/api/category/get-categories')).data;
+};
+
+const getAllCategories = async () => {
+  return (await axiosInstance.get('/api/category/get-categories')).data;
 };
 
 const addCategory = (data: object) => {
@@ -30,9 +34,10 @@ const getTopCategories = async () => {
 
 export default {
   getCategories,
+  getAllCategories,
   addCategory,
   editCatogories,
   archiveCategory,
   unarchiveCategory,
-  getTopCategories
+  getTopCategories,
 };

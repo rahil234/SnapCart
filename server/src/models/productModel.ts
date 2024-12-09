@@ -51,6 +51,7 @@ const ProductSchema: Schema = new Schema(
       ref: 'Offer',
     },
     soldCount: { type: Number, default: 0 },
+    offerPrice: { type: Number },
   },
   {
     timestamps: true,

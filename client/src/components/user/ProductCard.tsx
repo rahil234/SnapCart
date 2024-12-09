@@ -14,7 +14,8 @@ import { AuthState } from '@/features/auth/authSlice';
 import { UIContext } from '@/context/UIContext';
 import { ImportMeta } from '@types';
 
-const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
+const imageUrl =
+  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [cartQuantity, setCartQuantity] = useState<number>(0);
@@ -27,7 +28,7 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   useEffect(() => {
     setCartQuantity(
-      cartData?.items.find(item => item._id === product._id)?.quantity || 0,
+      cartData?.items.find(item => item._id === product._id)?.quantity || 0
     );
   }, [cartData]);
 
@@ -55,6 +56,10 @@ const ProductCard = ({ product }: { product: Product }) => {
     dispatch(updateQuantity({ _id: product._id, quantity: cartQuantity - 1 }));
   }
 
+  const calculateDiscount = (originalPrice: number, discount: number) => {
+    return Math.floor(originalPrice - (originalPrice * discount) / 100);
+  };
+
   return (
     <Link
       key={String(product._id)}
@@ -71,7 +76,23 @@ const ProductCard = ({ product }: { product: Product }) => {
       <h3 className="font-semibold">{product.name}</h3>
       <h3 className="text-xs">{product.variantName}</h3>
       <div className="flex items-center justify-between">
-        <p className="text-gray-600">₹{product.price}</p>
+        {product.offer ? (
+          <>
+            <p className=" flex gap-1">
+              <span className="text-gray-600">
+                ₹
+                {product.offer.type === 'Fixed'
+                  ? product.price - product.offer.discount
+                  : calculateDiscount(product.price, product.offer.discount)}
+              </span>
+              <span className="text-red-600 text-xs  line-through">
+                ₹{product.price}
+              </span>
+            </p>
+          </>
+        ) : (
+          <p className="text-gray-600">₹{product.price}</p>
+        )}
         {cartQuantity > 0 ? (
           <div
             className="flex items-center justify-between bg-[#328616] text-white rounded-md p-1"

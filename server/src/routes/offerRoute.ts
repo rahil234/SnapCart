@@ -8,6 +8,8 @@ router.get('/', authenticateAndAuthorize(['admin']), offerController.getOffers);
 
 router.post('/', authenticateAndAuthorize(['admin']), offerController.addOffer);
 
+router.get('/product/:productId', offerController.getProductApplicableOffers);
+
 router.put(
   '/:offerId',
   authenticateAndAuthorize(['admin']),

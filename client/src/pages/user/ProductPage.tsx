@@ -274,16 +274,16 @@ const ProductPage: React.FC = () => {
             </div>
 
             {/* Product price */}
-            {product.discount ? (
+            {product.offer ? (
               <div className="flex items-center mb-1">
                 <p className="text-3xl font-bold text-green-600 mr-2">
-                  ₹{calculateDiscount(product.price, product.discount)}
+                  ₹{calculateDiscount(product.price, product.offer.discount)}
                 </p>
                 <p className="text-xl text-gray-500 line-through mr-2">
                   ₹{product.price}
                 </p>
                 <p className="text-sm text-green-600 font-semibold">
-                  {product.discount}% off
+                  {product.offer.discount}% off
                 </p>
               </div>
             ) : (
@@ -374,7 +374,9 @@ const ProductPage: React.FC = () => {
             <p className="text-sm text-gray-600 mb-4">
               Estimated delivery time is 3:00PM - 24 min
             </p>
-            <span className="mb-4 whitespace-pre-wrap">{product.description}</span>
+            <span className="mb-4 whitespace-pre-wrap">
+              {product.description}
+            </span>
             {/* <div className="flex flex-wrap gap-2 mb-4">
               {product.tags.map((tag, index) => (
                 <span

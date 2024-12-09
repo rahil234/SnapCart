@@ -32,6 +32,7 @@ import {
 import AddImageCropper from './addImageCropper';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { AxiosProgressEvent } from 'axios';
+import { toast } from 'sonner';
 
 interface Category extends OriginalCategory {
   subcategories: Subcategory[];
@@ -281,14 +282,14 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
       );
 
       if (response.status === 201) {
-        alert('Product added successfully!');
+        toast.success('Product added successfully');
         onClose();
       } else {
-        alert('Failed to add product. Please try again.');
+        toast.error('Failed to add product. Please try again.');
       }
     } catch (error) {
       console.error('Error adding product:', error);
-      alert('Failed to add product. Please try again.');
+      toast.error('Failed to add product. Please try again.');
     }
   };
 
