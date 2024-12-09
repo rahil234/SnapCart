@@ -13,6 +13,8 @@ const updateOffer = async (id: string, updatedOffer: IOffer) => {
   return (await axiosInstance.put(`/api/offer/${id}`, updatedOffer)).data;
 };
 
+const getProductApplicableOffers = async (productId: string) => {
+  return (await axiosInstance.get(`/api/offer/product/${productId}`)).data;
+};
 
-
-export default { getOffers, addOffer, updateOffer };
+export default { getOffers, addOffer, updateOffer, getProductApplicableOffers };

@@ -53,6 +53,10 @@ const getRelatedProduct = (productId: string) => {
   return axiosInstance.get('/api/product/related-products/' + productId);
 };
 
+const getAllProducts = async () => {
+  return (await axiosInstance.get('/api/product/all')).data;
+};
+
 const searchProducts = async ({
   query,
   category,
@@ -124,4 +128,5 @@ export default {
   listProduct,
   searchProducts,
   getTopProducts,
+  getAllProducts,
 };

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { RootState } from '@/app/store';
 import { CartItem, ICartP, Product, catchError } from 'shared/types';
 import cartEndpoints from '@/api/cartEndpoints';
+import validateAndCalculateOfferPrice from '@/utils/validateAndCalculateOfferPrice';
 
 export interface CartState {
   cartData: ICartP;
@@ -18,7 +19,7 @@ const initialState: CartState = {
 
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
-  async (_, { dispatch,rejectWithValue }) => {
+  async (_, { dispatch, rejectWithValue }) => {
     try {
       const response = await cartEndpoints.getCart();
       const cartData = response.data.cart as ICartP;
@@ -104,15 +105,16 @@ const cartSlice = createSlice({
   reducers: {
     setCartData: (state, action) => {
       state.cartData = action.payload;
-      state.cartData.totalItems = action.payload.items.reduce(
-        (total: number, item: CartItem) => total + item.quantity,
-        0
-      );
-      state.cartData.totalAmount = action.payload.items.reduce(
-        (total: number, item: CartItem) =>
-          total + item.quantity * item.product.price,
-        0
-      );
+      state.cartData.totalItems = action.payload.items
+        .map(validateAndCalculateOfferPrice)
+        .reduce((total: number, item: CartItem) => total + item.quantity, 0);
+      state.cartData.totalAmount = action.payload.items
+        .map(validateAndCalculateOfferPrice)
+        .reduce(
+          (total: number, item: CartItem) =>
+            total + item.quantity * (item.offerPrice || item.product.price),
+          0
+        );
     },
     clearCart: state => {
       state.cartData = { items: [], totalItems: 0, totalAmount: 0 };
@@ -120,7 +122,7 @@ const cartSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchCart.fulfilled, (state) => {
+      .addCase(fetchCart.fulfilled, state => {
         state.status = 'succeeded';
       })
       .addCase(fetchCart.pending, state => {

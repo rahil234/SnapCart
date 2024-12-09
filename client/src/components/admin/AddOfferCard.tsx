@@ -4,10 +4,12 @@ import { useForm } from 'react-hook-form';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { IOffer } from 'shared/types';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Category, IOffer, Product } from 'shared/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import offerEndpoints from '@/api/offerEndpoints';
 import { Label } from '@/components/ui/label';
+import productEndpoints from '@/api/productEndpoints';
+import categoryEndpoints from '@/api/categoryEndpoints';
 
 function AddOfferCard({ onClose }: { onClose: () => void }) {
   const {
@@ -16,6 +18,16 @@ function AddOfferCard({ onClose }: { onClose: () => void }) {
     watch,
     formState: { errors },
   } = useForm<IOffer>();
+
+  const { data: products } = useQuery<Product[]>({
+    queryKey: ['products'],
+    queryFn: productEndpoints.getAllProducts,
+  });
+
+  const { data: categories } = useQuery<Product[]>({
+    queryKey: ['categories'],
+    queryFn: categoryEndpoints.getAllCategories,
+  });
 
   const queryClient = useQueryClient();
 
@@ -60,7 +72,6 @@ function AddOfferCard({ onClose }: { onClose: () => void }) {
             </span>
           )}
         </div>
-
         {/* Type Field */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="type" className="text-right">
@@ -82,7 +93,6 @@ function AddOfferCard({ onClose }: { onClose: () => void }) {
             </span>
           )}
         </div>
-
         {/* Discount Field */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="discount" className="text-right">
@@ -103,7 +113,6 @@ function AddOfferCard({ onClose }: { onClose: () => void }) {
             </span>
           )}
         </div>
-
         {/* Min Amount Field */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="maxDiscount" className="text-right">
@@ -125,7 +134,6 @@ function AddOfferCard({ onClose }: { onClose: () => void }) {
             </span>
           )}
         </div>
-
         {/* Limit Field */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="limit" className="text-right">
@@ -146,7 +154,6 @@ function AddOfferCard({ onClose }: { onClose: () => void }) {
             </span>
           )}
         </div>
-
         {/* Start Date Field */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="startDate" className="text-right">
@@ -194,6 +201,75 @@ function AddOfferCard({ onClose }: { onClose: () => void }) {
             </span>
           )}
         </div>
+        {/* Applicable to Field */}
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="type" className="text-right">
+            Applicable to
+          </Label>
+          <select
+            className="border outline-black border-gray-400 rounded-md p-2 col-span-3"
+            {...register('applicableTo', {
+              required: 'Type is required ',
+            })}
+          >
+            <option value="">Select Applicable to</option>
+            <option value="Products">Products</option>
+            <option value="Categories">Categories</option>
+          </select>
+          {errors.applicableTo && (
+            <span className="text-red-500 text-xs col-span-4 justify-self-end">
+              {errors.applicableTo.message}
+            </span>
+          )}
+        </div>
+        {watch('applicableTo') === 'Products' && (
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="type" className="text-right">
+              Product
+            </Label>
+            <select
+              {...register('products')}
+              className="border outline-black border-gray-400 rounded-md p-2 col-span-3"
+            >
+              <option value="">none</option>
+              {products &&
+                products.map((product: Product, index) => (
+                  <option key={index} value={product._id}>
+                    {product.name}
+                  </option>
+                ))}
+            </select>
+            {errors.products && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.products.message}
+              </p>
+            )}
+          </div>
+        )}
+        {watch('applicableTo') === 'Categories' && (
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="type" className="text-right">
+              Categories
+            </Label>
+            <select
+              {...register('categories')}
+              className="border outline-black border-gray-400 rounded-md p-2 col-span-3"
+            >
+              <option value="">none</option>
+              {categories &&
+                categories.map((product: Category, index: number) => (
+                  <option key={index} value={product._id}>
+                    {product.name}
+                  </option>
+                ))}
+            </select>
+            {errors.categories && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.categories.message}
+              </p>
+            )}
+          </div>
+        )}
         <div className="flex justify-end">
           <Button type="submit">Add Coupon</Button>
         </div>

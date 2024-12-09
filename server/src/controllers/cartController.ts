@@ -2,12 +2,19 @@ import { Request, Response } from 'express';
 import cartModel from '@models/cartModel';
 import productModel from '@models/productModel';
 import { ICartP } from '@shared/types';
+import validateAndCalculateOfferPrice from '@/utils/validateAndCalculateOfferPrice';
 
 const getCart = async (req: Request, res: Response) => {
   try {
     const cart = (await cartModel
       .findOne({ userId: req.user?._id })
-      .populate('items.product')) as unknown as ICartP;
+      .populate({
+        path: 'items.product',
+        populate: {
+          path: 'offer',
+        },
+      })
+      .lean()) as unknown as ICartP;
 
     if (!cart) {
       res
@@ -16,9 +23,10 @@ const getCart = async (req: Request, res: Response) => {
       return;
     }
 
+    cart.items = cart.items.map(validateAndCalculateOfferPrice);
     // Calculate total price
     const totalPrice = cart.items.reduce((acc, item) => {
-      const productPrice = item.product.price || 0; // Ensure price is a number
+      const productPrice = item.product.price || 0;
       return acc + productPrice * item.quantity;
     }, 0);
 
@@ -32,7 +40,7 @@ const addItem = async (req: Request, res: Response) => {
   try {
     const { productId } = req.body;
 
-    const product = await productModel.findById(productId);
+    const product = await productModel.findById(productId).populate('offer');
     if (!product) {
       res.status(404).json({ message: 'Product not found' });
       return;
@@ -63,6 +71,13 @@ const addItem = async (req: Request, res: Response) => {
         });
       }
 
+      // if (product.offer) {
+      //   cart.totalAmount -=
+      //     product.offer.type === 'Percentage'
+      //       ? (product.price * product.offer.discount) / 100
+      //       : product.offer.discount;
+      // } else {
+      // }
       cart.totalAmount += product.price;
       cart.totalItems += 1;
 

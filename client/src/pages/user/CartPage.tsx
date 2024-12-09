@@ -106,7 +106,7 @@ const CartPage = () => {
                           {item.product.name}
                         </h3>
                         <p className="text-sm text-gray-500">
-                          Price: ₹{item.product.price}
+                          Price: ₹{item.offerPrice || item.product.price}
                         </p>
                         {item.quantity > item.product.stock && (
                           <p className="text-red-600 text-sm">
@@ -148,7 +148,9 @@ const CartPage = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-semibold">
-                          ₹{item.product.price * item.quantity}
+                          ₹
+                          {(item.offerPrice || item.product.price) *
+                            item.quantity}
                         </p>
                         <Button
                           size="sm"

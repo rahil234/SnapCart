@@ -3,9 +3,12 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Save, X, Image as ImageIcon } from 'lucide-react';
 import ImageCropper from './ImageCropper';
 import { Area } from 'react-easy-crop';
-import { Product, Category, Subcategory } from 'shared/types';
+import { Product, Category, Subcategory, IOffer } from 'shared/types';
 import { ImportMeta } from '@types';
 import productEndpoints from '@/api/productEndpoints';
+import offerEndpoints from '@/api/offerEndpoints';
+import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 interface EditProductFormInputs {
   productName: string;
@@ -14,6 +17,7 @@ interface EditProductFormInputs {
   price: number;
   variantName: string;
   stock: number;
+  offer: string;
 }
 
 interface ProductImage {
@@ -40,7 +44,16 @@ const EditProductCard: React.FC<{
     formState: { errors },
     reset,
     watch,
-  } = useForm<EditProductFormInputs>();
+  } = useForm<EditProductFormInputs>({
+    defaultValues: {
+      productName: product.name,
+      category: product.category._id,
+      subcategory: product.subcategory._id,
+      price: product.price,
+      variantName: product.variantName,
+      stock: product.stock,
+    },
+  });
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [imagesToCrop, setImagesToCrop] = useState<string[]>([]);
   const [currentCropIndex, setCurrentCropIndex] = useState<number>(0);
@@ -59,6 +72,16 @@ const EditProductCard: React.FC<{
     }
   }, [selectedCategory, categories]);
 
+  const { data: offers, isSuccess } = useQuery<IOffer[]>({
+    queryKey: ['product-offers', product._id],
+    queryFn: () => offerEndpoints.getProductApplicableOffers(product._id),
+  });
+
+  useEffect(() => {
+    //@ts-expect-error offer is string
+    reset({ offer: product.offer || '', subcategory: product.subcategory._id });
+  }, [isSuccess]);
+
   const fetchImageFile = async (url: string): Promise<File> => {
     const response = await fetch(url);
     const blob = await response.blob();
@@ -68,15 +91,6 @@ const EditProductCard: React.FC<{
   };
 
   useEffect(() => {
-    reset({
-      productName: product.name,
-      category: product.category._id,
-      subcategory: product.subcategory._id,
-      price: product.price,
-      variantName: product.variantName,
-      stock: product.stock,
-    });
-
     (async () => {
       const imagesWithFiles = await Promise.all(
         product.images.map(async (image, index) => {
@@ -105,6 +119,7 @@ const EditProductCard: React.FC<{
     formData.append('price', data.price.toString());
     formData.append('variantName', data.variantName.toString());
     formData.append('stock', data.stock.toString());
+    formData.append('offer', data.offer.toString());
 
     productImages.forEach(image => {
       formData.append('images', image.file);
@@ -114,6 +129,7 @@ const EditProductCard: React.FC<{
       const response = await productEndpoints.editProduct(formData);
       console.log('Product updated:', response);
       onClose();
+      toast.success('Product updated successfully');
     } catch (error) {
       console.error('Error updating product:', error);
     }
@@ -367,6 +383,31 @@ const EditProductCard: React.FC<{
             )}
           </div>
           <div>
+            <label
+              htmlFor="offer"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Offer
+            </label>
+            <select
+              {...register('offer')}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
+              <option value="">none</option>
+              {offers &&
+                offers.map((offer, index) => (
+                  <option key={index} value={offer._id}>
+                    {offer.title}
+                  </option>
+                ))}
+            </select>
+            {errors.offer && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.offer.message}
+              </p>
+            )}
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700">
               Product Images (3-6 images required)
             </label>
@@ -453,5 +494,4 @@ const EditProductCard: React.FC<{
     </div>
   );
 };
-
 export default EditProductCard;

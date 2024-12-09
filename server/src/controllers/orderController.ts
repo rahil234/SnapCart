@@ -12,6 +12,7 @@ import productModel from '@models/productModel';
 import fs from 'fs';
 import path from 'path';
 import createWalletTransaction from '@/utils/generateWalletTransaction';
+import validateAndCalculateOfferPrice from '@/utils/validateAndCalculateOfferPrice';
 
 const razorpay = configRazorpay();
 
@@ -181,12 +182,13 @@ const createOrder = async (req: Request, res: Response) => {
     const orderItems = [] as IOrderItem[];
     let totalPrice = 0;
 
-    cart?.items.forEach((item) => {
+    cart?.items.map(validateAndCalculateOfferPrice).forEach((item) => {
       orderItems.push({
         _id: item._id,
         name: item.product.name,
         quantity: item.quantity,
         price: item.product.price,
+        offerPrice: item.offerPrice || item.product.price,
         seller: item.product.seller,
         image: item.product.images[0],
       });
