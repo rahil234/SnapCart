@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { RootState } from '@/app/store';
-import { CartItem, ICartP, Product, catchError } from 'shared/types';
+import { CartItem, ICartP, Product, catchError } from '@snapcart/shared/types';
 import cartEndpoints from '@/api/cartEndpoints';
 import validateAndCalculateOfferPrice from '@/utils/validateAndCalculateOfferPrice';
 

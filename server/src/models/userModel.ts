@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IUsers } from 'shared/types';
+import { IUsers } from '@snapcart/shared/types';
 
 const AddressSchema: Schema = new Schema(
   {
@@ -46,7 +46,7 @@ const UsersSchema = new Schema<IUsers>(
     },
     profilePicture: String,
     status: { type: String, enum: ['Active', 'Blocked'], default: 'Active' },
-    referral: { type: ReferralSchema, unique: true },
+    referral: { type: ReferralSchema },
   },
   { timestamps: true }
 );

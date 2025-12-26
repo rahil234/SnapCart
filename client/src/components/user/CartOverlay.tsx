@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { motion } from 'motion/react';
 import { UIContext } from '@/context/UIContext';
 import { Button } from '@/components/ui/button';
-import { ImportMeta } from 'types';
+import { ImportMeta } from '@/types';
 import { AuthState } from '@/features/auth/authSlice';
 import { CartState, updateQuantity } from '@/features/cart/cartSlice';
 import { useAppDispatch } from '@/app/store';

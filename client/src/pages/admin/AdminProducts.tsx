@@ -8,7 +8,7 @@ import {
   ListMinus,
 } from 'lucide-react';
 import productEndpoints from '@/api/productEndpoints';
-import { Product } from 'shared/types';
+import { Product } from '@snapcart/shared/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,7 +26,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-import { ImportMeta } from 'types';
+import { ImportMeta } from '@/types';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 

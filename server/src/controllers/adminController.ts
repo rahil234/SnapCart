@@ -1,13 +1,14 @@
-import { Request, Response } from 'express';
-import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { signAccessToken } from '@/utils/jwtUtils';
-import { setRefreshTokenCookie } from '@/utils/cookieUtils';
+import mongoose from 'mongoose';
+import { Request, Response } from 'express';
+
+import { catchError } from '@snapcart/shared/types';
 import userModel from '@/models/userModel';
 import adminModel from '@models/adminModel';
 import sellerModel from '@/models/sellerModel';
 import bannerModel from '@/models/bannerModel';
-import { catchError } from '@shared/types';
+import { signAccessToken } from '@/utils/jwtUtils';
+import { setRefreshTokenCookie } from '@/utils/cookieUtils';
 
 const createAdmin = async (req: Request, res: Response) => {
   try {

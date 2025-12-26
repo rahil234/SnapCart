@@ -34,7 +34,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import couponEndpoints from '@/api/couponEndpoints';
-import { ICoupon } from 'shared/types';
+import { ICoupon } from '@snapcart/shared/types';
 import AddCouponCard from '@/components/admin/AddCouponCard';
 import EditCouponCard from '@/components/admin/EditCouponCard';
 

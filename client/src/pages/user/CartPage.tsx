@@ -20,7 +20,7 @@ import {
 import { useAppDispatch } from '@/app/store';
 import { toast } from 'sonner';
 import orderEndpoints from '@/api/orderEndpoints';
-import { ImportMeta } from '@types';
+import { ImportMeta } from '@/types';
 
 const imageUrl =
   (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';

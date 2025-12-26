@@ -29,7 +29,7 @@ import { useQuery } from '@tanstack/react-query';
 import productEndpoints from '@/api/productEndpoints';
 import ProductCard from '@/components/user/ProductCard';
 import categoryEndpoints from '@/api/categoryEndpoints';
-import { Category, Product } from 'shared/types';
+import { Category, Product } from '@snapcart/shared/types';
 
 interface SalesReport {
   _id: number;

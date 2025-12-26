@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import { Request, Response } from 'express';
+
+import VariantModel from '@models/variantModel';
 import productModel from '@/models/productModel';
-import { catchError, Product } from '@shared/types';
 import categoryModel from '@models/categoryModel';
-import variantModel from '@models/variantModel';
 import subcategoryModel from '@models/subcategoryModel';
+import { catchError, Product } from '@snapcart/shared/types';
 
 const getProduct = async (req: Request, res: Response) => {
   try {
@@ -79,18 +80,13 @@ const addProduct = async (req: Request, res: Response) => {
     const { productName, description, category, subcategory, variants } =
       req.body;
 
-    //check the category and subcategory is valid
     const categoryExist = await categoryModel.findById(category);
     const subcategoryExist = await subcategoryModel.findById(subcategory);
-
-    console.log(categoryExist, subcategoryExist);
 
     if (!categoryExist || !subcategoryExist) {
       res.status(400).json({ message: 'Category or SubCategory is not valid' });
       return;
     }
-
-    console.log(req.files);
 
     const images = req.files as Express.Multer.File[];
 
@@ -107,31 +103,33 @@ const addProduct = async (req: Request, res: Response) => {
       }
     });
 
-    const savedProducts = [];
+    const product = await new productModel({
+      name: productName,
+      description,
+      category,
+      subcategory,
+      seller: req.user?._id,
+    }).save();
 
-    const variantId = (await variantModel.create({ name: productName }))._id;
+    console.log('product has been saved', product);
+
+    console.log('variants', variants);
 
     for (const [index, variant] of variants.entries()) {
-      const newProduct = new productModel({
-        variantId,
-        name: productName,
-        description,
-        category,
-        subcategory,
-        quantity: variant.name,
-        price: variant.price,
-        stock: variant.stock,
-        images: variantImagesMap[index] || [],
+      const newVariant = new VariantModel({
+        productId: product._id,
         variantName: variant.name,
-        seller: req.user?._id,
+        stock: variant.stock,
+        price: variant.price,
+        images: variantImagesMap[index] || [],
+        status: 'Active',
       });
-      await newProduct.save();
-      savedProducts.push(newProduct);
+      await newVariant.save();
     }
 
     res.status(201).json({
       message: 'Products added successfully',
-      products: savedProducts,
+      products: product,
     });
   } catch (error) {
     console.log(error);
@@ -317,9 +315,9 @@ const getProductsBySeller = async (req: Request, res: Response) => {
       {
         $lookup: {
           from: 'variants',
-          localField: 'variantId',
-          foreignField: '_id',
-          as: 'variantInfo',
+          localField: '_id',
+          foreignField: 'productId',
+          as: 'variants',
         },
       },
       {
@@ -351,19 +349,12 @@ const getProductsBySeller = async (req: Request, res: Response) => {
         },
       },
       {
-        $group: {
-          _id: '$variantId',
-          products: { $push: '$$ROOT' },
-          category: { $first: '$category' },
-          subcategory: { $first: '$subcategory' },
-        },
-      },
-      {
         $sort: { 'products.createdAt': -1 },
       },
     ]);
 
-    console.log(productsByVariant[0].products);
+    console.log(productsByVariant);
+
     res.status(200).json(productsByVariant);
   } catch (error) {
     console.log(error);

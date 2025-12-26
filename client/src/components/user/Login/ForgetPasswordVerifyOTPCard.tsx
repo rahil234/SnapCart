@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
-import { catchError } from 'shared/types';
+import { catchError } from '@snapcart/shared/types';
 import userEndpoints from '@/api/userEndpoints';
 
 interface VerifyOTPFormInputs {

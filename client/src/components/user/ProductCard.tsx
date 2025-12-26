@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Product } from 'shared/types';
+import { Product } from '@snapcart/shared/types';
 import { useSelector } from 'react-redux';
 import {
   CartState,
@@ -12,7 +12,7 @@ import {
 import { useAppDispatch } from '@/app/store';
 import { AuthState } from '@/features/auth/authSlice';
 import { UIContext } from '@/context/UIContext';
-import { ImportMeta } from '@types';
+import { ImportMeta } from '@/types';
 
 const imageUrl =
   (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';

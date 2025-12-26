@@ -16,7 +16,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import userEndpoints from '@/api/userEndpoints';
-import { catchError } from 'shared/types';
+import { catchError } from '@snapcart/shared/types';
 
 interface ChangePasswordFormValues {
   currentPassword: string;

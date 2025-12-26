@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { RazorpayOptions, RazorpayResponse } from 'types/razorpay';
+import { RazorpayOptions, RazorpayResponse } from '@/types/razorpay';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
 import orderEndpoints from '@/api/orderEndpoints';
-import { ImportMeta, catchError } from 'shared/types';
+import { ImportMeta, catchError } from '@snapcart/shared/types';
 
 const RAZORPAY_KEY_ID = (import.meta as unknown as ImportMeta).env
   .VITE_RAZORPAY_KEY_ID;

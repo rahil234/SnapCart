@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import categoryModel from '../models/categoryModel';
 import subcategoryModel from '../models/subcategoryModel';
-import { catchError } from 'shared/types';
+import { catchError } from '@snapcart/shared/types';
 
 const getCategories = async (_req: Request, res: Response) => {
   try {

@@ -14,8 +14,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { IOrder } from 'shared/types';
-import { ImportMeta } from '@types';
+import { IOrder } from '@snapcart/shared/types';
+import { ImportMeta } from '@/types';
 
 const imageUrl =
   (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';

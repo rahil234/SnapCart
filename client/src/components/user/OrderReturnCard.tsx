@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { IOrder } from 'shared/types';
+import { IOrder } from '@snapcart/shared/types';
 import { toast } from 'sonner';
 import orderEndpoints from '@/api/orderEndpoints';
 import { useQueryClient } from '@tanstack/react-query';

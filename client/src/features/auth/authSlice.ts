@@ -1,7 +1,7 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { User } from 'shared/types';
-import { ImportMeta } from 'shared/types';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
+import { User, ImportMeta } from '@snapcart/shared/types';
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -14,6 +14,18 @@ export interface AuthState {
 const apiUrl = (import.meta as unknown as ImportMeta).env
   .VITE_API_URL as string;
 
+export const fetchUser = createAsyncThunk(
+  'auth/me',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/auth/me`);
+      return response.data;
+    } catch {
+      return rejectWithValue('Failed to fetch user');
+    }
+  }
+);
+
 export const refreshAuthToken = createAsyncThunk(
   'auth/refreshAuthToken',
   async (_, { rejectWithValue }) => {
@@ -25,8 +37,6 @@ export const refreshAuthToken = createAsyncThunk(
       );
       return response.data;
     } catch {
-      // store.dispatch(clearUser());
-      // localStorage.removeItem('sessionActive');
       return rejectWithValue('Failed to refresh token');
     }
   }
@@ -80,6 +90,18 @@ const authSlice = createSlice({
   },
   extraReducers: builder => {
     builder
+      .addCase(fetchUser.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(fetchUser.fulfilled, (state, action) => {
+        authSlice.caseReducers.setCredentials(state, action);
+        state.status = 'succeeded';
+      })
+      .addCase(fetchUser.rejected, (state) => {
+        authSlice.caseReducers.clearUser(state);
+        state.status = 'failed';
+      });
+    builder
       .addCase(refreshAuthToken.pending, state => {
         state.status = 'loading';
       })
@@ -106,6 +128,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, changeProfilePicture, clearUser } =
+export const { setCredentials, changeProfilePicture } =
   authSlice.actions;
+
 export default authSlice.reducer;

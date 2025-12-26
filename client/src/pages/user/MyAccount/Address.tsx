@@ -13,7 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import AddressForm from '@/components/user/AddressForm';
 import { ProfileFormValues } from '@/pages/user/MyAccount/Profile';
 import userEndpoints from '@/api/userEndpoints';
-import { catchError, Address } from 'shared/types';
+import { catchError, Address } from '@snapcart/shared/types';
 
 function AddressesSection({
   addresses: initialAddresses,

@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { Category } from '@shared/types';
+import { Category } from '@snapcart/shared/types';
 
 const CategorySchema: Schema = new Schema(
   {

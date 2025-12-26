@@ -32,9 +32,9 @@ import { clearCart } from '@/features/cart/cartSlice';
 import { useAppDispatch } from '@/app/store';
 import userEndpoints from '@/api/userEndpoints';
 import orderEndpoints from '@/api/orderEndpoints';
-import { catchError, ICoupon, Address } from 'shared/types';
+import { catchError, ICoupon, Address } from '@snapcart/shared/types';
 import AddressForm from '@/components/user/AddressForm';
-import { ImportMeta } from '@types';
+import { ImportMeta } from '@/types';
 import AvailableCoupons from '@/components/user/AvailableCoupons';
 
 const imageUrl =

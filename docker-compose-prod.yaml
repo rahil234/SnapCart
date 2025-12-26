@@ -7,8 +7,6 @@ services:
       - redis_volume_data:/data
     ports:
       - "6379:6379"
-    networks:
-      - app-network
 
   node:
     container_name: snapcart-node
@@ -27,8 +25,6 @@ services:
     command: sh -c "npm install && cd server && npm run build && npm run start"
     depends_on:
       - redis
-    networks:
-      - app-network
 
   nginx:
     container_name: snapcart-nginx
@@ -44,23 +40,6 @@ services:
       - ./nginx/certs:/var/www/certbot
     depends_on:
       - node
-    networks:
-      - app-network
-
-#  certbot:
-#    container_name: snapcart-certbot
-#    image: certbot/certbot
-#    volumes:
-#      - ./nginx/certs:/etc/letsencrypt
-#      - ./nginx/certs:/var/www/certbot
-#    depends_on:
-#      - nginx
-#    networks:
-#      - app-network
-
-networks:
-  app-network:
-    driver: bridge
 
 volumes:
   mongo-data:

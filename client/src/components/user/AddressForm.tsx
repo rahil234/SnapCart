@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import React from 'react';
-import { Address } from 'shared/types';
+import { Address } from '@snapcart/shared/types';
 
 interface AddressFormProps {
   onSubmit: (address: Address) => void;

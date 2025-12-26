@@ -1,22 +1,23 @@
+import { toast } from 'sonner';
+import { useSelector } from 'react-redux';
+import { X, ChevronRight } from 'lucide-react';
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useParams, NavLink, Link, ScrollRestoration } from 'react-router';
-import { X, Star, ChevronRight } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import productEndpoints from '@/api/productEndpoints';
-import ProductCard from '@/components/user/ProductCard';
-import { Product } from 'shared/types';
-import { ImportMeta } from 'shared/types';
-import { Button } from '@/components/ui/button';
-import { useSelector } from 'react-redux';
+
 import {
   addItemToCart,
   CartState,
   updateQuantity,
 } from '@/features/cart/cartSlice';
 import { useAppDispatch } from '@/app/store';
-import { AuthState } from '@/features/auth/authSlice';
 import { UIContext } from '@/context/UIContext';
-import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Product } from '@snapcart/shared/types';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ImportMeta } from '@snapcart/shared/types';
+import { AuthState } from '@/features/auth/authSlice';
+import productEndpoints from '@/api/productEndpoints';
+import ProductCard from '@/components/user/ProductCard';
 import ProductNotFound from '@/components/user/ProductNotFound';
 
 const imageUrl =
@@ -83,15 +84,15 @@ const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
 };
 
 const ProductPage: React.FC = () => {
-  const { productId } = useParams<{ productId: string }>();
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [variants] = useState<Product[]>([]);
+  const { showLoginOverlay } = useContext(UIContext);
+  const { productId } = useParams<{ productId: string }>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [cartQuantity, setCartQuantity] = useState<number>(0);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product | null>(null);
   const [mainImage, setMainImage] = useState<string | undefined>(undefined);
-  const [cartQuantity, setCartQuantity] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
 
-  const { showLoginOverlay } = useContext(UIContext);
   const { user } = useSelector((state: { auth: AuthState }) => state.auth);
 
   const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
@@ -136,18 +137,18 @@ const ProductPage: React.FC = () => {
     }
   }, [product]);
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }).map((_, index) => (
-      <Star
-        key={index}
-        className={`w-5 h-5 ${
-          index < Math.floor(rating)
-            ? 'text-yellow-400 fill-current'
-            : 'text-gray-300'
-        }`}
-      />
-    ));
-  };
+  // const renderStars = (rating: number) => {
+  //   return Array.from({ length: 5 }).map((_, index) => (
+  //     <Star
+  //       key={index}
+  //       className={`w-5 h-5 ${
+  //         index < Math.floor(rating)
+  //           ? 'text-yellow-400 fill-current'
+  //           : 'text-gray-300'
+  //       }`}
+  //     />
+  //   ));
+  // };
 
   const calculateDiscount = (originalPrice: number, discount: number) => {
     return Math.floor(originalPrice - (originalPrice * discount) / 100);
@@ -371,12 +372,15 @@ const ProductPage: React.FC = () => {
                 </Button>
               )}
             </div>
-            <p className="text-sm text-gray-600 mb-4">
+
+            <p className="text-xs text-gray-600 mb-4">
               Estimated delivery time is 3:00PM - 24 min
             </p>
-            <span className="mb-4 whitespace-pre-wrap">
+
+            <span className="mb-4 whitespace-pre-wrap text-sm">
               {product.description}
             </span>
+
             {/* <div className="flex flex-wrap gap-2 mb-4">
               {product.tags.map((tag, index) => (
                 <span
@@ -387,6 +391,7 @@ const ProductPage: React.FC = () => {
                 </span>
               ))}
             </div> */}
+
             <button className="text-blue-500 text-sm">
               Report incorrect product information
             </button>
@@ -394,20 +399,20 @@ const ProductPage: React.FC = () => {
         </div>
 
         {/* Product Reviews */}
-        <section className="mt-12">
-          <h3 className="text-xl font-semibold mb-4">Customer Reviews</h3>
-          {product.reviews?.length &&
-            product.reviews.map((review, index) => (
-              <div key={index} className="border-b border-gray-200 py-4">
-                <div className="flex items-center mb-2">
-                  <div className="flex mr-2">{renderStars(review.rating)}</div>
-                  <p className="font-semibold">{review.user}</p>
-                </div>
-                <p className="text-gray-700 mb-1">{review.comment}</p>
-                <p className="text-sm text-gray-500">{review.date}</p>
-              </div>
-            ))}
-        </section>
+        {/*<section className="mt-12">*/}
+        {/*  <h3 className="text-xl font-semibold mb-4">Customer Reviews</h3>*/}
+        {/*  {product.reviews?.length &&*/}
+        {/*    product.reviews.map((review, index) => (*/}
+        {/*      <div key={index} className="border-b border-gray-200 py-4">*/}
+        {/*        <div className="flex items-center mb-2">*/}
+        {/*          <div className="flex mr-2">{renderStars(review.rating)}</div>*/}
+        {/*          <p className="font-semibold">{review.user}</p>*/}
+        {/*        </div>*/}
+        {/*        <p className="text-gray-700 mb-1">{review.comment}</p>*/}
+        {/*        <p className="text-sm text-gray-500">{review.date}</p>*/}
+        {/*      </div>*/}
+        {/*    ))}*/}
+        {/*</section>*/}
 
         {/* Related products */}
         {relatedProducts.length > 0 && (

@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IOffer } from 'shared/types';
+import { IOffer } from '@snapcart/shared/types';
 
 const offerSchema = new Schema<IOffer>(
   {

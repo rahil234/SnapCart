@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { X } from 'lucide-react';
 import categoryEndpoints from '@/api/categoryEndpoints';
-import { catchError, Category } from 'shared/types';
+import { catchError, Category } from '@snapcart/shared/types';
 
 interface AddCategoryFormInputs {
   category: string;

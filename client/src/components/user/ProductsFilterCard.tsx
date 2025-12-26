@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Category } from 'shared/types';
+import { Category } from '@snapcart/shared/types';
 import { useQuery } from '@tanstack/react-query';
 import categoryEndpoints from '@/api/categoryEndpoints';
 

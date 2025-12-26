@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { signRefreshToken } from './jwtUtils';
-import { UserRole } from '@shared/types';
+import { UserRole } from '@snapcart/shared/types';
 import * as process from 'node:process';
 
 export const setRefreshTokenCookie = (

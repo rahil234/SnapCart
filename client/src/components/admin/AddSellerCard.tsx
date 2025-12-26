@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import sellerEndpoints from '@/api/sellerEndpoints';
-import { catchError } from 'shared/types';
+import { catchError } from '@snapcart/shared/types';
 
 interface AddSellerCardProps {
   onClose: () => void;

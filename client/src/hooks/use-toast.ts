@@ -1,5 +1,5 @@
 import * as React from "react"
-import { actionTypes } from "types/action-types"
+import { actionTypes } from "@/types/action-types"
 
 import type {
   ToastActionElement,

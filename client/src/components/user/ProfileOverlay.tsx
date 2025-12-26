@@ -8,7 +8,7 @@ import { UIContext } from '@/context/UIContext';
 import { AuthState, logoutUser } from '@/features/auth/authSlice';
 import { useAppDispatch } from '@/app/store';
 import { Link } from 'react-router';
-import { ImportMeta } from '@types';
+import { ImportMeta } from '@/types';
 
 const imageUrl = (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL+'/profiles/';
 

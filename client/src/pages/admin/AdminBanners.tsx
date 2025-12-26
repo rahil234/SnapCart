@@ -30,7 +30,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import adminEndpoints from '@/api/adminEndpoints';
-import { ImportMeta } from '@types';
+import { ImportMeta } from '@/types';
 
 const imageUrl =
   (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/banners/';

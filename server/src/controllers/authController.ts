@@ -4,7 +4,7 @@ import userModel from '@models/userModel';
 import sellerModel from '@models/sellerModel';
 import adminModel from '@models/adminModel';
 import { clearRefreshTokenCookie } from '@/utils/cookieUtils';
-import { IUsers, ISeller, IAdmin } from 'shared/types';
+import { IUsers, ISeller, IAdmin } from '@snapcart/shared/types';
 
 function TypeGuard(
   role: string,

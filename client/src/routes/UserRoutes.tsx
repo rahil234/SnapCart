@@ -12,7 +12,7 @@ import ForgotPasswordPage from '@/pages/user/ForgotPasswordPage';
 import CheckoutPage from '@/pages/user/CheckoutPage';
 import CategoryPage from '@/pages/user/CategoryPage';
 import { UIProvider } from '@/context/UIContext';
-import ChangePasswordPage from '@/pages/user/ChangePassword';
+import ChangePasswordPage from '@/pages/user/ChangePasswordPage';
 import OrderSuccessPage from '@/pages/user/OrderSuccessPage';
 import PaymentFailurePage from '@/pages/user/PaymentFailurePage';
 import OrderFailurePage from '@/pages/user/OrderFailurePage';

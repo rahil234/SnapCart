@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollRestoration, useParams } from 'react-router';
 import ProductCard from '@/components/user/ProductCard';
-import { Product } from 'shared/types';
+import { Product } from '@snapcart/shared/types';
 import productEndpoints from '@/api/productEndpoints';
 import { useQuery } from '@tanstack/react-query';
 

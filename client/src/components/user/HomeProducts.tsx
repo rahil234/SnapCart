@@ -3,7 +3,7 @@ import ProductCard from '@/components/user/ProductCard';
 import { useNavigate } from 'react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import productEndpoints from '@/api/productEndpoints';
-import { Product } from 'shared/types';
+import { Product } from '@snapcart/shared/types';
 
 interface Products {
   categoryId: number;
@@ -12,14 +12,12 @@ interface Products {
 }
 
 const HomeProducts = () => {
+  const navigate = useNavigate();
+
   const { data: products } = useSuspenseQuery<Products[]>({
     queryKey: ['latest-products'],
     queryFn: productEndpoints.getLatestProducts,
   });
-
-  const navigate = useNavigate();
-
-  if (!products) return null;
 
   return (
     <>
