@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import ProductCard from '@/components/user/ProductCard';
-import { Product } from 'shared/types';
+import { Product } from '@snapcart/shared/types';
 import productEndpoints from '@/api/productEndpoints';
 import ProductsFilterCard from '@/components/user/ProductsFilterCard';
 import { Toggle } from '@/components/ui/toggle';

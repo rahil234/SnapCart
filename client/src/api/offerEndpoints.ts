@@ -1,4 +1,4 @@
-import { IOffer } from 'shared/types';
+import { IOffer } from '@snapcart/shared/types';
 import axiosInstance from './axiosInstance';
 
 const getOffers = async () => {

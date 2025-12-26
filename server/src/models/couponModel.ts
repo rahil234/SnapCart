@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { ICoupon } from '@shared/types';
+import { ICoupon } from '@snapcart/shared/types';
 
 const couponSchema = new Schema<ICoupon>(
   {

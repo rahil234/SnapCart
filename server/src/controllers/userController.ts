@@ -1,15 +1,16 @@
-import { Request, Response } from 'express';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-import { signAccessToken } from '@/utils/jwtUtils';
+import { Request, Response } from 'express';
+
 import {
   setRefreshTokenCookie,
   clearRefreshTokenCookie,
 } from '@/utils/cookieUtils';
 import otpModel from '@models/otpModel';
 import userModel from '@models/userModel';
-import { catchError } from 'shared/types';
+import { signAccessToken } from '@/utils/jwtUtils';
+import { catchError } from '@snapcart/shared/types';
 import createWalletTransaction from '@/utils/generateWalletTransaction';
 
 const transporter = nodemailer.createTransport({
@@ -176,6 +177,7 @@ const googleLogin = async (req: Request, res: Response) => {
     res.status(201).json({ accessToken, user });
   } catch (error) {
     const newError = error as catchError;
+    console.log(error);
     res
       .status(500)
       .json({ message: 'Internal server error', error: newError.message });
@@ -347,7 +349,7 @@ const verifyOtp = async (req: Request, res: Response) => {
       res.json({ message: 'OTP verified', success: true });
     } else {
       console.log('Wrong Otp', otp, ':', otpUser?.otp);
-      throw 'Invalid OTP';
+      throw new Error('Invalid OTP');
     }
   } catch (err) {
     res.status(404).json({ message: err });

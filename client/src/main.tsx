@@ -7,7 +7,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import App from './App';
 import store from './app/store';
 import './index.css';
-import { ImportMeta } from '@types';
+import { ImportMeta } from '@/types';
 import { Toaster as HotToaster } from 'react-hot-toast';
 
 const GOOGLE_OAUTH_CLIENT_ID = (import.meta as unknown as ImportMeta).env

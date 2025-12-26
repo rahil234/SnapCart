@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Category, IOffer, Product } from 'shared/types';
+import { Category, IOffer, Product } from '@snapcart/shared/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import offerEndpoints from '@/api/offerEndpoints';
 import { Label } from '@/components/ui/label';

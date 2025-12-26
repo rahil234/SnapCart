@@ -16,5 +16,6 @@
       "@types": ["./types/index.ts"],
       "shared/*": ["../../shared/dist/*"]
     }
-  }
+  },
+  "exclude": ["node_modules", "dist"]
 }

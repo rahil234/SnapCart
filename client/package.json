@@ -4,10 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
-    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
-    "lint:fix": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "start": "vite preview"
   },
   "dependencies": {
@@ -72,7 +71,6 @@
     "react-router": "^7.0.1",
     "recharts": "^2.13.0",
     "shadcn": "^1.0.0",
-    "shared": "1.0.0",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",

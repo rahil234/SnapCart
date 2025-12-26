@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import couponEndpoints from '@/api/couponEndpoints';
-import { ICoupon } from 'shared/types';
+import { ICoupon } from '@snapcart/shared/types';
 
 function AvailableCoupons({
   handleCouponSubmit,

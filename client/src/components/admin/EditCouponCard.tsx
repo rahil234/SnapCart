@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { ICoupon } from 'shared/types';
+import { ICoupon } from '@snapcart/shared/types';
 import { toast } from 'sonner';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import couponEndpoints from '@/api/couponEndpoints';

@@ -9,7 +9,7 @@ import VerifyOTPCard from '@/components/user/Login/VerifyOTPCard';
 import ForgotPasswordCard from './ForgetPasswordCard';
 import ForgetPasswordVerifyOTPCard from '@/components/user/Login/ForgetPasswordVerifyOTPCard';
 import NewPassword from '@/components/user/Login/NewPassword';
-import { SignUpFormInputs } from 'shared/types';
+import { SignUpFormInputs } from '@snapcart/shared/types';
 import userEndpoints from '@/api/userEndpoints';
 import { setCredentials } from '@/features/auth/authSlice';
 import { useAppDispatch } from '@/app/store';

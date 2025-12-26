@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IOrder, IOrderItem } from 'shared/types';
+import { IOrder, IOrderItem } from '@snapcart/shared/types';
 
 const orderItemSchema = new Schema<IOrderItem>({
   _id: { type: String, required: true },

@@ -2,7 +2,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import Banner from '@/models/bannerModel';
-import { catchError } from '@shared/types';
+import { catchError } from '@snapcart/shared/types';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import cartModel from '@models/cartModel';
 import productModel from '@models/productModel';
-import { ICartP } from '@shared/types';
+import { ICartP } from '@snapcart/shared/types';
 import validateAndCalculateOfferPrice from '@/utils/validateAndCalculateOfferPrice';
 
 const getCart = async (req: Request, res: Response) => {

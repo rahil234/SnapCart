@@ -5,7 +5,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
 import sellerEndpoints from '@/api/sellerEndpoints';
 import { AuthState, setCredentials } from '@/features/auth/authSlice';
-import { catchError } from 'shared/types';
+import { catchError } from '@snapcart/shared/types';
 import { useAppDispatch } from '@/app/store';
 
 interface LoginFormInputs {

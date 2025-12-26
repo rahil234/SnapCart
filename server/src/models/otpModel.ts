@@ -1,7 +1,7 @@
-import mongoose, { Schema, Document, ObjectId } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IOtp extends Document {
-  _id: ObjectId;
+export interface IOtp extends Document<string> {
+  _id: string;
   email: string;
   otp: string;
   createdAt: Date;

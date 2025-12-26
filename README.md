@@ -7,8 +7,8 @@ experience. It focuses on efficiency, scalability, and user satisfaction.
 images:
 
 <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;">
-  <img src="img.png" alt="Image Description" style="border-radius: 10px;">
-  <img src="IMG_2.jpg" alt="Image Description" style="width: 300px; border-radius: 10px;">
+  <img src="docs/img.png" alt="Image Description" style="border-radius: 10px;">
+  <img src="docs/IMG_2.jpg" alt="Image Description" style="width: 300px; border-radius: 10px;">
 </div>
 
 ---

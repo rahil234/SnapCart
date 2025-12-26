@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { AlertCircle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { IOrder } from 'shared/types';
+import { IOrder } from '@snapcart/shared/types';
 import orderEndpoints from '@/api/orderEndpoints';
-import { ImportMeta } from '@types';
+import { ImportMeta } from '@/types';
 import {
   Dialog,
   DialogContent,

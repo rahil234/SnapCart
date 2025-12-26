@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
 import InputField from '@/components/ui/InputField';
 import userEndpoints from '@/api/userEndpoints';
-import { catchError } from 'shared/types';
+import { catchError } from '@snapcart/shared/types';
 
 interface ForgotPasswordInputs {
   email: string;

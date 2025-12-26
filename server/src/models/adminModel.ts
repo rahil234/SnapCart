@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IAdmin } from 'shared/types';
+import { IAdmin } from '@snapcart/shared/types';
 
 const AdminSchema: Schema = new Schema(
   {

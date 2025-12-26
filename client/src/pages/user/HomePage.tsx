@@ -1,5 +1,5 @@
 import React from 'react';
-import TopBanner from '@/components/user/TopBanner';
+import TopBanner from '@/components/user/Banner/TopBanner';
 import HomeProducts from '@/components/user/HomeProducts';
 
 function HomePage() {

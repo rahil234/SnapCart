@@ -1,16 +1,39 @@
-import { Schema, model, Document } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
-interface IVariantGroup extends Document {
-  name: string;
-  products: string[];
-  sellerId: Schema.Types.ObjectId;
+export interface IVariant extends Document {
+  productId: Schema.Types.ObjectId;
+  variantName: string;
+  price: number;
+  offerPrice?: number;
+  stock: number;
+  images: string[];
+  soldCount: number;
+  status: 'Active' | 'Inactive';
 }
 
-const variantGroupSchema = new Schema<IVariantGroup>({
-  name: { type: String, required: true },
-  sellerId: { type: Schema.Types.ObjectId, ref: 'Seller' },
-});
+const VariantSchema = new Schema<IVariant>(
+  {
+    productId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true,
+      index: true,
+    },
 
-const variantGroup = model<IVariantGroup>('VariantGroup', variantGroupSchema);
+    variantName: { type: String, required: true },
+    price: { type: Number, required: true },
+    offerPrice: Number,
+    stock: { type: Number, required: true },
+    images: { type: [String], required: true },
 
-export default variantGroup;
+    soldCount: { type: Number, default: 0 },
+    status: {
+      type: String,
+      enum: ['Active', 'Inactive'],
+      default: 'Active',
+    },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model<IVariant>('Variant', VariantSchema);

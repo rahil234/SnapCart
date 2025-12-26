@@ -6,7 +6,7 @@ import userEndpoints from '@/api/userEndpoints';
 import { setCredentials } from '@/features/auth/authSlice';
 import { useGoogleLogin } from '@react-oauth/google';
 import { motion } from 'framer-motion';
-import { catchError } from 'shared/types';
+import { catchError } from '@snapcart/shared/types';
 import { useAppDispatch } from '@/app/store';
 
 interface LoginFormInputs {

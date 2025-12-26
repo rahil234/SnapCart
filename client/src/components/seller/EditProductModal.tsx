@@ -1,26 +1,3 @@
-import React, { useState, useEffect } from 'react';
-import { useForm, SubmitHandler, FieldErrors } from 'react-hook-form';
-import { GripVertical, ImageIcon, Plus, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import productEndpoints from '@/api/productEndpoints';
-import categoryEndpoints from '@/api/categoryEndpoints';
-import {
-  Category as OriginalCategory,
-  Subcategory,
-  VariantImage,
-} from 'shared/types';
-import { CSS } from '@dnd-kit/utilities';
-import { Card, CardContent } from '../ui/card';
-import {
-  horizontalListSortingStrategy,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-} from '@dnd-kit/sortable';
 import {
   closestCenter,
   DndContext,
@@ -29,21 +6,36 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import AddImageCropper from './addImageCropper';
-import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { AxiosProgressEvent } from 'axios';
+import {
+  horizontalListSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from '@dnd-kit/sortable';
 import { toast } from 'sonner';
+import { CSS } from '@dnd-kit/utilities';
+import React, { useState, useEffect } from 'react';
+import { restrictToParentElement } from '@dnd-kit/modifiers';
+import { GripVertical, ImageIcon, Plus, X } from 'lucide-react';
+import { useForm, SubmitHandler, FieldErrors } from 'react-hook-form';
+
+import {
+  Category as OriginalCategory,
+  Subcategory,
+} from '@snapcart/shared/types';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import productEndpoints from '@/api/productEndpoints';
+import categoryEndpoints from '@/api/categoryEndpoints';
+import { Card, CardContent } from '@/components/ui/card';
+import { Product, Variant, VariantImage } from '@/types';
+import AddImageCropper from '@/components/seller/addImageCropper';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Category extends OriginalCategory {
   subcategories: Subcategory[];
-}
-
-interface Variant {
-  id: number;
-  variantName: string;
-  price: string;
-  stock: string;
-  images: VariantImage[];
 }
 
 interface FormValues {
@@ -98,7 +90,13 @@ function SortableImage({
   );
 }
 
-function AddProductCard({ onClose }: { onClose: () => void }) {
+export default function EditProductModal({
+  onClose,
+  product,
+}: {
+  onClose: () => void;
+  product: Product;
+}) {
   const {
     register,
     handleSubmit,
@@ -114,7 +112,7 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
     images: [],
   };
 
-  const [variants, setVariants] = useState<Variant[]>([defaultVariant]);
+  const [variants, setVariants] = useState<Variant[]>(product.variants);
   const [activeTab, setActiveTab] = useState(defaultVariant.id);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategory, setSubcategory] = useState<Subcategory[]>([]);
@@ -192,9 +190,9 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
     }
     const newVariant = {
       id: variants.length,
-      variantName: `Variant ${variants.length}`,
-      price: '',
-      stock: '',
+      name: `Variant ${variants.length}`,
+      price: 0,
+      stock: 0,
       images: [],
     };
     setVariants(prev => [...prev, newVariant]);
@@ -236,7 +234,6 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
     try {
-      console.log(data);
       const formData = new FormData();
       formData.append('productName', data.productName);
       formData.append('description', data.description);
@@ -244,17 +241,14 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
       formData.append('subcategory', data.subcategory);
 
       variants.forEach((_variant, index) => {
-        formData.append(
-          `variants[${index}][name]`,
-          data.variants[index].variantName
-        );
+        formData.append(`variants[${index}][name]`, data.variants[index].name);
         formData.append(
           `variants[${index}][price]`,
-          data.variants[index].price
+          String(data.variants[index].price)
         );
         formData.append(
           `variants[${index}][stock]`,
-          data.variants[index].stock
+          String(data.variants[index].stock)
         );
       });
       variants.map((variant, index) => {
@@ -269,17 +263,14 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
       // formData.forEach((value, key) => {
       //   console.log(key, value);
       // });
+      //
+      // const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
+      //   if (progressEvent.progress) {
+      //     console.log(progressEvent.progress * 100 + '%');
+      //   }
+      // };
 
-      const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
-        if (progressEvent.progress) {
-          console.log(progressEvent.progress * 100 + '%');
-        }
-      };
-
-      const response = await productEndpoints.addProduct(
-        formData,
-        onUploadProgress
-      );
+      const response = await productEndpoints.editProduct(formData);
 
       if (response.status === 201) {
         toast.success('Product added successfully');
@@ -448,14 +439,13 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
                     </Label>
                     <Input
                       id={`variantName-${variant.id}`}
-                      {...register(`variants.${variant.id}.variantName`, {
+                      {...register(`variants.${variant.id}.name`, {
                         required: 'Variant Name is required',
                       })}
                     />
-                    {errors.variants?.[variant.id]?.variantName && (
+                    {errors.variants?.[variant.id]?.name && (
                       <span className="text-red-500 text-xs">
-                        {errors.variants?.[variant.id]?.variantName?.message ??
-                          ''}
+                        {errors.variants?.[variant.id]?.name?.message ?? ''}
                       </span>
                     )}
                   </div>
@@ -572,5 +562,3 @@ function AddProductCard({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
-
-export default AddProductCard;

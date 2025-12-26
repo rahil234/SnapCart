@@ -14,7 +14,7 @@ import {
 import offerEndpoints from '@/api/offerEndpoints';
 import EditOfferCard from '@/components/admin/EditOfferCard';
 import AddOfferCard from '@/components/admin/AddOfferCard';
-import { IOffer } from 'shared/types';
+import { IOffer } from '@snapcart/shared/types';
 
 function OfferManagement() {
   const [selectedOffer, setSelectedOffer] = useState<IOffer | null>(null);

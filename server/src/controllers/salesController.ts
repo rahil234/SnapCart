@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import SalesService from '@/utils/GenerateSalesReport';
-import { catchError } from '@shared/types';
+import { catchError } from '@snapcart/shared/types';
 
 const fetchSalesReport = async (req: Request, res: Response) => {
   try {

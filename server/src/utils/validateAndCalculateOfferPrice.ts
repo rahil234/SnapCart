@@ -1,4 +1,4 @@
-import { CartItem } from 'shared/types';
+import { CartItem } from '@snapcart/shared/types';
 
 const validateAndCalculateOfferPrice = (item: CartItem): CartItem => {
   const { product } = item;

@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import InputField from '@/components/ui/InputField';
 import userEndpoints from '@/api/userEndpoints';
 import { motion } from 'framer-motion';
-import { catchError, SignUpFormInputs } from 'shared/types';
+import { catchError, SignUpFormInputs } from '@snapcart/shared/types';
 
 interface SignUpCardProps {
   hideLoginOverlay: () => void;

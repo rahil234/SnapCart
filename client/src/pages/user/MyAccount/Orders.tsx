@@ -3,7 +3,7 @@ import orderEndpoints from '@/api/orderEndpoints';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Package } from 'lucide-react';
-import { ImportMeta } from '@types';
+import { ImportMeta } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import {
   Table,
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import OrderDetails from '@/components/user/OrderDetails';
-import { IOrder } from 'shared/types';
+import { IOrder } from '@snapcart/shared/types';
 import {
   Dialog,
   DialogContent,

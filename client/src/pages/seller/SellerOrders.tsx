@@ -26,7 +26,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { IOrder } from 'shared/types';
+import { IOrder } from '@snapcart/shared/types';
 import orderEndpoints from '@/api/orderEndpoints';
 import OrderDetailsModal from '@/components/admin/OrderDetailsCard';
 

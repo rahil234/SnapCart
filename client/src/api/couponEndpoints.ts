@@ -1,5 +1,5 @@
 import axiosInstance from './axiosInstance';
-import { ICoupon } from 'shared/types';
+import { ICoupon } from '@snapcart/shared/types';
 
 const getCoupons = async () => {
   return (await axiosInstance.get('/api/coupon')).data;
