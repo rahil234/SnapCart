@@ -1,0 +1,52 @@
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
+import { CreateProductCommand } from '../create-product.command';
+import { ProductRepository } from '@/domain/product/repositories/product.repository';
+import { Product } from '@/domain/product/entities/product.entity';
+import { ProductCreatedEvent } from '@/domain/product/events';
+
+@CommandHandler(CreateProductCommand)
+export class CreateProductHandler implements ICommandHandler<CreateProductCommand> {
+  constructor(
+    @Inject('ProductRepository')
+    private readonly productRepository: ProductRepository,
+    private readonly eventBus: EventBus,
+  ) {}
+
+  async execute(command: CreateProductCommand): Promise<Product> {
+    const { name, description, categoryId, price, discountPercent, tryOn } =
+      command;
+
+    // Create domain entity using factory method (with business validation)
+    const product = Product.create(
+      name,
+      description,
+      categoryId,
+      price,
+      discountPercent,
+      tryOn || false,
+    );
+
+    // Persist the product
+    const createdProduct = await this.productRepository.create({
+      name: product.getName(),
+      description: product.getDescription(),
+      categoryId: product.getCategoryId(),
+      price: product.getPrice(),
+      discountPercent: product.getDiscountPercent(),
+      tryOn: product.isTryOnEnabled(),
+    });
+
+    // Emit domain event
+    await this.eventBus.publish(
+      new ProductCreatedEvent(
+        createdProduct.id,
+        createdProduct.getName(),
+        createdProduct.getCategoryId(),
+        createdProduct.getPrice(),
+      ),
+    );
+
+    return createdProduct;
+  }
+}
