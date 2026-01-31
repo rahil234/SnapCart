@@ -1,73 +1,64 @@
 services:
-  #  mongo:
-  #    container_name: snapcart-mongodb
-  #    image: mongo:latest
-  #    ports:
-  #      - "27000:27017"
-  #    environment:
-  #      MONGO_INITDB_DATABASE: snapcart
-  #    volumes:
-  #      - mongo-data:/data/db
-  #    command: >
-  #      mongod
-  #      --quiet
-  #      --logpath /dev/null
-  #
-  #  redis:
-  #    container_name: snapcart-redis
-  #    image: redis:latest
-  #    ports:
-  #      - "6379:6379"
-
-  frontend:
-    container_name: snapcart-frontend
-    build:
-      context: ./client
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./client:/app/
-      - /app/node_modules
+  postgres:
+    container_name: snapcart-postgres
+    image: postgres:latest
     ports:
-      - "3000:5173"
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: snapcart
+    command:
+      - postgres
+      - -c
+      - log_statement=none
+      - -c
+      - log_min_messages=panic
 
-#  backend:
-#    container_name: snapcart-backend
-#    build:
-#      context: ./server
-#      dockerfile: Dockerfile.dev
-#    environment:
-#      - PORT=3000
-#    volumes:
-#      - ./server:/app/
-#      - /app/node_modules
+  redis:
+    container_name: snapcart-redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
 
-  backend:
-    container_name: snapcart-backend
+  api:
+    container_name: snapcart-api
     build:
-      context: ./backend
+      context: ./apps/api
       dockerfile: Dockerfile.dev
     environment:
       - PORT=4000
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/snapcart
     volumes:
-      - ./backend:/app/
+      - ./apps/api:/app/
       - /app/node_modules
-
-  nginx:
-    container_name: snapcart-nginx
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx-dev.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/certs:/etc/nginx/certs
+      - "4000:4000"
     depends_on:
-      - backend
-    logging:
-      driver: "none"
+      - postgres
+      - redis
+
+#  web:
+#    container_name: snapcart-web
+#    build:
+#      context: ./apps/web
+#      dockerfile: Dockerfile.dev
+#    volumes:
+#      - ./apps/web:/app/apps/web
+#      - /app/apps/web/node_modules
+#    ports:
+#      - "3000:5173"
+#    depends_on:
+#      - api
+
+#  gateway:
+#    container_name: snapcart-gateway
+#    image: nginx:latest
+#    volumes:
+#      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf
+#    ports:
+#      - "80:80"
 
 volumes:
-  certbot-www:
   mongo-data:

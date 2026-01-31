@@ -1,0 +1,5 @@
+CREATE SEQUENCE IF NOT EXISTS order_number_seq
+    START 1
+    INCREMENT 1
+    MINVALUE 1
+    CACHE 1;

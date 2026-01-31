@@ -1,0 +1,319 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  ADMIN
+  SELLER
+  CUSTOMER
+}
+
+enum AccountStatus {
+  active
+  suspended
+  disabled
+}
+
+enum UserGender {
+  male
+  female
+  other
+}
+
+model User {
+  id       String        @id @default(cuid())
+  email    String?       @unique
+  phone    String?       @unique
+  password String?
+  role     UserRole
+  status   AccountStatus @default(active)
+
+  customerProfile CustomerProfile?
+  sellerProfile   SellerProfile?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  addresses Address[]
+  cart      Cart?
+  orders    Order[]
+}
+
+model CustomerProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  name   String?
+  dob    DateTime?
+  gender UserGender?
+
+  addresses Address[]
+  cart      Cart?     @relation(fields: [cartId], references: [id])
+
+  orders Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cartId    String?
+}
+
+model SellerProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  storeName  String
+  gstNumber  String?
+  isVerified Boolean @default(false)
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Address {
+  id String @id @default(uuid())
+
+  userId String
+  user   User?  @relation(fields: [userId], references: [id])
+
+  isPrimary Boolean @default(false)
+
+  houseNo String?
+  street  String?
+  city    String?
+  state   String?
+  country String?
+  pincode String?
+
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  customerProfile   CustomerProfile? @relation(fields: [customerProfileId], references: [id])
+  customerProfileId String?
+}
+
+enum CategoryStatus {
+  active
+  inactive
+}
+
+enum ProductStatus {
+  active
+  inactive
+  discontinued
+}
+
+enum VariantStatus {
+  active
+  inactive
+  out_of_stock
+}
+
+model Category {
+  id        String         @id @default(cuid())
+  name      String         @unique
+  status    CategoryStatus @default(inactive)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  products Product[] @relation("CategoryProducts")
+}
+
+// Product: Identity & Catalog Information Only
+model Product {
+  id          String        @id @default(cuid(2))
+  name        String
+  description String
+  categoryId  String
+  status      ProductStatus @default(active)
+
+  // Identity-level metadata
+  brand       String?
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  isDeleted   Boolean       @default(false)
+
+  category Category           @relation("CategoryProducts", fields: [categoryId], references: [id])
+  variants ProductVariant[]
+
+  @@index([categoryId])
+  @@index([status])
+}
+
+// ProductVariant: The Sellable Unit
+model ProductVariant {
+  id              String        @id @default(cuid())
+  productId       String
+
+  // Variant Identity
+  sku             String        @unique
+  variantName     String        // e.g., "500g", "1kg", "Red - L"
+
+  // Pricing (Sellable attributes)
+  price           Float
+  discountPercent Float?        @default(0)
+
+  // Stock Management
+  stock           Int           @default(0)
+
+  // Status
+  status          VariantStatus @default(active)
+  isActive        Boolean       @default(true)
+  isDeleted       Boolean       @default(false)
+
+  // Seller Relationship (variants are sold by specific sellers)
+  sellerProfileId String?
+  sellerProfile   SellerProfile? @relation(fields: [sellerProfileId], references: [id])
+
+  // Metadata
+  attributes      Json?         // Flexible attributes like size, color, weight, etc.
+  imageUrl        String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  product  Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems CartItem[]
+
+  @@index([productId])
+  @@index([sellerProfileId])
+  @@index([status])
+  @@index([isActive])
+}
+
+model Cart {
+  id               String            @id @default(uuid())
+  userId           String            @unique
+  items            CartItem[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  user             User              @relation(fields: [userId], references: [id])
+  customerProfiles CustomerProfile[]
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  productId String
+  variantId String
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cart    Cart           @relation(fields: [cartId], references: [id])
+  product Product        @relation(fields: [productId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+}
+
+enum OrderStatus {
+  pending
+  processing
+  shipping
+  delivered
+  canceled
+  return_requested
+  return_approved
+  return_rejected
+  returned
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+  refunded
+}
+
+model Order {
+  id          String @id @default(uuid())
+  orderNumber String @unique
+  userId      String
+  user        User   @relation(fields: [userId], references: [id])
+
+  subtotal       Float
+  shippingCharge Float @default(0)
+  tax            Float @default(0)
+  discount       Float @default(0)
+  total          Float
+
+  items    Json
+  metadata Json?
+
+  paymentMethod String?
+  paymentStatus PaymentStatus @default(pending)
+  orderStatus   OrderStatus   @default(pending)
+
+  shippingAddressJson Json?
+
+  cancelReason String?
+  refundAmount Float?
+
+  isDeleted Boolean @default(false)
+
+  placedAt          DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  deliveredAt       DateTime?
+  cancelledAt       DateTime?
+  customerProfile   CustomerProfile? @relation(fields: [customerProfileId], references: [id])
+  customerProfileId String?
+}
+
+model LandingPage {
+  id String @id @default(uuid())
+
+  heroTitle    String?
+  heroSubtitle String?
+
+  topCategoryIds String[] @default([])
+  topProductIds  String[] @default([])
+
+  sections Json @default("[]")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum CouponType {
+  Percentage
+  Flat
+}
+
+model Coupon {
+  id          String     @id @default(cuid())
+  code        String     @unique
+  type        CouponType
+  discount    Float
+  minAmount   Float?
+  maxDiscount Float?
+  startDate   DateTime
+  endDate     DateTime
+  status      String     @default("Active")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum OfferType {
+  Percentage
+  Flat
+}
+
+model Offer {
+  id         String    @id @default(cuid())
+  name       String
+  type       OfferType
+  discount   Float
+  startDate  DateTime
+  endDate    DateTime
+  status     String    @default("Active")
+  categories String[]
+  products   String[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}

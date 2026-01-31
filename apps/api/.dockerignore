@@ -1,0 +1,11 @@
+docker-compose.yaml
+dist
+node_modules
+README.md
+nest-cli.json
+.prettierrc
+.idea
+.git*
+eslint*
+.dockerignore
+Dockerfile*
