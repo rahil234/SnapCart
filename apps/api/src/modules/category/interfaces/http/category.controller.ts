@@ -12,14 +12,19 @@ import {
 import {
   ApiTags,
   ApiOperation,
-  ApiResponse,
   ApiParam,
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
+import {
+  ApiCommonErrorResponses,
+  ApiAuthErrorResponses,
+  ApiNotFoundResponse,
+} from '@/shared/decorators/api-error-responses.decorator';
 import { Public } from '@/shared/decorators/public.decorator';
 import { HttpResponse } from '@/shared/dto/common/http-response.dto';
+import { ApiResponseWithType } from '@/shared/decorators/api-response.decorator';
 
 // DTOs
 import { CreateCategoryDto } from '@/modules/category/application/dtos/request/create-category.dto';
@@ -55,22 +60,12 @@ export class CategoryController {
     description:
       'Creates a new category with the provided details. Only admins can create categories.',
   })
-  @ApiResponse({
+  @ApiResponseWithType({
     status: HttpStatus.CREATED,
     description: 'Category created successfully',
   })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid input data',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Authentication required',
-  })
-  @ApiResponse({
-    status: HttpStatus.FORBIDDEN,
-    description: 'Admin access required',
-  })
+  @ApiAuthErrorResponses()
+  @ApiCommonErrorResponses()
   async create(
     @Body() createCategoryDto: CreateCategoryDto,
   ): Promise<HttpResponse> {
@@ -94,11 +89,15 @@ export class CategoryController {
     summary: 'Get all categories',
     description: 'Retrieves all categories',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Categories retrieved successfully',
-    type: [CategoryResponseDto],
-  })
+  @ApiResponseWithType(
+    {
+      status: HttpStatus.OK,
+      description: 'Categories retrieved successfully',
+      isArray: true,
+    },
+    CategoryResponseDto,
+  )
+  @ApiCommonErrorResponses()
   async findAll(): Promise<HttpResponse<CategoryResponseDto[]>> {
     const query = new GetAllCategoriesQuery();
     const categories = await this.queryBus.execute(query);
@@ -124,33 +123,36 @@ export class CategoryController {
   })
   @ApiParam({
     name: 'id',
-    description: 'Category ID',
+    description: 'Category UUID',
     type: 'string',
     format: 'uuid',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Category retrieved successfully',
-    type: CategoryResponseDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Category not found',
-  })
+  @ApiResponseWithType(
+    {
+      status: HttpStatus.OK,
+      description: 'Category retrieved successfully',
+    },
+    CategoryResponseDto,
+  )
+  @ApiNotFoundResponse('Category')
+  @ApiCommonErrorResponses()
   async findOne(
     @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<CategoryResponseDto> {
+  ): Promise<HttpResponse<CategoryResponseDto>> {
     const query = new GetCategoryByIdQuery(id);
     const category = await this.queryBus.execute(query);
 
     return {
-      id: category.id,
-      name: category.getName(),
-      description: category.getDescription(),
-      imageUrl: category.getImageUrl(),
-      parentId: category.getParentId(),
-      createdAt: category.createdAt,
-      updatedAt: category.updatedAt,
+      message: 'Category retrieved successfully',
+      data: {
+        id: category.id,
+        name: category.getName(),
+        description: category.getDescription(),
+        imageUrl: category.getImageUrl(),
+        parentId: category.getParentId(),
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt,
+      },
     };
   }
 
@@ -164,30 +166,17 @@ export class CategoryController {
   })
   @ApiParam({
     name: 'id',
-    description: 'Category ID',
+    description: 'Category UUID',
     type: 'string',
     format: 'uuid',
   })
-  @ApiResponse({
+  @ApiResponseWithType({
     status: HttpStatus.OK,
     description: 'Category updated successfully',
   })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid input data',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Category not found',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Authentication required',
-  })
-  @ApiResponse({
-    status: HttpStatus.FORBIDDEN,
-    description: 'Admin access required',
-  })
+  @ApiNotFoundResponse('Category')
+  @ApiAuthErrorResponses()
+  @ApiCommonErrorResponses()
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
@@ -216,26 +205,17 @@ export class CategoryController {
   })
   @ApiParam({
     name: 'id',
-    description: 'Category ID',
+    description: 'Category UUID',
     type: 'string',
     format: 'uuid',
   })
-  @ApiResponse({
+  @ApiResponseWithType({
     status: HttpStatus.OK,
     description: 'Category deleted successfully',
   })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Category not found',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Authentication required',
-  })
-  @ApiResponse({
-    status: HttpStatus.FORBIDDEN,
-    description: 'Admin access required',
-  })
+  @ApiNotFoundResponse('Category')
+  @ApiAuthErrorResponses()
+  @ApiCommonErrorResponses()
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<HttpResponse> {
     const command = new DeleteCategoryCommand(id);
 

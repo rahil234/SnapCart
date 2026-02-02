@@ -73,8 +73,9 @@ model SellerProfile {
 
   products Product[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  productVariants ProductVariant[]
 }
 
 model Address {
@@ -134,14 +135,17 @@ model Product {
   status      ProductStatus @default(active)
 
   // Identity-level metadata
-  brand       String?
+  brand String?
 
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  isDeleted   Boolean       @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDeleted Boolean  @default(false)
 
-  category Category           @relation("CategoryProducts", fields: [categoryId], references: [id])
-  variants ProductVariant[]
+  category        Category         @relation("CategoryProducts", fields: [categoryId], references: [id])
+  variants        ProductVariant[]
+  sellerProfile   SellerProfile?   @relation(fields: [sellerProfileId], references: [id])
+  sellerProfileId String?
+  cartItems       CartItem[]
 
   @@index([categoryId])
   @@index([status])
@@ -149,43 +153,65 @@ model Product {
 
 // ProductVariant: The Sellable Unit
 model ProductVariant {
-  id              String        @id @default(cuid())
-  productId       String
+  id        String @id @default(cuid())
+  productId String
 
   // Variant Identity
-  sku             String        @unique
-  variantName     String        // e.g., "500g", "1kg", "Red - L"
+  sku         String @unique
+  variantName String // e.g., "500g", "1kg", "Red - L"
 
   // Pricing (Sellable attributes)
   price           Float
-  discountPercent Float?        @default(0)
+  discountPercent Float? @default(0)
 
   // Stock Management
-  stock           Int           @default(0)
+  stock Int @default(0)
 
   // Status
-  status          VariantStatus @default(active)
-  isActive        Boolean       @default(true)
-  isDeleted       Boolean       @default(false)
+  status    VariantStatus @default(active)
+  isActive  Boolean       @default(true)
+  isDeleted Boolean       @default(false)
 
   // Seller Relationship (variants are sold by specific sellers)
   sellerProfileId String?
   sellerProfile   SellerProfile? @relation(fields: [sellerProfileId], references: [id])
 
   // Metadata
-  attributes      Json?         // Flexible attributes like size, color, weight, etc.
-  imageUrl        String?
+  attributes Json? // Flexible attributes like size, color, weight, etc.
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  // ✅ Variant owns images
+  images VariantImage[]
 
-  product  Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
   cartItems CartItem[]
 
   @@index([productId])
   @@index([sellerProfileId])
   @@index([status])
   @@index([isActive])
+}
+
+model VariantImage {
+  id        String @id @default(cuid())
+  variantId String
+
+  // Cloudinary reference
+  publicId String
+  url      String // rename from secureUrl → url or deliveryUrl
+
+  // Image slot (1 = main image)
+  position Int
+
+  createdAt DateTime @default(now())
+
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  // ✅ One image per slot per variant
+  @@unique([variantId, position])
+  @@index([variantId])
 }
 
 model Cart {
@@ -201,15 +227,19 @@ model Cart {
 model CartItem {
   id        String   @id @default(uuid())
   cartId    String
-  productId String
   variantId String
   quantity  Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cart    Cart           @relation(fields: [cartId], references: [id])
-  product Product        @relation(fields: [productId], references: [id])
-  variant ProductVariant @relation(fields: [variantId], references: [id])
+  cart      Cart           @relation(fields: [cartId], references: [id])
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  product   Product?       @relation(fields: [productId], references: [id])
+  productId String?
+
+  @@unique([cartId, variantId])
+  @@index([cartId])
+  @@index([variantId])
 }
 
 enum OrderStatus {

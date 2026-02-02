@@ -12,7 +12,9 @@ export class GetProductByIdHandler implements IQueryHandler<GetProductByIdQuery>
   ) {}
 
   async execute(query: GetProductByIdQuery): Promise<Product> {
-    const product = await this.productRepository.findById(query.productId);
+    const product = await this.productRepository.findProductById(
+      query.productId,
+    );
 
     if (!product) {
       throw new NotFoundException(

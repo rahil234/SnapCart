@@ -13,9 +13,22 @@ export class PrismaCategoryProductFeedRepository implements CategoryProductFeedR
       orderBy: { createdAt: 'desc' },
       include: {
         products: {
-          where: { status: 'active' },
+          where: {
+            status: 'active',
+            isDeleted: false,
+          },
           take: maxProductsPerCategory,
           orderBy: { createdAt: 'desc' },
+          include: {
+            variants: {
+              where: {
+                isActive: true,
+                isDeleted: false,
+              },
+              take: 1, // Get first available variant for display
+              orderBy: { price: 'asc' }, // Show cheapest variant first
+            },
+          },
         },
       },
     });
@@ -23,15 +36,25 @@ export class PrismaCategoryProductFeedRepository implements CategoryProductFeedR
     return categories.map((c) => ({
       id: c.id,
       name: c.name,
-      products: c.products.map((p) => ({
-        id: p.id,
-        name: p.name,
-        description: p.description,
-        price: p.price,
-        discountPercent: p.discountPercent,
-        createdAt: p.createdAt,
-        updatedAt: p.updatedAt,
-      })),
+      products: c.products.map((p) => {
+        // Get the first variant's price info for display
+        const firstVariant = p.variants[0];
+
+        return {
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          brand: p.brand,
+          // Include variant info for pricing
+          price: firstVariant?.price || 0,
+          discountPercent: firstVariant?.discountPercent || 0,
+          variantId: firstVariant?.id,
+          variantName: firstVariant?.variantName,
+          inStock: firstVariant?.stock > 0,
+          createdAt: p.createdAt,
+          updatedAt: p.updatedAt,
+        };
+      }),
     }));
   }
 }

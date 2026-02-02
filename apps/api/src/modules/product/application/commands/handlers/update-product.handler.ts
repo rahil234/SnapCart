@@ -15,44 +15,35 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductComman
   ) {}
 
   async execute(command: UpdateProductCommand): Promise<void> {
-    const { productId, name, description, price, discountPercent, status } =
-      command;
+    const { productId, name, description, brand, categoryId, status } = command;
 
-    const product = await this.productRepository.findById(productId);
+    const product = await this.productRepository.findProductById(productId);
     if (!product) {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    // Domain behavior
-    if (name !== undefined || description !== undefined) {
-      product.updateDetails(
+    // Update identity information
+    if (name !== undefined || description !== undefined || brand !== undefined) {
+      product.updateInfo(
         name ?? product.getName(),
         description ?? product.getDescription(),
+        brand !== undefined ? brand : product.getBrand(),
       );
     }
 
-    if (price !== undefined) {
-      product.updatePrice(price);
+    // Change category (with business rules)
+    if (categoryId !== undefined && categoryId !== product.getCategoryId()) {
+      product.changeCategory(categoryId);
     }
 
-    if (discountPercent !== undefined) {
-      if (discountPercent === null || discountPercent === 0) {
-        product.removeDiscount();
-      } else {
-        product.applyDiscount(discountPercent);
-      }
-    }
-
-    if (status !== undefined) {
+    // Update status
+    if (status !== undefined && status !== product.getStatus()) {
       switch (status) {
         case ProductStatus.ACTIVE:
           product.activate();
           break;
         case ProductStatus.INACTIVE:
           product.deactivate();
-          break;
-        case ProductStatus.OUT_OF_STOCK:
-          product.markOutOfStock();
           break;
         case ProductStatus.DISCONTINUED:
           product.discontinue();
@@ -61,15 +52,15 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductComman
     }
 
     // Persist aggregate
-    await this.productRepository.update(product);
+    await this.productRepository.updateProduct(product);
 
     // Emit event
     await this.eventBus.publish(
       new ProductUpdatedEvent(product.id, {
         name,
         description,
-        price,
-        discountPercent,
+        brand,
+        categoryId,
         status,
       }),
     );

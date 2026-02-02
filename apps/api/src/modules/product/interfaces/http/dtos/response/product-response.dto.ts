@@ -4,6 +4,12 @@ import {
   ProductStatus,
 } from '@/modules/product/domain/entities/product.entity';
 
+/**
+ * Product Response DTO
+ *
+ * Represents product identity/catalog information only.
+ * For pricing and stock, see VariantResponseDto.
+ */
 export class ProductResponseDto {
   @ApiProperty({
     description: 'Product ID',
@@ -13,120 +19,72 @@ export class ProductResponseDto {
 
   @ApiProperty({
     description: 'Product name',
-    example: 'Premium Cotton T-Shirt',
+    example: 'Basmati Rice',
   })
   name: string;
 
   @ApiProperty({
     description: 'Product description',
-    example: 'Comfortable premium cotton t-shirt perfect for casual wear',
+    example: 'Premium long-grain basmati rice from Punjab',
   })
   description: string;
 
   @ApiProperty({
     description: 'Category ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    example: '123e4567-e89b-12d3-a456-426614174001',
   })
   categoryId: string;
 
-  @ApiProperty({
-    description: 'Product price in cents',
-    example: 2999,
-  })
-  price: number;
-
   @ApiPropertyOptional({
-    description: 'Discount percentage',
-    example: 15,
+    description: 'Brand name',
+    example: 'India Gate',
     nullable: true,
   })
-  discountPercent: number | null;
+  brand: string | null;
 
   @ApiProperty({
-    description: 'Final price after discount in cents',
-    example: 2549,
-  })
-  finalPrice: number;
-
-  @ApiProperty({
-    description: 'Whether try-on feature is enabled',
-    example: true,
-  })
-  tryOn: boolean;
-
-  @ApiProperty({
-    description: 'Product status',
+    description: 'Product status (catalog lifecycle)',
     enum: ProductStatus,
     example: ProductStatus.ACTIVE,
   })
   status: ProductStatus;
 
   @ApiProperty({
-    description: 'Whether product is active',
+    description: 'Whether product is active in catalog',
     example: true,
   })
   isActive: boolean;
 
   @ApiProperty({
-    description: 'Whether product has discount applied',
+    description: 'Whether product is in catalog (not deleted/discontinued)',
     example: true,
   })
-  hasDiscount: boolean;
+  isInCatalog: boolean;
 
   @ApiProperty({
     description: 'Product creation date',
-    example: '2026-01-29T10:00:00.000Z',
+    example: '2026-02-01T10:00:00.000Z',
   })
   createdAt: Date;
 
   @ApiProperty({
     description: 'Product last update date',
-    example: '2026-01-29T15:30:00.000Z',
+    example: '2026-02-01T15:30:00.000Z',
   })
   updatedAt: Date;
 
-  constructor(
-    id: string,
-    name: string,
-    description: string,
-    categoryId: string,
-    price: number,
-    discountPercent: number | null,
-    finalPrice: number,
-    status: ProductStatus,
-    isActive: boolean,
-    hasDiscount: boolean,
-    createdAt: Date,
-    updatedAt: Date,
-  ) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.categoryId = categoryId;
-    this.price = price;
-    this.discountPercent = discountPercent;
-    this.finalPrice = finalPrice;
-    this.status = status;
-    this.isActive = isActive;
-    this.hasDiscount = hasDiscount;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-  }
-
   static fromDomain(product: Product): ProductResponseDto {
-    return new ProductResponseDto(
-      product.id,
-      product.getName(),
-      product.getDescription(),
-      product.getCategoryId(),
-      product.getPrice(),
-      product.getDiscountPercent(),
-      product.getFinalPrice(),
-      product.getStatus(),
-      product.isActive(),
-      product.hasDiscount(),
-      product.createdAt,
-      product.updatedAt,
-    );
+    return {
+      id: product.id,
+      name: product.getName(),
+      description: product.getDescription(),
+      categoryId: product.getCategoryId(),
+      brand: product.getBrand(),
+      status: product.getStatus(),
+      isActive: product.isActive(),
+      isInCatalog: product.isInCatalog(),
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
+    };
   }
 }

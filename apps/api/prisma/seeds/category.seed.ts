@@ -1,24 +1,26 @@
-import { v4 as uuidv4 } from 'uuid';
 import { PrismaClient, Prisma } from '@prisma/client';
 
 export const categories = [
   {
-    id: uuidv4(),
-    name: 'Dairy Products',
+    name: 'Candies & Sweets' as const,
     status: 'active',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
   {
-    id: uuidv4(),
-    name: 'Grocery Items',
+    name: 'Dairy Products' as const,
     status: 'active',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
   {
-    id: uuidv4(),
-    name: 'Cool Drinks',
+    name: 'Grocery Items' as const,
+    status: 'active',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    name: 'Cool Drinks' as const,
     status: 'active',
     createdAt: new Date(),
     updatedAt: new Date(),
