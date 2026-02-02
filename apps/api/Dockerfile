@@ -5,6 +5,8 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+ENV DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+
 RUN corepack enable
 
 # Copy only package files first -> better caching
@@ -33,7 +35,7 @@ WORKDIR /app
 # Copy only required files from builder
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma/schema.prisma ./prisma/schema.prisma
 
 RUN npm install --omit=dev
 
