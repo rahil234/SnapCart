@@ -8,10 +8,10 @@ WORKDIR /app
 RUN corepack enable
 
 # Copy only package files first -> better caching
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
 # Install dependencies (production + dev)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Copy source
 COPY . .
@@ -32,11 +32,10 @@ WORKDIR /app
 
 # Copy only required files from builder
 COPY --from=builder /app/package.json ./
-COPY --from=builder /app/pnpm-lock.yaml ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
-RUN npm install --frozen-lockfile --omit=dev
+RUN npm install --omit=dev
 
 # Generate Prisma Client
 RUN npx prisma generate
