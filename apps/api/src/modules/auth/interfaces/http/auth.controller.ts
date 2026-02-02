@@ -6,13 +6,19 @@ import {
   Req,
   Res,
   UnauthorizedException,
+  HttpCode,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { Request, Response } from 'express';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 import { HttpResponse } from '@/shared/dto/common/http-response.dto';
 import { Public } from '@/shared/decorators/public.decorator';
+import { ApiResponseWithType } from '@/shared/decorators/api-response.decorator';
+import {
+  ApiCommonErrorResponses,
+  ApiConflictResponse,
+} from '@/shared/decorators/api-error-responses.decorator';
 
 // DTOs
 import { RegisterDto } from '@/modules/auth/application/dtos/request/register.dto';
@@ -38,18 +44,17 @@ export class AuthController {
 
   @Post('register')
   @Public()
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Register a new user',
     description: 'Creates a new customer account with email/phone and password',
   })
-  @ApiResponse({
+  @ApiResponseWithType({
     status: HttpStatus.CREATED,
     description: 'User registered successfully',
   })
-  @ApiResponse({
-    status: HttpStatus.CONFLICT,
-    description: 'User already exists',
-  })
+  @ApiConflictResponse('User already exists')
+  @ApiCommonErrorResponses()
   async register(@Body() dto: RegisterDto): Promise<HttpResponse> {
     const command = new RegisterCommand(
       dto.email ?? null,
@@ -70,14 +75,11 @@ export class AuthController {
     summary: 'Login with password or OTP',
     description: 'Authenticate user with password or OTP',
   })
-  @ApiResponse({
+  @ApiResponseWithType({
     status: HttpStatus.OK,
     description: 'User logged in successfully',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Invalid credentials',
-  })
+  @ApiCommonErrorResponses()
   async login(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -105,14 +107,11 @@ export class AuthController {
     summary: 'Login with Google',
     description: 'Authenticate user with Google OAuth',
   })
-  @ApiResponse({
+  @ApiResponseWithType({
     status: HttpStatus.OK,
     description: 'User logged in successfully',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Invalid Google token',
-  })
+  @ApiCommonErrorResponses()
   async loginWithGoogle(
     @Body() dto: LoginWithGoogleDto,
     @Res({ passthrough: true }) res: Response,
@@ -137,10 +136,11 @@ export class AuthController {
     summary: 'Request OTP',
     description: 'Send OTP to email or phone number',
   })
-  @ApiResponse({
+  @ApiResponseWithType({
     status: HttpStatus.OK,
     description: 'OTP sent successfully',
   })
+  @ApiCommonErrorResponses()
   async requestOTP(@Body() dto: RequestOTPDto): Promise<HttpResponse> {
     const command = new RequestOTPCommand(dto.identifier);
 
@@ -157,14 +157,11 @@ export class AuthController {
     summary: 'Verify OTP',
     description: 'Verify OTP code',
   })
-  @ApiResponse({
+  @ApiResponseWithType({
     status: HttpStatus.OK,
     description: 'OTP verified successfully',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Invalid OTP',
-  })
+  @ApiCommonErrorResponses()
   async verifyOTP(@Body() dto: VerifyOTPDto): Promise<HttpResponse> {
     const command = new VerifyOTPCommand(dto.identifier, dto.otp);
 
@@ -181,14 +178,11 @@ export class AuthController {
     summary: 'Refresh access token',
     description: 'Get new access token using refresh token',
   })
-  @ApiResponse({
+  @ApiResponseWithType({
     status: HttpStatus.OK,
     description: 'Token refreshed successfully',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Invalid refresh token',
-  })
+  @ApiCommonErrorResponses()
   async refreshToken(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -217,7 +211,7 @@ export class AuthController {
     summary: 'Logout',
     description: 'Clear authentication cookies',
   })
-  @ApiResponse({
+  @ApiResponseWithType({
     status: HttpStatus.OK,
     description: 'User logged out successfully',
   })

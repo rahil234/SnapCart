@@ -10,7 +10,10 @@ import { AuthMethod } from '@/modules/auth/domain/enums';
 import { UserLoggedInEvent } from '@/modules/auth/domain/events';
 import { OTPRepository } from '@/modules/auth/domain/repositories';
 import { UserRepository } from '@/modules/user/domain/repositories/user.repository';
-import { PasswordHashService, TokenService } from '@/modules/auth/domain/services';
+import {
+  PasswordHashService,
+  TokenService,
+} from '@/modules/auth/domain/services';
 
 export interface LoginResult {
   accessToken: string;
@@ -79,6 +82,7 @@ export class LoginHandler implements ICommandHandler<
 
       const otpSession =
         await this.otpRepository.findLatestByIdentifier(identifier);
+
       if (!otpSession) {
         throw new UnauthorizedException('No OTP session found');
       }

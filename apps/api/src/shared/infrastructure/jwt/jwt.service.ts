@@ -6,7 +6,7 @@ import {
   JwtAccessTokenPayload,
   JwtRefreshTokenPayload,
   JwtVerifiedPayload,
-} from '@/domain/auth/types/jwt-payload.types';
+} from '@/modules/auth/domain/types/jwt-payload.types';
 
 @Injectable()
 export class JwtService {

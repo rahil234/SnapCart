@@ -5,10 +5,11 @@ import { LoginWithGoogleCommand } from '../login-with-google.command';
 import { UserRepository } from '@/modules/user/domain/repositories/user.repository';
 import { CustomerProfileRepository } from '@/modules/user/domain/repositories/customer-profile.repository';
 
-import { User } from '@/modules/user/domain/entities/user.entity';
 import { UserRole } from '@/modules/user/domain/enums';
 import { AuthMethod } from '@/modules/auth/domain/enums';
+import { User } from '@/modules/user/domain/entities/user.entity';
 import { CustomerProfile } from '@/modules/user/domain/entities/customer-profile.entity';
+
 import {
   UserLoggedInEvent,
   UserRegisteredEvent,
@@ -51,12 +52,12 @@ export class LoginWithGoogleHandler implements ICommandHandler<
       throw new UnauthorizedException('Google account does not have an email');
     }
 
-    // Check if user exists
+    // Check if a user exists
     let user = await this.userRepository.findByEmail(googleUser.email);
     let isNewUser = false;
 
     if (!user) {
-      // Create new user
+      // Create a new user
       user = User.create(googleUser.email, null, null, UserRole.CUSTOMER);
       user = await this.userRepository.save(user);
 
@@ -75,7 +76,7 @@ export class LoginWithGoogleHandler implements ICommandHandler<
       );
     }
 
-    // Check if user is active
+    // Check if the user is active
     if (!user.isActive()) {
       throw new UnauthorizedException('Account is not active');
     }

@@ -1,20 +1,25 @@
-import { IsString, IsNumber, IsOptional, IsBoolean, Min, Max, IsEnum } from 'class-validator';
+import { IsString, IsOptional, IsEnum } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
 export enum ProductStatusDto {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
-  OUT_OF_STOCK = 'out_of_stock',
-  DISCONTINUED = 'discontinued'
+  DISCONTINUED = 'discontinued',
 }
 
+/**
+ * Update Product DTO
+ *
+ * Updates product identity/catalog information only.
+ * For pricing, stock, or discount changes, update the variants instead.
+ */
 export class UpdateProductDto {
   @ApiPropertyOptional({
     description: 'Product name',
-    example: 'Premium Cotton T-Shirt - Updated',
+    example: 'Premium Basmati Rice',
     minLength: 1,
-    maxLength: 200
+    maxLength: 200,
   })
   @IsOptional()
   @IsString()
@@ -23,8 +28,8 @@ export class UpdateProductDto {
 
   @ApiPropertyOptional({
     description: 'Product description',
-    example: 'Updated description for premium cotton t-shirt',
-    maxLength: 1000
+    example: 'Extra long grain premium basmati rice',
+    maxLength: 2000,
   })
   @IsOptional()
   @IsString()
@@ -32,39 +37,28 @@ export class UpdateProductDto {
   description?: string;
 
   @ApiPropertyOptional({
-    description: 'Product price in cents',
-    example: 3299,
-    minimum: 1
+    description: 'Brand name',
+    example: 'India Gate Premium',
+    maxLength: 100,
   })
   @IsOptional()
-  @IsNumber()
-  @Min(1, { message: 'Price must be greater than 0' })
-  price?: number;
+  @IsString()
+  @Transform(({ value }) => value?.trim())
+  brand?: string;
 
   @ApiPropertyOptional({
-    description: 'Discount percentage (0-100)',
-    example: 20,
-    minimum: 0,
-    maximum: 100
+    description:
+      'Category ID (use with caution - cannot change if discontinued)',
+    example: '123e4567-e89b-12d3-a456-426614174001',
   })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  @Max(100)
-  discountPercent?: number;
+  @IsString()
+  categoryId?: string;
 
   @ApiPropertyOptional({
-    description: 'Whether try-on feature is enabled',
-    example: true
-  })
-  @IsOptional()
-  @IsBoolean()
-  tryOn?: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Product status',
+    description: 'Product status (catalog lifecycle)',
     enum: ProductStatusDto,
-    example: ProductStatusDto.ACTIVE
+    example: ProductStatusDto.ACTIVE,
   })
   @IsOptional()
   @IsEnum(ProductStatusDto)

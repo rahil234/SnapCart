@@ -13,27 +13,22 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
   ) {}
 
   async execute(query: GetProductsQuery): Promise<GetProductsResult> {
-    const criteria = {
+    // Use the new repository method for catalog queries
+    const result = await this.productRepository.findProductsForCatalog({
+      categoryId: query.categoryId,
       page: query.page ?? 1,
       limit: query.limit ?? 10,
       search: query.search,
-      categoryId: query.categoryId,
-      status: query.status as any,
-      sortBy: 'createdAt' as const,
-      sortOrder: 'desc' as const,
-    };
+    });
 
-    const result = await this.productRepository.findPaginated(criteria);
-
-    const hasNextPage = result.page * result.limit < result.total;
-
-    const hasPrevPage = result.page > 1;
+    const hasNextPage = result.total > (query.page ?? 1) * (query.limit ?? 10);
+    const hasPrevPage = (query.page ?? 1) > 1;
 
     return {
-      products: result.items,
+      products: result.products.map((p) => p.product),
       meta: {
-        page: result.page,
-        limit: result.limit,
+        page: query.page ?? 1,
+        limit: query.limit ?? 10,
         total: result.total,
         hasNextPage,
         hasPrevPage,

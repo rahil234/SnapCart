@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
 import { UserController } from '@/modules/user/interfaces/http/user.controller';
+import { AddressController } from '@/modules/user/interfaces/http/address.controller';
 
 // Command Handlers
 import {
@@ -10,6 +11,7 @@ import {
   UpdateUserStatusHandler,
   CreateAddressHandler,
   UpdateAddressHandler,
+  DeleteAddressHandler,
 } from '@/modules/user/application/commands/handlers';
 
 // Query Handlers
@@ -24,26 +26,34 @@ import { PrismaUserRepository } from '@/modules/user/infrastructure/persistence/
 import { PrismaCustomerProfileRepository } from '@/modules/user/infrastructure/persistence/repositories/prisma-customer-profile.repository';
 import { PrismaSellerProfileRepository } from '@/modules/user/infrastructure/persistence/repositories/prisma-seller-profile.repository';
 import { PrismaAddressRepository } from '@/modules/user/infrastructure/persistence/repositories/prisma-address.repository';
+import { GetMeHandler } from '@/modules/user/application/queries/get-me/get-me.handler';
+import { PrismaMeReadRepository } from '@/modules/user/infrastructure/persistence/repositories/prisma-me-read.repository';
 
 export const UserCommandHandlers = [
   CreateUserHandler,
   UpdateUserHandler,
   UpdateUserStatusHandler,
+];
+
+export const AddressCommandHandlers = [
   CreateAddressHandler,
   UpdateAddressHandler,
+  DeleteAddressHandler,
 ];
 
 export const UserQueryHandlers = [
   GetUserByIdHandler,
   GetUserByEmailHandler,
   GetUsersHandler,
+  GetMeHandler,
 ];
 
 @Module({
   imports: [CqrsModule],
-  controllers: [UserController],
+  controllers: [UserController, AddressController],
   providers: [
     ...UserCommandHandlers,
+    ...AddressCommandHandlers,
     ...UserQueryHandlers,
     {
       provide: 'UserRepository',
@@ -61,6 +71,7 @@ export const UserQueryHandlers = [
       provide: 'AddressRepository',
       useClass: PrismaAddressRepository,
     },
+    { provide: 'MeReadRepository', useClass: PrismaMeReadRepository },
   ],
   exports: [
     'UserRepository',

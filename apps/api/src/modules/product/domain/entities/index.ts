@@ -1,3 +1,3 @@
-export * from './product.entity';
-export * from './variant.entity';
-export * from './product-variant.entity';
+export { Product, ProductStatus } from './product.entity';
+export { ProductVariant, VariantStatus } from './product-variant.entity';
+

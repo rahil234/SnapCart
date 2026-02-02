@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { HTTP_PAGINATED_RESPONSE, IHttpResponse } from '@/shared/types';
+import { IHttpResponse, PaginationMeta } from '@/shared/types';
 
 export class HttpResponse<T = undefined> implements IHttpResponse {
   @ApiProperty({ example: 'Response sent successfully' })
@@ -10,22 +10,42 @@ export class HttpResponse<T = undefined> implements IHttpResponse {
   data?: T;
 }
 
-export class HttpPaginatedResponse<T = any>
-  extends HttpResponse<T>
-  implements HTTP_PAGINATED_RESPONSE
-{
+export class PaginationMetaDto implements PaginationMeta {
   @ApiProperty({
-    example: 10,
+    description: 'Current page number',
+    example: 1,
   })
-  total: number;
+  page: number;
 
   @ApiProperty({
+    description: 'Number of items per page',
     example: 10,
   })
   limit: number;
 
   @ApiProperty({
-    example: 1,
+    description: 'Total number of items',
+    example: 100,
   })
-  page: number;
+  total: number;
+
+  @ApiProperty({
+    description: 'Whether there is a next page',
+    example: true,
+  })
+  hasNextPage: boolean;
+
+  @ApiProperty({
+    description: 'Whether there is a previous page',
+    example: false,
+  })
+  hasPrevPage: boolean;
+}
+
+export class HttpPaginatedResponse<T = any> extends HttpResponse<T> {
+  @ApiProperty({
+    description: 'Pagination metadata',
+    type: PaginationMetaDto,
+  })
+  meta: PaginationMetaDto;
 }

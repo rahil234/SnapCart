@@ -1,63 +1,98 @@
 import { v4 as uuid } from 'uuid';
 
+/**
+ * Product Status - Identity Level
+ * active: Product catalog entry is available
+ * inactive: Product temporarily hidden from catalog
+ * discontinued: Product permanently removed from catalog
+ */
 export enum ProductStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
-  OUT_OF_STOCK = 'out_of_stock',
   DISCONTINUED = 'discontinued',
 }
 
+/**
+ * Product Entity - Aggregate Root
+ *
+ * Represents the IDENTITY of a product in the catalog.
+ * This is NOT a sellable item. ProductVariant is the sellable unit.
+ *
+ * Contains only:
+ * - Identity information (name, description, brand)
+ * - Catalog classification (category)
+ * - Overall product lifecycle status
+ *
+ * Does NOT contain:
+ * - Pricing (belongs to variant)
+ * - Stock (belongs to variant)
+ * - Discount (belongs to variant)
+ * - Seller (belongs to variant)
+ */
 export class Product {
   private constructor(
     public readonly id: string,
     private name: string,
     private description: string,
     private categoryId: string,
-    private price: number,
-    private discountPercent: number | null,
+    private brand: string | null,
     private status: ProductStatus,
+    private isDeleted: boolean,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {}
 
-  // Factory method for creating new products
+  // ============================================
+  // FACTORY METHODS
+  // ============================================
+
+  /**
+   * Create a new product (catalog identity only)
+   * Note: A product is just a catalog entry.
+   * You must create at least one variant to make it sellable.
+   */
   static create(
     name: string,
     description: string,
     categoryId: string,
-    price: number,
-    discountPercent: number | null = null,
+    brand: string | null = null,
   ): Product {
-    if (price <= 0) {
-      throw new Error('Product price must be greater than 0');
+    if (!name?.trim()) {
+      throw new Error('Product name is required');
     }
 
-    if (discountPercent && (discountPercent < 0 || discountPercent > 100)) {
-      throw new Error('Discount percent must be between 0 and 100');
+    if (!description?.trim()) {
+      throw new Error('Product description is required');
+    }
+
+    if (!categoryId?.trim()) {
+      throw new Error('Category ID is required');
     }
 
     return new Product(
       uuid(),
-      name,
-      description,
-      categoryId,
-      price,
-      discountPercent,
+      name.trim(),
+      description.trim(),
+      categoryId.trim(),
+      brand?.trim() || null,
       ProductStatus.ACTIVE,
+      false,
       new Date(),
       new Date(),
     );
   }
 
-  // Factory method for reconstructing from persistence
+  /**
+   * Reconstruct from persistence
+   */
   static from(
     id: string,
     name: string,
     description: string,
     categoryId: string,
-    price: number,
-    discountPercent: number | null,
+    brand: string | null,
     status: ProductStatus,
+    isDeleted: boolean,
     createdAt: Date,
     updatedAt: Date,
   ): Product {
@@ -66,61 +101,109 @@ export class Product {
       name,
       description,
       categoryId,
-      price,
-      discountPercent,
+      brand,
       status,
+      isDeleted,
       createdAt,
       updatedAt,
     );
   }
 
-  // Business methods
+  // ============================================
+  // BUSINESS METHODS - Identity Operations
+  // ============================================
+
+  /**
+   * Update product identity information
+   * These are catalog-level changes, not commerce changes
+   */
+  updateInfo(name: string, description: string, brand?: string | null): void {
+    if (!name?.trim()) {
+      throw new Error('Product name is required');
+    }
+
+    if (!description?.trim()) {
+      throw new Error('Product description is required');
+    }
+
+    this.name = name.trim();
+    this.description = description.trim();
+
+    if (brand !== undefined) {
+      this.brand = brand?.trim() || null;
+    }
+  }
+
+  /**
+   * Change product category
+   * Important: This is an identity-level change
+   * Rule: Can only change category if product is not discontinued
+   */
+  changeCategory(newCategoryId: string): void {
+    if (this.status === ProductStatus.DISCONTINUED) {
+      throw new Error('Cannot change category of discontinued product');
+    }
+
+    if (!newCategoryId?.trim()) {
+      throw new Error('Category ID is required');
+    }
+
+    this.categoryId = newCategoryId.trim();
+  }
+
+  /**
+   * Activate product in catalog
+   */
   activate(): void {
     if (this.status === ProductStatus.DISCONTINUED) {
       throw new Error('Cannot activate discontinued product');
     }
+    if (this.isDeleted) {
+      throw new Error('Cannot activate deleted product');
+    }
     this.status = ProductStatus.ACTIVE;
   }
 
+  /**
+   * Deactivate product (temporary hide from catalog)
+   */
   deactivate(): void {
+    if (this.status === ProductStatus.DISCONTINUED) {
+      throw new Error('Product is already discontinued');
+    }
     this.status = ProductStatus.INACTIVE;
   }
 
+  /**
+   * Discontinue product (permanent removal from catalog)
+   * This is a one-way operation
+   */
   discontinue(): void {
     this.status = ProductStatus.DISCONTINUED;
   }
 
-  markOutOfStock(): void {
-    this.status = ProductStatus.OUT_OF_STOCK;
+  /**
+   * Soft delete
+   */
+  softDelete(): void {
+    this.isDeleted = true;
+    this.status = ProductStatus.INACTIVE;
   }
 
-  updatePrice(newPrice: number): void {
-    if (newPrice <= 0) {
-      throw new Error('Price must be greater than 0');
+  /**
+   * Restore from soft delete
+   */
+  restore(): void {
+    if (this.status === ProductStatus.DISCONTINUED) {
+      throw new Error('Cannot restore discontinued product');
     }
-    this.price = newPrice;
+    this.isDeleted = false;
   }
 
-  applyDiscount(discountPercent: number): void {
-    if (discountPercent < 0 || discountPercent > 100) {
-      throw new Error('Discount percent must be between 0 and 100');
-    }
-    this.discountPercent = discountPercent;
-  }
+  // ============================================
+  // GETTERS
+  // ============================================
 
-  removeDiscount(): void {
-    this.discountPercent = null;
-  }
-
-  updateDetails(name: string, description: string): void {
-    if (!name?.trim()) {
-      throw new Error('Product name is required');
-    }
-    this.name = name.trim();
-    this.description = description?.trim() || '';
-  }
-
-  // Getters
   getName(): string {
     return this.name;
   }
@@ -133,37 +216,27 @@ export class Product {
     return this.categoryId;
   }
 
-  getPrice(): number {
-    return this.price;
-  }
-
-  getDiscountPercent(): number | null {
-    return this.discountPercent;
-  }
-
-  getFinalPrice(): number {
-    if (this.discountPercent) {
-      return this.price - (this.price * this.discountPercent) / 100;
-    }
-    return this.price;
+  getBrand(): string | null {
+    return this.brand;
   }
 
   getStatus(): ProductStatus {
     return this.status;
   }
 
+  getIsDeleted(): boolean {
+    return this.isDeleted;
+  }
+
   isActive(): boolean {
-    return this.status === ProductStatus.ACTIVE;
+    return this.status === ProductStatus.ACTIVE && !this.isDeleted;
   }
 
-  isAvailable(): boolean {
-    return (
-      this.status === ProductStatus.ACTIVE ||
-      this.status === ProductStatus.INACTIVE
-    );
+  isInCatalog(): boolean {
+    return this.status !== ProductStatus.DISCONTINUED && !this.isDeleted;
   }
 
-  hasDiscount(): boolean {
-    return this.discountPercent !== null && this.discountPercent > 0;
+  canBeEdited(): boolean {
+    return !this.isDeleted;
   }
 }

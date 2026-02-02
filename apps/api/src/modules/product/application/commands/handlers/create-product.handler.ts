@@ -14,19 +14,18 @@ export class CreateProductHandler implements ICommandHandler<CreateProductComman
   ) {}
 
   async execute(command: CreateProductCommand): Promise<Product> {
-    const { name, description, categoryId, price, discountPercent } = command;
+    const { name, description, categoryId, brand } = command;
 
     // Create domain entity using factory method (with business validation)
     const product = Product.create(
       name,
       description,
       categoryId,
-      price,
-      discountPercent,
+      brand,
     );
 
     // Persist the product
-    const createdProduct = await this.productRepository.save(product);
+    const createdProduct = await this.productRepository.saveProduct(product);
 
     // Emit domain event
     await this.eventBus.publish(
@@ -34,7 +33,6 @@ export class CreateProductHandler implements ICommandHandler<CreateProductComman
         createdProduct.id,
         createdProduct.getName(),
         createdProduct.getCategoryId(),
-        createdProduct.getPrice(),
       ),
     );
 

@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import * as bcrypt from 'bcrypt';
 import { PrismaClient, Prisma } from '@prisma/client';
 
 const email = process.env.SEED_SELLER_EMAIL;
@@ -9,7 +9,6 @@ if (!email || !password) {
 }
 
 export const seller = {
-  id: uuidv4(),
   email,
   password,
   phone: null,
@@ -20,18 +19,25 @@ export const seller = {
 } satisfies Prisma.UserCreateManyInput;
 
 export const sellerProfile = {
-  id: uuidv4(),
   storeName: 'Best Seller Store',
-  user: {
-    create: seller,
-  },
   createdAt: new Date(),
   updatedAt: new Date(),
-} satisfies Prisma.SellerProfileCreateInput;
+} satisfies Omit<Prisma.SellerProfileCreateInput, 'user'>;
 
 export async function seedSeller(prisma: PrismaClient) {
-  await prisma.sellerProfile.create({
-    data: sellerProfile,
+  const user = await prisma.user.upsert({
+    create: {
+      ...seller,
+      password: await bcrypt.hash(seller.password, 10),
+    },
+    update: {},
+    where: { email: seller.email },
+  });
+
+  await prisma.sellerProfile.upsert({
+    create: { ...sellerProfile, userId: user.id },
+    update: {},
+    where: { userId: user.id },
   });
 
   console.log('✅ Seller seeded');

@@ -11,9 +11,9 @@ export class PrismaProductMapper {
       raw.name,
       raw.description,
       raw.categoryId,
-      raw.price,
-      raw.discountPercent,
+      raw.brand,
       raw.status as ProductStatus,
+      raw.isDeleted,
       raw.createdAt,
       raw.updatedAt,
     );
@@ -26,9 +26,9 @@ export class PrismaProductMapper {
       name: product.getName(),
       description: product.getDescription(),
       categoryId: product.getCategoryId(),
-      price: product.getPrice(),
-      discountPercent: product.getDiscountPercent(),
+      brand: product.getBrand(),
       status: product.getStatus(),
+      isDeleted: product.getIsDeleted(),
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
     };

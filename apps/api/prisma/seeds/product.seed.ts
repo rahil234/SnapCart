@@ -1,48 +1,109 @@
-import { PrismaClient, Prisma } from '@prisma/client';
-import { categories } from './category.seed';
-import { sellerProfile } from './seller.seed';
+import { PrismaClient } from '@prisma/client';
 
 export const products = [
   {
-    name: 'Milk Chocolate Bar',
-    description: 'Delicious milk chocolate made from the finest cocoa beans.',
-    price: 19.99,
-    status: 'active',
-    categoryId: categories.find((cat) => cat.name === 'Grocery Items')?.id!,
-    discountPercent: 10,
-    sellerProfileId: sellerProfile.id,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
     name: 'Organic Whole Milk',
     description: 'Fresh organic whole milk from grass-fed cows.',
-    price: 4.99,
+    categoryName: 'Dairy Products',
     status: 'active',
-    categoryId: categories.find((cat) => cat.name === 'Dairy Products')?.id!,
-    discountPercent: 5,
-    sellerProfileId: sellerProfile.id,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    variants: [
+      {
+        variantName: '500 ml',
+        sku: 'ORG-MILK-500ML',
+        stock: 40,
+        price: 35,
+      },
+      {
+        variantName: '1 L',
+        sku: 'ORG-MILK-1L',
+        stock: 60,
+        price: 65,
+      },
+      {
+        variantName: '2 L',
+        sku: 'ORG-MILK-2L',
+        stock: 30,
+        price: 120,
+      },
+    ],
   },
+
+  // 🔹 Product with 2 variants
   {
     name: 'Sparkling Water',
-    description: 'Refreshing sparkling water with a hint of natural flavor.',
-    price: 1.99,
+    description: 'Refreshing sparkling water with natural flavors.',
+    categoryName: 'Cool Drinks',
     status: 'active',
-    categoryId: categories.find((cat) => cat.name === 'Cool Drinks')?.id!,
-    discountPercent: 0,
-    sellerProfileId: sellerProfile.id,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    variants: [
+      {
+        variantName: 'Lemon – 500 ml',
+        sku: 'SPARK-WATER-LEMON-500',
+        stock: 100,
+        price: 30,
+      },
+      {
+        variantName: 'Mint – 500 ml',
+        sku: 'SPARK-WATER-MINT-500',
+        stock: 80,
+        price: 30,
+      },
+    ],
   },
-] satisfies Prisma.ProductCreateManyInput[];
+
+  // 🔹 Product with 1 variant
+  {
+    name: 'Milk Chocolate Bar',
+    description: 'Classic milk chocolate made from premium cocoa.',
+    categoryName: 'Candies & Sweets',
+    status: 'active',
+    variants: [
+      {
+        variantName: '40 g',
+        sku: 'MILK-CHOCO-40G',
+        stock: 150,
+        price: 45,
+      },
+    ],
+  },
+];
 
 export async function seedProducts(prisma: PrismaClient) {
-  await prisma.product.createMany({
-    data: products,
-    skipDuplicates: true,
+  const sellerProfile = await prisma.sellerProfile.findFirst({
+    where: { storeName: 'Best Seller Store' },
   });
 
-  console.log('✅ Products seeded');
+  for (const product of products) {
+    const category = await prisma.category.findFirst({
+      where: { name: product.categoryName },
+    });
+
+    if (!category) {
+      throw new Error(`Category not found for product: ${product.name}`);
+    }
+
+    const createdProduct = await prisma.product.create({
+      data: {
+        name: product.name,
+        description: product.description,
+        status: product.status as 'active' | 'inactive',
+        category: { connect: { id: category.id } },
+        sellerProfile: { connect: { id: sellerProfile.id } },
+      },
+    });
+
+    // 2️⃣ Create Variants (sellable units)
+    await prisma.productVariant.createMany({
+      data: product.variants.map((variant) => ({
+        productId: createdProduct.id,
+        variantName: variant.variantName,
+        sku: variant.sku,
+        stock: variant.stock,
+        price: variant.price,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })),
+    });
+  }
+
+  console.log('✅ Products with 1 / 2 / 3 variants seeded successfully');
 }
