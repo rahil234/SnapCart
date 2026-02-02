@@ -2,7 +2,6 @@
   "name": "snapcart",
   "private": true,
   "dependencies": {
-    "@nestjs/cqrs": "^11.0.3",
     "pnpm": "10.26.2"
   },
   "packageManager": "pnpm@10.26.2",
