@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { OrderService } from '@/api/order/order.service';
+import { OrderService } from '@/services/order.service';
 
 function OrderSuccessPage() {
   const { orderId } = useParams<{ orderId: string }>();

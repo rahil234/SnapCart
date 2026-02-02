@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useQueryClient } from '@tanstack/react-query';
-import { OrderService } from '@/api/order/order.service';
+import { OrderService } from '@/services/order.service';
 import { CardContent, CardFooter } from '@/components/ui/card';
 
 interface ReturnFormData {

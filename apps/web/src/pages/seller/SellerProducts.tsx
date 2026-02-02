@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Search, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { Product } from '@/types';
-import { ProductService } from '@/api/product/product.service';
+import { ProductService } from '@/services/product.service';
 import AddProductModal from '@/components/seller/AddProductModal';
 import { ProductsTable } from '@/components/seller/ProductsTable';
 import EditProductModal from '@/components/seller/EditProductModal';

@@ -20,7 +20,7 @@ import {
 import { useAppDispatch } from '@/app/store';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { OrderService } from '@/api/order/order.service';
+import { OrderService } from '@/services/order.service';
 
 const imageUrl = import.meta.env.VITE_IMAGE_URL + '/products/';
 

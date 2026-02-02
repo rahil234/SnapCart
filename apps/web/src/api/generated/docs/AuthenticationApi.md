@@ -13,7 +13,7 @@ All URIs are relative to *http://localhost:4000*
 |[**authControllerVerifyOTP**](#authcontrollerverifyotp) | **POST** /api/auth/otp/verify | Verify OTP|
 
 # **authControllerLogin**
-> authControllerLogin(loginDto)
+> MessageOnlyResponse authControllerLogin(loginDto)
 
 Authenticate user with password or OTP
 
@@ -45,7 +45,7 @@ const { status, data } = await apiInstance.authControllerLogin(
 
 ### Return type
 
-void (empty response body)
+**MessageOnlyResponse**
 
 ### Authorization
 
@@ -54,19 +54,20 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | User logged in successfully |  -  |
-|**401** | Invalid credentials |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **authControllerLoginWithGoogle**
-> authControllerLoginWithGoogle(loginWithGoogleDto)
+> MessageOnlyResponse authControllerLoginWithGoogle(loginWithGoogleDto)
 
 Authenticate user with Google OAuth
 
@@ -98,7 +99,7 @@ const { status, data } = await apiInstance.authControllerLoginWithGoogle(
 
 ### Return type
 
-void (empty response body)
+**MessageOnlyResponse**
 
 ### Authorization
 
@@ -107,19 +108,20 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | User logged in successfully |  -  |
-|**401** | Invalid Google token |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **authControllerLogout**
-> authControllerLogout()
+> MessageOnlyResponse authControllerLogout()
 
 Clear authentication cookies
 
@@ -143,7 +145,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-void (empty response body)
+**MessageOnlyResponse**
 
 ### Authorization
 
@@ -152,7 +154,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
@@ -163,7 +165,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **authControllerRefreshToken**
-> authControllerRefreshToken()
+> MessageOnlyResponse authControllerRefreshToken()
 
 Get new access token using refresh token
 
@@ -187,7 +189,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-void (empty response body)
+**MessageOnlyResponse**
 
 ### Authorization
 
@@ -196,19 +198,20 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Token refreshed successfully |  -  |
-|**401** | Invalid refresh token |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **authControllerRegister**
-> authControllerRegister(registerDto)
+> MessageOnlyResponse authControllerRegister(registerDto)
 
 Creates a new customer account with email/phone and password
 
@@ -240,7 +243,7 @@ const { status, data } = await apiInstance.authControllerRegister(
 
 ### Return type
 
-void (empty response body)
+**MessageOnlyResponse**
 
 ### Authorization
 
@@ -249,19 +252,21 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | User registered successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**409** | User already exists |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **authControllerRequestOTP**
-> authControllerRequestOTP(requestOTPDto)
+> MessageOnlyResponse authControllerRequestOTP(requestOTPDto)
 
 Send OTP to email or phone number
 
@@ -293,7 +298,7 @@ const { status, data } = await apiInstance.authControllerRequestOTP(
 
 ### Return type
 
-void (empty response body)
+**MessageOnlyResponse**
 
 ### Authorization
 
@@ -302,18 +307,20 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | OTP sent successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **authControllerVerifyOTP**
-> authControllerVerifyOTP(verifyOTPDto)
+> MessageOnlyResponse authControllerVerifyOTP(verifyOTPDto)
 
 Verify OTP code
 
@@ -345,7 +352,7 @@ const { status, data } = await apiInstance.authControllerVerifyOTP(
 
 ### Return type
 
-void (empty response body)
+**MessageOnlyResponse**
 
 ### Authorization
 
@@ -354,14 +361,15 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | OTP verified successfully |  -  |
-|**401** | Invalid OTP |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

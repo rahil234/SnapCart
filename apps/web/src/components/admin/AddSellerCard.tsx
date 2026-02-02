@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { SellerService } from '@/api/seller/seller.service';
+import { SellerService } from '@/services/seller.service';
 import { catchError } from '@/types/error';
 
 interface AddSellerCardProps {

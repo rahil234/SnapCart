@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
 import { catchError } from 'shared/types';
-import { UserService } from '@/api/user/user.service';
+import { UserService } from '@/services/user.service';
 
 interface VerifyOTPFormInputs {
   otp: string;

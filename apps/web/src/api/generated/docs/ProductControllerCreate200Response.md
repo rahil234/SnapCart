@@ -5,9 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**success** | **boolean** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
-**data** | [**ProductResponseDto**](ProductResponseDto.md) |  | [default to undefined]
+**data** | [**ProductResponseDto**](ProductResponseDto.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -15,7 +14,6 @@ Name | Type | Description | Notes
 import { ProductControllerCreate200Response } from './api';
 
 const instance: ProductControllerCreate200Response = {
-    success,
     message,
     data,
 };

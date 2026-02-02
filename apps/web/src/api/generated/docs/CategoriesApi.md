@@ -11,7 +11,7 @@ All URIs are relative to *http://localhost:4000*
 |[**categoryControllerUpdate**](#categorycontrollerupdate) | **PATCH** /api/categories/{id} | Update category|
 
 # **categoryControllerCreate**
-> categoryControllerCreate(createCategoryDto)
+> MessageOnlyResponse categoryControllerCreate(createCategoryDto)
 
 Creates a new category with the provided details. Only admins can create categories.
 
@@ -43,7 +43,7 @@ const { status, data } = await apiInstance.categoryControllerCreate(
 
 ### Return type
 
-void (empty response body)
+**MessageOnlyResponse**
 
 ### Authorization
 
@@ -52,21 +52,22 @@ void (empty response body)
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | Category created successfully |  -  |
-|**400** | Invalid input data |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
-|**403** | Admin access required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **categoryControllerFindAll**
-> Array<CategoryResponseDto> categoryControllerFindAll()
+> CategoryControllerFindAll200Response categoryControllerFindAll()
 
 Retrieves all categories
 
@@ -90,7 +91,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**Array<CategoryResponseDto>**
+**CategoryControllerFindAll200Response**
 
 ### Authorization
 
@@ -106,11 +107,13 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Categories retrieved successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **categoryControllerFindOne**
-> CategoryResponseDto categoryControllerFindOne()
+> CategoryControllerFindOne200Response categoryControllerFindOne()
 
 Retrieves a single category by its ID
 
@@ -125,7 +128,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);
 
-let id: string; //Category ID (default to undefined)
+let id: string; //Category UUID (default to undefined)
 
 const { status, data } = await apiInstance.categoryControllerFindOne(
     id
@@ -136,12 +139,12 @@ const { status, data } = await apiInstance.categoryControllerFindOne(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | Category ID | defaults to undefined|
+| **id** | [**string**] | Category UUID | defaults to undefined|
 
 
 ### Return type
 
-**CategoryResponseDto**
+**CategoryControllerFindOne200Response**
 
 ### Authorization
 
@@ -157,12 +160,14 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Category retrieved successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**404** | Category not found |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **categoryControllerRemove**
-> categoryControllerRemove()
+> MessageOnlyResponse categoryControllerRemove()
 
 Deletes a category. Only admins can delete categories.
 
@@ -177,7 +182,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);
 
-let id: string; //Category ID (default to undefined)
+let id: string; //Category UUID (default to undefined)
 
 const { status, data } = await apiInstance.categoryControllerRemove(
     id
@@ -188,12 +193,12 @@ const { status, data } = await apiInstance.categoryControllerRemove(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | Category ID | defaults to undefined|
+| **id** | [**string**] | Category UUID | defaults to undefined|
 
 
 ### Return type
 
-void (empty response body)
+**MessageOnlyResponse**
 
 ### Authorization
 
@@ -202,21 +207,23 @@ void (empty response body)
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Category deleted successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
-|**403** | Admin access required |  -  |
+|**403** | Insufficient permissions |  -  |
 |**404** | Category not found |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **categoryControllerUpdate**
-> categoryControllerUpdate(updateCategoryDto)
+> MessageOnlyResponse categoryControllerUpdate(updateCategoryDto)
 
 Updates an existing category. Only admins can update categories.
 
@@ -232,7 +239,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);
 
-let id: string; //Category ID (default to undefined)
+let id: string; //Category UUID (default to undefined)
 let updateCategoryDto: UpdateCategoryDto; //
 
 const { status, data } = await apiInstance.categoryControllerUpdate(
@@ -246,12 +253,12 @@ const { status, data } = await apiInstance.categoryControllerUpdate(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **updateCategoryDto** | **UpdateCategoryDto**|  | |
-| **id** | [**string**] | Category ID | defaults to undefined|
+| **id** | [**string**] | Category UUID | defaults to undefined|
 
 
 ### Return type
 
-void (empty response body)
+**MessageOnlyResponse**
 
 ### Authorization
 
@@ -260,17 +267,18 @@ void (empty response body)
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Category updated successfully |  -  |
-|**400** | Invalid input data |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
-|**403** | Admin access required |  -  |
+|**403** | Insufficient permissions |  -  |
 |**404** | Category not found |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

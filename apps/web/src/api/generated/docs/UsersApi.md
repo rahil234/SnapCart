@@ -4,70 +4,14 @@ All URIs are relative to *http://localhost:4000*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**userControllerCreateAddress**](#usercontrollercreateaddress) | **POST** /api/users/addresses | Create address|
 |[**userControllerFindAll**](#usercontrollerfindall) | **GET** /api/users | Get all users|
 |[**userControllerFindOne**](#usercontrollerfindone) | **GET** /api/users/{id} | Get user by ID|
 |[**userControllerGetMe**](#usercontrollergetme) | **GET** /api/users/me | Get current user profile|
 |[**userControllerUpdate**](#usercontrollerupdate) | **PATCH** /api/users | Update current user|
-|[**userControllerUpdateAddress**](#usercontrollerupdateaddress) | **PATCH** /api/users/addresses/{id} | Update address|
 |[**userControllerUpdateStatus**](#usercontrollerupdatestatus) | **PATCH** /api/users/{id}/status | Update user status|
 
-# **userControllerCreateAddress**
-> AddressResponseDto userControllerCreateAddress(createAddressDto)
-
-Creates a new address for the authenticated user
-
-### Example
-
-```typescript
-import {
-    UsersApi,
-    Configuration,
-    CreateAddressDto
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new UsersApi(configuration);
-
-let createAddressDto: CreateAddressDto; //
-
-const { status, data } = await apiInstance.userControllerCreateAddress(
-    createAddressDto
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **createAddressDto** | **CreateAddressDto**|  | |
-
-
-### Return type
-
-**AddressResponseDto**
-
-### Authorization
-
-[bearer](../README.md#bearer)
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**201** | Address created successfully |  -  |
-|**400** | Invalid input data |  -  |
-|**401** | Authentication required |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
 # **userControllerFindAll**
-> Array<UserResponseDto> userControllerFindAll()
+> UserControllerFindAll200Response userControllerFindAll()
 
 Retrieves all users with pagination. Admin only.
 
@@ -107,7 +51,7 @@ const { status, data } = await apiInstance.userControllerFindAll(
 
 ### Return type
 
-**Array<UserResponseDto>**
+**UserControllerFindAll200Response**
 
 ### Authorization
 
@@ -123,13 +67,15 @@ const { status, data } = await apiInstance.userControllerFindAll(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Users retrieved successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
-|**403** | Admin access required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **userControllerFindOne**
-> UserResponseDto userControllerFindOne()
+> UserControllerUpdate200Response userControllerFindOne()
 
 Retrieves a single user by ID. Admin only.
 
@@ -144,7 +90,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UsersApi(configuration);
 
-let id: string; //User ID (default to undefined)
+let id: string; //User UUID (default to undefined)
 
 const { status, data } = await apiInstance.userControllerFindOne(
     id
@@ -155,12 +101,12 @@ const { status, data } = await apiInstance.userControllerFindOne(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | User ID | defaults to undefined|
+| **id** | [**string**] | User UUID | defaults to undefined|
 
 
 ### Return type
 
-**UserResponseDto**
+**UserControllerUpdate200Response**
 
 ### Authorization
 
@@ -176,9 +122,11 @@ const { status, data } = await apiInstance.userControllerFindOne(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | User retrieved successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
-|**403** | Admin access required |  -  |
+|**403** | Insufficient permissions |  -  |
 |**404** | User not found |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -223,12 +171,15 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | User profile fetched successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **userControllerUpdate**
-> UserResponseDto userControllerUpdate(updateUserDto)
+> UserControllerUpdate200Response userControllerUpdate(updateUserDto)
 
 Updates the authenticated user profile
 
@@ -260,7 +211,7 @@ const { status, data } = await apiInstance.userControllerUpdate(
 
 ### Return type
 
-**UserResponseDto**
+**UserControllerUpdate200Response**
 
 ### Authorization
 
@@ -276,72 +227,15 @@ const { status, data } = await apiInstance.userControllerUpdate(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | User updated successfully |  -  |
-|**400** | Invalid input data |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **userControllerUpdateAddress**
-> AddressResponseDto userControllerUpdateAddress(updateAddressDto)
-
-Updates an existing address for the authenticated user
-
-### Example
-
-```typescript
-import {
-    UsersApi,
-    Configuration,
-    UpdateAddressDto
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new UsersApi(configuration);
-
-let id: string; //Address ID (default to undefined)
-let updateAddressDto: UpdateAddressDto; //
-
-const { status, data } = await apiInstance.userControllerUpdateAddress(
-    id,
-    updateAddressDto
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **updateAddressDto** | **UpdateAddressDto**|  | |
-| **id** | [**string**] | Address ID | defaults to undefined|
-
-
-### Return type
-
-**AddressResponseDto**
-
-### Authorization
-
-[bearer](../README.md#bearer)
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Address updated successfully |  -  |
-|**400** | Invalid input data |  -  |
-|**401** | Authentication required |  -  |
-|**403** | You do not have permission to update this address |  -  |
-|**404** | Address not found |  -  |
+|**403** | Insufficient permissions |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **userControllerUpdateStatus**
-> UserResponseDto userControllerUpdateStatus(updateUserStatusDto)
+> UserControllerUpdate200Response userControllerUpdateStatus(updateUserStatusDto)
 
 Updates user account status. Admin only.
 
@@ -357,7 +251,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UsersApi(configuration);
 
-let id: string; //User ID (default to undefined)
+let id: string; //User UUID (default to undefined)
 let updateUserStatusDto: UpdateUserStatusDto; //
 
 const { status, data } = await apiInstance.userControllerUpdateStatus(
@@ -371,12 +265,12 @@ const { status, data } = await apiInstance.userControllerUpdateStatus(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **updateUserStatusDto** | **UpdateUserStatusDto**|  | |
-| **id** | [**string**] | User ID | defaults to undefined|
+| **id** | [**string**] | User UUID | defaults to undefined|
 
 
 ### Return type
 
-**UserResponseDto**
+**UserControllerUpdate200Response**
 
 ### Authorization
 
@@ -392,10 +286,11 @@ const { status, data } = await apiInstance.userControllerUpdateStatus(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | User status updated successfully |  -  |
-|**400** | Invalid input data |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
-|**403** | Admin access required |  -  |
+|**403** | Insufficient permissions |  -  |
 |**404** | User not found |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

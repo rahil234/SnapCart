@@ -5,7 +5,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import {
   useGetCategories,
   useAddCategory,
-} from '@/api/category/category.hooks';
+} from '@/hooks/category.hooks';
 import { catchError } from '@/types/error';
 
 interface AddCategoryFormInputs {

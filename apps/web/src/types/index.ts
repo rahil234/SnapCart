@@ -1,5 +1,22 @@
-export interface ImportMeta {
-  readonly env: ImportMetaEnv;
+export interface SellerProfile {
+  id: string;
+  storeName: string;
+  isVerified: boolean;
+}
+
+export interface CustomerProfile {
+  id: string;
+  name: string;
+  cartId: string;
+}
+
+export interface User {
+  userId: string;
+  email: string;
+  sellerProfile?: SellerProfile;
+  customerProfile?: CustomerProfile;
+  role: 'CUSTOMER' | 'SELLER' | 'ADMIN';
+  status: 'active' | 'inactive' | 'blocked';
 }
 
 export interface Category {
@@ -34,8 +51,11 @@ export interface Variant {
 export interface Product {
   id: string;
   name: string;
-  category: Category;
-  subcategory: Subcategory;
-  variants: Variant[];
-  status: 'Active' | 'Blocked';
+  description: string;
+  categoryId: string;
+  brand: string;
+  isInCatalog: boolean;
+  isActive: boolean;
+
+  status: 'active';
 }

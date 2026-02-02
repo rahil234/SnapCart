@@ -9,13 +9,10 @@ Name | Type | Description | Notes
 **name** | **string** | Product name | [default to undefined]
 **description** | **string** | Product description | [default to undefined]
 **categoryId** | **string** | Category ID | [default to undefined]
-**price** | **number** | Product price in cents | [default to undefined]
-**discountPercent** | **object** | Discount percentage | [optional] [default to undefined]
-**finalPrice** | **number** | Final price after discount in cents | [default to undefined]
-**tryOn** | **boolean** | Whether try-on feature is enabled | [default to undefined]
-**status** | **string** | Product status | [default to undefined]
-**isActive** | **boolean** | Whether product is active | [default to undefined]
-**hasDiscount** | **boolean** | Whether product has discount applied | [default to undefined]
+**brand** | **object** | Brand name | [optional] [default to undefined]
+**status** | **string** | Product status (catalog lifecycle) | [default to undefined]
+**isActive** | **boolean** | Whether product is active in catalog | [default to undefined]
+**isInCatalog** | **boolean** | Whether product is in catalog (not deleted/discontinued) | [default to undefined]
 **createdAt** | **string** | Product creation date | [default to undefined]
 **updatedAt** | **string** | Product last update date | [default to undefined]
 
@@ -29,13 +26,10 @@ const instance: ProductResponseDto = {
     name,
     description,
     categoryId,
-    price,
-    discountPercent,
-    finalPrice,
-    tryOn,
+    brand,
     status,
     isActive,
-    hasDiscount,
+    isInCatalog,
     createdAt,
     updatedAt,
 };

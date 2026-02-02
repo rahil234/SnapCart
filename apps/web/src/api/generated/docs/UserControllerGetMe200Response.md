@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **message** | **string** |  | [default to undefined]
-**data** | [**UserResponseDto**](UserResponseDto.md) |  | [optional] [default to undefined]
+**data** | [**MeResponseDto**](MeResponseDto.md) |  | [default to undefined]
 
 ## Example
 

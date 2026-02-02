@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ICoupon } from '@/types/coupon';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CouponService } from '@/api/coupon/coupon.service';
+import { CouponService } from '@/services/coupon.service';
 
 const EditCouponCard = ({
   onClose,

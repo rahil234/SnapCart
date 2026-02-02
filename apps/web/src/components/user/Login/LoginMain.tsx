@@ -3,7 +3,7 @@ import React, { useContext, useState } from 'react';
 
 import { useAppDispatch } from '@/app/store';
 import { UIContext } from '@/context/UIContext';
-import { UserService } from '@/api/user/user.service';
+import { UserService } from '@/services/user.service';
 import LoginCard from '@/components/user/Login/LoginCard';
 import { setCredentials } from '@/features/auth/authSlice';
 import SignUpCard from '@/components/user/Login/SignUpCard';

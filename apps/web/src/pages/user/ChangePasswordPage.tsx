@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { UserService } from '@/api/user/user.service';
+import { UserService } from '@/services/user.service';
 import { catchError } from '@/types/error';
 
 interface ChangePasswordFormValues {

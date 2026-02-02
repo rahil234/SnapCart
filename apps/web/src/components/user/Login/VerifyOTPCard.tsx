@@ -3,7 +3,7 @@ import { SubmitHandler } from 'react-hook-form';
 import React, { useState, useEffect } from 'react';
 
 import { catchError } from '@/types/error';
-import { UserService } from '@/api/user/user.service';
+import { UserService } from '@/services/user.service';
 
 interface VerifyOTPFormInputs {
   otp: string;

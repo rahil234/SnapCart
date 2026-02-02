@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table';
 import { IOrder } from '@/types/order';
 import { Button } from '@/components/ui/button';
-import { OrderService } from '@/api/order/order.service';
+import { OrderService } from '@/services/order.service';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,

@@ -34,7 +34,7 @@ import {
 import React, { useState } from 'react';
 import { IProduct } from '@/types/product';
 import ProductForm from '@/components/admin/ProductForm';
-import { ProductService } from '@/api/product/product.service';
+import { ProductService } from '@/services/product.service';
 
 const imageUrl = import.meta.env.VITE_IMAGE_URL + '/products/';
 

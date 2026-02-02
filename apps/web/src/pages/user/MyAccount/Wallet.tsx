@@ -4,7 +4,7 @@ import { Plus, ArrowUpRight, ArrowDownLeft, Wallet } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { AuthState } from '@/features/auth/authSlice';
-import { WalletService } from '@/api/wallet/wallet.service';
+import { WalletService } from '@/services/wallet.service';
 import AddFundsComponent from '@/components/user/addWalletFundCard';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

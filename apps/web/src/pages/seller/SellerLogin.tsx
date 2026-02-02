@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router';
 import { useSelector } from 'react-redux';
-import { useForm, SubmitHandler } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
-import { AuthState, setCredentials } from '@/features/auth/authSlice';
+import { useNavigate } from 'react-router';
+import { useForm, SubmitHandler } from 'react-hook-form';
+
 import { catchError } from '@/types/error';
 import { useAppDispatch } from '@/app/store';
-import { AuthService } from '@/api/auth/auth.service';
+import { AuthService } from '@/services/auth.service';
+import { AuthState, fetchUser } from '@/features/auth/authSlice';
 
 interface LoginFormInputs {
   email: string;
@@ -15,8 +16,8 @@ interface LoginFormInputs {
 
 const SellerLogin: React.FC = () => {
   const [error, setError] = React.useState<string>('');
-  const isAuthenticated = useSelector(
-    (state: { auth: AuthState }) => state.auth.isAuthenticated
+  const { isAuthenticated } = useSelector(
+    (state: { auth: AuthState }) => state.auth
   );
 
   const dispatch = useAppDispatch();
@@ -39,8 +40,18 @@ const SellerLogin: React.FC = () => {
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
     try {
-      const response = await sellerEndpoints.login(data);
-      dispatch(setCredentials(response.data));
+      const { error } = await AuthService.adminLogin({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (error) {
+        setError(error.message || 'Login failed');
+        return;
+      }
+
+      dispatch(fetchUser());
+
       navigate('/seller/dashboard');
     } catch (error) {
       const newError = error as catchError;

@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
 import { User } from '@/types';
+import { UserService } from '@/services/user.service';
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -15,12 +17,14 @@ const apiUrl = import.meta.env.VITE_API_URL;
 export const fetchUser = createAsyncThunk(
   'auth/me',
   async (_, { rejectWithValue }) => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/auth/me`);
-      return response.data;
-    } catch {
+    const { data, error } = await UserService.getMe();
+
+    if (error) {
+      console.log('error fetching user:', error);
       return rejectWithValue('Failed to fetch user');
     }
+
+    return data;
   }
 );
 
@@ -73,7 +77,6 @@ const authSlice = createSlice({
     },
     changeProfilePicture: (state, action) => {
       if (state.user) {
-        state.user.profilePicture = action.payload;
       }
     },
     clearUser: state => {
@@ -90,7 +93,8 @@ const authSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
-        authSlice.caseReducers.setCredentials(state, action);
+        state.user = action.payload;
+        state.isAuthenticated = true;
         state.status = 'succeeded';
       })
       .addCase(fetchUser.rejected, state => {

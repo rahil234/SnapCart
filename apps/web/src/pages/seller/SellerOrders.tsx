@@ -27,7 +27,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { IOrder } from '@/types/order';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { OrderService } from '@/api/order/order.service';
+import { OrderService } from '@/services/order.service';
 import { Card, CardContent } from '@/components/ui/card';
 import OrderDetailsModal from '@/components/common/OrderDetailsCard';
 

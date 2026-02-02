@@ -7,31 +7,32 @@ import ProtectedRoute from '@/routes/ProtectedRoute';
 import ComingSoon from '@/pages/admin/ComingSoon';
 import SellerOrders from '@/pages/seller/SellerOrders';
 import SellerProducts from '@/pages/seller/SellerProducts';
-import SellerSalesReport from "@/pages/seller/SellerSalesReport";
+import SellerSalesReport from '@/pages/seller/SellerSalesReport';
 
 const SellerRoutes = [
-    {
-        path: '/seller',
+  {
+    path: '/seller',
+    children: [
+      { path: 'login', element: <SellerLogin /> },
+      {
+        path: '',
+        element: (
+          <ProtectedRoute requiredRoles={['SELLER']}>
+            <SellerLayout />
+          </ProtectedRoute>
+        ),
         children: [
-            { path: 'login', element: <SellerLogin /> },
-            {
-                path: '',
-                element:
-                    <ProtectedRoute requiredRoles={['seller']}>
-                        <SellerLayout />
-                    </ProtectedRoute>,
-                children: [
-                    { path: '', element: <Navigate to="/seller/dashboard" /> },
-                    { path: 'dashboard', element: <SellerDashboard /> },
-                    { path: 'inbox', element: <ComingSoon /> },
-                    { path: 'products', element: <SellerProducts /> },
-                    { path: 'orders', element: <SellerOrders /> },
-                    { path: 'sales-report', element: <SellerSalesReport /> },
-                    { path: 'settings', element: <ComingSoon /> },
-                ],
-            },
+          { path: '', element: <Navigate to="/seller/dashboard" /> },
+          // { path: 'dashboard', element: <SellerDashboard /> },
+          { path: 'inbox', element: <ComingSoon /> },
+          { path: 'products', element: <SellerProducts /> },
+          // { path: 'orders', element: <SellerOrders /> },
+          // { path: 'sales-report', element: <SellerSalesReport /> },
+          { path: 'settings', element: <ComingSoon /> },
         ],
-    },
+      },
+    ],
+  },
 ];
 
 export default SellerRoutes;

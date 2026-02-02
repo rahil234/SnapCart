@@ -24,7 +24,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { SellerService } from '@/api/seller/seller.service';
+import { SellerService } from '@/services/seller.service';
 import AddSellerCard from '@/components/admin/AddSellerCard';
 
 interface Seller {

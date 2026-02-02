@@ -8,7 +8,7 @@ import { ImportMeta } from '@/types';
 import { AuthState } from '@/features/auth/authSlice';
 import { CartState, updateQuantity } from '@/features/cart/cartSlice';
 import { useAppDispatch } from '@/app/store';
-import { OrderService } from '@/api/order/order.service';
+import { OrderService } from '@/services/order.service';
 
 const imageUrl =
   (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';

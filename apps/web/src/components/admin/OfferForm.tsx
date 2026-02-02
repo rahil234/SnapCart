@@ -7,7 +7,7 @@ import { IOffer } from '@/types/offer';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { OfferService } from '@/api/offer/offer.service';
+import { OfferService } from '@/services/offer.service';
 
 interface OfferFormProps {
   offer?: IOffer;

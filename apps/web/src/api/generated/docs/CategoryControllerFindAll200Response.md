@@ -5,12 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**success** | **boolean** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
 **data** | [**Array&lt;CategoryResponseDto&gt;**](CategoryResponseDto.md) |  | [default to undefined]
-**total** | **number** |  | [default to undefined]
-**limit** | **number** |  | [default to undefined]
-**page** | **number** |  | [default to undefined]
 
 ## Example
 
@@ -18,12 +14,8 @@ Name | Type | Description | Notes
 import { CategoryControllerFindAll200Response } from './api';
 
 const instance: CategoryControllerFindAll200Response = {
-    success,
     message,
     data,
-    total,
-    limit,
-    page,
 };
 ```
 

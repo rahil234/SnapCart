@@ -43,7 +43,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { ICoupon } from '@/types/coupon';
-import { CouponService } from '@/api/coupon/coupon.service';
+import { CouponService } from '@/services/coupon.service';
 import CouponForm from '@/components/admin/CouponForm';
 
 const CouponsTable = ({

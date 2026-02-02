@@ -3,7 +3,7 @@ import { Share2, Gift, Users, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { UserService } from '@/api/user/user.service';
+import { UserService } from '@/services/user.service';
 import { ImportMeta } from '@/types';
 
 const ReferSection = () => {

@@ -20,7 +20,7 @@ import { Edit, ListMinus, ListPlus } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Product } from '@/types';
-import { ProductService } from '@/api/product/product.service';
+import { ProductService } from '@/services/product.service';
 
 interface ProductsTableProps {
   products: Product[];

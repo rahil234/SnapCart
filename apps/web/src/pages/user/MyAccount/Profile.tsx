@@ -1,19 +1,18 @@
-import React, { useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import React, { useRef, useState } from 'react';
 import { Loader2, Upload, User as UserIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { changeProfilePicture } from '@/features/auth/authSlice';
-import { UserService } from '@/api/user/user.service';
-import { Address } from '@/types/address';
-import { IUser } from '@/types/user';
-import { ImportMeta } from '@/types';
-import { useAppDispatch } from '@/app/store';
 
-const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/profiles/';
+import { IUser } from '@/types/user';
+import { Address } from '@/types/address';
+import { useAppDispatch } from '@/app/store';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { UserService } from '@/services/user.service';
+import { changeProfilePicture } from '@/features/auth/authSlice';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+const imageUrl = import.meta.env.VITE_IMAGE_URL + '/profiles/';
 
 export interface ProfileFormValues {
   name: string;

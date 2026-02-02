@@ -1,6 +1,7 @@
 import React, { JSX } from 'react';
-import { Navigate, useLocation } from 'react-router';
 import { useSelector } from 'react-redux';
+import { Navigate, useLocation } from 'react-router';
+
 import { AuthState } from '@/features/auth/authSlice';
 
 interface ProtectedRouteProps {

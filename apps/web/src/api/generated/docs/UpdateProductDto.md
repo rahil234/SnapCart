@@ -7,10 +7,9 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **string** | Product name | [optional] [default to undefined]
 **description** | **string** | Product description | [optional] [default to undefined]
-**price** | **number** | Product price in cents | [optional] [default to undefined]
-**discountPercent** | **number** | Discount percentage (0-100) | [optional] [default to undefined]
-**tryOn** | **boolean** | Whether try-on feature is enabled | [optional] [default to undefined]
-**status** | **string** | Product status | [optional] [default to undefined]
+**brand** | **string** | Brand name | [optional] [default to undefined]
+**categoryId** | **string** | Category ID (use with caution - cannot change if discontinued) | [optional] [default to undefined]
+**status** | **string** | Product status (catalog lifecycle) | [optional] [default to undefined]
 
 ## Example
 
@@ -20,9 +19,8 @@ import { UpdateProductDto } from './api';
 const instance: UpdateProductDto = {
     name,
     description,
-    price,
-    discountPercent,
-    tryOn,
+    brand,
+    categoryId,
     status,
 };
 ```

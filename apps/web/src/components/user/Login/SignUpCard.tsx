@@ -1,10 +1,19 @@
+import { toast } from 'sonner';
+import { X } from 'lucide-react';
+import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { X } from 'lucide-react';
+
+import { catchError } from '@/types/error';
 import InputField from '@/components/ui/InputField';
-import { UserService } from '@/api/user/user.service';
-import { motion } from 'framer-motion';
-import { catchError, SignUpFormInputs } from 'shared/types';
+import { AuthService } from '@/services/auth.service';
+
+interface SignUpFormInputs {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 interface SignUpCardProps {
   hideLoginOverlay: () => void;
@@ -12,13 +21,11 @@ interface SignUpCardProps {
     tab: 'login' | 'signup' | 'forgotPassword' | 'verifyOtp'
   ) => void;
   signupData?: SignUpFormInputs;
-  setUserData: (data: SignUpFormInputs) => void;
 }
 
 const SignUpCard: React.FC<SignUpCardProps> = ({
   hideLoginOverlay,
   setActiveTab,
-  setUserData,
   signupData,
 }) => {
   const [isSignUp, setIsSignUp] = useState(true);
@@ -35,14 +42,24 @@ const SignUpCard: React.FC<SignUpCardProps> = ({
     reset(signupData);
   }, [signupData]);
 
-  const onSubmit: SubmitHandler<SignUpFormInputs> = async data => {
+  const onSubmit: SubmitHandler<SignUpFormInputs> = async formData => {
     try {
       setError(null);
-      console.log('data', data);
-      const response = await UserService.sendOtp(data.email);
-      setActiveTab('verifyOtp');
-      console.log('response', response.data);
-      setUserData(data);
+      // const response = await UserService.sendOtp(data.email);
+      // setActiveTab('verifyOtp');
+      // console.log('response', response.data);
+
+      const { error } = await AuthService.register({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) {
+        setError(error?.message || 'An error occurred during registration.');
+        return;
+      }
+
+      toast.success('Registration successful! Please log in.');
     } catch (error) {
       const newError = error as catchError;
       console.error('error', newError);
