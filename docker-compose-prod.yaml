@@ -6,12 +6,3 @@ services:
     build:
       context: ./apps/api
       dockerfile: Dockerfile
-    environment:
-      - PORT=4000
-      - REDIS_URL=redis://redis:6379
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/snapcart
-
-volumes:
-  mongo-data:
-  certbot-www:
-  redis_volume_data:
