@@ -5,7 +5,6 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**success** | **boolean** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
 **data** | [**UserResponseDto**](UserResponseDto.md) |  | [default to undefined]
 
@@ -15,7 +14,6 @@ Name | Type | Description | Notes
 import { UserControllerUpdate200Response } from './api';
 
 const instance: UserControllerUpdate200Response = {
-    success,
     message,
     data,
 };

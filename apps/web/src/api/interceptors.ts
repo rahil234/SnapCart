@@ -2,7 +2,8 @@ import axios from 'axios';
 
 import store from '@/app/store';
 import { apiClient } from '@/api/axios';
-import { AuthService } from '@/api/auth/auth.service';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 apiClient.interceptors.request.use(
   config => {
@@ -20,29 +21,21 @@ apiClient.interceptors.request.use(
 );
 
 apiClient.interceptors.response.use(
-  response => response,
+  res => res,
   async error => {
     const originalRequest = error.config;
 
-    if (!error.response) {
-      return Promise.reject(error);
-    }
-
-    if (
-      error.response.status === 403 &&
-      error.response.data.code === 'TOKEN_EXPIRED' &&
-      !originalRequest._retry
-    ) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        const res = await AuthService.refresh();
-        if (!res.data.success) {
-          store.dispatch({ type: 'auth/logout' });
-        }
-        return axios(originalRequest);
-      } catch (refreshError) {
-        console.log('Error refreshing token:', refreshError);
-        return Promise.reject(refreshError);
+        await axios.post(
+          `${API_URL}/api/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+        return apiClient(originalRequest);
+      } catch {
+        store.dispatch({ type: 'auth/logout' });
       }
     }
     return Promise.reject(error);

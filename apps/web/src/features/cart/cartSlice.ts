@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { RootState } from '@/app/store';
 import { catchError } from '@/types/error';
-import { CartService } from '@/api/cart/cart.service';
+import { CartService } from '@/services/cart.service';
 import validateAndCalculateOfferPrice from '@/utils/validateAndCalculateOfferPrice';
 import { Product } from '@/types';
 

@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { IOrder } from '@/types/order';
 import { Button } from '@/components/ui/button';
-import { OrderService } from '@/api/order/order.service';
+import { OrderService } from '@/services/order.service';
 import OrderReturnCard from '@/components/user/OrderReturnCard';
 
 const imageUrl =

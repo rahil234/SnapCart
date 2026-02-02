@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **message** | **string** |  | [default to undefined]
-**data** | [**Array&lt;GetCategoryProductFeedResponseDto&gt;**](GetCategoryProductFeedResponseDto.md) |  | [optional] [default to undefined]
+**data** | [**Array&lt;GetCategoryProductFeedResponseDto&gt;**](GetCategoryProductFeedResponseDto.md) |  | [default to undefined]
 
 ## Example
 

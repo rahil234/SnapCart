@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import ProductCard from '@/components/user/ProductCard';
-import { ProductService } from '@/api/product/product.service';
+import { ProductService } from '@/services/product.service';
 import { IProduct } from '@/types/product';
 
 function SearchPage() {

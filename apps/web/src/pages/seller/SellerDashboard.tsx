@@ -30,9 +30,9 @@ import { IProduct } from '@/types/product';
 import { ICategory } from '@/types/category';
 import { useQuery } from '@tanstack/react-query';
 import ProductCard from '@/components/user/ProductCard';
-import { SalesService } from '@/api/sales/sales.service';
-import { ProductService } from '@/api/product/product.service';
-import { CategoryService } from '@/api/category/category.service';
+import { SalesService } from '@/services/sales.service';
+import { ProductService } from '@/services/product.service';
+import { CategoryService } from '@/services/category.service';
 
 interface SalesReport {
   _id: number;

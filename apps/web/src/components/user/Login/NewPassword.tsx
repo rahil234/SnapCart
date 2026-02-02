@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
 import InputField from '@/components/ui/InputField';
-import { UserService } from '@/api/user/user.service';
+import { UserService } from '@/services/user.service';
 import { catchError } from 'shared/types';
 
 interface ForgotPasswordInputs {

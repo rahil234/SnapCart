@@ -22,7 +22,7 @@ import {
 import { IOffer } from '@/types/offer';
 import { Button } from '@/components/ui/button';
 import OfferForm from '@/components/admin/OfferForm';
-import { OfferService } from '@/api/offer/offer.service';
+import { OfferService } from '@/services/offer.service';
 import { Card, CardContent } from '@/components/ui/card';
 
 const OffersTable = ({

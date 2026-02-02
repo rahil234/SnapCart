@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SalesService } from '@/api/sales/sales.service';
+import { SalesService } from '@/services/sales.service';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,

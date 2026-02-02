@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import { catchError } from '@/types/error';
 import { Button } from '@/components/ui/button';
 import { UseFormGetValues } from 'react-hook-form';
-import { OrderService } from '@/api/order/order.service';
+import { OrderService } from '@/services/order.service';
 import { CheckoutFormValues } from '@/pages/user/CheckoutPage';
 import { RazorpayOptions, RazorpayResponse } from '@/types/razorpay';
 

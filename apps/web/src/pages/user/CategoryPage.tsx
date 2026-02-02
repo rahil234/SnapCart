@@ -1,31 +1,34 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { ScrollRestoration, useParams } from 'react-router';
+import React, { useEffect } from 'react';
+import { ScrollRestoration, useNavigate, useParams } from 'react-router';
 
-import { IProduct } from '@/types/product';
 import ProductCard from '@/components/user/ProductCard';
-import { ProductService } from '@/api/product/product.service';
+import { useGetProductsByCategoryId } from '@/hooks/product.hooks';
 
-function HomePage() {
-  const { category } = useParams();
+function CategoryPage() {
+  const { category: categoryId } = useParams<{ category: string }>();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!categoryId) {
+      navigate('/not-found', { replace: true });
+    }
+  }, [categoryId, navigate]);
 
   const {
-    data: products,
+    data: products = [],
     isLoading,
     isError,
-  } = useQuery<IProduct[]>({
-    queryKey: ['products', category],
-    queryFn: () => ProductService.getProductByCategory(category),
-  });
+  } = useGetProductsByCategoryId(categoryId!);
 
   if (isLoading) {
     return <p>Loading...</p>;
   }
+
   if (isError) {
-    return <p>Error</p>;
+    return <p>Error loading products</p>;
   }
 
-  if (!products?.length) {
+  if (products.length === 0) {
     return <p>No products available in this category</p>;
   }
 
@@ -34,22 +37,13 @@ function HomePage() {
       <ScrollRestoration />
       <main className="px-4 mx-auto py-8">
         <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-7 gap-4">
-          {products.length === 0 ? (
-            <p>Currently there are no products available in this category</p>
-          ) : (
-            products.map(product => (
-              <div
-                key={product._id}
-                className="w-full sm:w-1/2 md:w-1/3 lg:w-1/6"
-              >
-                <ProductCard product={product} />
-              </div>
-            ))
-          )}
+          {products.map(product => (
+            <ProductCard key={product._id} product={product} />
+          ))}
         </div>
       </main>
     </div>
   );
 }
 
-export default HomePage;
+export default CategoryPage;

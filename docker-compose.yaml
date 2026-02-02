@@ -8,6 +8,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: snapcart
+    volumes:
+      - pg-data:/var/lib/postgresql/data
     command:
       - postgres
       - -c
@@ -62,3 +64,4 @@ services:
 
 volumes:
   mongo-data:
+  pg-data:

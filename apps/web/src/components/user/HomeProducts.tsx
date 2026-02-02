@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import { useNavigate } from 'react-router';
 
 import ProductCard from '@/components/user/ProductCard';
-import { useGetUserFeed } from '@/api/product/product.hooks';
+import { useGetUserFeed } from '@/hooks/product.hooks';
 
 const HomeProducts = () => {
   const navigate = useNavigate();

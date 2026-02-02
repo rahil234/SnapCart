@@ -21,32 +21,30 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { ImportMeta } from '@/types';
 import { ICoupon } from '@/types/coupon';
-import { IAddress } from '@/types/address';
+import { Address } from '@/types/address';
 import { catchError } from '@/types/error';
 import { useAppDispatch } from '@/app/store';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { UserService } from '@/api/user/user.service';
 import { Separator } from '@/components/ui/separator';
 import { AuthState } from '@/features/auth/authSlice';
 import { CartState } from '@/features/cart/cartSlice';
 import { clearCart } from '@/features/cart/cartSlice';
 import AddressForm from '@/components/user/AddressForm';
-import { OrderService } from '@/api/order/order.service';
+import { OrderService } from '@/services/order.service';
+import { CouponService } from '@/services/coupon.service';
 import PaymentButton from '@/components/user/PaymentButton';
+import { AddressService } from '@/services/address.service';
 import AvailableCoupons from '@/components/user/AvailableCoupons';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { CouponService } from '@/api/coupon/coupon.service';
 
-const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
+const imageUrl = import.meta.env.VITE_IMAGE_URL + '/products/';
 
 export interface CheckoutFormValues {
   selectedAddressId: string;
-  addresses: IAddress[];
+  addresses: Address[];
   paymentMethod: 'cod' | 'razorpay' | 'wallet';
 }
 
@@ -98,9 +96,9 @@ function CheckoutPage() {
   const selectedAddressId = watch('selectedAddressId');
   const selectedPaymentMethod = watch('paymentMethod');
 
-  const handleAddAddress = async (address: IAddress) => {
+  const handleAddAddress = async (address: Address) => {
     try {
-      await UserService.addAddress(address);
+      await AddressService.addAddress(address);
       append(address);
       setIsAddressDialogOpen(false);
     } catch (error) {
@@ -108,15 +106,15 @@ function CheckoutPage() {
     }
   };
 
-  const handleEditAddress = async (index: number, address: IAddress) => {
-    await UserService.updateAddress(fields[index]._id!, address);
+  const handleEditAddress = async (index: number, address: Address) => {
+    await AddressService.updateAddress(fields[index].id, address);
     update(index, address);
     setEditingAddressIndex(null);
     setIsAddressDialogOpen(false);
   };
 
   const handleRemoveAddress = async (index: number) => {
-    await UserService.deleteAddress(fields[index]._id!);
+    await AddressService.deleteAddress(fields[index].id);
     remove(index);
     setEditingAddressIndex(null);
     setIsAddressDialogOpen(false);

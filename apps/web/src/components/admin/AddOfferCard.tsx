@@ -10,8 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import offerEndpoints from '@/api/offerEndpoints';
-import { ProductService } from '@/api/product/product.service';
-import { CategoryService } from '@/api/category/category.service';
+import { ProductService } from '@/services/product.service';
+import { CategoryService } from '@/services/category.service';
 
 function AddOfferCard({ onClose }: { onClose: () => void }) {
   const {

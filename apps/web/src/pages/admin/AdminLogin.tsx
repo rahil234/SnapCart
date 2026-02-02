@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router';
 import { useSelector } from 'react-redux';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 import { Eye, EyeOff } from 'lucide-react';
-import adminEndpoints from '@/api/admin/adminEndpoints';
-import { AuthState, setCredentials } from '@/features/auth/authSlice';
+import { useForm, SubmitHandler } from 'react-hook-form';
+
 import { catchError } from '@/types/error';
 import { useAppDispatch } from '@/app/store';
+import { AuthService } from '@/services/auth.service';
+import { AuthState, fetchUser } from '@/features/auth/authSlice';
 
 interface LoginFormInputs {
   email: string;
@@ -14,12 +15,13 @@ interface LoginFormInputs {
 }
 
 const AdminLogin: React.FC = () => {
-  
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const [error, setError] = React.useState<string>('');
-  const isAuthenticated = useSelector((state: { auth: AuthState }) => state.auth.isAuthenticated);
+  const isAuthenticated = useSelector(
+    (state: { auth: AuthState }) => state.auth.isAuthenticated
+  );
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -35,10 +37,19 @@ const AdminLogin: React.FC = () => {
 
   const [showPassword, setShowPassword] = React.useState(false);
 
-  const onSubmit: SubmitHandler<LoginFormInputs> = async data => {
+  const onSubmit: SubmitHandler<LoginFormInputs> = async formData => {
     try {
-      const response = await adminEndpoints.adminLogin(data);
-      dispatch(setCredentials(response.data));
+      const { error } = await AuthService.adminLogin({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) {
+        setError(error.message || 'Login failed');
+        return;
+      }
+
+      dispatch(fetchUser());
       navigate('/admin/dashboard');
     } catch (error) {
       const newError = error as catchError;

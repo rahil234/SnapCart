@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
+
 import {
   Dialog,
   DialogContent,
@@ -8,13 +9,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Address } from '@/types/address';
+import { catchError } from '@/types/error';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import AddressForm from '@/components/user/AddressForm';
+import { AddressService } from '@/services/address.service';
 import { ProfileFormValues } from '@/pages/user/MyAccount/Profile';
-import { UserService } from '@/api/user/user.service';
-import { catchError } from '@/types/error';
-import { IAddress } from '@/types/address';
 
 function AddressesSection({
   addresses: initialAddresses,
@@ -40,7 +41,7 @@ function AddressesSection({
 
   const handleAddAddress = async (address: Address) => {
     try {
-      await UserService.addAddress(address);
+      await AddressService.addAddress(address);
       append(address);
       setIsAddressDialogOpen(false);
     } catch (error) {
@@ -50,7 +51,7 @@ function AddressesSection({
   };
 
   const handleEditAddress = async (index: number, address: Address) => {
-    await UserService.updateAddress(fields[index]._id!, address);
+    await AddressService.updateAddress(fields[index].id, address);
     update(index, address);
     setEditingAddressIndex(null);
     setIsAddressDialogOpen(false);
@@ -58,7 +59,7 @@ function AddressesSection({
 
   const handleRemoveAddress = async (index: number) => {
     if (window.confirm('Are you sure you want to delete this address?')) {
-      await UserService.deleteAddress(fields[index]._id!);
+      await AddressService.deleteAddress(fields[index].id);
       remove(index);
     }
   };

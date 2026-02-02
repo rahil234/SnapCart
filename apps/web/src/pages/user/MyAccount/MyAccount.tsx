@@ -1,63 +1,85 @@
-import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
-import { User, MapPin, ShoppingBag, Shield, Wallet, HandCoins } from 'lucide-react';
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AuthState } from '@/features/auth/authSlice'
-import OrdersSection from '@/pages/user/MyAccount/Orders'
-import WalletSection from '@/pages/user/MyAccount/Wallet'
-import AddressesSection from '@/pages/user/MyAccount/Address'
-import SecuritySection from '@/pages/user/MyAccount/Security'
-import ReferSection from '@/pages/user/MyAccount/ReferSection'
-import ProfileSection from '@/pages/user/MyAccount/Profile'
+import {
+  User,
+  MapPin,
+  ShoppingBag,
+  Shield,
+  Wallet,
+  HandCoins,
+} from 'lucide-react';
+import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { AuthState } from '@/features/auth/authSlice';
+import OrdersSection from '@/pages/user/MyAccount/Orders';
+import WalletSection from '@/pages/user/MyAccount/Wallet';
+import ProfileSection from '@/pages/user/MyAccount/Profile';
+import SecuritySection from '@/pages/user/MyAccount/Security';
+import AddressesSection from '@/pages/user/MyAccount/Address';
+import ReferSection from '@/pages/user/MyAccount/ReferSection';
 
 function AccountPage() {
-  const { user } = useSelector((state: { auth: AuthState }) => state.auth)
-  const [activeSection, setActiveSection] = useState("profile")
+  const { user } = useSelector((state: { auth: AuthState }) => state.auth);
+  const [activeSection, setActiveSection] = useState('profile');
 
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash.slice(1)
-      if (['profile', 'addresses', 'orders', 'security', 'wallet','refer'].includes(hash)) {
-        setActiveSection(hash)
+      const hash = window.location.hash.slice(1);
+      if (
+        [
+          'profile',
+          'addresses',
+          'orders',
+          'security',
+          'wallet',
+          'refer',
+        ].includes(hash)
+      ) {
+        setActiveSection(hash);
       }
-    }
-    handleHashChange()
-    window.addEventListener("hashchange", handleHashChange)
+    };
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
 
     return () => {
-      window.removeEventListener("hashchange", handleHashChange)
-    }
-  }, [])
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
 
   const handleSectionChange = (section: string) => {
-    setActiveSection(section)
-    window.history.replaceState(null, '', `#${section}`)
-  }
+    setActiveSection(section);
+    window.history.replaceState(null, '', `#${section}`);
+  };
 
   if (!user) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   const renderContent = () => {
     switch (activeSection) {
       case 'profile':
-        return <ProfileSection user={user} />
-        case 'wallet':
-          return <WalletSection />
+        return <ProfileSection user={user} />;
+      // case 'wallet':
+        // return <WalletSection />;
       case 'addresses':
-        return <AddressesSection addresses={user.addresses} />
-      case 'orders':
-        return <OrdersSection />
+        return <AddressesSection addresses={user.addresses} />;
+      // case 'orders':
+        // return <OrdersSection />;
       case 'security':
-        return <SecuritySection />
+        return <SecuritySection />;
       case 'refer':
-        return <ReferSection />
+        return <ReferSection />;
       default:
-        return <ProfileSection user={user} />
+        return <ProfileSection user={user} />;
     }
-  }
+  };
 
   return (
     <div className="mx-auto p-6">
@@ -121,13 +143,11 @@ function AccountPage() {
           </CardContent>
         </Card>
         <Card className="flex-1">
-          <CardContent className="pt-6">
-            {renderContent()}
-          </CardContent>
+          <CardContent className="pt-6">{renderContent()}</CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }
 
 export default AccountPage;

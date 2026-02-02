@@ -31,8 +31,8 @@ import AddImageCropper from './addImageCropper';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { ProductService } from '@/api/product/product.service';
-import { CategoryService } from '@/api/category/category.service';
+import { ProductService } from '@/services/product.service';
+import { CategoryService } from '@/services/category.service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Category extends OriginalCategory {

@@ -22,7 +22,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   const { user } = useSelector((state: { auth: AuthState }) => state.auth);
   // const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
 
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
 
   // useEffect(() => {
   //   setCartQuantity(
@@ -58,7 +58,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   return (
     <Link
       key={String(product.id)}
-      to={'/product/' + product.id}
+      to={'/product/' + product.id + '?variant=' + product.variantId}
       className="bg-white rounded-lg object-center shadow p-2 w-[160px] h-[240px] lg:w-[190px] lg:h-[270px] flex flex-col flex-shrink-0"
     >
       <div className="rounded-sm overflow-hidden">

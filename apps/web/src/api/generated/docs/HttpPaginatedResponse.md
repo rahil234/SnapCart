@@ -5,12 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**success** | **boolean** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
 **data** | **object** |  | [optional] [default to undefined]
-**total** | **number** |  | [default to undefined]
-**limit** | **number** |  | [default to undefined]
-**page** | **number** |  | [default to undefined]
+**meta** | [**PaginationMetaDto**](PaginationMetaDto.md) | Pagination metadata | [default to undefined]
 
 ## Example
 
@@ -18,12 +15,9 @@ Name | Type | Description | Notes
 import { HttpPaginatedResponse } from './api';
 
 const instance: HttpPaginatedResponse = {
-    success,
     message,
     data,
-    total,
-    limit,
-    page,
+    meta,
 };
 ```
 

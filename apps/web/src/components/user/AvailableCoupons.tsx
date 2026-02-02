@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { ICoupon } from '@/types/coupon';
-import { CouponService } from '@/api/coupon/coupon.service';
+import { CouponService } from '@/services/coupon.service';
 
 const AvailableCoupons = ({
   handleCouponSubmit,

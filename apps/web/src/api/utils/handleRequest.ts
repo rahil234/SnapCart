@@ -1,38 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { AxiosResponse } from 'axios';
+import { ApiResult } from '@/api/utils/types';
 
-export type ApiError = {
-  message?: string;
-  status?: number;
-  [key: string]: any;
-};
+type ExtractData<T> = T extends { data: infer D } ? D : void;
 
-export type ApiResult<T, M = undefined> =
-  | {
-      data?: T;
-      meta?: M;
-      error: null;
-    }
-  | {
-      error: ApiError;
-      data?: never;
-      meta?: never;
-    };
+type ExtractMeta<T> = T extends { meta?: infer M } ? M : undefined;
 
-interface SwaggerEnvelope<T, M = undefined> {
-  data?: T;
-  meta?: M;
-}
-
-export async function handleRequest<T, M = undefined>(
-  request: () => Promise<AxiosResponse<SwaggerEnvelope<T, M>>>
-): Promise<ApiResult<T, M>> {
+export async function handleRequest<TResponse extends { message: string }>(
+  request: () => Promise<AxiosResponse<TResponse>>
+): Promise<ApiResult<ExtractData<TResponse>, ExtractMeta<TResponse>>> {
   try {
     const res = await request();
 
+    if ('data' in res.data) {
+      return {
+        data: (res.data as any).data,
+        meta: (res.data as any).meta,
+        error: null,
+      };
+    }
+
+    // message-only success
     return {
-      data: res.data.data,
-      meta: res.data.meta,
+      data: undefined as ExtractData<TResponse>, // resolves to void
       error: null,
     };
   } catch (err: any) {

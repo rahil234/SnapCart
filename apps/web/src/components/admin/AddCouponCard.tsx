@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import 'react-datepicker/dist/react-datepicker.css';
-import { CouponService } from '@/api/coupon/coupon.service';
+import { CouponService } from '@/services/coupon.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const AddCouponCard = ({

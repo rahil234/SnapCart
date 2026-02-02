@@ -4,24 +4,22 @@ import { X, ChevronRight } from 'lucide-react';
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useParams, NavLink, Link, ScrollRestoration } from 'react-router';
 
-import {
-  addItemToCart,
-  CartState,
-  updateQuantity,
-} from '@/features/cart/cartSlice';
+// import {
+//   addItemToCart,
+//   CartState,
+//   updateQuantity,
+// } from '@/features/cart/cartSlice';
 import { useAppDispatch } from '@/app/store';
 import { UIContext } from '@/context/UIContext';
 import { Button } from '@/components/ui/button';
-import { IProduct } from '@/types/product';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ImportMeta } from '@/types';
 import { AuthState } from '@/features/auth/authSlice';
-import { ProductService } from '@/api/product/product.service';
+import { ProductService } from '@/services/product.service';
 import ProductCard from '@/components/user/ProductCard';
 import ProductNotFound from '@/components/user/ProductNotFound';
+import { Prosduct } from '@/types';
 
-const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_BUCKET_URL + '/products/';
+const imageUrl = import.meta.env.VITE_BUCKET_URL + '/products/';
 
 const ZoomableImage: React.FC<{ src: string; alt: string }> = ({
   src,
@@ -88,24 +86,32 @@ const ProductPage: React.FC = () => {
   const { showLoginOverlay } = useContext(UIContext);
   const { productId } = useParams<{ productId: string }>();
   const [loading, setLoading] = useState<boolean>(true);
-  const [cartQuantity, setCartQuantity] = useState<number>(0);
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  // const [cartQuantity, setCartQuantity] = useState<number>(0);
+  // const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product | null>(null);
-  const [mainImage, setMainImage] = useState<string | undefined>(undefined);
+  // const [mainImage, setMainImage] = useState<string | undefined>(undefined);
 
   const { user } = useSelector((state: { auth: AuthState }) => state.auth);
 
-  const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
+  // const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
 
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (productId) {
       (async () => {
         try {
-          const response = await ProductService.fetchProductById(productId);
-          setProduct(response.data);
-          setMainImage(response.data.images[0]);
+          const { data, error } =
+            await ProductService.fetchProductById(productId);
+
+          if (error) {
+            toast.error('Error fetching product data');
+            setLoading(false);
+            return;
+          }
+
+          setProduct(data);
+          // setMainImage(response.data.images[0]);
           setLoading(false);
         } catch (error) {
           console.log('Error fetching product:', error);
@@ -115,27 +121,25 @@ const ProductPage: React.FC = () => {
     }
   }, [productId]);
 
-  useEffect(() => {
-    if (product)
-      setCartQuantity(
-        cartData?.items.find(item => item._id === product._id)?.quantity || 0
-      );
-  }, [product, cartData]);
+  // useEffect(() => {
+  //   if (product)
+  //     setCartQuantity(
+  //       cartData?.items.find(item => item._id === product._id)?.quantity || 0
+  //     );
+  // }, [product, cartData]);
 
-  useEffect(() => {
-    if (product && product.subcategory?._id) {
-      (async () => {
-        try {
-          const response = await ProductService.getRelatedProduct(
-            product._id
-          );
-          setRelatedProducts(response.data);
-        } catch (error) {
-          console.log('Error fetching related products:', error);
-        }
-      })();
-    }
-  }, [product]);
+  // useEffect(() => {
+  //   if (product && product.subcategory?._id) {
+  //     (async () => {
+  //       try {
+  //         const response = await ProductService.getRelatedProduct(product.id);r
+  //         setRelatedProducts(response.data);
+  //       } catch (error) {
+  //         console.log('Error fetching related products:', error);
+  //       }
+  //     })();
+  //   }
+  // }, [product]);
 
   // const renderStars = (rating: number) => {
   //   return Array.from({ length: 5 }).map((_, index) => (
@@ -150,9 +154,9 @@ const ProductPage: React.FC = () => {
   //   ));
   // };
 
-  const calculateDiscount = (originalPrice: number, discount: number) => {
-    return Math.floor(originalPrice - (originalPrice * discount) / 100);
-  };
+  // const calculateDiscount = (originalPrice: number, discount: number) => {
+  //   return Math.floor(originalPrice - (originalPrice * discount) / 100);
+  // };
 
   if (loading) {
     return (
@@ -175,33 +179,33 @@ const ProductPage: React.FC = () => {
   }
 
   if (!product) return <ProductNotFound></ProductNotFound>;
-
-  const handleAddToCart = () => {
-    if (!user) {
-      showLoginOverlay();
-      return;
-    }
-    dispatch(addItemToCart({ _id: product!._id, product: product! }));
-  };
-
-  const handleIncreaseQuantity = () => {
-    if (cartQuantity >= product.stock) {
-      toast.error('Out of stock');
-      return;
-    } else if (cartQuantity >= 10) {
-      toast.error('You can add only 10 items at a time');
-      return;
-    }
-    dispatch(updateQuantity({ _id: product!._id, quantity: cartQuantity + 1 }));
-  };
-
-  const handleDecreaseQuantity = () => {
-    dispatch(updateQuantity({ _id: product!._id, quantity: cartQuantity - 1 }));
-  };
-
-  // const handleVariantChange = (variantName: string, option: string) => {
-  //   setSelectedVariants(prev => ({ ...prev, [variantName]: option }));
+  //
+  // const handleAddToCart = () => {
+  //   if (!user) {
+  //     showLoginOverlay();
+  //     return;
+  //   }
+  //   // dispatch(addItemToCart({ _id: product!._id, product: product! }));
   // };
+  //
+  // const handleIncreaseQuantity = () => {
+  //   // if (cartQuantity >= product.stock) {
+  //   //   toast.error('Out of stock');
+  //   //   return;
+  //   // } else if (cartQuantity >= 10) {
+  //   //   toast.error('You can add only 10 items at a time');
+  //   //   return;
+  //   // }
+  //   // dispatch(updateQuantity({ _id: product!._id, quantity: cartQuantity + 1 }));
+  // };
+  //
+  // const handleDecreaseQuantity = () => {
+  //   // dispatch(updateQuantity({ _id: product!._id, quantity: cartQuantity - 1 }));
+  // };
+  //
+  // // const handleVariantChange = (variantName: string, option: string) => {
+  // //   setSelectedVariants(prev => ({ ...prev, [variantName]: option }));
+  // // };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -217,20 +221,20 @@ const ProductPage: React.FC = () => {
               <ChevronRight size={16} className="mx-2" />
             </li>
             <li className="flex items-center">
-              <NavLink
-                to={`/category/${product.category.name}`}
-                className="text-gray-600"
-              >
-                {product.category && product.category.name}
-              </NavLink>
+              {/*<NavLink*/}
+              {/*  to={`/category/${product.category.name}`}*/}
+              {/*  className="text-gray-600"*/}
+              {/*>*/}
+              {/*  {product.category && product.category.name}*/}
+              {/*</NavLink>*/}
               <ChevronRight size={16} className="mx-2" />
             </li>
             <li className="flex items-center">
-              {product.subcategory && (
-                <span className="text-gray-800">
-                  {product.subcategory.name}
-                </span>
-              )}
+              {/*{product.subcategory && (*/}
+              {/*  <span className="text-gray-800">*/}
+              {/*    {product.subcategory.name}*/}
+              {/*  </span>*/}
+              {/*)}*/}
             </li>
           </ol>
         </nav>
@@ -238,18 +242,18 @@ const ProductPage: React.FC = () => {
         <div className="flex flex-col md:flex-row gap-8">
           {/* Product images */}
           <div className="md:w-1/2">
-            <ZoomableImage src={imageUrl + mainImage} alt={product.name} />
+            {/*<ZoomableImage src={imageUrl + mainImage} alt={product.name} />*/}
             <div className="flex space-x-2 flex-wrap">
-              {product.images.map((image, index) => (
-                <img
-                  key={index}
-                  src={imageUrl + image}
-                  alt={`${product.name} ${index + 1}`}
-                  className={`w-20 h-20 object-cover cursor-pointer border-2 ${mainImage === image ? 'border-green-500' : 'border-transparent'} hover:border-green-500`}
-                  onClick={() => setMainImage(image)}
-                  onMouseEnter={() => setMainImage(image)}
-                />
-              ))}
+              {/*{product.images.map((image, index) => (*/}
+              {/*  <img*/}
+              {/*    key={index}*/}
+              {/*    src={imageUrl + image}*/}
+              {/*    alt={`${product.name} ${index + 1}`}*/}
+              {/*    className={`w-20 h-20 object-cover cursor-pointer border-2 ${mainImage === image ? 'border-green-500' : 'border-transparent'} hover:border-green-500`}*/}
+              {/*    onClick={() => setMainImage(image)}*/}
+              {/*    onMouseEnter={() => setMainImage(image)}*/}
+              {/*  />*/}
+              {/*))}*/}
             </div>
           </div>
 
@@ -258,128 +262,128 @@ const ProductPage: React.FC = () => {
             <h2 className="text-2xl font-semibold mb-2">{product.name}</h2>
 
             {/* Product variants */}
-            <div className="flex gap-2">
-              {product.variants &&
-                'variants' in product &&
-                product.variants.map((variant, index) => (
-                  <Link
-                    key={index}
-                    replace
-                    to={`/product/${variant.id}`}
-                    className={`mt-10 mb-4 border-2 w-fit p-1 px-4 ${variant.id === productId && 'border-green-500'} rounded-lg flex flex-col`}
-                  >
-                    <span className="text-green-700">{`₹${variant.price}`}</span>
-                    <span>{variant.variantName}</span>
-                  </Link>
-                ))}
-            </div>
+            {/*<div className="flex gap-2">*/}
+            {/*  {product.variants &&*/}
+            {/*    'variants' in product &&*/}
+            {/*    product.variants.map((variant, index) => (*/}
+            {/*      <Link*/}
+            {/*        key={index}*/}
+            {/*        replace*/}
+            {/*        to={`/product/${variant.id}`}*/}
+            {/*        className={`mt-10 mb-4 border-2 w-fit p-1 px-4 ${variant.id === productId && 'border-green-500'} rounded-lg flex flex-col`}*/}
+            {/*      >*/}
+            {/*        <span className="text-green-700">{`₹${variant.price}`}</span>*/}
+            {/*        <span>{variant.name}</span>*/}
+            {/*      </Link>*/}
+            {/*    ))}*/}
+            {/*</div>*/}
 
             {/* Product price */}
-            {product.offer ? (
-              <div className="flex items-center mb-1">
-                <p className="text-3xl font-bold text-green-600 mr-2">
-                  ₹{calculateDiscount(product.price, product.offer.discount)}
-                </p>
-                <p className="text-xl text-gray-500 line-through mr-2">
-                  ₹{product.price}
-                </p>
-                <p className="text-sm text-green-600 font-semibold">
-                  {product.offer.discount}% off
-                </p>
-              </div>
-            ) : (
-              <p className="text-3xl font-bold text-green-600 mb-1">
-                ₹{product.price}
-              </p>
-            )}
+            {/*{product.offer ? (*/}
+            {/*  <div className="flex items-center mb-1">*/}
+            {/*    <p className="text-3xl font-bold text-green-600 mr-2">*/}
+            {/*      ₹{calculateDiscount(product.price, product.offer.discount)}*/}
+            {/*    </p>*/}
+            {/*    <p className="text-xl text-gray-500 line-through mr-2">*/}
+            {/*      ₹{product.price}*/}
+            {/*    </p>*/}
+            {/*    <p className="text-sm text-green-600 font-semibold">*/}
+            {/*      {product.offer.discount}% off*/}
+            {/*    </p>*/}
+            {/*  </div>*/}
+            {/*) : (*/}
+            {/*  <p className="text-3xl font-bold text-green-600 mb-1">*/}
+            {/*    ₹{product.price}*/}
+            {/*  </p>*/}
+            {/*)}*/}
 
             {/* Product stock */}
-            <div className="py-1">
-              {product.stock && product.stock > 0 ? (
-                product.stock < 10 ? (
-                  <p className="text-yellow-600">
-                    Only {product.stock} left in stock
-                  </p>
-                ) : (
-                  <p className="text-green-600">In stock</p>
-                )
-              ) : (
-                <p className="text-red-600">Out of stock</p>
-              )}
-            </div>
+            {/*<div className="py-1">*/}
+            {/*  {product.stock && product.stock > 0 ? (*/}
+            {/*    product.stock < 10 ? (*/}
+            {/*      <p className="text-yellow-600">*/}
+            {/*        Only {product.stock} left in stock*/}
+            {/*      </p>*/}
+            {/*    ) : (*/}
+            {/*      <p className="text-green-600">In stock</p>*/}
+            {/*    )*/}
+            {/*  ) : (*/}
+            {/*    <p className="text-red-600">Out of stock</p>*/}
+            {/*  )}*/}
+            {/*</div>*/}
 
             {/* Product Variants */}
-            <div className="flex">
-              {variants.map(variant => (
-                <div key={variant._id} className="mb-4">
-                  <label
-                    htmlFor={variant.name}
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    {variant.name}
-                  </label>
-                  <div className="">
-                    <select
-                      id={variant.name}
-                      name={variant.name}
-                      className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md"
-                      // value={selectedVariants[variant.name] || ''}
-                      // onChange={e =>
-                      //   handleVariantChange(variant.name, e.target.value)
-                      // }
-                    >
-                      {/* {variant.options.map(option => (
-                      <option key={option} value={option}>
-                      {option}
-                      </option>
-                      ))} */}
-                    </select>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {/*<div className="flex">*/}
+            {/*  {variants.map(variant => (*/}
+            {/*    <div key={variant._id} className="mb-4">*/}
+            {/*      <label*/}
+            {/*        htmlFor={variant.name}*/}
+            {/*        className="block text-sm font-medium text-gray-700 mb-1"*/}
+            {/*      >*/}
+            {/*        {variant.name}*/}
+            {/*      </label>*/}
+            {/*      <div className="">*/}
+            {/*        <select*/}
+            {/*          id={variant.name}*/}
+            {/*          name={variant.name}*/}
+            {/*          className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md"*/}
+            {/*          // value={selectedVariants[variant.name] || ''}*/}
+            {/*          // onChange={e =>*/}
+            {/*          //   handleVariantChange(variant.name, e.target.value)*/}
+            {/*          // }*/}
+            {/*        >*/}
+            {/*          /!* {variant.options.map(option => (*/}
+            {/*          <option key={option} value={option}>*/}
+            {/*          {option}*/}
+            {/*          </option>*/}
+            {/*          ))} *!/*/}
+            {/*        </select>*/}
+            {/*      </div>*/}
+            {/*    </div>*/}
+            {/*  ))}*/}
+            {/*</div>*/}
 
-            <div className="flex space-x-4 mb-6">
-              <Button
-                className="bg-[#0E8320] hover:bg-[#2ea940] text-white px-8 py-2 rounded-full"
-                disabled={product.stock === 0}
-              >
-                Buy Now
-              </Button>
-              {cartQuantity ? (
-                <div className="flex items-center border border-[#0E8320] bg-white text-[#0E8320] px-4 py-1 rounded-full">
-                  <button
-                    className="px-2 text-[#0E8320] hover:text-[#2ea940]"
-                    onClick={handleDecreaseQuantity}
-                  >
-                    -
-                  </button>
-                  <span className="px-4">{cartQuantity}</span>
-                  <button
-                    className="px-2 text-[#0E8320] hover:text-[#2ea940]"
-                    onClick={handleIncreaseQuantity}
-                  >
-                    +
-                  </button>
-                </div>
-              ) : (
-                <Button
-                  className="border border-[#0E8320] bg-white hover:bg-white hover:border-[#0E8320a6] hover:text-[#0E8320a6] text-[#0E8320] px-8 py-2 rounded-full"
-                  onClick={handleAddToCart}
-                  disabled={product.stock === 0}
-                >
-                  Add to Cart
-                </Button>
-              )}
-            </div>
+            {/*<div className="flex space-x-4 mb-6">*/}
+            {/*  <Button*/}
+            {/*    className="bg-[#0E8320] hover:bg-[#2ea940] text-white px-8 py-2 rounded-full"*/}
+            {/*    // disabled={product.stock === 0}*/}
+            {/*  >*/}
+            {/*    Buy Now*/}
+            {/*  </Button>*/}
+            {/*  {cartQuantity ? (*/}
+            {/*    <div className="flex items-center border border-[#0E8320] bg-white text-[#0E8320] px-4 py-1 rounded-full">*/}
+            {/*      <button*/}
+            {/*        className="px-2 text-[#0E8320] hover:text-[#2ea940]"*/}
+            {/*        onClick={handleDecreaseQuantity}*/}
+            {/*      >*/}
+            {/*        -*/}
+            {/*      </button>*/}
+            {/*      <span className="px-4">{cartQuantity}</span>*/}
+            {/*      <button*/}
+            {/*        className="px-2 text-[#0E8320] hover:text-[#2ea940]"*/}
+            {/*        onClick={handleIncreaseQuantity}*/}
+            {/*      >*/}
+            {/*        +*/}
+            {/*      </button>*/}
+            {/*    </div>*/}
+            {/*  ) : (*/}
+            {/*    <Button*/}
+            {/*      className="border border-[#0E8320] bg-white hover:bg-white hover:border-[#0E8320a6] hover:text-[#0E8320a6] text-[#0E8320] px-8 py-2 rounded-full"*/}
+            {/*      onClick={handleAddToCart}*/}
+            {/*      disabled={product.stock === 0}*/}
+            {/*    >*/}
+            {/*      Add to Cart*/}
+            {/*    </Button>*/}
+            {/*  )}*/}
+            {/*</div>*/}
 
             <p className="text-xs text-gray-600 mb-4">
               Estimated delivery time is 3:00PM - 24 min
             </p>
 
-            <span className="mb-4 whitespace-pre-wrap text-sm">
-              {product.description}
-            </span>
+            {/*<span className="mb-4 whitespace-pre-wrap text-sm">*/}
+            {/*  {product.description}*/}
+            {/*</span>*/}
 
             {/* <div className="flex flex-wrap gap-2 mb-4">
               {product.tags.map((tag, index) => (
@@ -415,18 +419,18 @@ const ProductPage: React.FC = () => {
         {/*</section>*/}
 
         {/* Related products */}
-        {relatedProducts.length > 0 && (
-          <section className="mt-12">
-            <h3 className="text-2xl text-center font-semibold mb-4">
-              You may also like
-            </h3>
-            <div className="flex gap-4">
-              {relatedProducts.map(product => (
-                <ProductCard key={product._id} product={product} />
-              ))}
-            </div>
-          </section>
-        )}
+        {/*{relatedProducts.length > 0 && (*/}
+        {/*  <section className="mt-12">*/}
+        {/*    <h3 className="text-2xl text-center font-semibold mb-4">*/}
+        {/*      You may also like*/}
+        {/*    </h3>*/}
+        {/*    <div className="flex gap-4">*/}
+        {/*      {relatedProducts.map(product => (*/}
+        {/*        <ProductCard key={product._id} product={product} />*/}
+        {/*      ))}*/}
+        {/*    </div>*/}
+        {/*  </section>*/}
+        {/*)}*/}
 
         {/* Top categories */}
         {/* <section className="mt-12">

@@ -24,7 +24,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { UserService } from '@/api/user/user.service';
+import { UserService } from '@/services/user.service';
 
 interface User {
   _id: string; // Assuming each user has a unique ID

@@ -4,15 +4,76 @@ All URIs are relative to *http://localhost:4000*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**productControllerCreate**](#productcontrollercreate) | **POST** /api/products | Create a new product|
-|[**productControllerFindAll**](#productcontrollerfindall) | **GET** /api/products | Get all products (Admin)|
+|[**productControllerActivateProduct**](#productcontrolleractivateproduct) | **PATCH** /api/products/{id}/activate | Activate product|
+|[**productControllerCreate**](#productcontrollercreate) | **POST** /api/products | Create new product (catalog entry)|
+|[**productControllerDeactivateProduct**](#productcontrollerdeactivateproduct) | **PATCH** /api/products/{id}/deactivate | Deactivate product|
+|[**productControllerDeleteProduct**](#productcontrollerdeleteproduct) | **DELETE** /api/products/{id} | Delete product (soft delete)|
+|[**productControllerDiscontinueProduct**](#productcontrollerdiscontinueproduct) | **PATCH** /api/products/{id}/discontinue | Discontinue product (permanent)|
+|[**productControllerFindAll**](#productcontrollerfindall) | **GET** /api/products | List all products (with pagination)|
 |[**productControllerFindOne**](#productcontrollerfindone) | **GET** /api/products/{id} | Get product by ID|
-|[**productControllerUpdate**](#productcontrollerupdate) | **PATCH** /api/products/{id} | Update product|
+|[**productControllerGetProductWithVariants**](#productcontrollergetproductwithvariants) | **GET** /api/products/{id}/with-variants | Get product with all variants|
+|[**productControllerUpdate**](#productcontrollerupdate) | **PATCH** /api/products/{id} | Update product information|
+
+# **productControllerActivateProduct**
+> MessageOnlyResponse productControllerActivateProduct()
+
+Makes product visible in catalog.
+
+### Example
+
+```typescript
+import {
+    ProductsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProductsApi(configuration);
+
+let id: string; //Product UUID (default to undefined)
+
+const { status, data } = await apiInstance.productControllerActivateProduct(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] | Product UUID | defaults to undefined|
+
+
+### Return type
+
+**MessageOnlyResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Product activated successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**401** | Authentication required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**404** | Product not found |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **productControllerCreate**
-> productControllerCreate(createProductDto)
+> ProductControllerCreate201Response productControllerCreate(createProductDto)
 
-Creates a new product with the provided details. Only admins can create products.
+Creates a product catalog entry. This is NOT sellable yet - you must add variants to make it purchasable.
 
 ### Example
 
@@ -42,7 +103,7 @@ const { status, data } = await apiInstance.productControllerCreate(
 
 ### Return type
 
-void (empty response body)
+**ProductControllerCreate201Response**
 
 ### Authorization
 
@@ -51,23 +112,192 @@ void (empty response body)
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | Product created successfully |  -  |
-|**400** | Invalid input data |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
-|**403** | Admin access required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **productControllerDeactivateProduct**
+> MessageOnlyResponse productControllerDeactivateProduct()
+
+Hides product from catalog.
+
+### Example
+
+```typescript
+import {
+    ProductsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProductsApi(configuration);
+
+let id: string; //Product UUID (default to undefined)
+
+const { status, data } = await apiInstance.productControllerDeactivateProduct(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] | Product UUID | defaults to undefined|
+
+
+### Return type
+
+**MessageOnlyResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Product deactivated successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**401** | Authentication required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**404** | Product not found |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **productControllerDeleteProduct**
+> MessageOnlyResponse productControllerDeleteProduct()
+
+Soft deletes product. Admin only.
+
+### Example
+
+```typescript
+import {
+    ProductsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProductsApi(configuration);
+
+let id: string; //Product UUID (default to undefined)
+
+const { status, data } = await apiInstance.productControllerDeleteProduct(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] | Product UUID | defaults to undefined|
+
+
+### Return type
+
+**MessageOnlyResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Product deleted successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**401** | Authentication required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**404** | Product not found |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **productControllerDiscontinueProduct**
+> MessageOnlyResponse productControllerDiscontinueProduct()
+
+Permanently removes product. ONE-WAY operation.
+
+### Example
+
+```typescript
+import {
+    ProductsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProductsApi(configuration);
+
+let id: string; //Product UUID (default to undefined)
+
+const { status, data } = await apiInstance.productControllerDiscontinueProduct(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] | Product UUID | defaults to undefined|
+
+
+### Return type
+
+**MessageOnlyResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Product discontinued successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**401** | Authentication required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**404** | Product not found |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **productControllerFindAll**
-> PaginatedProductsResponseDto productControllerFindAll()
+> ProductControllerFindAll200Response productControllerFindAll()
 
-Retrieves paginated list of all products with filtering and search. Admin access required.
+Retrieves paginated list of products with optional filtering.
 
 ### Example
 
@@ -114,11 +344,11 @@ const { status, data } = await apiInstance.productControllerFindAll(
 
 ### Return type
 
-**PaginatedProductsResponseDto**
+**ProductControllerFindAll200Response**
 
 ### Authorization
 
-[bearer](../README.md#bearer)
+No authorization required
 
 ### HTTP request headers
 
@@ -130,13 +360,15 @@ const { status, data } = await apiInstance.productControllerFindAll(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Products retrieved successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **productControllerFindOne**
-> ProductResponseDto productControllerFindOne()
+> ProductControllerCreate201Response productControllerFindOne()
 
-Retrieves a single product by its ID. Public endpoint.
+Retrieves detailed product information.
 
 ### Example
 
@@ -165,7 +397,7 @@ const { status, data } = await apiInstance.productControllerFindOne(
 
 ### Return type
 
-**ProductResponseDto**
+**ProductControllerCreate201Response**
 
 ### Authorization
 
@@ -181,15 +413,70 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Product retrieved successfully |  -  |
-|**400** | Invalid product ID format |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**404** | Product not found |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **productControllerGetProductWithVariants**
+> ProductControllerGetProductWithVariants200Response productControllerGetProductWithVariants()
+
+Returns product details along with all variants. Useful for product detail pages.
+
+### Example
+
+```typescript
+import {
+    ProductsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProductsApi(configuration);
+
+let id: string; //Product UUID (default to undefined)
+
+const { status, data } = await apiInstance.productControllerGetProductWithVariants(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] | Product UUID | defaults to undefined|
+
+
+### Return type
+
+**ProductControllerGetProductWithVariants200Response**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Product with variants retrieved successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**404** | Product not found |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **productControllerUpdate**
-> productControllerUpdate(updateProductDto)
+> ProductControllerCreate201Response productControllerUpdate(updateProductDto)
 
-Updates an existing product. Only admins can update products.
+Updates catalog information only. Does NOT affect pricing or stock.
 
 ### Example
 
@@ -222,7 +509,7 @@ const { status, data } = await apiInstance.productControllerUpdate(
 
 ### Return type
 
-void (empty response body)
+**ProductControllerCreate201Response**
 
 ### Authorization
 
@@ -231,17 +518,18 @@ void (empty response body)
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Product updated successfully |  -  |
-|**400** | Invalid input data or product ID format |  -  |
+|**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
-|**403** | Admin access required |  -  |
+|**403** | Insufficient permissions |  -  |
 |**404** | Product not found |  -  |
+|**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

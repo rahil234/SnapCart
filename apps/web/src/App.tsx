@@ -1,32 +1,39 @@
+import { Provider } from 'react-redux';
 import React, { useEffect, useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
+import { Toaster as HotToaster } from 'react-hot-toast';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Analytics } from '@vercel/analytics/react';
-import NotAuthorised from './pages/NotAuthorised';
-import Page404 from './pages/Page404';
-import store from './app/store';
-import { refreshAuthToken } from './features/auth/authSlice';
+
+import store from '@/app/store';
+import Page404 from '@/pages/Page404';
 import UserRoutes from '@/routes/UserRoutes';
-// import AdminRoutes from '@/routes/AdminRoutes';
-// import SellerRoutes from '@/routes/SellerRoutes';
+import AdminRoutes from '@/routes/AdminRoutes';
+import SellerRoutes from '@/routes/SellerRoutes';
+import { Toaster } from '@/components/ui/sonner';
+import NotAuthorised from '@/pages/NotAuthorised';
+import { fetchUser } from '@/features/auth/authSlice';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const routes = createBrowserRouter([
   ...UserRoutes,
-  // ...SellerRoutes,
-  // ...AdminRoutes,
+  ...SellerRoutes,
+  ...AdminRoutes,
   { path: '/not-authorized', element: <NotAuthorised /> },
   { path: '*', element: <Page404 /> },
 ]);
 
 const App: React.FC = () => {
+  const GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID;
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const queryClient = new QueryClient();
 
   useEffect(() => {
     (async () => {
-      if (localStorage.getItem('sessionActive'))
-        await store.dispatch(refreshAuthToken());
+      await store.dispatch(fetchUser());
       setIsLoading(false);
     })();
   }, []);
@@ -64,10 +71,18 @@ const App: React.FC = () => {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <GoogleOAuthProvider clientId={GOOGLE_OAUTH_CLIENT_ID}>
       <Analytics />
-      <RouterProvider router={routes} />
-    </QueryClientProvider>
+      <Provider store={store}>
+        <Toaster />
+        <TooltipProvider>
+          <HotToaster position="top-right" reverseOrder={false} />
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={routes} />
+          </QueryClientProvider>
+        </TooltipProvider>
+      </Provider>
+    </GoogleOAuthProvider>
   );
 };
 

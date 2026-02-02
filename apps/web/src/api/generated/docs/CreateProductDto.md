@@ -5,12 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **string** | Product name | [default to undefined]
+**name** | **string** | Product name (catalog identity) | [default to undefined]
 **description** | **string** | Product description | [default to undefined]
 **categoryId** | **string** | Category ID | [default to undefined]
-**price** | **number** | Product price in cents | [default to undefined]
-**discountPercent** | **number** | Discount percentage (0-100) | [optional] [default to undefined]
-**tryOn** | **boolean** | Whether try-on feature is enabled | [optional] [default to false]
+**brand** | **string** | Brand name | [optional] [default to undefined]
 
 ## Example
 
@@ -21,9 +19,7 @@ const instance: CreateProductDto = {
     name,
     description,
     categoryId,
-    price,
-    discountPercent,
-    tryOn,
+    brand,
 };
 ```
 

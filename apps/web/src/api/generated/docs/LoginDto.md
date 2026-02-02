@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **identifier** | **string** | Email or phone number | [default to undefined]
-**method** | **string** | Authentication method | [default to undefined]
+**method** | **string** | Authentication method (PASSWORD or OTP only) | [default to undefined]
 **password** | **string** | Password (required for PASSWORD method) | [optional] [default to undefined]
 **otp** | **string** | OTP code (required for OTP method) | [optional] [default to undefined]
 
