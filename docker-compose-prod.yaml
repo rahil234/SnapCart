@@ -1,45 +1,15 @@
 services:
-  redis:
-    container_name: snapcart-redis
-    image: redis
-    restart: always
-    volumes:
-      - redis_volume_data:/data
-    ports:
-      - "6379:6379"
-
-  node:
-    container_name: snapcart-node
+  api:
+    container_name: snapcart-api
+    image: rahil234/snapcart-api:latest
+    platform: linux/amd64
     build:
-      context: ./server
+      context: ./apps/api
       dockerfile: Dockerfile
-    restart: always
     environment:
+      - PORT=4000
       - REDIS_URL=redis://redis:6379
-      - RAZORPAY_KEY_ID=rzp_test_MW6mjPBNCHMnb7
-      - RAZORPAY_KEY_SECRET=1bwVTSKirAfTXwrtnDw0D7Vd
-      - PORT=3000
-    volumes:
-      - ../snapcart:/app/snapcart
-    working_dir: /app/snapcart
-    command: sh -c "npm install && cd server && npm run build && npm run start"
-    depends_on:
-      - redis
-
-  nginx:
-    container_name: snapcart-nginx
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/certs:/etc/nginx/certs
-      - ./nginx/certs:/var/www/certbot
-    depends_on:
-      - node
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/snapcart
 
 volumes:
   mongo-data:
