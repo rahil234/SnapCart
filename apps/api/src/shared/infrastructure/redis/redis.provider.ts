@@ -11,7 +11,6 @@ const redisProvider: Provider = {
   inject: [ConfigService],
   useFactory: async (configService: ConfigService) => {
     const REDIS_URL = configService.getOrThrow<string>('REDIS_URL');
-    const NODE_ENV = configService.getOrThrow<string>('NODE_ENV');
 
     const reconnectStrategy = (retries: number) => {
       const jitter = Math.floor(Math.random() * 100);
@@ -21,17 +20,11 @@ const redisProvider: Provider = {
       return delay + jitter;
     };
 
-    const socket: SocketOptions =
-      NODE_ENV === 'production'
-        ? {
-            tls: true,
-            reconnectStrategy,
-          }
-        : {
-            tls: false,
-            keepAlive: true,
-            reconnectStrategy,
-          };
+    const socket: SocketOptions = {
+      tls: false,
+      keepAlive: true,
+      reconnectStrategy,
+    };
 
     const client = createClient({
       url: REDIS_URL,
