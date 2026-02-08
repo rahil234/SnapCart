@@ -1,25 +1,24 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  ParseUUIDPipe,
+  Get,
   HttpStatus,
+  Param,
+  Patch,
+  Post,
 } from '@nestjs/common';
 import {
-  ApiTags,
+  ApiBearerAuth,
   ApiOperation,
   ApiParam,
-  ApiBearerAuth,
+  ApiTags,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
 import {
-  ApiCommonErrorResponses,
   ApiAuthErrorResponses,
+  ApiCommonErrorResponses,
   ApiNotFoundResponse,
 } from '@/shared/decorators/api-error-responses.decorator';
 import { Public } from '@/shared/decorators/public.decorator';
@@ -29,18 +28,21 @@ import { ApiResponseWithType } from '@/shared/decorators/api-response.decorator'
 // Commands
 import {
   CreateCategoryCommand,
-  UpdateCategoryCommand,
   DeleteCategoryCommand,
+  UpdateCategoryCommand,
 } from '@/modules/category/application/commands';
 
 // Queries
 import {
-  GetCategoryByIdQuery,
   GetAllCategoriesQuery,
+  GetCategoryByIdQuery,
 } from '@/modules/category/application/queries';
-import { CategoryResponseDto } from '@/modules/category/interfaces/http/dtos/response/category-response.dto';
+import { Role } from '@/shared/enums/role.enum';
+import { Roles } from '@/shared/decorators/roles.decorator';
+import { ParseCUIDPipe } from '@/shared/pipes/parse-cuid.pipe';
 import { CreateCategoryDto } from '@/modules/category/interfaces/http/dtos/request/create-category.dto';
 import { UpdateCategoryDto } from '@/modules/category/interfaces/http/dtos/request/update-category.dto';
+import { CategoryResponseDto } from '@/modules/category/interfaces/http/dtos/response/category-response.dto';
 
 @ApiTags('Categories')
 @Controller('categories')
@@ -51,7 +53,7 @@ export class CategoryController {
   ) {}
 
   @Post()
-  @Public()
+  @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Create a new category',
@@ -114,9 +116,9 @@ export class CategoryController {
   })
   @ApiParam({
     name: 'id',
-    description: 'Category UUID',
+    description: 'Category CUID',
     type: 'string',
-    format: 'uuid',
+    format: 'cuid',
   })
   @ApiResponseWithType(
     {
@@ -128,7 +130,7 @@ export class CategoryController {
   @ApiNotFoundResponse('Category')
   @ApiCommonErrorResponses()
   async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseCUIDPipe) id: string,
   ): Promise<HttpResponse<CategoryResponseDto>> {
     const query = new GetCategoryByIdQuery(id);
     const category = await this.queryBus.execute(query);
@@ -140,7 +142,7 @@ export class CategoryController {
   }
 
   @Patch(':id')
-  @Public()
+  @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update category',
@@ -149,9 +151,9 @@ export class CategoryController {
   })
   @ApiParam({
     name: 'id',
-    description: 'Category UUID',
+    description: 'Category CUID',
     type: 'string',
-    format: 'uuid',
+    format: 'cuid',
   })
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -161,15 +163,13 @@ export class CategoryController {
   @ApiAuthErrorResponses()
   @ApiCommonErrorResponses()
   async update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseCUIDPipe) id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ): Promise<HttpResponse> {
     const command = new UpdateCategoryCommand(
       id,
       updateCategoryDto.name,
-      updateCategoryDto.description,
-      updateCategoryDto.imageUrl,
-      updateCategoryDto.parentId,
+      updateCategoryDto.status,
     );
 
     await this.commandBus.execute(command);
@@ -180,7 +180,7 @@ export class CategoryController {
   }
 
   @Delete(':id')
-  @Public()
+  @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Delete category',
@@ -188,9 +188,9 @@ export class CategoryController {
   })
   @ApiParam({
     name: 'id',
-    description: 'Category UUID',
+    description: 'Category CUID',
     type: 'string',
-    format: 'uuid',
+    format: 'cuid',
   })
   @ApiResponseWithType({
     status: HttpStatus.OK,
@@ -199,7 +199,7 @@ export class CategoryController {
   @ApiNotFoundResponse('Category')
   @ApiAuthErrorResponses()
   @ApiCommonErrorResponses()
-  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<HttpResponse> {
+  async remove(@Param('id', ParseCUIDPipe) id: string): Promise<HttpResponse> {
     const command = new DeleteCategoryCommand(id);
 
     await this.commandBus.execute(command);

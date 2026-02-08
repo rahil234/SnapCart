@@ -19,7 +19,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     (state: RootState) => state.auth
   );
 
-  if (isAuthenticated) {
+  if (!isAuthenticated) {
     const loginPath = location.pathname.startsWith('/seller')
       ? '/seller/login'
       : '/admin/login';
@@ -27,7 +27,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/not-authorized" replace />;
   }
 
   if (requiredRoles && requiredRoles.length > 0) {

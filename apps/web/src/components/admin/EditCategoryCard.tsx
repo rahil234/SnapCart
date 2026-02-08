@@ -1,35 +1,43 @@
 import React from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { toast } from 'sonner';
 import { X } from 'lucide-react';
-import categoryEndpoints from '@/api/category/categoryEndpoints';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
-interface EditCategoryFormInputs {
-  catName: string;
-  name: string;
-  subCategories: string;
-  status: 'Active' | 'Blocked';
-}
+import { Category } from '@/types';
+import { useEditCategory } from '@/hooks/category.hooks';
 
 interface EditCategoryCardProps {
   onClose: () => void;
-  editData: EditCategoryFormInputs;
+  category: Category;
 }
 
-const EditCategoryCard: React.FC<EditCategoryCardProps> = ({ onClose, editData }) => {
+const EditCategoryCard: React.FC<EditCategoryCardProps> = ({
+  onClose,
+  category,
+}) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<EditCategoryFormInputs>({
-    defaultValues: editData,
+  } = useForm<Category>({
+    defaultValues: category,
   });
 
-  const onSubmit: SubmitHandler<EditCategoryFormInputs> = async data => {
-    try {
-      await categoryEndpoints.editCatogories(data);
-    } catch (error) {
-      console.error('Error editing category:', error);
+  const editCategoryMutation = useEditCategory();
+
+  const onSubmit: SubmitHandler<Category> = async data => {
+    const { error } = await editCategoryMutation.mutateAsync({
+      id: category.id,
+      data,
+    });
+
+    if (error) {
+      console.error(error);
+      toast.error('Failed to update category');
+      return;
     }
+
+    toast.success('Category updated successfully');
     onClose();
   };
 
@@ -49,7 +57,7 @@ const EditCategoryCard: React.FC<EditCategoryCardProps> = ({ onClose, editData }
           <div className="mb-4">
             <label className="block text-gray-700">Category Name</label>
             <input
-              {...register('catName', {
+              {...register('name', {
                 required: 'Category name is required',
                 pattern: {
                   value: /\S+/,
@@ -58,28 +66,8 @@ const EditCategoryCard: React.FC<EditCategoryCardProps> = ({ onClose, editData }
               })}
               className="w-full px-3 py-2 border rounded-lg"
             />
-            {errors.catName && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.catName.message}
-              </p>
-            )}
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Subcategories</label>
-            <input
-              {...register('name', {
-                required: 'Subcategories are required',
-                pattern: {
-                  value: /\S+/,
-                  message: 'Subcategories cannot contain only spaces',
-                },
-              })}
-              className="w-full px-3 py-2 border rounded-lg"
-            />
             {errors.name && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.name.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
           <div className="flex justify-end">

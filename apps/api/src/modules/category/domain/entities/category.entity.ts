@@ -1,4 +1,4 @@
-import { v4 as uuid } from 'uuid';
+import cuid from '@paralleldrive/cuid2';
 
 export class Category {
   private constructor(
@@ -15,7 +15,13 @@ export class Category {
       throw new Error('Category name cannot be empty');
     }
 
-    return new Category(uuid(), name, 'active', new Date(), new Date());
+    return new Category(
+      cuid.createId(),
+      name,
+      'active',
+      new Date(),
+      new Date(),
+    );
   }
 
   static from(

@@ -19,8 +19,16 @@ export const CategoryService = {
   updateCategory: (id: string, data: UpdateCategoryDto) =>
     handleRequest(() => categoryApi.categoryControllerUpdate(id, data)),
   archiveCategory: (id: string) =>
-    handleRequest(() => categoryApi.categoryControllerUpdate(id, {})),
+    handleRequest(() =>
+      categoryApi.categoryControllerUpdate(id, {
+        status: 'inactive',
+      })
+    ),
   unarchiveCategory: (id: string) =>
-    handleRequest(() => categoryApi.categoryControllerUpdate(id, {})),
+    handleRequest(() =>
+      categoryApi.categoryControllerUpdate(id, {
+        status: 'active',
+      })
+    ),
   getTopCategories: () => categoryApi.categoryControllerFindAll(),
 };

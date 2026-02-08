@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsUUID } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateCategoryDto {
@@ -11,12 +11,14 @@ export class UpdateCategoryDto {
   name?: string;
 
   @ApiPropertyOptional({
-    description: 'Category description',
-    example: 'Electronic devices and accessories',
+    description: 'Category status (e.g., active, inactive)',
+    example: 'active',
+    enum: ['active', 'inactive'],
   })
   @IsString()
+  @IsEnum(['active', 'inactive'])
   @IsOptional()
-  description?: string | null;
+  status?: 'active' | 'inactive';
 
   @ApiPropertyOptional({
     description: 'Category image URL',

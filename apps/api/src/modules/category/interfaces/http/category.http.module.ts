@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
-import { CategoryController } from '@/modules/category/interfaces/http/category.controller';
+import { CategoryController } from '@/modules/category/interfaces/http/controllers/category.controller';
 
 import { CreateCategoryHandler } from '@/modules/category/application/commands/handlers/create-category.handler';
 import { UpdateCategoryHandler } from '@/modules/category/application/commands/handlers/update-category.handler';

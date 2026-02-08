@@ -1,6 +1,5 @@
-import { ICategory } from '@/types/category';
 import { CategoryService } from '@/services/category.service';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Category } from '@/types';
 
 export const useGetCategories = () => {
@@ -31,7 +30,7 @@ export const useGetCategoriesById = (categoryId: string) => {
 export const useGetAllCategories = () => {
   return useQuery({
     queryKey: ['all-categories'],
-    queryFn: CategoryService.getAllCategories,
+    queryFn: CategoryService.getCategories,
   });
 };
 
@@ -45,10 +44,11 @@ export const useGetTopCategories = () => {
 export const useAddCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: ICategory) => CategoryService.addCategory(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
-      queryClient.invalidateQueries({ queryKey: ['all-categories'] });
+    mutationFn: (data: Pick<Category, 'name'>) =>
+      CategoryService.createCategory(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['categories'] });
+      await queryClient.invalidateQueries({ queryKey: ['all-categories'] });
     },
   });
 };
@@ -56,8 +56,8 @@ export const useAddCategory = () => {
 export const useEditCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: ICategory }) =>
-      CategoryService.editCategory(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Category }) =>
+      CategoryService.updateCategory(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       queryClient.invalidateQueries({ queryKey: ['all-categories'] });
@@ -69,9 +69,9 @@ export const useArchiveCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => CategoryService.archiveCategory(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
-      queryClient.invalidateQueries({ queryKey: ['all-categories'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['categories'] });
+      await queryClient.invalidateQueries({ queryKey: ['all-categories'] });
     },
   });
 };

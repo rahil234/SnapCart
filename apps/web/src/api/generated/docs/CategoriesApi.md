@@ -128,7 +128,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);
 
-let id: string; //Category UUID (default to undefined)
+let id: string; //Category CUID (default to undefined)
 
 const { status, data } = await apiInstance.categoryControllerFindOne(
     id
@@ -139,7 +139,7 @@ const { status, data } = await apiInstance.categoryControllerFindOne(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | Category UUID | defaults to undefined|
+| **id** | [**string**] | Category CUID | defaults to undefined|
 
 
 ### Return type
@@ -182,7 +182,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);
 
-let id: string; //Category UUID (default to undefined)
+let id: string; //Category CUID (default to undefined)
 
 const { status, data } = await apiInstance.categoryControllerRemove(
     id
@@ -193,7 +193,7 @@ const { status, data } = await apiInstance.categoryControllerRemove(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | Category UUID | defaults to undefined|
+| **id** | [**string**] | Category CUID | defaults to undefined|
 
 
 ### Return type
@@ -239,7 +239,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CategoriesApi(configuration);
 
-let id: string; //Category UUID (default to undefined)
+let id: string; //Category CUID (default to undefined)
 let updateCategoryDto: UpdateCategoryDto; //
 
 const { status, data } = await apiInstance.categoryControllerUpdate(
@@ -253,7 +253,7 @@ const { status, data } = await apiInstance.categoryControllerUpdate(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **updateCategoryDto** | **UpdateCategoryDto**|  | |
-| **id** | [**string**] | Category UUID | defaults to undefined|
+| **id** | [**string**] | Category CUID | defaults to undefined|
 
 
 ### Return type

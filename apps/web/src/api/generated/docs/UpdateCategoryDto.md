@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **string** | Category name | [optional] [default to undefined]
-**description** | **object** | Category description | [optional] [default to undefined]
+**status** | **string** | Category status (e.g., active, inactive) | [optional] [default to undefined]
 **imageUrl** | **object** | Category image URL | [optional] [default to undefined]
 **parentId** | **object** | Parent category ID for subcategories | [optional] [default to undefined]
 
@@ -17,7 +17,7 @@ import { UpdateCategoryDto } from './api';
 
 const instance: UpdateCategoryDto = {
     name,
-    description,
+    status,
     imageUrl,
     parentId,
 };
