@@ -1,20 +1,20 @@
+import { toast } from 'sonner';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { ICoupon } from '@/types/coupon';
+import { Coupon } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { CouponService } from '@/services/coupon.service';
+import { useEditCoupon } from '@/hooks/coupons/use-edit-coupon.hook';
 
 const EditCouponCard = ({
   onClose,
   coupon,
 }: {
   onClose: () => void;
-  coupon: ICoupon;
+  coupon: Coupon;
 }) => {
   const {
     register,
@@ -22,29 +22,17 @@ const EditCouponCard = ({
     setValue,
     watch,
     formState: { errors },
-  } = useForm<ICoupon>({
+  } = useForm<Coupon>({
     defaultValues: coupon,
   });
 
-  const queryClient = useQueryClient();
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: (updatedCoupon: ICoupon) =>
-      CouponService.updateCoupon(coupon._id, updatedCoupon),
-    onSuccess: data => {
-      setCoupons(prev => prev.map(c => (c._id === coupon._id ? data : c)));
-      queryClient.invalidateQueries(['admin-coupons']);
-      onClose();
-    },
-  });
+  const { mutateAsync } = useEditCoupon();
 
   const codeValue = watch('code');
 
   useEffect(() => {
-    const endDate = coupon.endDate.toString().split('T')[0] as unknown as Date;
-    const startDate = coupon.startDate
-      .toString()
-      .split('T')[0] as unknown as Date;
+    const endDate = coupon.endDate.toString().split('T')[0];
+    const startDate = coupon.startDate.toString().split('T')[0];
     setValue('startDate', startDate);
     setValue('endDate', endDate);
     setValue('type', coupon.type);
@@ -56,8 +44,14 @@ const EditCouponCard = ({
     }
   }, [codeValue, setValue]);
 
-  const onSubmit = (data: ICoupon) => {
-    mutate(data);
+  const onSubmit = async (data: Coupon) => {
+    const { error } = await mutateAsync(data);
+    if (error) {
+      toast.error('Failed to update coupon');
+      return;
+    }
+    toast.success('Coupon updated successfully');
+    onClose();
   };
 
   return (
@@ -119,9 +113,9 @@ const EditCouponCard = ({
               required: 'Type is required ',
             })}
           >
-            <option value="">Select Offer Type</option>
-            <option value="percentage">Percentage</option>
-            <option value="fixed">Fixed Amount</option>
+            <option>Select Offer Type</option>
+            <option value="Percentage">Percentage</option>
+            <option value="Flat">Flat Amount</option>
           </select>
           {errors.type && (
             <span className="text-red-500 text-xs col-span-4 justify-self-end">
@@ -178,14 +172,14 @@ const EditCouponCard = ({
           <Input
             type="number"
             className="col-span-3"
-            {...register('limit', {
+            {...register('usageLimit', {
               required: 'limit is required',
               min: { value: 1, message: 'Limit must be at least 1' },
             })}
           />
-          {errors.limit && (
+          {errors.usageLimit && (
             <span className="text-red-500 text-xs col-span-4 justify-self-end">
-              {errors.limit.message}
+              {errors.usageLimit.message}
             </span>
           )}
         </div>
@@ -207,7 +201,6 @@ const EditCouponCard = ({
                 if (value === coupon.startDate) {
                   return true;
                 }
-                // @ts-expect-error the value is a string
                 if (
                   value < new Date(coupon.startDate).toISOString().split('T')[0]
                 )
@@ -255,11 +248,10 @@ const EditCouponCard = ({
               required: 'Applicability is required',
             })}
           >
-            <option value="">Select</option>
-            <option value="All">All</option>
-            <option value="New">New</option>
-            <option value="Existing">Existing</option>
-            <option value="Exclusive">Exclusive</option>
+            <option>Select</option>
+            <option value="all">All</option>
+            <option value="specific_products">Specific Products</option>
+            <option value="specific_categories">Specific Categories</option>
           </select>
           {errors.applicableTo && (
             <span className="text-red-500 text-xs col-span-4 justify-self-end">

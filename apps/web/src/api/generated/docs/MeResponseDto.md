@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**userId** | **string** |  | [default to undefined]
+**id** | **string** |  | [default to undefined]
 **email** | **string** |  | [optional] [default to undefined]
 **role** | **string** |  | [default to undefined]
 **status** | **string** |  | [default to undefined]
@@ -18,7 +18,7 @@ Name | Type | Description | Notes
 import { MeResponseDto } from './api';
 
 const instance: MeResponseDto = {
-    userId,
+    id,
     email,
     role,
     status,

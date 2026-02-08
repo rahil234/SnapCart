@@ -12,6 +12,7 @@ import AdminCategory from '@/pages/admin/AdminCategory';
 // import AdminBanners from '@/pages/admin/AdminBanners';
 // import AdminCoupons from '@/pages/admin/AdminCoupons';
 import AdminProducts from '@/pages/admin/AdminProducts';
+import AdminCoupons from '@/pages/admin/AdminCoupons';
 // import AdminOrders from '@/pages/admin/AdminOrders';
 // import AdminOffers from '@/pages/admin/AdminOffers';
 // import SalesReport from '@/pages/admin/AdminSalesReport';
@@ -33,8 +34,7 @@ const AdminRoutes = [
           { path: 'dashboard', element: <AdminDashboard /> },
           // { path: 'banners', element: <AdminBanners /> },
           { path: 'user-management', element: <AdminUsers /> },
-          // { path: 'seller-management', element: <AdminSellers /> },
-          // { path: 'coupons', element: <AdminCoupons /> },
+          { path: 'coupons', element: <AdminCoupons /> },
           { path: 'categories', element: <AdminCategory /> },
           { path: 'products', element: <AdminProducts /> },
           // { path: 'offers', element: <AdminOffers /> },

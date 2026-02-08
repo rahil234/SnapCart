@@ -1,6 +1,7 @@
-export interface ICategory {
-  _id: string;
+export interface Category {
+  id: string;
   name: string;
-  image: string;
-  isListed: boolean;
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
 }

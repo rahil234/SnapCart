@@ -15,11 +15,11 @@ export interface CustomerProfile {
 }
 
 export interface User {
-  userId: string;
+  id: string;
   email?: string;
   phone?: string;
   sellerProfile?: SellerProfile;
   customerProfile?: CustomerProfile;
   role: 'CUSTOMER' | 'SELLER' | 'ADMIN';
-  status: 'active' | 'inactive' | 'blocked' | 'suspended' | 'disabled';
+  status: 'active' | 'suspended' | 'disabled';
 }

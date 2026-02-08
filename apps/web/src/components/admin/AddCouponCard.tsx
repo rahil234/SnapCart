@@ -1,51 +1,43 @@
 import React from 'react';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
+import 'react-datepicker/dist/react-datepicker.css';
 
-import { ICoupon } from '@/types/coupon';
+import { Coupon } from '@/types/coupon';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import 'react-datepicker/dist/react-datepicker.css';
-import { CouponService } from '@/services/coupon.service';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAddCoupon } from '@/hooks/coupons/use-add-coupon.hook';
 
-const AddCouponCard = ({
-  onClose,
-  setCoupons,
-}: {
-  onClose: () => void;
-  setCoupons: React.Dispatch<React.SetStateAction<ICoupon[]>>;
-}) => {
+const AddCouponCard = ({ onClose }: { onClose: () => void }) => {
   const {
     register,
     handleSubmit,
     setValue,
     watch,
     formState: { errors },
-  } = useForm<ICoupon>();
+  } = useForm<Coupon>();
 
-  const queryClient = useQueryClient();
+  const { mutateAsync } = useAddCoupon();
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: CouponService.addCoupon,
-    onSuccess: data => {
-      setCoupons(prev => [...prev, data]);
-      toast.success('Coupon added successfully');
-      onClose();
-    },
-    onError: () => toast.error('Failed to add coupon'),
-  });
-
-  const onSubmit = (data: ICoupon) => {
-    mutate(data);
+  const onSubmit = async (data: Coupon) => {
+    console.log(data);
+    const { error } = await mutateAsync(data);
+    if (error) {
+      toast.error(error.message || 'Failed to add coupon');
+      return;
+    }
+    onClose();
   };
 
   const codeValue = watch('code');
 
   React.useEffect(() => {
     if (codeValue) {
-      setValue('code', codeValue.toUpperCase());
+      setValue('code', codeValue.toUpperCase(), {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
   }, [codeValue, setValue]);
   return (
@@ -86,6 +78,7 @@ const AddCouponCard = ({
             type="number"
             className="col-span-3"
             {...register('discount', {
+              valueAsNumber: true,
               required: 'Discount is required',
               min: { value: 1, message: 'Discount must be at least 1' },
             })}
@@ -107,9 +100,9 @@ const AddCouponCard = ({
               required: 'Type is required ',
             })}
           >
-            <option value="">Select Offer Type</option>
-            <option value="percentage">Percentage</option>
-            <option value="fixed">Fixed Amount</option>
+            <option>Select Offer Type</option>
+            <option value="Percentage">Percentage</option>
+            <option value="Flat">Flat Amount</option>
           </select>
           {errors.type && (
             <span className="text-red-500 text-xs col-span-4 justify-self-end">
@@ -166,14 +159,14 @@ const AddCouponCard = ({
           <Input
             type="number"
             className="col-span-3"
-            {...register('limit', {
+            {...register('usageLimit', {
               required: 'limit is required',
               min: { value: 1, message: 'Limit must be at least 1' },
             })}
           />
-          {errors.limit && (
+          {errors.usageLimit && (
             <span className="text-red-500 text-xs col-span-4 justify-self-end">
-              {errors.limit.message}
+              {errors.usageLimit.message}
             </span>
           )}
         </div>
@@ -191,7 +184,7 @@ const AddCouponCard = ({
             className="col-span-3"
             {...register('startDate', {
               required: 'Start date is required',
-              validate: (value) => // @ts-expect-error the value is a string
+              validate: value =>
                 value >= new Date().toISOString().split('T')[0] ||
                 'Start date must be after today',
             })}
@@ -236,11 +229,10 @@ const AddCouponCard = ({
               required: 'Applicability is required',
             })}
           >
-            <option value="">Select</option>
-            <option value="All">All</option>
-            <option value="New">New</option>
-            <option value="Existing">Existing</option>
-            <option value="Exclusive">Exclusive</option>
+            <option>Select</option>
+            <option value="all">All</option>
+            <option value="specific_products">Specific Products</option>
+            <option value="specific_categories">Specific Categories</option>
           </select>
           {errors.applicableTo && (
             <span className="text-red-500 text-xs col-span-4 justify-self-end">
@@ -254,6 +246,6 @@ const AddCouponCard = ({
       </div>
     </form>
   );
-}
+};
 
 export default AddCouponCard;

@@ -6,8 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
-**email** | **object** |  | [optional] [default to undefined]
-**phone** | **object** |  | [optional] [default to undefined]
+**email** | **string** | Email address of the user. Optional if the user registered with phone number. | [optional] [default to undefined]
+**phone** | **string** | Phone number of the user. Optional if the user registered with email address. | [optional] [default to undefined]
 **role** | **string** |  | [default to undefined]
 **status** | **string** |  | [default to undefined]
 **createdAt** | **string** |  | [default to undefined]

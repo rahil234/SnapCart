@@ -62,6 +62,10 @@ export interface AddressResponseDto {
     'createdAt': string;
     'updatedAt': string;
 }
+export interface AdminCouponControllerGetUsageHistory200Response {
+    'message': string;
+    'data': Array<CouponUsageResponseDto>;
+}
 export interface AdminProductControllerGetAdminProducts200Response {
     'message': string;
     'data': Array<ProductResponseDto>;
@@ -253,6 +257,162 @@ export interface ConflictErrorDto {
     'message': string;
     'error': string;
 }
+export interface CouponControllerGetAvailableCoupons200Response {
+    'message': string;
+    'data': Array<CouponResponseDto>;
+}
+export interface CouponControllerGetCouponByCode200Response {
+    'message': string;
+    'data': CouponResponseDto;
+}
+export interface CouponControllerValidateCoupon200Response {
+    'message': string;
+    'data': CouponValidationResponseDto;
+}
+export interface CouponResponseDto {
+    /**
+     * Coupon ID
+     */
+    'id': string;
+    /**
+     * Coupon code
+     */
+    'code': string;
+    /**
+     * Discount type
+     */
+    'type': CouponResponseDtoTypeEnum;
+    /**
+     * Discount value
+     */
+    'discount': number;
+    /**
+     * Minimum cart amount required
+     */
+    'minAmount': number;
+    /**
+     * Maximum discount amount
+     */
+    'maxDiscount'?: number;
+    /**
+     * Coupon start date
+     */
+    'startDate': string;
+    /**
+     * Coupon end date
+     */
+    'endDate': string;
+    /**
+     * Coupon status
+     */
+    'status': CouponResponseDtoStatusEnum;
+    /**
+     * Total usage limit
+     */
+    'usageLimit'?: number;
+    /**
+     * Times this coupon has been used
+     */
+    'usedCount': number;
+    /**
+     * Maximum times a user can use this coupon
+     */
+    'maxUsagePerUser': number;
+    /**
+     * Applicability scope
+     */
+    'applicableTo': CouponResponseDtoApplicableToEnum;
+    /**
+     * Can be stacked with offers
+     */
+    'isStackable': boolean;
+    /**
+     * Coupon description
+     */
+    'description'?: string;
+    /**
+     * Whether coupon is currently active
+     */
+    'isActive': boolean;
+    /**
+     * Whether usage limit is reached
+     */
+    'isLimitReached': boolean;
+    /**
+     * Creation timestamp
+     */
+    'createdAt': string;
+    /**
+     * Last update timestamp
+     */
+    'updatedAt': string;
+}
+
+export const CouponResponseDtoTypeEnum = {
+    Percentage: 'Percentage',
+    Flat: 'Flat'
+} as const;
+
+export type CouponResponseDtoTypeEnum = typeof CouponResponseDtoTypeEnum[keyof typeof CouponResponseDtoTypeEnum];
+export const CouponResponseDtoStatusEnum = {
+    Active: 'active',
+    Inactive: 'inactive',
+    Expired: 'expired'
+} as const;
+
+export type CouponResponseDtoStatusEnum = typeof CouponResponseDtoStatusEnum[keyof typeof CouponResponseDtoStatusEnum];
+export const CouponResponseDtoApplicableToEnum = {
+    All: 'all',
+    SpecificProducts: 'specific_products',
+    SpecificCategories: 'specific_categories'
+} as const;
+
+export type CouponResponseDtoApplicableToEnum = typeof CouponResponseDtoApplicableToEnum[keyof typeof CouponResponseDtoApplicableToEnum];
+
+export interface CouponUsageResponseDto {
+    /**
+     * Usage record ID
+     */
+    'id': string;
+    /**
+     * Coupon ID
+     */
+    'couponId': string;
+    /**
+     * User ID who used the coupon
+     */
+    'userId': string;
+    /**
+     * Order ID where coupon was applied
+     */
+    'orderId'?: string;
+    /**
+     * Discount amount that was applied
+     */
+    'discountApplied': number;
+    /**
+     * When the coupon was used
+     */
+    'usedAt': string;
+}
+export interface CouponValidationResponseDto {
+    /**
+     * Whether the coupon is valid
+     */
+    'valid': boolean;
+    /**
+     * Reason if coupon is invalid
+     */
+    'reason'?: string;
+    /**
+     * Discount amount that will be applied
+     */
+    'discount'?: number;
+    /**
+     * Coupon code that was validated
+     */
+    'code'?: string;
+}
 export interface CreateAddressDto {
     /**
      * House number
@@ -301,6 +461,71 @@ export interface CreateCategoryDto {
      */
     'parentId'?: object;
 }
+export interface CreateCouponDto {
+    /**
+     * Unique coupon code (will be converted to uppercase)
+     */
+    'code': string;
+    /**
+     * Type of discount
+     */
+    'type': CreateCouponDtoTypeEnum;
+    /**
+     * Discount value (percentage or flat amount)
+     */
+    'discount': number;
+    /**
+     * Minimum cart amount required to use coupon
+     */
+    'minAmount': number;
+    /**
+     * Coupon start date
+     */
+    'startDate': string;
+    /**
+     * Coupon end date
+     */
+    'endDate': string;
+    /**
+     * Maximum discount amount (for percentage coupons)
+     */
+    'maxDiscount'?: number;
+    /**
+     * Total usage limit for this coupon
+     */
+    'usageLimit'?: number;
+    /**
+     * Maximum times a single user can use this coupon
+     */
+    'maxUsagePerUser': number;
+    /**
+     * Applicability scope
+     */
+    'applicableTo': CreateCouponDtoApplicableToEnum;
+    /**
+     * Whether coupon can be combined with offers
+     */
+    'isStackable': boolean;
+    /**
+     * Coupon description for users
+     */
+    'description'?: string;
+}
+
+export const CreateCouponDtoTypeEnum = {
+    Percentage: 'Percentage',
+    Flat: 'Flat'
+} as const;
+
+export type CreateCouponDtoTypeEnum = typeof CreateCouponDtoTypeEnum[keyof typeof CreateCouponDtoTypeEnum];
+export const CreateCouponDtoApplicableToEnum = {
+    All: 'all',
+    SpecificProducts: 'specific_products',
+    SpecificCategories: 'specific_categories'
+} as const;
+
+export type CreateCouponDtoApplicableToEnum = typeof CreateCouponDtoApplicableToEnum[keyof typeof CreateCouponDtoApplicableToEnum];
+
 export interface CreateProductDto {
     /**
      * Product name (catalog identity)
@@ -423,7 +648,7 @@ export interface LoginWithGoogleDto {
     'idToken': string;
 }
 export interface MeResponseDto {
-    'userId': string;
+    'id': string;
     'email'?: string;
     'role': MeResponseDtoRoleEnum;
     'status': MeResponseDtoStatusEnum;
@@ -879,6 +1104,71 @@ export const UpdateCategoryDtoStatusEnum = {
 
 export type UpdateCategoryDtoStatusEnum = typeof UpdateCategoryDtoStatusEnum[keyof typeof UpdateCategoryDtoStatusEnum];
 
+export interface UpdateCouponDto {
+    /**
+     * Unique coupon code
+     */
+    'code'?: string;
+    /**
+     * Type of discount
+     */
+    'type'?: UpdateCouponDtoTypeEnum;
+    /**
+     * Discount value
+     */
+    'discount'?: number;
+    /**
+     * Minimum cart amount
+     */
+    'minAmount'?: number;
+    /**
+     * Maximum discount amount
+     */
+    'maxDiscount'?: number;
+    /**
+     * Start date
+     */
+    'startDate'?: string;
+    /**
+     * End date
+     */
+    'endDate'?: string;
+    /**
+     * Total usage limit
+     */
+    'usageLimit'?: number;
+    /**
+     * Max usage per user
+     */
+    'maxUsagePerUser'?: number;
+    /**
+     * Applicability scope
+     */
+    'applicableTo'?: UpdateCouponDtoApplicableToEnum;
+    /**
+     * Stackable with offers
+     */
+    'isStackable'?: boolean;
+    /**
+     * Coupon description
+     */
+    'description'?: string;
+}
+
+export const UpdateCouponDtoTypeEnum = {
+    Percentage: 'Percentage',
+    Flat: 'Flat'
+} as const;
+
+export type UpdateCouponDtoTypeEnum = typeof UpdateCouponDtoTypeEnum[keyof typeof UpdateCouponDtoTypeEnum];
+export const UpdateCouponDtoApplicableToEnum = {
+    All: 'all',
+    SpecificProducts: 'specific_products',
+    SpecificCategories: 'specific_categories'
+} as const;
+
+export type UpdateCouponDtoApplicableToEnum = typeof UpdateCouponDtoApplicableToEnum[keyof typeof UpdateCouponDtoApplicableToEnum];
+
 export interface UpdateProductDto {
     /**
      * Product name
@@ -1081,8 +1371,14 @@ export interface UserControllerUpdate200Response {
 }
 export interface UserResponseDto {
     'id': string;
-    'email'?: object;
-    'phone'?: object;
+    /**
+     * Email address of the user. Optional if the user registered with phone number.
+     */
+    'email'?: string;
+    /**
+     * Phone number of the user. Optional if the user registered with email address.
+     */
+    'phone'?: string;
     'role': UserResponseDtoRoleEnum;
     'status': UserResponseDtoStatusEnum;
     'createdAt': string;
@@ -1104,6 +1400,16 @@ export const UserResponseDtoStatusEnum = {
 
 export type UserResponseDtoStatusEnum = typeof UserResponseDtoStatusEnum[keyof typeof UserResponseDtoStatusEnum];
 
+export interface ValidateCouponDto {
+    /**
+     * Coupon code to validate
+     */
+    'code': string;
+    /**
+     * Current cart total amount
+     */
+    'cartTotal': number;
+}
 export interface VariantControllerCreateVariant201Response {
     'message': string;
     'data': VariantResponseDto;
@@ -1554,6 +1860,561 @@ export class AddressesApi extends BaseAPI {
      */
     public addressControllerUpdate(id: string, updateAddressDto: UpdateAddressDto, options?: RawAxiosRequestConfig) {
         return AddressesApiFp(this.configuration).addressControllerUpdate(id, updateAddressDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * AdminCouponsApi - axios parameter creator
+ */
+export const AdminCouponsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Activate a coupon to make it available for use
+         * @summary Activate coupon
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerActivate: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminCouponControllerActivate', 'id', id)
+            const localVarPath = `/api/admin/coupons/{id}/activate`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Create a new discount coupon with usage limits and validation rules
+         * @summary Create new coupon
+         * @param {CreateCouponDto} createCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerCreate: async (createCouponDto: CreateCouponDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createCouponDto' is not null or undefined
+            assertParamExists('adminCouponControllerCreate', 'createCouponDto', createCouponDto)
+            const localVarPath = `/api/admin/coupons`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createCouponDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Deactivate a coupon to prevent further use
+         * @summary Deactivate coupon
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerDeactivate: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminCouponControllerDeactivate', 'id', id)
+            const localVarPath = `/api/admin/coupons/{id}/deactivate`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve all coupons with pagination
+         * @summary Get all coupons
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerFindAll: async (page?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/coupons`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve detailed information about a specific coupon
+         * @summary Get coupon by ID
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminCouponControllerFindOne', 'id', id)
+            const localVarPath = `/api/admin/coupons/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve detailed usage history for a specific coupon
+         * @summary Get coupon usage history
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerGetUsageHistory: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminCouponControllerGetUsageHistory', 'id', id)
+            const localVarPath = `/api/admin/coupons/{id}/usage`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update coupon details and configuration
+         * @summary Update coupon
+         * @param {string} id Coupon ID
+         * @param {UpdateCouponDto} updateCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerUpdate: async (id: string, updateCouponDto: UpdateCouponDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminCouponControllerUpdate', 'id', id)
+            // verify required parameter 'updateCouponDto' is not null or undefined
+            assertParamExists('adminCouponControllerUpdate', 'updateCouponDto', updateCouponDto)
+            const localVarPath = `/api/admin/coupons/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCouponDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AdminCouponsApi - functional programming interface
+ */
+export const AdminCouponsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AdminCouponsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Activate a coupon to make it available for use
+         * @summary Activate coupon
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerActivate(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerActivate(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerActivate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Create a new discount coupon with usage limits and validation rules
+         * @summary Create new coupon
+         * @param {CreateCouponDto} createCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerCreate(createCouponDto: CreateCouponDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerGetCouponByCode200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerCreate(createCouponDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Deactivate a coupon to prevent further use
+         * @summary Deactivate coupon
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerDeactivate(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerDeactivate(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerDeactivate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve all coupons with pagination
+         * @summary Get all coupons
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerFindAll(page?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerGetAvailableCoupons200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerFindAll(page, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve detailed information about a specific coupon
+         * @summary Get coupon by ID
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerGetCouponByCode200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve detailed usage history for a specific coupon
+         * @summary Get coupon usage history
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerGetUsageHistory(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminCouponControllerGetUsageHistory200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerGetUsageHistory(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerGetUsageHistory']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update coupon details and configuration
+         * @summary Update coupon
+         * @param {string} id Coupon ID
+         * @param {UpdateCouponDto} updateCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerUpdate(id: string, updateCouponDto: UpdateCouponDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerGetCouponByCode200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerUpdate(id, updateCouponDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AdminCouponsApi - factory interface
+ */
+export const AdminCouponsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AdminCouponsApiFp(configuration)
+    return {
+        /**
+         * Activate a coupon to make it available for use
+         * @summary Activate coupon
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerActivate(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminCouponControllerActivate(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Create a new discount coupon with usage limits and validation rules
+         * @summary Create new coupon
+         * @param {CreateCouponDto} createCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerCreate(createCouponDto: CreateCouponDto, options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerGetCouponByCode200Response> {
+            return localVarFp.adminCouponControllerCreate(createCouponDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Deactivate a coupon to prevent further use
+         * @summary Deactivate coupon
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerDeactivate(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminCouponControllerDeactivate(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve all coupons with pagination
+         * @summary Get all coupons
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerFindAll(page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerGetAvailableCoupons200Response> {
+            return localVarFp.adminCouponControllerFindAll(page, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve detailed information about a specific coupon
+         * @summary Get coupon by ID
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerGetCouponByCode200Response> {
+            return localVarFp.adminCouponControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve detailed usage history for a specific coupon
+         * @summary Get coupon usage history
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerGetUsageHistory(id: string, options?: RawAxiosRequestConfig): AxiosPromise<AdminCouponControllerGetUsageHistory200Response> {
+            return localVarFp.adminCouponControllerGetUsageHistory(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update coupon details and configuration
+         * @summary Update coupon
+         * @param {string} id Coupon ID
+         * @param {UpdateCouponDto} updateCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerUpdate(id: string, updateCouponDto: UpdateCouponDto, options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerGetCouponByCode200Response> {
+            return localVarFp.adminCouponControllerUpdate(id, updateCouponDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AdminCouponsApi - object-oriented interface
+ */
+export class AdminCouponsApi extends BaseAPI {
+    /**
+     * Activate a coupon to make it available for use
+     * @summary Activate coupon
+     * @param {string} id Coupon ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerActivate(id: string, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerActivate(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Create a new discount coupon with usage limits and validation rules
+     * @summary Create new coupon
+     * @param {CreateCouponDto} createCouponDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerCreate(createCouponDto: CreateCouponDto, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerCreate(createCouponDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Deactivate a coupon to prevent further use
+     * @summary Deactivate coupon
+     * @param {string} id Coupon ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerDeactivate(id: string, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerDeactivate(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve all coupons with pagination
+     * @summary Get all coupons
+     * @param {number} [page] Page number
+     * @param {number} [limit] Items per page
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerFindAll(page?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerFindAll(page, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve detailed information about a specific coupon
+     * @summary Get coupon by ID
+     * @param {string} id Coupon ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve detailed usage history for a specific coupon
+     * @summary Get coupon usage history
+     * @param {string} id Coupon ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerGetUsageHistory(id: string, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerGetUsageHistory(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update coupon details and configuration
+     * @summary Update coupon
+     * @param {string} id Coupon ID
+     * @param {UpdateCouponDto} updateCouponDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerUpdate(id: string, updateCouponDto: UpdateCouponDto, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerUpdate(id, updateCouponDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -2829,6 +3690,249 @@ export class CategoriesApi extends BaseAPI {
      */
     public categoryControllerUpdate(id: string, updateCategoryDto: UpdateCategoryDto, options?: RawAxiosRequestConfig) {
         return CategoriesApiFp(this.configuration).categoryControllerUpdate(id, updateCategoryDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * CouponsApi - axios parameter creator
+ */
+export const CouponsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Returns all active coupons that the user can still use based on per-user usage limits
+         * @summary Get available coupons for user
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        couponControllerGetAvailableCoupons: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/coupons/available`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve coupon details by code
+         * @summary Get coupon by code
+         * @param {string} code Coupon code
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        couponControllerGetCouponByCode: async (code: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'code' is not null or undefined
+            assertParamExists('couponControllerGetCouponByCode', 'code', code)
+            const localVarPath = `/api/coupons/code/{code}`
+                .replace(`{${"code"}}`, encodeURIComponent(String(code)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Validates if a coupon can be applied to the cart with given total. Returns discount amount if valid.
+         * @summary Validate coupon for cart
+         * @param {ValidateCouponDto} validateCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        couponControllerValidateCoupon: async (validateCouponDto: ValidateCouponDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'validateCouponDto' is not null or undefined
+            assertParamExists('couponControllerValidateCoupon', 'validateCouponDto', validateCouponDto)
+            const localVarPath = `/api/coupons/validate`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(validateCouponDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CouponsApi - functional programming interface
+ */
+export const CouponsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CouponsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Returns all active coupons that the user can still use based on per-user usage limits
+         * @summary Get available coupons for user
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async couponControllerGetAvailableCoupons(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerGetAvailableCoupons200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.couponControllerGetAvailableCoupons(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CouponsApi.couponControllerGetAvailableCoupons']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve coupon details by code
+         * @summary Get coupon by code
+         * @param {string} code Coupon code
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async couponControllerGetCouponByCode(code: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerGetCouponByCode200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.couponControllerGetCouponByCode(code, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CouponsApi.couponControllerGetCouponByCode']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Validates if a coupon can be applied to the cart with given total. Returns discount amount if valid.
+         * @summary Validate coupon for cart
+         * @param {ValidateCouponDto} validateCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async couponControllerValidateCoupon(validateCouponDto: ValidateCouponDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerValidateCoupon200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.couponControllerValidateCoupon(validateCouponDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CouponsApi.couponControllerValidateCoupon']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * CouponsApi - factory interface
+ */
+export const CouponsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CouponsApiFp(configuration)
+    return {
+        /**
+         * Returns all active coupons that the user can still use based on per-user usage limits
+         * @summary Get available coupons for user
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        couponControllerGetAvailableCoupons(options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerGetAvailableCoupons200Response> {
+            return localVarFp.couponControllerGetAvailableCoupons(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve coupon details by code
+         * @summary Get coupon by code
+         * @param {string} code Coupon code
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        couponControllerGetCouponByCode(code: string, options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerGetCouponByCode200Response> {
+            return localVarFp.couponControllerGetCouponByCode(code, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Validates if a coupon can be applied to the cart with given total. Returns discount amount if valid.
+         * @summary Validate coupon for cart
+         * @param {ValidateCouponDto} validateCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        couponControllerValidateCoupon(validateCouponDto: ValidateCouponDto, options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerValidateCoupon200Response> {
+            return localVarFp.couponControllerValidateCoupon(validateCouponDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * CouponsApi - object-oriented interface
+ */
+export class CouponsApi extends BaseAPI {
+    /**
+     * Returns all active coupons that the user can still use based on per-user usage limits
+     * @summary Get available coupons for user
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public couponControllerGetAvailableCoupons(options?: RawAxiosRequestConfig) {
+        return CouponsApiFp(this.configuration).couponControllerGetAvailableCoupons(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve coupon details by code
+     * @summary Get coupon by code
+     * @param {string} code Coupon code
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public couponControllerGetCouponByCode(code: string, options?: RawAxiosRequestConfig) {
+        return CouponsApiFp(this.configuration).couponControllerGetCouponByCode(code, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Validates if a coupon can be applied to the cart with given total. Returns discount amount if valid.
+     * @summary Validate coupon for cart
+     * @param {ValidateCouponDto} validateCouponDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public couponControllerValidateCoupon(validateCouponDto: ValidateCouponDto, options?: RawAxiosRequestConfig) {
+        return CouponsApiFp(this.configuration).couponControllerValidateCoupon(validateCouponDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -5035,7 +6139,7 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         /**
          * Retrieves a single user by ID. Admin only.
          * @summary Get user by ID
-         * @param {string} id User UUID
+         * @param {string} id User CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5146,7 +6250,7 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         /**
          * Updates user account status. Admin only.
          * @summary Update user status
-         * @param {string} id User UUID
+         * @param {string} id User CUID
          * @param {UpdateUserStatusDto} updateUserStatusDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5214,7 +6318,7 @@ export const UsersApiFp = function(configuration?: Configuration) {
         /**
          * Retrieves a single user by ID. Admin only.
          * @summary Get user by ID
-         * @param {string} id User UUID
+         * @param {string} id User CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5252,7 +6356,7 @@ export const UsersApiFp = function(configuration?: Configuration) {
         /**
          * Updates user account status. Admin only.
          * @summary Update user status
-         * @param {string} id User UUID
+         * @param {string} id User CUID
          * @param {UpdateUserStatusDto} updateUserStatusDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5288,7 +6392,7 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
         /**
          * Retrieves a single user by ID. Admin only.
          * @summary Get user by ID
-         * @param {string} id User UUID
+         * @param {string} id User CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5317,7 +6421,7 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
         /**
          * Updates user account status. Admin only.
          * @summary Update user status
-         * @param {string} id User UUID
+         * @param {string} id User CUID
          * @param {UpdateUserStatusDto} updateUserStatusDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5349,7 +6453,7 @@ export class UsersApi extends BaseAPI {
     /**
      * Retrieves a single user by ID. Admin only.
      * @summary Get user by ID
-     * @param {string} id User UUID
+     * @param {string} id User CUID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -5381,7 +6485,7 @@ export class UsersApi extends BaseAPI {
     /**
      * Updates user account status. Admin only.
      * @summary Update user status
-     * @param {string} id User UUID
+     * @param {string} id User CUID
      * @param {UpdateUserStatusDto} updateUserStatusDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

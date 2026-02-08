@@ -17,6 +17,7 @@ import { CartModule } from '@/modules/cart/cart.module';
 import { OfferModule } from '@/modules/offer/offer.module';
 import { ProductModule } from '@/modules/product/product.module';
 import { CategoryModule } from '@/modules/category/category.module';
+import { CouponModule } from '@/modules/coupon/coupon.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CategoryModule } from '@/modules/category/category.module';
     UserModule,
     FeedModule,
     OfferModule,
+    CouponModule,
     CartModule,
   ],
   providers: [

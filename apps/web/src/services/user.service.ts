@@ -1,7 +1,7 @@
 import { apiClient } from '@/api/axios';
 import { apiConfig } from '@/api/client';
 import { handleRequest } from '@/api/utils/handleRequest';
-import { UpdateUserDto, UsersApi } from '@/api/generated';
+import { UpdateUserDto, UpdateUserStatusDto, UsersApi } from '@/api/generated';
 
 const userApi = new UsersApi(apiConfig, undefined, apiClient);
 
@@ -10,14 +10,12 @@ export const UserService = {
   getMe: () => handleRequest(() => userApi.userControllerGetMe()),
   updateMe: (dto: UpdateUserDto) =>
     handleRequest(() => userApi.userControllerUpdate(dto)),
-  allowUser: (userId: string) =>
-    userApi.userControllerUpdateStatus(userId, { status: 'active' }),
-  blockUser: (userId: string) =>
-    userApi.userControllerUpdateStatus(userId, { status: 'suspended' }),
-  changePassword: (password: string, newPassword: string) =>
-    userApi.userControllerChangePassword({ password, newPassword }),
+  updateStatus: (userId: string, dto: UpdateUserStatusDto) =>
+    handleRequest(() => userApi.userControllerUpdateStatus(userId, dto)),
   uploadProfilePicture: (file: File) =>
     handleRequest(() => userApi.userControllerUploadProfilePicture(file)),
+  changePassword: (password: string, newPassword: string) =>
+    userApi.userControllerChangePassword({ password, newPassword }),
   getReferralCode: () => userApi.userControllerGetReferralCode(),
   verifyOtp: (email: string, otp: string) =>
     userApi.userControllerVerifyOtp({ email, otp }),

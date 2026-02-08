@@ -4,7 +4,6 @@ import {
   Get,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Patch,
   Query,
 } from '@nestjs/common';
@@ -49,6 +48,7 @@ import {
   GetUsersQuery,
 } from '@/modules/user/application/queries';
 import { GetMeQuery } from '@/modules/user/application/queries/get-me/get-me.query';
+import { ParseCUIDPipe } from '@/shared/pipes/parse-cuid.pipe';
 
 @ApiTags('Users')
 @Controller('users')
@@ -135,9 +135,9 @@ export class UserController {
   })
   @ApiParam({
     name: 'id',
-    description: 'User UUID',
+    description: 'User CUID',
     type: 'string',
-    format: 'uuid',
+    format: 'cuid',
   })
   @ApiResponseWithType(
     {
@@ -150,7 +150,7 @@ export class UserController {
   @ApiAuthErrorResponses()
   @ApiCommonErrorResponses()
   async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseCUIDPipe) id: string,
   ): Promise<HttpResponse<UserResponseDto>> {
     const query = new GetUserByIdQuery(id);
     const user = await this.queryBus.execute(query);
@@ -207,9 +207,9 @@ export class UserController {
   })
   @ApiParam({
     name: 'id',
-    description: 'User UUID',
+    description: 'User CUID',
     type: 'string',
-    format: 'uuid',
+    format: 'cuid',
   })
   @ApiResponseWithType(
     {
@@ -222,7 +222,7 @@ export class UserController {
   @ApiAuthErrorResponses()
   @ApiCommonErrorResponses()
   async updateStatus(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseCUIDPipe) id: string,
     @Body() updateStatusDto: UpdateUserStatusDto,
   ): Promise<HttpResponse<UserResponseDto>> {
     const command = new UpdateUserStatusCommand(id, updateStatusDto.status);

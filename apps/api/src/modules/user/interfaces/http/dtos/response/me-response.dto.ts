@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 import { AccountStatus, UserRole } from '@/modules/user/domain/enums';
 import { GetMeResult } from '@/modules/user/application/queries/get-me/get-me.result';
 
@@ -26,7 +27,7 @@ class SellerProfileDto {
 
 export class MeResponseDto {
   @ApiProperty()
-  userId: string;
+  id: string;
 
   @ApiPropertyOptional()
   email?: string;
@@ -44,13 +45,25 @@ export class MeResponseDto {
   sellerProfile?: SellerProfileDto;
 
   static fromResult(result: GetMeResult): MeResponseDto {
-    const dto = new MeResponseDto();
-    dto.userId = result.userId;
-    dto.email = result.email;
-    dto.role = result.role;
-    dto.status = result.status;
-    dto.customerProfile = result.customerProfile;
-    dto.sellerProfile = result.sellerProfile;
-    return dto;
+    return {
+      id: result.id,
+      email: result.email,
+      role: result.role,
+      status: result.status,
+      customerProfile: result.customerProfile
+        ? {
+            id: result.customerProfile.id,
+            name: result.customerProfile.name,
+            cartId: result.customerProfile.cartId,
+          }
+        : undefined,
+      sellerProfile: result.sellerProfile
+        ? {
+            id: result.sellerProfile.id,
+            storeName: result.sellerProfile.storeName,
+            isVerified: result.sellerProfile.isVerified,
+          }
+        : undefined,
+    };
   }
 }

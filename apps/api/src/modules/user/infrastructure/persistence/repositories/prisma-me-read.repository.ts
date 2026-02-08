@@ -51,7 +51,7 @@ export class PrismaMeReadRepository implements MeReadRepository {
     }
 
     return {
-      userId: user.id,
+      id: user.id,
       email: user.email ?? undefined,
       role: user.role as UserRole,
       status: user.status as AccountStatus,

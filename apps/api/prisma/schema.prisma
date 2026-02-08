@@ -93,7 +93,7 @@ model Product {
 }
 
 model ProductVariant {
-  id              String         @id @default(cuid())
+  id              String         @id @default(cuid(2))
   productId       String
   stock           Int            @default(0)
   isDeleted       Boolean        @default(false)
@@ -118,7 +118,7 @@ model ProductVariant {
 }
 
 model VariantImage {
-  id        String         @id @default(cuid())
+  id        String         @id @default(cuid(2))
   variantId String
   publicId  String
   url       String
@@ -131,7 +131,7 @@ model VariantImage {
 }
 
 model Cart {
-  id         String          @id @default(cuid())
+  id         String          @id @default(cuid(2))
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
   customerId String          @unique
@@ -140,7 +140,7 @@ model Cart {
 }
 
 model CartItem {
-  id             String         @id @default(cuid())
+  id             String         @id @default(cuid(2))
   cartId         String
   variantId      String
   quantity       Int
@@ -163,7 +163,11 @@ model Order {
   shippingCharge      Float            @default(0)
   tax                 Float            @default(0)
   discount            Float            @default(0)
+  couponDiscount      Float            @default(0)
+  offerDiscount       Float            @default(0)
   total               Float
+  appliedCouponCode   String?
+  appliedOfferIds     String[]         @default([])
   items               Json
   metadata            Json?
   paymentMethod       String?
@@ -193,31 +197,57 @@ model LandingPage {
 }
 
 model Coupon {
-  id          String     @id @default(cuid())
-  code        String     @unique
-  type        CouponType
-  discount    Float
-  minAmount   Float?
-  maxDiscount Float?
-  startDate   DateTime
-  endDate     DateTime
-  status      String     @default("Active")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id              String        @id @default(cuid(2))
+  code            String        @unique
+  type            CouponType
+  discount        Float
+  minAmount       Float         @default(0)
+  maxDiscount     Float?
+  startDate       DateTime
+  endDate         DateTime
+  status          CouponStatus  @default(active)
+  usageLimit      Int?
+  usedCount       Int           @default(0)
+  maxUsagePerUser Int           @default(1)
+  applicableTo    Applicability @default(all)
+  isStackable     Boolean       @default(false)
+  description     String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  couponUsages    CouponUsage[]
 }
 
 model Offer {
-  id         String    @id @default(cuid())
-  name       String
-  type       OfferType
-  discount   Float
-  startDate  DateTime
-  endDate    DateTime
-  status     String    @default("Active")
-  categories String[]
-  products   String[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id                String      @id @default(uuid())
+  name              String
+  type              OfferType
+  discount          Float
+  minPurchaseAmount Float       @default(0)
+  maxDiscount       Float?
+  priority          Int         @default(0)
+  startDate         DateTime
+  endDate           DateTime
+  status            OfferStatus @default(active)
+  isStackable       Boolean     @default(false)
+  categories        String[]
+  products          String[]
+  description       String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model CouponUsage {
+  id              String   @id @default(cuid())
+  couponId        String
+  userId          String
+  orderId         String?
+  discountApplied Float
+  usedAt          DateTime @default(now())
+  coupon          Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  @@index([couponId])
+  @@index([userId])
+  @@index([orderId])
 }
 
 enum UserRole {
@@ -279,7 +309,25 @@ enum CouponType {
   Flat
 }
 
+enum CouponStatus {
+  active
+  inactive
+  expired
+}
+
 enum OfferType {
   Percentage
   Flat
+}
+
+enum OfferStatus {
+  active
+  inactive
+  expired
+}
+
+enum Applicability {
+  all
+  specific_products
+  specific_categories
 }

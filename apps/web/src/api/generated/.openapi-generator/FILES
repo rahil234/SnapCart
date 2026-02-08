@@ -10,6 +10,8 @@ docs/AddressControllerDelete200Response.md
 docs/AddressControllerFind200Response.md
 docs/AddressResponseDto.md
 docs/AddressesApi.md
+docs/AdminCouponControllerGetUsageHistory200Response.md
+docs/AdminCouponsApi.md
 docs/AdminProductControllerGetAdminProducts200Response.md
 docs/AuthenticationApi.md
 docs/BadRequestErrorDto.md
@@ -25,8 +27,16 @@ docs/CategoryControllerFindOne200Response.md
 docs/CategoryNestedDto.md
 docs/CategoryResponseDto.md
 docs/ConflictErrorDto.md
+docs/CouponControllerGetAvailableCoupons200Response.md
+docs/CouponControllerGetCouponByCode200Response.md
+docs/CouponControllerValidateCoupon200Response.md
+docs/CouponResponseDto.md
+docs/CouponUsageResponseDto.md
+docs/CouponValidationResponseDto.md
+docs/CouponsApi.md
 docs/CreateAddressDto.md
 docs/CreateCategoryDto.md
+docs/CreateCouponDto.md
 docs/CreateProductDto.md
 docs/CreateVariantDto.md
 docs/CustomerProfileDto.md
@@ -68,6 +78,7 @@ docs/UnauthorizedErrorDto.md
 docs/UpdateAddressDto.md
 docs/UpdateCartItemDto.md
 docs/UpdateCategoryDto.md
+docs/UpdateCouponDto.md
 docs/UpdateProductDto.md
 docs/UpdateProductStatusDto.md
 docs/UpdateUserDto.md
@@ -80,6 +91,7 @@ docs/UserControllerGetMe200Response.md
 docs/UserControllerUpdate200Response.md
 docs/UserResponseDto.md
 docs/UsersApi.md
+docs/ValidateCouponDto.md
 docs/VariantControllerCreateVariant201Response.md
 docs/VariantControllerGetVariantsByProduct200Response.md
 docs/VariantControllerUploadVariantImage201Response.md

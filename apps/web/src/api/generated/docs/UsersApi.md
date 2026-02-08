@@ -90,7 +90,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UsersApi(configuration);
 
-let id: string; //User UUID (default to undefined)
+let id: string; //User CUID (default to undefined)
 
 const { status, data } = await apiInstance.userControllerFindOne(
     id
@@ -101,7 +101,7 @@ const { status, data } = await apiInstance.userControllerFindOne(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | User UUID | defaults to undefined|
+| **id** | [**string**] | User CUID | defaults to undefined|
 
 
 ### Return type
@@ -251,7 +251,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UsersApi(configuration);
 
-let id: string; //User UUID (default to undefined)
+let id: string; //User CUID (default to undefined)
 let updateUserStatusDto: UpdateUserStatusDto; //
 
 const { status, data } = await apiInstance.userControllerUpdateStatus(
@@ -265,7 +265,7 @@ const { status, data } = await apiInstance.userControllerUpdateStatus(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **updateUserStatusDto** | **UpdateUserStatusDto**|  | |
-| **id** | [**string**] | User UUID | defaults to undefined|
+| **id** | [**string**] | User CUID | defaults to undefined|
 
 
 ### Return type

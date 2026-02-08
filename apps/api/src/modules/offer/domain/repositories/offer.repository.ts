@@ -8,5 +8,10 @@ export interface OfferRepository {
   findActiveOffers(): Promise<Offer[]>;
   findByProductId(productId: string): Promise<Offer[]>;
   findByCategoryId(categoryId: string): Promise<Offer[]>;
+  findApplicableOffers(
+    productIds: string[],
+    categoryIds: string[],
+    sortByPriority?: boolean,
+  ): Promise<Offer[]>;
   delete(id: string): Promise<void>;
 }

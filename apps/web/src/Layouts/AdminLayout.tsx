@@ -1,10 +1,10 @@
 import React from 'react';
-import { useNavigate, Outlet, NavLink } from 'react-router';
-import { Search, Bell, ChevronDown } from 'lucide-react';
-import { useAppDispatch } from '@/store/store';
+import { Bell, ChevronDown, Search } from 'lucide-react';
+import { NavLink, Outlet, useNavigate } from 'react-router';
+
 import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
 import { logoutUser } from '@/store/auth/authSlice';
+import { RootState, useAppDispatch } from '@/store/store';
 
 interface SidebarProps {
   adminLogout: () => void;
@@ -21,7 +21,6 @@ const Sidebar: React.FC<SidebarProps> = ({ adminLogout }) => (
         { name: 'Dashboard', path: '/admin/dashboard' },
         { name: 'Inbox', path: '/admin/inbox' },
         { name: 'Users', path: '/admin/user-management' },
-        { name: 'Sellers', path: '/admin/seller-management' },
         { name: 'Banners', path: '/admin/banners' },
         { name: 'Categories', path: '/admin/categories' },
         { name: 'Products', path: '/admin/products' },
@@ -78,16 +77,7 @@ const Header = () => {
             3
           </span>
         </div>
-        {/* Lamguage disabled */}
-        {/* <div className="flex items-center space-x-2">
-        <img
-          src="/placeholder.svg?height=24&width=24"
-          alt="UK flag"
-          className="w-6 h-6 rounded-full"
-        />
-        <span className="text-gray-600">English</span>
-        <ChevronDown size={16} className="text-gray-400" />
-      </div> */}
+
         <div className="flex items-center space-x-2">
           <img
             src="https://avatar.iran.liara.run/public/38"
@@ -95,7 +85,9 @@ const Header = () => {
             className="w-8 h-8 rounded-full"
           />
           <div>
-            <div className="text-sm font-semibold">{user?.firstName}</div>
+            <div className="text-sm font-semibold">
+              {user?.customerProfile?.name}
+            </div>
             <div className="text-xs text-gray-500">Admin</div>
           </div>
           <ChevronDown size={16} className="text-gray-400" />
