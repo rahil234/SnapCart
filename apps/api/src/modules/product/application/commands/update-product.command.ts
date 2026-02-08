@@ -1,4 +1,5 @@
 import { ProductStatus } from '@/modules/product/domain/entities/product.entity';
+import { ProductUpdateIntent } from '@/modules/product/domain/policies';
 
 /**
  * Update Product Command
@@ -9,6 +10,8 @@ import { ProductStatus } from '@/modules/product/domain/entities/product.entity'
 export class UpdateProductCommand {
   constructor(
     public readonly productId: string,
+    public readonly intent: ProductUpdateIntent,
+    public readonly userId: string,
     public readonly name?: string,
     public readonly description?: string,
     public readonly brand?: string | null,
@@ -16,5 +19,3 @@ export class UpdateProductCommand {
     public readonly status?: ProductStatus,
   ) {}
 }
-
-

@@ -1,26 +1,18 @@
 import { Outlet } from 'react-router';
-import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 
-import store from '@/app/store';
 import Home from '@/pages/user/HomePage';
+import CartPage from '@/pages/user/CartPage';
 import UserLayout from '@/Layouts/UserLayout';
+import ReferPage from '@/pages/user/ReferPage';
+import SearchPage from '@/pages/user/SearchPage';
 import { UIProvider } from '@/context/UIContext';
 import ProductPage from '@/pages/user/ProductPage';
-import { AuthState } from '@/features/auth/authSlice';
-// import { fetchCart } from '@/features/cart/cartSlice';
+import CategoryPage from '@/pages/user/CategoryPage';
+import MyAccount from '@/pages/user/MyAccount/MyAccount';
 import ChangePasswordPage from '@/pages/user/ChangePasswordPage';
 import ForgotPasswordPage from '@/pages/user/ForgotPasswordPage';
-import MyAccount from '@/pages/user/MyAccount/MyAccount';
-import CategoryPage from '@/pages/user/CategoryPage';
-import ReferPage from '@/pages/user/ReferPage';
 
 function Root() {
-  const { user } = useSelector((state: { auth: AuthState }) => state.auth);
-  // useEffect(() => {
-  // if (user && user?.role === 'customer') store.dispatch(fetchCart());
-  // else store.dispatch({ type: 'cart/clearCart' });
-  // }, [user]);
   return <Outlet />;
 }
 
@@ -41,10 +33,10 @@ const UserRoutes = [
             path: '',
             element: <Home />,
           },
-          // {
-          //   path: 'search',
-          //   element: <SearchPage />,
-          // },
+          {
+            path: 'search',
+            element: <SearchPage />,
+          },
           {
             path: 'product/:productId',
             element: <ProductPage />,
@@ -53,10 +45,10 @@ const UserRoutes = [
             path: 'category/:category',
             element: <CategoryPage />,
           },
-          // {
-          //   path: 'cart',
-          //   element: <CartPage />,
-          // },
+          {
+            path: 'cart',
+            element: <CartPage />,
+          },
           { path: 'refer', element: <ReferPage /> },
         ],
       },

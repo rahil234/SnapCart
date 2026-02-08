@@ -1,10 +1,11 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+
+import { AccountStatus } from '@/modules/user/domain/enums';
+import { User } from '@/modules/user/domain/entities/user.entity';
+import { UserStatusChangedEvent } from '@/shared/events/user.events';
 import { UpdateUserStatusCommand } from '../update-user-status.command';
 import { UserRepository } from '@/modules/user/domain/repositories/user.repository';
-import { User } from '@/modules/user/domain/entities/user.entity';
-import { UserStatusChangedEvent } from '@/modules/user/domain/events';
-import { AccountStatus } from '@/modules/user/domain/enums';
 
 @CommandHandler(UpdateUserStatusCommand)
 export class UpdateUserStatusHandler implements ICommandHandler<UpdateUserStatusCommand> {

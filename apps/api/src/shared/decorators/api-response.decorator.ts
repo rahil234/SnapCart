@@ -14,7 +14,7 @@ import {
 import { MessageOnlyResponse } from '@/shared/dto/common/message-only-response.dto';
 
 export const ApiResponseWithType = <TModel extends Type>(
-  options: ApiResponseOptions & {
+  options: Omit<ApiResponseOptions, 'type'> & {
     isArray?: boolean;
     pagination?: boolean;
   } = {},
@@ -47,9 +47,9 @@ export const ApiResponseWithType = <TModel extends Type>(
               properties: {
                 data: isArray
                   ? {
-                      type: 'array',
-                      items: { $ref: getSchemaPath(model) },
-                    }
+                    type: 'array',
+                    items: { $ref: getSchemaPath(model) },
+                  }
                   : { $ref: getSchemaPath(model) },
               },
               required: ['data'],
@@ -77,16 +77,16 @@ export const ApiResponseWithType = <TModel extends Type>(
           },
           model
             ? {
-                properties: {
-                  data: isArray
-                    ? {
-                        type: 'array',
-                        items: { $ref: getSchemaPath(model) },
-                      }
-                    : { $ref: getSchemaPath(model) },
-                },
-                required: ['data'],
-              }
+              properties: {
+                data: isArray
+                  ? {
+                    type: 'array',
+                    items: { $ref: getSchemaPath(model) },
+                  }
+                  : { $ref: getSchemaPath(model) },
+              },
+              required: ['data'],
+            }
             : {},
         ],
       },

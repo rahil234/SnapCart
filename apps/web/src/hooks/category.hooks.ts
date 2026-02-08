@@ -1,15 +1,14 @@
 import { ICategory } from '@/types/category';
 import { CategoryService } from '@/services/category.service';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Category } from '@/types';
 
 export const useGetCategories = () => {
-  return useQuery({
+  return useQuery<Category[]>({
     queryKey: ['categories'],
     queryFn: async () => {
       const { data, error } = await CategoryService.getCategories();
-
       if (error) throw error;
-
       return data;
     },
   });

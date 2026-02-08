@@ -26,7 +26,7 @@ export class UpdateCategoryHandler implements ICommandHandler<UpdateCategoryComm
 
     // Update category using business methods
     if (name !== undefined) {
-      category.updateName(name);
+      category.name = name;
       changes.name = name;
     }
 

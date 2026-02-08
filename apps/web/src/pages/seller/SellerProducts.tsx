@@ -1,24 +1,21 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Search, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { Product } from '@/types';
-import { ProductService } from '@/services/product.service';
-import AddProductModal from '@/components/seller/AddProductModal';
+import { ProductWithVariants } from '@/types';
+import { useGetSellerProducts } from '@/hooks/product.hooks';
 import { ProductsTable } from '@/components/seller/ProductsTable';
+import AddProductModal from '@/components/seller/AddProductModal';
 import EditProductModal from '@/components/seller/EditProductModal';
 
 function SellerProducts() {
-  const [showAddProduct, setShowAddProduct] = useState<boolean>(false);
-  const [showEditProduct, setShowEditProduct] = useState<boolean>(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const [showEditProduct, setShowEditProduct] = useState(false);
+  const [selectedProduct, setSelectedProduct] =
+    useState<ProductWithVariants | null>(null);
 
-  const { data: products } = useQuery<Product[]>({
-    queryKey: ['seller-products', showEditProduct, showAddProduct],
-    queryFn: ProductService.getSellerProducts,
-  });
+  const { data: products } = useGetSellerProducts();
 
-  const handleEditProduct = (product: Product) => {
+  const handleEditProduct = (product: ProductWithVariants) => {
     setSelectedProduct(product);
     setShowEditProduct(true);
   };
@@ -34,17 +31,23 @@ function SellerProducts() {
           className="bg-blue-500 text-white px-4 py-2 rounded-lg"
           onClick={() => setShowAddProduct(true)}
         >
-          Add Products
+          Add Product
         </button>
+
         {showAddProduct && (
           <AddProductModal onClose={() => setShowAddProduct(false)} />
         )}
+
         {showEditProduct && selectedProduct && (
           <EditProductModal
-            onClose={() => setShowEditProduct(false)}
             product={selectedProduct}
+            onClose={() => {
+              setShowEditProduct(false);
+              setSelectedProduct(null);
+            }}
           />
         )}
+
         <div className="flex space-x-4">
           <div className="relative">
             <select className="appearance-none bg-white border rounded-lg px-4 py-2 pr-8">
@@ -52,9 +55,10 @@ function SellerProducts() {
             </select>
             <ChevronDown
               size={16}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
             />
           </div>
+
           <div className="relative">
             <input
               type="text"
@@ -68,11 +72,13 @@ function SellerProducts() {
           </div>
         </div>
       </div>
+
       {products.length > 0 ? (
         <>
           <ProductsTable products={products} onEdit={handleEditProduct} />
+
           <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-            <span>Showing 1-09 of 78</span>
+            <span>Showing 1–09 of 78</span>
             <div className="flex space-x-2">
               <button className="p-2 rounded-md bg-white shadow">
                 <ChevronLeft size={16} />

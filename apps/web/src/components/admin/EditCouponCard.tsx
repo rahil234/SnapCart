@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ICoupon } from '@/types/coupon';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { ICoupon } from '@/types/coupon';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { CouponService } from '@/services/coupon.service';
 
 const EditCouponCard = ({
@@ -30,9 +32,7 @@ const EditCouponCard = ({
     mutationFn: (updatedCoupon: ICoupon) =>
       CouponService.updateCoupon(coupon._id, updatedCoupon),
     onSuccess: data => {
-      setCoupons(prev =>
-        prev.map(c => (c._id === coupon._id ? data : c)),
-      );
+      setCoupons(prev => prev.map(c => (c._id === coupon._id ? data : c)));
       queryClient.invalidateQueries(['admin-coupons']);
       onClose();
     },
@@ -208,7 +208,9 @@ const EditCouponCard = ({
                   return true;
                 }
                 // @ts-expect-error the value is a string
-                if (value < new Date(coupon.startDate).toISOString().split('T')[0])
+                if (
+                  value < new Date(coupon.startDate).toISOString().split('T')[0]
+                )
                   return 'edited Start date must be in the future';
               },
             })}

@@ -16,24 +16,12 @@ export enum VariantStatus {
  * ProductVariant Entity
  *
  * This is the SELLABLE UNIT in the system.
- *
- * Represents a specific variant of a product that can be purchased.
- * Examples:
- * - Product: "Basmati Rice" → Variants: "500g", "1kg", "5kg"
- * - Product: "Milk" → Variants: "500ml", "1L"
- * - Product: "T-Shirt" → Variants: "Red-S", "Red-M", "Blue-L"
- *
- * Contains all commerce-related attributes:
- * - Pricing (price, discount, final price calculation)
- * - Inventory (stock management)
- * - Seller relationship
- * - Purchase availability status
+ * Images are stored as array of URL strings (max 6)
  */
 export class ProductVariant {
   private constructor(
     public readonly id: string,
     private readonly productId: string,
-    private sku: string,
     private variantName: string,
     private price: number,
     private discountPercent: number,
@@ -41,38 +29,25 @@ export class ProductVariant {
     private status: VariantStatus,
     private isActive: boolean,
     private isDeleted: boolean,
-    private sellerProfileId: string | null,
+    private sellerProfileId: string,
     private attributes: Record<string, any> | null,
-    private imageUrl: string | null,
+    private imageUrls: string[],
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {}
 
-  // ============================================
-  // FACTORY METHODS
-  // ============================================
-
-  /**
-   * Create a new variant for a product
-   */
   static create(
     productId: string,
-    sku: string,
     variantName: string,
     price: number,
     stock: number,
-    sellerProfileId: string | null = null,
+    sellerProfileId: string,
     discountPercent: number = 0,
     attributes: Record<string, any> | null = null,
-    imageUrl: string | null = null,
   ): ProductVariant {
     // Validations
     if (!productId?.trim()) {
       throw new Error('Product ID is required');
-    }
-
-    if (!sku?.trim()) {
-      throw new Error('SKU is required');
     }
 
     if (!variantName?.trim()) {
@@ -94,7 +69,6 @@ export class ProductVariant {
     return new ProductVariant(
       uuid(),
       productId.trim(),
-      sku.trim(),
       variantName.trim(),
       price,
       discountPercent,
@@ -102,17 +76,14 @@ export class ProductVariant {
       stock > 0 ? VariantStatus.ACTIVE : VariantStatus.OUT_OF_STOCK,
       true,
       false,
-      sellerProfileId?.trim() || null,
+      sellerProfileId,
       attributes,
-      imageUrl?.trim() || null,
+      [],
       new Date(),
       new Date(),
     );
   }
 
-  /**
-   * Reconstruct from persistence
-   */
   static from(
     id: string,
     productId: string,
@@ -124,16 +95,15 @@ export class ProductVariant {
     status: VariantStatus,
     isActive: boolean,
     isDeleted: boolean,
-    sellerProfileId: string | null,
+    sellerProfileId: string,
     attributes: Record<string, any> | null,
-    imageUrl: string | null,
+    imageUrls: string[] = [],
     createdAt: Date,
     updatedAt: Date,
   ): ProductVariant {
     return new ProductVariant(
       id,
       productId,
-      sku,
       variantName,
       price,
       discountPercent,
@@ -143,180 +113,15 @@ export class ProductVariant {
       isDeleted,
       sellerProfileId,
       attributes,
-      imageUrl,
+      imageUrls,
       createdAt,
       updatedAt,
     );
   }
 
-  // ============================================
-  // BUSINESS METHODS - Pricing
-  // ============================================
-
-  /**
-   * Update variant price
-   */
-  updatePrice(newPrice: number): void {
-    if (newPrice <= 0) {
-      throw new Error('Price must be greater than 0');
-    }
-    this.price = newPrice;
-  }
-
-  /**
-   * Apply discount to variant
-   */
-  applyDiscount(discountPercent: number): void {
-    if (discountPercent < 0 || discountPercent > 100) {
-      throw new Error('Discount percent must be between 0 and 100');
-    }
-    this.discountPercent = discountPercent;
-  }
-
-  /**
-   * Remove discount from variant
-   */
-  removeDiscount(): void {
-    this.discountPercent = 0;
-  }
-
-  /**
-   * Calculate final price after discount
-   * This is a computed value, not stored
-   */
-  calculateFinalPrice(): number {
-    if (this.discountPercent > 0) {
-      return this.price - (this.price * this.discountPercent) / 100;
-    }
-    return this.price;
-  }
-
-  // ============================================
-  // BUSINESS METHODS - Inventory
-  // ============================================
-
-  /**
-   * Update stock quantity
-   */
-  updateStock(quantity: number): void {
-    if (quantity < 0) {
-      throw new Error('Stock cannot be negative');
-    }
-
-    this.stock = quantity;
-
-    // Auto-update status based on stock
-    if (quantity === 0 && this.status === VariantStatus.ACTIVE) {
-      this.status = VariantStatus.OUT_OF_STOCK;
-    } else if (quantity > 0 && this.status === VariantStatus.OUT_OF_STOCK) {
-      this.status = VariantStatus.ACTIVE;
-    }
-  }
-
-  /**
-   * Add stock (restock)
-   */
-  addStock(quantity: number): void {
-    if (quantity <= 0) {
-      throw new Error('Quantity to add must be positive');
-    }
-
-    this.stock += quantity;
-
-    // Activate if it was out of stock
-    if (this.status === VariantStatus.OUT_OF_STOCK) {
-      this.status = VariantStatus.ACTIVE;
-    }
-  }
-
-  /**
-   * Reduce stock (after purchase)
-   * Returns true if successful, false if insufficient stock
-   */
-  reduceStock(quantity: number): boolean {
-    if (quantity <= 0) {
-      throw new Error('Quantity to reduce must be positive');
-    }
-
-    if (this.stock < quantity) {
-      return false; // Insufficient stock
-    }
-
-    this.stock -= quantity;
-
-    // Mark as out of stock if depleted
-    if (this.stock === 0) {
-      this.status = VariantStatus.OUT_OF_STOCK;
-    }
-
-    return true;
-  }
-
-  /**
-   * Check if variant can fulfill order quantity
-   */
-  canFulfillQuantity(quantity: number): boolean {
-    return this.stock >= quantity && this.isAvailableForPurchase();
-  }
-
-  // ============================================
-  // BUSINESS METHODS - Status Management
-  // ============================================
-
-  /**
-   * Activate variant for sale
-   */
-  activate(): void {
-    if (this.isDeleted) {
-      throw new Error('Cannot activate deleted variant');
-    }
-
-    this.isActive = true;
-
-    // Only set to ACTIVE if stock is available
-    if (this.stock > 0) {
-      this.status = VariantStatus.ACTIVE;
-    } else {
-      this.status = VariantStatus.OUT_OF_STOCK;
-    }
-  }
-
-  /**
-   * Deactivate variant (temporarily unavailable)
-   */
-  deactivate(): void {
-    this.isActive = false;
-    this.status = VariantStatus.INACTIVE;
-  }
-
-  /**
-   * Soft delete variant
-   */
-  softDelete(): void {
-    this.isDeleted = true;
-    this.isActive = false;
-    this.status = VariantStatus.INACTIVE;
-  }
-
-  /**
-   * Restore variant from soft delete
-   */
-  restore(): void {
-    this.isDeleted = false;
-    this.activate();
-  }
-
-  // ============================================
-  // BUSINESS METHODS - Variant Details
-  // ============================================
-
-  /**
-   * Update variant details
-   */
   updateDetails(
     variantName?: string,
     attributes?: Record<string, any> | null,
-    imageUrl?: string | null,
   ): void {
     if (variantName !== undefined) {
       if (!variantName?.trim()) {
@@ -328,15 +133,164 @@ export class ProductVariant {
     if (attributes !== undefined) {
       this.attributes = attributes;
     }
-
-    if (imageUrl !== undefined) {
-      this.imageUrl = imageUrl?.trim() || null;
-    }
   }
 
   /**
-   * Assign seller to variant
+   * Add image URL to variant (max 6)
    */
+  addImage(imageUrl: string): void {
+    if (!imageUrl?.trim()) {
+      throw new Error('Image URL is required');
+    }
+
+    if (this.imageUrls.length >= 6) {
+      throw new Error('Variant cannot have more than 6 images');
+    }
+
+    this.imageUrls.push(imageUrl.trim());
+  }
+
+  /**
+   * Remove image by URL
+   */
+  removeImage(imageUrl: string): void {
+    this.imageUrls = this.imageUrls.filter((img) => img !== imageUrl);
+  }
+
+  /**
+   * Get all image URLs
+   */
+  getImages(): string[] {
+    return [...this.imageUrls];
+  }
+
+  /**
+   * Get primary image (first in array)
+   */
+  getPrimaryImage(): string | null {
+    return this.imageUrls.length > 0 ? this.imageUrls[0] : null;
+  }
+
+  /**
+   * Check if variant can accept more images
+   */
+  canAddImage(): boolean {
+    return this.imageUrls.length < 6;
+  }
+
+  /**
+   * Get image count
+   */
+  getImageCount(): number {
+    return this.imageUrls.length;
+  }
+
+  // BUSINESS METHODS - Pricing
+  updatePrice(newPrice: number): void {
+    if (newPrice <= 0) {
+      throw new Error('Price must be greater than 0');
+    }
+    this.price = newPrice;
+  }
+
+  applyDiscount(discountPercent: number): void {
+    if (discountPercent < 0 || discountPercent > 100) {
+      throw new Error('Discount percent must be between 0 and 100');
+    }
+    this.discountPercent = discountPercent;
+  }
+
+  removeDiscount(): void {
+    this.discountPercent = 0;
+  }
+
+  calculateFinalPrice(): number {
+    if (this.discountPercent > 0) {
+      return this.price - (this.price * this.discountPercent) / 100;
+    }
+    return this.price;
+  }
+
+  // BUSINESS METHODS - Inventory
+  updateStock(quantity: number): void {
+    if (quantity < 0) {
+      throw new Error('Stock cannot be negative');
+    }
+
+    this.stock = quantity;
+
+    if (quantity === 0 && this.status === VariantStatus.ACTIVE) {
+      this.status = VariantStatus.OUT_OF_STOCK;
+    } else if (quantity > 0 && this.status === VariantStatus.OUT_OF_STOCK) {
+      this.status = VariantStatus.ACTIVE;
+    }
+  }
+
+  addStock(quantity: number): void {
+    if (quantity <= 0) {
+      throw new Error('Quantity to add must be positive');
+    }
+
+    this.stock += quantity;
+
+    if (this.status === VariantStatus.OUT_OF_STOCK) {
+      this.status = VariantStatus.ACTIVE;
+    }
+  }
+
+  reduceStock(quantity: number): boolean {
+    if (quantity <= 0) {
+      throw new Error('Quantity to reduce must be positive');
+    }
+
+    if (this.stock < quantity) {
+      return false;
+    }
+
+    this.stock -= quantity;
+
+    if (this.stock === 0) {
+      this.status = VariantStatus.OUT_OF_STOCK;
+    }
+
+    return true;
+  }
+
+  canFulfillQuantity(quantity: number): boolean {
+    return this.stock >= quantity && this.isAvailableForPurchase();
+  }
+
+  // BUSINESS METHODS - Status Management
+  activate(): void {
+    if (this.isDeleted) {
+      throw new Error('Cannot activate deleted variant');
+    }
+
+    this.isActive = true;
+
+    if (this.stock > 0) {
+      this.status = VariantStatus.ACTIVE;
+    } else {
+      this.status = VariantStatus.OUT_OF_STOCK;
+    }
+  }
+
+  deactivate(): void {
+    this.isActive = false;
+    this.status = VariantStatus.INACTIVE;
+  }
+
+  softDelete(): void {
+    this.isDeleted = true;
+    this.isActive = false;
+    this.status = VariantStatus.INACTIVE;
+  }
+
+  restore(): void {
+    this.isDeleted = false;
+    this.activate();
+  }
+
   assignSeller(sellerProfileId: string): void {
     if (!sellerProfileId?.trim()) {
       throw new Error('Seller profile ID is required');
@@ -344,27 +298,13 @@ export class ProductVariant {
     this.sellerProfileId = sellerProfileId.trim();
   }
 
-  /**
-   * Remove seller from variant
-   */
-  removeSeller(): void {
-    this.sellerProfileId = null;
-  }
-
-  // ============================================
   // QUERY METHODS
-  // ============================================
-
   getId(): string {
     return this.id;
   }
 
   getProductId(): string {
     return this.productId;
-  }
-
-  getSku(): string {
-    return this.sku;
   }
 
   getVariantName(): string {
@@ -395,16 +335,12 @@ export class ProductVariant {
     return this.isDeleted;
   }
 
-  getSellerProfileId(): string | null {
+  getSellerProfileId(): string {
     return this.sellerProfileId;
   }
 
   getAttributes(): Record<string, any> | null {
     return this.attributes;
-  }
-
-  getImageUrl(): string | null {
-    return this.imageUrl;
   }
 
   hasDiscount(): boolean {
@@ -415,14 +351,6 @@ export class ProductVariant {
     return this.stock > 0;
   }
 
-  /**
-   * Check if variant is available for purchase
-   * All conditions must be true:
-   * - Not deleted
-   * - Active
-   * - Status is ACTIVE
-   * - Has stock
-   */
   isAvailableForPurchase(): boolean {
     return (
       !this.isDeleted &&

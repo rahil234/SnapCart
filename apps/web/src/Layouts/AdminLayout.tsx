@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate, Outlet, NavLink } from 'react-router';
 import { Search, Bell, ChevronDown } from 'lucide-react';
-import { useAppDispatch } from '@/app/store';
+import { useAppDispatch } from '@/store/store';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/app/store';
-import { logoutUser } from '@/features/auth/authSlice';
+import { RootState } from '@/store/store';
+import { logoutUser } from '@/store/auth/authSlice';
 
 interface SidebarProps {
   adminLogout: () => void;

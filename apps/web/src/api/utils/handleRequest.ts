@@ -13,7 +13,14 @@ export async function handleRequest<TResponse extends { message: string }>(
   try {
     const res = await request();
 
-    if ('data' in res.data) {
+    if (!res.data) {
+      return {
+        data: undefined as ExtractData<TResponse>,
+        error: null,
+      };
+    }
+
+    if (typeof res.data === 'object' && 'data' in res.data) {
       return {
         data: (res.data as any).data,
         meta: (res.data as any).meta,

@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 
 import { IStorageService } from '@/shared/infrastructure/storage/storage.interface';
+import { UploadDescriptor } from '@/shared/infrastructure/storage/upload-descriptor';
 
 @Injectable()
 export class CloudinaryStorageService implements IStorageService {
@@ -30,6 +31,8 @@ export class CloudinaryStorageService implements IStorageService {
   /**
    * Cloudinary does not support true PUT-style signed upload URLs
    * like Azure/S3. This returns a signed upload payload instead.
+   *
+   * @deprecated Use generatePresignedUpload instead
    */
   generateUploadUrl(blobName: string): string {
     const timestamp = Math.floor(Date.now() / 1000);
@@ -59,6 +62,37 @@ export class CloudinaryStorageService implements IStorageService {
       folder: this.defaultFolder,
       publicId: blobName,
     });
+  }
+
+  /**
+   * Generate presigned upload credentials for client-side upload to Cloudinary
+   * Returns structured upload descriptor with all required fields
+   */
+  generatePresignedUpload(blobName: string): UploadDescriptor {
+    const timestamp = Math.floor(Date.now() / 1000);
+
+    const signature = cloudinary.utils.api_sign_request(
+      {
+        public_id: blobName,
+        timestamp,
+        folder: this.defaultFolder,
+      },
+      this.configService.getOrThrow('CLOUDINARY_API_SECRET'),
+    );
+
+    return {
+      provider: 'cloudinary',
+      uploadUrl: `https://api.cloudinary.com/v1_1/${this.configService.getOrThrow<string>('CLOUDINARY_CLOUD_NAME')}/image/upload`,
+      method: 'POST',
+      fields: {
+        file: '', // Client will fill this with FormData
+        api_key: this.configService.getOrThrow<string>('CLOUDINARY_API_KEY'),
+        timestamp: timestamp.toString(),
+        signature,
+        public_id: blobName,
+        folder: this.defaultFolder,
+      },
+    };
   }
 
   /**

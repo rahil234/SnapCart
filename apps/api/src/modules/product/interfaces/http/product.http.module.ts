@@ -4,55 +4,26 @@ import { APP_FILTER } from '@nestjs/core';
 
 import { ProductController } from './controllers/product.controller';
 import { VariantController } from './controllers/variant.controller';
+import { AdminProductController } from './controllers/admin-product.controller';
+import { SellerProductController } from './controllers/seller-product.controller';
+import { ProductPublicController } from './controllers/product-public.controller';
 
-import { ProductPrismaExceptionFilter } from '@/modules/product/interfaces/http/product-exception.filter';
-import { PrismaProductRepository } from '@/modules/product/infrastructure/persistence/repositories/prisma-product.repository';
-
-// Command Handlers
-import {
-  CreateProductHandler,
-  UpdateProductHandler,
-  CreateVariantHandler,
-  UpdateVariantHandler,
-  UpdateVariantStockHandler,
-} from '@/modules/product/application/commands/handlers';
-
-// Query Handlers
-import {
-  GetProductsHandler,
-  GetProductByIdHandler,
-  GetVariantByIdHandler,
-  GetVariantsByProductIdHandler,
-} from '@/modules/product/application/queries/handlers';
-
-const CommandHandlers = [
-  CreateProductHandler,
-  UpdateProductHandler,
-  CreateVariantHandler,
-  UpdateVariantHandler,
-  UpdateVariantStockHandler,
-];
-
-const QueryHandlers = [
-  GetProductsHandler,
-  GetProductByIdHandler,
-  GetVariantByIdHandler,
-  GetVariantsByProductIdHandler,
-];
+import { StorageModule } from '@/shared/infrastructure/storage/storage.module';
+import { ProductPrismaExceptionFilter } from '@/modules/product/interfaces/http/exceptions/product-exception.filter';
 
 @Module({
-  imports: [CqrsModule],
-  controllers: [ProductController, VariantController],
+  imports: [CqrsModule, StorageModule],
+  controllers: [
+    ProductController,
+    ProductPublicController,
+    SellerProductController,
+    AdminProductController,
+    VariantController,
+  ],
   providers: [
     {
       provide: APP_FILTER,
       useClass: ProductPrismaExceptionFilter,
-    },
-    ...CommandHandlers,
-    ...QueryHandlers,
-    {
-      provide: 'ProductRepository',
-      useClass: PrismaProductRepository,
     },
   ],
 })

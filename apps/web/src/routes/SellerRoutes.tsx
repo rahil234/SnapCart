@@ -24,6 +24,7 @@ const SellerRoutes = [
         children: [
           { path: '', element: <Navigate to="/seller/dashboard" /> },
           // { path: 'dashboard', element: <SellerDashboard /> },
+          { path: 'dashboard', element: <Navigate to="/seller/products" /> },
           { path: 'inbox', element: <ComingSoon /> },
           { path: 'products', element: <SellerProducts /> },
           // { path: 'orders', element: <SellerOrders /> },

@@ -1,6 +1,19 @@
-export * from './create-user.handler';
-export * from './update-user.handler';
-export * from './update-user-status.handler';
-export * from './create-address.handler';
-export * from './update-address.handler';
-export * from './delete-address.handler';
+import { CreateUserHandler } from './create-user.handler';
+import { UpdateUserHandler } from './update-user.handler';
+import { UpdateUserStatusHandler } from './update-user-status.handler';
+import { CreateAddressHandler } from './create-address.handler';
+import { UpdateAddressHandler } from './update-address.handler';
+import { DeleteAddressHandler } from './delete-address.handler';
+import { UpgradeToSellerHandler } from './upgrade-to-seller.handler';
+
+export class CommandHandlers {
+  static handlers = [
+    CreateUserHandler,
+    UpdateUserHandler,
+    UpdateUserStatusHandler,
+    CreateAddressHandler,
+    UpdateAddressHandler,
+    DeleteAddressHandler,
+    UpgradeToSellerHandler,
+  ];
+}

@@ -1,10 +1,11 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+
 import { RequestOTPCommand } from '../request-otp.command';
-import { OTPRepository } from '@/modules/auth/domain/repositories';
 import { OTPService } from '@/modules/auth/domain/services';
 import { OTPSession } from '@/modules/auth/domain/entities';
-import { OTPRequestedEvent } from '@/modules/auth/domain/events';
+import { OTPRequestedEvent } from '@/shared/events/auth.events';
+import { OTPRepository } from '@/modules/auth/domain/repositories';
 
 @CommandHandler(RequestOTPCommand)
 export class RequestOTPHandler implements ICommandHandler<RequestOTPCommand> {

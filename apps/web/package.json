@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "start": "vite preview",
+    "build": "tsc -b && vite build",
+    "test": "tsc --noEmit",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "generate:api-client": "openapi-generator-cli generate -i http://localhost:4000/api/docs-json -g typescript-axios -o src/api/generated"
   },
   "dependencies": {

@@ -4,6 +4,6 @@ export interface AddressRepository {
   save(address: Address): Promise<Address>;
   update(address: Address): Promise<Address>;
   findById(id: string): Promise<Address | null>;
-  findByUserId(userId: string): Promise<Address[]>;
+  findByUserId(customerId: string): Promise<Address[]>;
   delete(id: string): Promise<void>;
 }

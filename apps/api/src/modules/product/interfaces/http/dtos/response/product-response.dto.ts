@@ -38,9 +38,8 @@ export class ProductResponseDto {
   @ApiPropertyOptional({
     description: 'Brand name',
     example: 'India Gate',
-    nullable: true,
   })
-  brand: string | null;
+  brand?: string;
 
   @ApiProperty({
     description: 'Product status (catalog lifecycle)',
@@ -79,7 +78,7 @@ export class ProductResponseDto {
       name: product.getName(),
       description: product.getDescription(),
       categoryId: product.getCategoryId(),
-      brand: product.getBrand(),
+      brand: product.getBrand() || undefined,
       status: product.getStatus(),
       isActive: product.isActive(),
       isInCatalog: product.isInCatalog(),

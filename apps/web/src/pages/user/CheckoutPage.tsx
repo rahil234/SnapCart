@@ -2,8 +2,8 @@ import { toast } from 'sonner';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import React, { useEffect, useState } from 'react';
-import { Loader2, Plus, Edit2, Trash2 } from 'lucide-react';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { Edit2, Loader2, Plus, Trash2 } from 'lucide-react';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 
 import {
   Card,
@@ -21,29 +21,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { ICoupon } from '@/types/coupon';
-import { Address } from '@/types/address';
-import { catchError } from '@/types/error';
-import { useAppDispatch } from '@/app/store';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { AuthState } from '@/features/auth/authSlice';
-import { CartState } from '@/features/cart/cartSlice';
-import { clearCart } from '@/features/cart/cartSlice';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
+import { ICoupon } from '@/types/coupon';
+import { Address } from '@/types/address';
+import { catchError } from '@/types/error';
+import { RootState, useAppDispatch } from '@/store/store';
 import AddressForm from '@/components/user/AddressForm';
 import { OrderService } from '@/services/order.service';
 import { CouponService } from '@/services/coupon.service';
 import PaymentButton from '@/components/user/PaymentButton';
 import { AddressService } from '@/services/address.service';
+import { clearCart } from '@/store/cart/cartSlice';
 import AvailableCoupons from '@/components/user/AvailableCoupons';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-
-const imageUrl = import.meta.env.VITE_IMAGE_URL + '/products/';
 
 export interface CheckoutFormValues {
-  selectedAddressId: string;
+  selectedAddressId: string | null;
   addresses: Address[];
   paymentMethod: 'cod' | 'razorpay' | 'wallet';
 }
@@ -72,14 +69,16 @@ function CheckoutPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { user } = useSelector((state: { auth: AuthState }) => state.auth);
-  const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
+  const { cartData } = useSelector((state: RootState) => state.cart);
+
+  const { items: addresses } = useSelector((state: RootState) => state.address);
 
   const { control, handleSubmit, getValues, watch } =
     useForm<CheckoutFormValues>({
       defaultValues: {
-        selectedAddressId: user?.addresses ? '' : '',
-        addresses: user?.addresses || [],
+        selectedAddressId:
+          addresses && addresses.length > 0 ? addresses[0].id : null,
+        addresses: addresses || [],
         paymentMethod: 'wallet',
       },
     });
@@ -142,13 +141,13 @@ function CheckoutPage() {
     try {
       setIsLoading(true);
       console.log('coupon', appliedCoupon);
-      const response = await OrderService.createOrder(
+      const { error, data } = await OrderService.createOrder(
         data,
         appliedCoupon?.code || undefined
       );
+
       setIsLoading(false);
       dispatch(clearCart());
-      navigate('/order-success/' + response.data.orderId, { replace: true });
     } catch (error) {
       setIsLoading(false);
       console.log(error);
@@ -189,7 +188,7 @@ function CheckoutPage() {
                           <Label htmlFor={address.id} className="flex-grow">
                             <div>
                               <p>{address.street}</p>
-                              <p>{`${address.city}, ${address.state} ${address.pinCode}`}</p>
+                              <p>{`${address.city}, ${address.state} ${address.pincode}`}</p>
                             </div>
                           </Label>
                           <Button
@@ -313,19 +312,21 @@ function CheckoutPage() {
               {cartData.items &&
                 cartData.items.map(item => (
                   <div
-                    key={item._id}
+                    key={item.id}
                     className="flex justify-between items-center mb-2"
                   >
                     <div className="flex items-center gap-2">
                       <img
-                        src={imageUrl + item.product.images[0]}
-                        alt={item.product.name}
+                        src={item.variant.imageUrl}
+                        alt={item.variant.productName}
                         className="w-24 h-24 object-cover rounded-md mr-4"
                       />
                       <div>
-                        <p className="font-semibold">{item.product.name}</p>
+                        <p className="font-semibold">
+                          {item.variant.productName}
+                        </p>
                         <p className="text-sm text-gray-500">
-                          Price: ₹{item.offerPrice || item.product.price}
+                          Price: ₹{item.variant.price}
                         </p>
                         <p className="text-sm text-gray-500">
                           Quantity: {item.quantity}
@@ -333,7 +334,7 @@ function CheckoutPage() {
                       </div>
                     </div>
                     <span className="font-bold">
-                      ₹{item.offerPrice || item.product.price * item.quantity}
+                      ₹{item.variant.price * item.quantity}
                     </span>
                   </div>
                 ))}

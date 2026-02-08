@@ -6,7 +6,6 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
-  Post,
   Query,
 } from '@nestjs/common';
 import {
@@ -26,17 +25,17 @@ import { Roles } from '@/shared/decorators/roles.decorator';
 import { UserId } from '@/shared/decorators/user-id.decorator';
 import { ApiResponseWithType } from '@/shared/decorators/api-response.decorator';
 import {
-  ApiCommonErrorResponses,
   ApiAuthErrorResponses,
+  ApiCommonErrorResponses,
   ApiNotFoundResponse,
 } from '@/shared/decorators/api-error-responses.decorator';
 
 // DTOs
-import { UpdateUserDto } from '@/modules/user/application/dtos/request/update-user.dto';
-import { UpdateUserStatusDto } from '@/modules/user/application/dtos/request/update-user-status.dto';
-import { GetUsersDto } from '@/modules/user/application/dtos/request/get-users.dto';
-import { UserResponseDto } from '@/modules/user/application/dtos/response/user-response.dto';
-import { MeResponseDto } from '@/modules/user/application/dtos/response/me-response.dto';
+import { UpdateUserDto } from '@/modules/user/interfaces/http/dtos/request/update-user.dto';
+import { UpdateUserStatusDto } from '@/modules/user/interfaces/http/dtos/request/update-user-status.dto';
+import { GetUsersDto } from '@/modules/user/interfaces/http/dtos/request/get-users.dto';
+import { UserResponseDto } from '@/modules/user/interfaces/http/dtos/response/user-response.dto';
+import { MeResponseDto } from '@/modules/user/interfaces/http/dtos/response/me-response.dto';
 
 // Commands
 import {

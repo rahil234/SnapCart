@@ -26,11 +26,6 @@ import { Public } from '@/shared/decorators/public.decorator';
 import { HttpResponse } from '@/shared/dto/common/http-response.dto';
 import { ApiResponseWithType } from '@/shared/decorators/api-response.decorator';
 
-// DTOs
-import { CreateCategoryDto } from '@/modules/category/application/dtos/request/create-category.dto';
-import { UpdateCategoryDto } from '@/modules/category/application/dtos/request/update-category.dto';
-import { CategoryResponseDto } from '@/modules/category/application/dtos/response/category-response.dto';
-
 // Commands
 import {
   CreateCategoryCommand,
@@ -43,6 +38,9 @@ import {
   GetCategoryByIdQuery,
   GetAllCategoriesQuery,
 } from '@/modules/category/application/queries';
+import { CategoryResponseDto } from '@/modules/category/interfaces/http/dtos/response/category-response.dto';
+import { CreateCategoryDto } from '@/modules/category/interfaces/http/dtos/request/create-category.dto';
+import { UpdateCategoryDto } from '@/modules/category/interfaces/http/dtos/request/update-category.dto';
 
 @ApiTags('Categories')
 @Controller('categories')
@@ -102,16 +100,9 @@ export class CategoryController {
     const query = new GetAllCategoriesQuery();
     const categories = await this.queryBus.execute(query);
 
-    categories.map((category) => ({
-      id: category.id,
-      name: category.getName(),
-      createdAt: category.createdAt,
-      updatedAt: category.updatedAt,
-    }));
-
     return {
       message: 'Categories retrieved successfully',
-      data: categories,
+      data: categories.map(CategoryResponseDto.fromDomain),
     };
   }
 
@@ -144,15 +135,7 @@ export class CategoryController {
 
     return {
       message: 'Category retrieved successfully',
-      data: {
-        id: category.id,
-        name: category.getName(),
-        description: category.getDescription(),
-        imageUrl: category.getImageUrl(),
-        parentId: category.getParentId(),
-        createdAt: category.createdAt,
-        updatedAt: category.updatedAt,
-      },
+      data: CategoryResponseDto.fromDomain(category),
     };
   }
 

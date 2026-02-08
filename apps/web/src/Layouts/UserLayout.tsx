@@ -2,21 +2,24 @@ import React from 'react';
 import { useContext } from 'react';
 import { Outlet } from 'react-router';
 import { AnimatePresence } from 'motion/react';
+
 import NavBar from '@/components/user/NavBar';
 import Footer from '@/components/user/Footer';
 import { UIContext } from '@/context/UIContext';
+import CartOverlay from '@/components/user/CartOverlay';
 import LoginMain from '@/components/user/Login/LoginMain';
 import ProfileOverlay from '@/components/user/ProfileOverlay';
 
 function UserLayout() {
-  const { isLoginOverlayOpen, isProfileOverlayOpen } = useContext(UIContext);
+  const { isLoginOverlayOpen, isCartOverlayOpen, isProfileOverlayOpen } =
+    useContext(UIContext);
 
   return (
     <>
       <NavBar />
       <AnimatePresence>
         {isLoginOverlayOpen && <LoginMain />}
-        {/*{isCartOverlayOpen && <CartOverlay />}*/}
+        {isCartOverlayOpen && <CartOverlay />}
         {isProfileOverlayOpen && <ProfileOverlay />}
       </AnimatePresence>
       <div className="pt-[63px] min-h-screen">

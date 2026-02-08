@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+
 import { PrismaService } from '@/shared/prisma/prisma.service';
 import { Address } from '@/modules/user/domain/entities/address.entity';
 import { AddressRepository } from '@/modules/user/domain/repositories/address.repository';
@@ -31,10 +32,9 @@ export class PrismaAddressRepository implements AddressRepository {
     return PrismaAddressMapper.toDomain(record);
   }
 
-  async findByUserId(userId: string): Promise<Address[]> {
+  async findByUserId(customerId: string): Promise<Address[]> {
     const records = await this.prisma.address.findMany({
-      where: { userId },
-      orderBy: { isPrimary: 'desc' },
+      where: { customerId: customerId },
     });
     return records.map(PrismaAddressMapper.toDomain);
   }

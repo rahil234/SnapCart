@@ -1,7 +1,7 @@
 import { apiClient } from '@/api/axios';
 import { apiConfig } from '@/api/client';
-import { UpdateUserDto, UsersApi } from '@/api/generated';
 import { handleRequest } from '@/api/utils/handleRequest';
+import { UpdateUserDto, UsersApi } from '@/api/generated';
 
 const userApi = new UsersApi(apiConfig, undefined, apiClient);
 
@@ -17,7 +17,7 @@ export const UserService = {
   changePassword: (password: string, newPassword: string) =>
     userApi.userControllerChangePassword({ password, newPassword }),
   uploadProfilePicture: (file: File) =>
-    userApi.userControllerUploadProfilePicture(file),
+    handleRequest(() => userApi.userControllerUploadProfilePicture(file)),
   getReferralCode: () => userApi.userControllerGetReferralCode(),
   verifyOtp: (email: string, otp: string) =>
     userApi.userControllerVerifyOtp({ email, otp }),

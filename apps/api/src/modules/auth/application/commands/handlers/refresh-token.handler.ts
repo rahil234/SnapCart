@@ -3,7 +3,7 @@ import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { TokenService } from '@/modules/auth/domain/services';
 import { Inject, UnauthorizedException } from '@nestjs/common';
 import { RefreshTokenCommand } from '../refresh-token.command';
-import { RefreshTokenIssuedEvent } from '@/modules/auth/domain/events';
+import { RefreshTokenIssuedEvent } from '@/shared/events/auth.events';
 
 export interface RefreshTokenResult {
   accessToken: string;

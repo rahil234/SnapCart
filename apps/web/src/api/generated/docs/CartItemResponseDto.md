@@ -5,10 +5,13 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** | Unique identifier for the cart item | [default to undefined]
-**quantity** | **number** | Quantity of the product in the cart item | [default to undefined]
-**product** | [**ProductResponsePickDto**](ProductResponsePickDto.md) | Details of the product in the cart item | [default to undefined]
-**variant** | [**ProductVariantResponseDto**](ProductVariantResponseDto.md) | Details of the product variant in the cart item | [default to undefined]
+**id** | **string** | Cart item ID | [default to undefined]
+**cartId** | **string** | Cart ID | [default to undefined]
+**productId** | **string** | Product variant ID | [default to undefined]
+**variantId** | **string** | Product variant ID | [default to undefined]
+**quantity** | **number** | Quantity of the item | [default to undefined]
+**createdAt** | **string** | Created at timestamp | [default to undefined]
+**updatedAt** | **string** | Updated at timestamp | [default to undefined]
 
 ## Example
 
@@ -17,9 +20,12 @@ import { CartItemResponseDto } from './api';
 
 const instance: CartItemResponseDto = {
     id,
+    cartId,
+    productId,
+    variantId,
     quantity,
-    product,
-    variant,
+    createdAt,
+    updatedAt,
 };
 ```
 

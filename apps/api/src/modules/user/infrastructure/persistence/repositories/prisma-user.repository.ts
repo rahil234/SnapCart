@@ -10,23 +10,105 @@ export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async save(user: User): Promise<User> {
-    const data = PrismaUserMapper.toPersistence(user);
-    const doc = await this.prisma.user.create({ data });
-    return PrismaUserMapper.toDomain(doc);
+    const userData = PrismaUserMapper.toPersistence(user);
+
+    // Use transaction to ensure atomicity
+    const result = await this.prisma.$transaction(async (tx) => {
+      // Create user
+      const createdUser = await tx.user.create({
+        data: userData,
+        include: {
+          customerProfile: true,
+          sellerProfile: true,
+        },
+      });
+
+      // Create customer profile if exists
+      if (user.getCustomerProfile()) {
+        const profileData = PrismaUserMapper.customerProfileToPersistence(
+          user.getCustomerProfile()!,
+        );
+        await tx.customerProfile.create({ data: profileData });
+      }
+
+      // Create seller profile if exists
+      if (user.getSellerProfile()) {
+        const profileData = PrismaUserMapper.sellerProfileToPersistence(
+          user.getSellerProfile()!,
+        );
+        await tx.sellerProfile.create({ data: profileData });
+      }
+
+      // Fetch complete aggregate
+      return await tx.user.findUnique({
+        where: { id: createdUser.id },
+        include: {
+          customerProfile: true,
+          sellerProfile: true,
+        },
+      });
+    });
+
+    return PrismaUserMapper.toDomain(result);
   }
 
   async update(user: User): Promise<User> {
-    const data = PrismaUserMapper.toPersistence(user);
-    const doc = await this.prisma.user.update({
-      where: { id: user.id },
-      data,
+    const userData = PrismaUserMapper.toPersistence(user);
+
+    // Use transaction to ensure atomicity
+    const result = await this.prisma.$transaction(async (tx) => {
+      // Update user
+      const updatedUser = await tx.user.update({
+        where: { id: user.id },
+        data: userData,
+      });
+
+      // Update or create customer profile if exists
+      if (user.getCustomerProfile()) {
+        const profileData = PrismaUserMapper.customerProfileToPersistence(
+          user.getCustomerProfile()!,
+        );
+
+        await tx.customerProfile.upsert({
+          where: { userId: user.id },
+          create: profileData,
+          update: profileData,
+        });
+      }
+
+      // Update or create seller profile if exists
+      if (user.getSellerProfile()) {
+        const profileData = PrismaUserMapper.sellerProfileToPersistence(
+          user.getSellerProfile()!,
+        );
+
+        await tx.sellerProfile.upsert({
+          where: { userId: user.id },
+          create: profileData,
+          update: profileData,
+        });
+      }
+
+      // Fetch complete aggregate
+      return await tx.user.findUnique({
+        where: { id: updatedUser.id },
+        include: {
+          customerProfile: true,
+          sellerProfile: true,
+        },
+      });
     });
-    return PrismaUserMapper.toDomain(doc);
+
+    return PrismaUserMapper.toDomain(result);
   }
 
   async findById(id: string): Promise<User | null> {
     const record = await this.prisma.user.findUnique({
       where: { id },
+      include: {
+        customerProfile: true,
+        sellerProfile: true,
+      },
     });
     if (!record) return null;
     return PrismaUserMapper.toDomain(record);
@@ -35,6 +117,10 @@ export class PrismaUserRepository implements UserRepository {
   async findByEmail(email: string): Promise<User | null> {
     const record = await this.prisma.user.findUnique({
       where: { email },
+      include: {
+        customerProfile: true,
+        sellerProfile: true,
+      },
     });
     if (!record) return null;
     return PrismaUserMapper.toDomain(record);
@@ -43,6 +129,10 @@ export class PrismaUserRepository implements UserRepository {
   async findByPhone(phone: string): Promise<User | null> {
     const record = await this.prisma.user.findUnique({
       where: { phone },
+      include: {
+        customerProfile: true,
+        sellerProfile: true,
+      },
     });
     if (!record) return null;
     return PrismaUserMapper.toDomain(record);
@@ -73,6 +163,10 @@ export class PrismaUserRepository implements UserRepository {
         skip,
         take,
         orderBy: { createdAt: 'desc' },
+        include: {
+          customerProfile: true,
+          sellerProfile: true,
+        },
       }),
       this.prisma.user.count({ where }),
     ]);
@@ -84,6 +178,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async delete(id: string): Promise<void> {
+    // Cascade delete will handle profiles if configured in schema
     await this.prisma.user.delete({
       where: { id },
     });

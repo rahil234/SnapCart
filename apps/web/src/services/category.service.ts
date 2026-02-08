@@ -1,25 +1,26 @@
-import { CategoriesApi } from '@/api/generated';
+import { apiClient } from '@/api/axios';
 import { apiConfig } from '@/api/client';
-import { ICategory } from '@/types/category';
+import {
+  CategoriesApi,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+} from '@/api/generated';
 import { handleRequest } from '@/api/utils/handleRequest';
 
-const categoryApi = new CategoriesApi(apiConfig);
+const categoryApi = new CategoriesApi(apiConfig, undefined, apiClient);
 
 export const CategoryService = {
-  getCategories: () => handleRequest(categoryApi.categoryControllerFindAll),
+  getCategories: () =>
+    handleRequest(() => categoryApi.categoryControllerFindAll()),
   getCategoriesById: (categoryId: string) =>
     handleRequest(() => categoryApi.categoryControllerFindOne(categoryId)),
-  getAllCategories: () => categoryApi.categoryControllerFindAll(),
-  addCategory: (data: ICategory) => categoryApi.categoryControllerCreate(data),
-  editCategory: (id: string, data: ICategory) =>
-    categoryApi.categoryControllerUpdate(id, data),
+  createCategory: (data: CreateCategoryDto) =>
+    handleRequest(() => categoryApi.categoryControllerCreate(data)),
+  updateCategory: (id: string, data: UpdateCategoryDto) =>
+    handleRequest(() => categoryApi.categoryControllerUpdate(id, data)),
   archiveCategory: (id: string) =>
-    categoryApi.categoryControllerUpdate(id, {
-      status: 'active',
-    }),
+    handleRequest(() => categoryApi.categoryControllerUpdate(id, {})),
   unarchiveCategory: (id: string) =>
-    categoryApi.categoryControllerUpdate(id, {
-      status: 'inactive',
-    }),
+    handleRequest(() => categoryApi.categoryControllerUpdate(id, {})),
   getTopCategories: () => categoryApi.categoryControllerFindAll(),
 };

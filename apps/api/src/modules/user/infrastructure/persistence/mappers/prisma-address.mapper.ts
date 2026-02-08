@@ -1,11 +1,12 @@
+import { Address as PrismaAddress } from '@prisma/client';
+
 import { Address } from '@/modules/user/domain/entities';
 
 export class PrismaAddressMapper {
-  // DB → Domain
-  static toDomain(raw: any): Address {
+  static toDomain(raw: PrismaAddress): Address {
     return Address.from(
       raw.id,
-      raw.userId,
+      raw.customerId,
       raw.isPrimary,
       raw.houseNo,
       raw.street,
@@ -22,7 +23,7 @@ export class PrismaAddressMapper {
   static toPersistence(address: Address) {
     return {
       id: address.id,
-      userId: address.getUserId(),
+      customerId: address.getCustomerId(),
       isPrimary: address.getIsPrimary(),
       houseNo: address.getHouseNo(),
       street: address.getStreet(),

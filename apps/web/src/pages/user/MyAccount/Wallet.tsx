@@ -1,9 +1,9 @@
 import { useSelector } from 'react-redux';
-import React, { useState, useEffect } from 'react';
-import { Plus, ArrowUpRight, ArrowDownLeft, Wallet } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowDownLeft, ArrowUpRight, Plus, Wallet } from 'lucide-react';
 
+import { RootState } from '@/store/store';
 import { Button } from '@/components/ui/button';
-import { AuthState } from '@/features/auth/authSlice';
 import { WalletService } from '@/services/wallet.service';
 import AddFundsComponent from '@/components/user/addWalletFundCard';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
@@ -25,7 +25,7 @@ export default function WalletSection() {
   const [error, setError] = useState<string | null>(null);
   const [isAddFundsDialogOpen, setIsAddFundsDialogOpen] = useState(false);
 
-  const user = useSelector((state: { auth: AuthState }) => state.auth.user);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     if (!user) return;

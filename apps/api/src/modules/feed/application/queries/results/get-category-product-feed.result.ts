@@ -1,8 +1,17 @@
 export interface ProductFeedItem {
   id: string;
   name: string;
-  price: number;
-  discountPercent: number | null;
+  category: {
+    id: string;
+    name: string;
+  };
+  variant: {
+    id: string;
+    name: string;
+    price: number;
+    discountPercent: number | null;
+    images: string[];
+  };
 }
 
 export interface CategoryProductFeedItem {

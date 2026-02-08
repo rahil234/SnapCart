@@ -1,4 +1,4 @@
-import { v4 as uuid } from 'uuid';
+import cuid from '@paralleldrive/cuid2';
 
 /**
  * Product Status - Identity Level
@@ -36,6 +36,7 @@ export class Product {
     private description: string,
     private categoryId: string,
     private brand: string | null,
+    private sellerProfileId: string,
     private status: ProductStatus,
     private isDeleted: boolean,
     public readonly createdAt: Date,
@@ -56,6 +57,7 @@ export class Product {
     description: string,
     categoryId: string,
     brand: string | null = null,
+    sellerProfileId: string,
   ): Product {
     if (!name?.trim()) {
       throw new Error('Product name is required');
@@ -69,12 +71,17 @@ export class Product {
       throw new Error('Category ID is required');
     }
 
+    if (sellerProfileId && !sellerProfileId.trim()) {
+      throw new Error('Seller Profile ID is required');
+    }
+
     return new Product(
-      uuid(),
+      cuid.createId(),
       name.trim(),
       description.trim(),
       categoryId.trim(),
       brand?.trim() || null,
+      sellerProfileId,
       ProductStatus.ACTIVE,
       false,
       new Date(),
@@ -91,6 +98,7 @@ export class Product {
     description: string,
     categoryId: string,
     brand: string | null,
+    sellerProfileId: string,
     status: ProductStatus,
     isDeleted: boolean,
     createdAt: Date,
@@ -102,6 +110,7 @@ export class Product {
       description,
       categoryId,
       brand,
+      sellerProfileId,
       status,
       isDeleted,
       createdAt,
@@ -220,6 +229,10 @@ export class Product {
     return this.brand;
   }
 
+  getSellerProfileId(): string {
+    return this.sellerProfileId;
+  }
+
   getStatus(): ProductStatus {
     return this.status;
   }
@@ -234,6 +247,10 @@ export class Product {
 
   isInCatalog(): boolean {
     return this.status !== ProductStatus.DISCONTINUED && !this.isDeleted;
+  }
+
+  isDiscontinued(): boolean {
+    return this.status === ProductStatus.DISCONTINUED;
   }
 
   canBeEdited(): boolean {

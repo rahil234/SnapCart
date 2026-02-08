@@ -5,6 +5,7 @@ import { VariantStatus } from '@/modules/product/domain/entities/product-variant
  *
  * Updates commerce attributes of a variant.
  * SKU and productId cannot be changed (immutable).
+ * Images are managed via separate /images endpoint.
  */
 export class UpdateVariantCommand {
   constructor(
@@ -17,6 +18,5 @@ export class UpdateVariantCommand {
     public readonly isActive?: boolean,
     public readonly sellerProfileId?: string | null,
     public readonly attributes?: Record<string, any> | null,
-    public readonly imageUrl?: string | null,
   ) {}
 }

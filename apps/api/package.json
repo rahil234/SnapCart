@@ -25,6 +25,7 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.1",
+    "@paralleldrive/cuid2": "^3.3.0",
     "@prisma/client": "^6.18.0",
     "@sendgrid/mail": "^8.1.6",
     "axios": "^1.13.1",

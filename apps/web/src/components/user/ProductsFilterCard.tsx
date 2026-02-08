@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Select,
   SelectContent,
@@ -7,15 +8,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Category } from '@snapcart/shared/types';
-import { useQuery } from '@tanstack/react-query';
-import categoryEndpoints from '@/api/category/categoryEndpoints';
+import { useGetCategories } from '@/hooks/category.hooks';
 
 interface FilterCardProps {
   handleCategoryChange: (value: string) => void;
   searchParams: URLSearchParams;
   handlePriceRangeChange: (value: number[]) => void;
-  handleSortChange: (value: string) => void;
+  handleSortChange: (value: 'name' | 'price' | 'createdAt') => void;
 }
 
 const ProductsFilterCard = ({
@@ -24,10 +23,7 @@ const ProductsFilterCard = ({
   handlePriceRangeChange,
   handleSortChange,
 }: FilterCardProps) => {
-  const { data: categories = [] } = useQuery({
-    queryKey: ['categories'],
-    queryFn: () => categoryEndpoints.getCategories(),
-  }) as { data: Category[] };
+  const { data: categories = [] } = useGetCategories();
 
   return (
     <div className="w-full md:w-64 space-y-4">
@@ -43,7 +39,7 @@ const ProductsFilterCard = ({
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
             {categories.map(category => (
-              <SelectItem key={category._id} value={category._id}>
+              <SelectItem key={category.id} value={category.id}>
                 {category.name}
               </SelectItem>
             ))}
@@ -71,16 +67,14 @@ const ProductsFilterCard = ({
         <h2 className="text-lg font-semibold mb-2">Sort</h2>
         <Select
           onValueChange={handleSortChange}
-          defaultValue={searchParams.get('sort') || 'name.asc'}
+          defaultValue={searchParams.get('sort') || 'name'}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select a sort option" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="name.asc">Name (A-Z)</SelectItem>
-            <SelectItem value="name.desc">Name (Z-A)</SelectItem>
-            <SelectItem value="price.asc">Price (Low to High)</SelectItem>
-            <SelectItem value="price.desc">Price (High to Low)</SelectItem>
+            <SelectItem value="name">Name</SelectItem>
+            <SelectItem value="price">Price</SelectItem>
           </SelectContent>
         </Select>
       </div>

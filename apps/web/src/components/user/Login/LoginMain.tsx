@@ -1,11 +1,11 @@
 import { motion } from 'motion/react';
 import React, { useContext, useState } from 'react';
 
-import { useAppDispatch } from '@/app/store';
+import { useAppDispatch } from '@/store/store';
 import { UIContext } from '@/context/UIContext';
 import { UserService } from '@/services/user.service';
 import LoginCard from '@/components/user/Login/LoginCard';
-import { setCredentials } from '@/features/auth/authSlice';
+import { setCredentials } from '@/store/auth/authSlice';
 import SignUpCard from '@/components/user/Login/SignUpCard';
 import NewPassword from '@/components/user/Login/NewPassword';
 import VerifyOTPCard from '@/components/user/Login/VerifyOTPCard';

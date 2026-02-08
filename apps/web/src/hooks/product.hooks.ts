@@ -27,12 +27,21 @@ export const useGetAllProducts = () => {
 export const useGetProductById = (productId: string) => {
   return useQuery({
     queryKey: ['product', productId],
-    queryFn: () => ProductService.fetchProductById(productId),
+    queryFn: async () => {
+      const { data, error } = await ProductService.fetchProductById(productId);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
     enabled: !!productId,
   });
 };
 
-export const useGetProductsByCategoryId = (categoryId: string) => {
+export const useGetProductsByCategoryId = (
+  categoryId: string,
+  { enabled }: { enabled: boolean } = { enabled: true }
+) => {
   return useQuery({
     queryKey: ['product', categoryId],
     queryFn: async () => {
@@ -43,14 +52,23 @@ export const useGetProductsByCategoryId = (categoryId: string) => {
       }
       return data;
     },
-    enabled: !!categoryId,
+    enabled: enabled && !!categoryId,
+    initialData: () => [],
   });
 };
 
 export const useGetSellerProducts = () => {
   return useQuery({
     queryKey: ['seller-products'],
-    queryFn: ProductService.getSellerProducts,
+    queryFn: async () => {
+      const { data, error } = await ProductService.getSellerProducts();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
   });
 };
 

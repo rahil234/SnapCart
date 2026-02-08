@@ -4,3 +4,4 @@ export * from './update-user-status.command';
 export * from './create-address.command';
 export * from './update-address.command';
 export * from './delete-address.command';
+export * from './upgrade-to-seller.command';

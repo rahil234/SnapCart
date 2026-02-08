@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
-import { useAppDispatch } from '@/app/store';
+import { useAppDispatch } from '@/store/store';
 import InputField from '@/components/ui/InputField';
-import { fetchUser } from '@/features/auth/authSlice';
+import { fetchUser } from '@/store/auth/authSlice';
 import { AuthService } from '@/services/auth.service';
 
 interface LoginFormInputs {

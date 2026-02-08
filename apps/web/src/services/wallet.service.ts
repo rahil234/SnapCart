@@ -1,7 +1,7 @@
-import { WalletApi } from '@/api/generated';
+// import { WalletApi } from '@/api/generated';
 import { apiConfig } from '@/api/client';
 
-const walletApi = new WalletApi(apiConfig);
+const walletApi = {};
 
 export const WalletService = {
   getBalance: () => walletApi.walletControllerGetBalance(),

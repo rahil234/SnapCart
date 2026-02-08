@@ -1,18 +1,30 @@
-import { AxiosProgressEvent } from 'axios';
-
-import { apiConfig } from '@/api/client';
 import {
   CreateProductDto,
+  ProductsAdminApi,
   ProductsApi,
+  ProductsPublicApi,
+  ProductsSellerApi,
   UpdateProductDto,
 } from '@/api/generated';
+import { apiClient } from '@/api/axios';
+import { apiConfig } from '@/api/client';
 import { handleRequest } from '@/api/utils/handleRequest';
 
-const productApi = new ProductsApi(apiConfig);
+const productApi = new ProductsApi(apiConfig, undefined, apiClient);
+const productPublicApi = new ProductsPublicApi(apiConfig, undefined, apiClient);
+
+const productsSellerApi = new ProductsSellerApi(
+  apiConfig,
+  undefined,
+  apiClient
+);
+const productsAdminApi = new ProductsAdminApi(apiConfig, undefined, apiClient);
 
 export const ProductService = {
   fetchProductById: (productId: string) =>
-    handleRequest(() => productApi.productControllerFindOne(productId)),
+    handleRequest(() =>
+      productPublicApi.productPublicControllerFindOne(productId)
+    ),
 
   fetchProductWithVariantsById: (variantId: string) =>
     handleRequest(() =>
@@ -21,7 +33,7 @@ export const ProductService = {
 
   getProductsByCategory: (categoryId: string) =>
     handleRequest(() =>
-      productApi.productControllerFindAll(
+      productPublicApi.productPublicControllerFindAll(
         undefined,
         undefined,
         undefined,
@@ -29,41 +41,57 @@ export const ProductService = {
       )
     ),
 
-  addProduct: (data: CreateProductDto) =>
-    handleRequest(() => productApi.productControllerCreate(data)),
+  createProduct: (data: CreateProductDto) =>
+    handleRequest(() => productsSellerApi.sellerProductControllerCreate(data)),
 
-  editProduct: (productId: string, data: UpdateProductDto) =>
+  updateProduct: (productId: string, data: UpdateProductDto) =>
     handleRequest(() => productApi.productControllerUpdate(productId, data)),
 
   getSellerProducts: () =>
-    handleRequest(() => productApi.productControllerFindSellerProducts()),
+    handleRequest(() =>
+      productsSellerApi.sellerProductControllerGetSellerProducts()
+    ),
 
   getAdminProducts: () =>
-    handleRequest(() => productApi.productControllerFindAdminProducts()),
+    handleRequest(() =>
+      productsAdminApi.adminProductControllerGetAdminProducts()
+    ),
 
   listProduct: (productId: string) =>
-    handleRequest(() => productApi.productControllerActivateProduct(productId)),
+    handleRequest(() =>
+      productsSellerApi.sellerProductControllerActivateProduct(productId)
+    ),
 
   unlistProduct: (productId: string) =>
     handleRequest(() =>
-      productApi.productControllerDeactivateProduct(productId)
+      productsSellerApi.sellerProductControllerDeactivateProduct(productId)
     ),
 
   getRelatedProduct: (productId: string) =>
-    handleRequest(() => productApi.productControllerFindRelated(productId)),
+    handleRequest(() => productApi.productControllerActivateProduct(productId)),
 
   getAllProducts: () =>
     handleRequest(() => productApi.productControllerFindAll()),
 
   searchProducts: (params: {
-    query: string;
+    query?: string;
     category?: string;
     minPrice?: number;
     maxPrice?: number;
-    sortBy?: string;
+    sortBy?: 'name' | 'price' | 'createdAt' | undefined;
     page?: number;
     limit?: number;
-  }) => handleRequest(() => productApi.productControllerSearch(params)),
+  }) =>
+    handleRequest(() =>
+      productPublicApi.productPublicControllerFindAll(
+        params.page,
+        params.limit,
+        params.query,
+        params.category,
+        undefined,
+        params.sortBy
+      )
+    ),
 
   getTopProducts: () =>
     handleRequest(() => productApi.productControllerFindTop()),

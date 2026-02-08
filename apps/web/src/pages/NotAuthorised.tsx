@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { Button } from '@/components/ui/button';
-import { logoutUser } from '@/features/auth/authSlice';
-import { useAppDispatch } from '@/app/store';
+import { logoutUser } from '@/store/auth/authSlice';
+import { useAppDispatch } from '@/store/store';
 
 const NotAuthorised: React.FC = () => {
   const navigate = useNavigate();

@@ -1,28 +1,35 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { CreateVariantCommand } from '../create-variant.command';
 import { ProductRepository } from '@/modules/product/domain/repositories/product.repository';
 import { ProductVariant } from '@/modules/product/domain/entities/product-variant.entity';
+import {
+  SELLER_IDENTITY_PORT,
+  SellerIdentityPort,
+} from '@/modules/product/application/ports/seller-identity.port';
 
 @CommandHandler(CreateVariantCommand)
 export class CreateVariantHandler implements ICommandHandler<CreateVariantCommand> {
   constructor(
     @Inject('ProductRepository')
     private readonly productRepository: ProductRepository,
+    @Inject(SELLER_IDENTITY_PORT)
+    private readonly sellerIdentityPort: SellerIdentityPort,
   ) {}
 
   async execute(command: CreateVariantCommand): Promise<ProductVariant> {
     const {
       productId,
-      sku,
       variantName,
       price,
       stock,
-      sellerProfileId,
+      userId,
       discountPercent,
       attributes,
-      imageUrl,
     } = command;
+
+    const sellerProfileId =
+      await this.sellerIdentityPort.getSellerProfileId(userId);
 
     // Verify product exists
     const productExists = await this.productRepository.productExists(productId);
@@ -30,28 +37,18 @@ export class CreateVariantHandler implements ICommandHandler<CreateVariantComman
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    // Verify SKU is unique
-    const skuExists = await this.productRepository.skuExists(sku);
-    if (skuExists) {
-      throw new BadRequestException(`SKU "${sku}" already exists`);
-    }
-
     // Create domain entity using factory method (with business validation)
     const variant = ProductVariant.create(
       productId,
-      sku,
       variantName,
       price,
       stock,
       sellerProfileId,
       discountPercent,
       attributes,
-      imageUrl,
     );
 
     // Persist the variant
-    const createdVariant = await this.productRepository.saveVariant(variant);
-
-    return createdVariant;
+    return this.productRepository.saveVariant(variant);
   }
 }

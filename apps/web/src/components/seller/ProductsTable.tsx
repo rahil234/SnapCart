@@ -19,26 +19,32 @@ import React, { useState } from 'react';
 import { Edit, ListMinus, ListPlus } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { Product } from '@/types';
+import { ProductWithVariants } from '@/types';
 import { ProductService } from '@/services/product.service';
 
 interface ProductsTableProps {
-  products: Product[];
-  onEdit: (product: Product) => void;
+  products: ProductWithVariants[];
+  onEdit: (product: ProductWithVariants) => void;
 }
 
 export const ProductsTable: React.FC<ProductsTableProps> = ({
   products,
   onEdit,
 }) => {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] =
+    useState<ProductWithVariants | null>(null);
   const [actionType, setActionType] = useState<'list' | 'un-list'>('list');
 
   const queryClient = useQueryClient();
 
   // Mutation for listing a product
   const listProductMutation = useMutation({
-    mutationFn: (productId: string) => ProductService.listProduct(productId),
+    mutationFn: async (productId: string) => {
+      const { error } = await ProductService.listProduct(productId);
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['seller-products'] });
       toast.success(
@@ -57,7 +63,12 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
 
   // Mutation for unlisting a product
   const unlistProductMutation = useMutation({
-    mutationFn: (productId: string) => ProductService.unlistProduct(productId),
+    mutationFn: async (productId: string) => {
+      const { error } = await ProductService.unlistProduct(productId);
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['seller-products'] });
       toast.success(
@@ -112,20 +123,20 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                 {product.name}
               </td>
               <td className="px-2 py-4 whitespace-nowrap text-xs text-center">
-                {product.category.name} / {product.subcategory.name}
+                {product.name}
               </td>
               <td className="px-2 py-4 whitespace-nowrap text-xs text-center">
-                {product.variants?.map(v => v.name).join(', ')}
+                {product.variants?.map(v => v.variantName).join(', ')}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-center">
                 <span
                   className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    product.status === 'Active'
+                    product.status === 'active'
                       ? 'bg-green-100 text-green-800'
                       : 'bg-red-100 text-red-800'
                   }`}
                 >
-                  {product.status === 'Active' ? 'Active' : 'Inactive'}
+                  {product.status === 'active' ? 'Active' : 'Inactive'}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -141,18 +152,18 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                       <TooltipTrigger asChild>
                         <span
                           className={`${
-                            product.status === 'Active'
+                            product.status === 'active'
                               ? 'text-red-600 hover:text-red-900'
                               : 'text-green-600 hover:text-green-900'
                           } cursor-pointer`}
                           onClick={() => {
                             setSelectedProduct(product);
                             setActionType(
-                              product.status === 'Active' ? 'un-list' : 'list'
+                              product.status === 'active' ? 'un-list' : 'list'
                             );
                           }}
                         >
-                          {product.status === 'Active' ? (
+                          {product.status === 'active' ? (
                             <ListMinus className="w-5 h-5 text-red-500" />
                           ) : (
                             <ListPlus className="w-5 h-5 text-green-500" />
@@ -161,7 +172,7 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
                       </TooltipTrigger>
                       <TooltipContent className="bg-white text-black shadow-lg">
                         <p>
-                          {product.status === 'Active'
+                          {product.status === 'active'
                             ? 'Un-list product'
                             : 'List product'}
                         </p>

@@ -1,9 +1,10 @@
-import React, { useCallback, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
+import React, { useCallback, useState } from 'react';
+
+import { Toggle } from '@/components/ui/toggle';
 import ProductCard from '@/components/user/ProductCard';
-import { ProductService } from '@/services/product.service';
-import { IProduct } from '@/types/product';
+import ProductsFilterCard from '@/components/user/ProductsFilterCard';
+import { useSearchProducts } from '@/hooks/products/useSearchProducts';
 
 function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -37,7 +38,7 @@ function SearchPage() {
   );
 
   const handleSortChange = useCallback(
-    (value: string) => {
+    (value: 'name' | 'price' | 'createdAt') => {
       setSearchParams(prevParams => {
         const params = Object.fromEntries(prevParams.entries());
         return { ...params, sort: value };
@@ -81,36 +82,33 @@ const ProductsTable = React.memo(function ProductsTable({
   filterOpen: boolean;
 }) {
   const [searchParams] = useSearchParams();
-  const query = searchParams.get('query') || '';
-  const category = searchParams.get('category') || 'all';
-  const minPrice = parseInt(searchParams.get('minPrice') || '0');
-  const maxPrice = parseInt(searchParams.get('maxPrice') || '1000');
-  const sortBy = searchParams.get('sort') || 'name.asc';
 
   const {
     data: products = [],
     isLoading,
     error,
-  } = useQuery({
-    queryKey: ['products', query, category, minPrice, maxPrice, sortBy],
-    queryFn: () =>
-      ProductService.searchProducts({
-        query,
-        category,
-        minPrice,
-        maxPrice,
-        sortBy,
-      }),
+  } = useSearchProducts({
+    query: searchParams.get('query') || '',
+    category: searchParams.get('category') || undefined,
+    minPrice: Number(searchParams.get('minPrice') || 0),
+    maxPrice: Number(searchParams.get('maxPrice') || 1000),
+    sortBy: (searchParams.get('sort') || 'name') as
+      | 'name'
+      | 'price'
+      | 'createdAt',
   });
 
-  if (isLoading)
+  if (isLoading) {
     return <div className="text-center p-8">Loading products...</div>;
-  if (error)
+  }
+
+  if (error) {
     return (
       <div className="text-center text-red-500 p-8">
         Error: {(error as Error).message}
       </div>
     );
+  }
 
   if (products.length === 0) {
     return <div className="text-center p-8">No products found</div>;
@@ -118,13 +116,14 @@ const ProductsTable = React.memo(function ProductsTable({
 
   return (
     <div
-      className={`flex-grow grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 ${filterOpen ? 'md:grid-cols-3 lg:grid-cols-5 gap-7' : ''}`}
+      className={`flex-grow grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 ${
+        filterOpen ? 'md:grid-cols-3 lg:grid-cols-5 gap-7' : ''
+      }`}
     >
-      {products.map((product: IProduct) => (
-        <ProductCard key={product._id} product={product} />
+      {products.map(product => (
+        <ProductCard key={product.id} product={product} />
       ))}
     </div>
   );
 });
-
 export default SearchPage;

@@ -2,8 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 import { Outlet, NavLink } from 'react-router';
 import { Search, Bell, ChevronDown } from 'lucide-react';
-import { logoutUser } from '@/features/auth/authSlice';
-import { RootState, useAppDispatch } from '@/app/store';
+import { logoutUser } from '@/store/auth/authSlice';
+import { RootState, useAppDispatch } from '@/store/store';
 import { useSelector } from 'react-redux';
 
 interface SidebarProps {

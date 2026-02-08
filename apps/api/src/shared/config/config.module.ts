@@ -10,9 +10,11 @@ import { ConfigModule as NestConfigModule } from '@nestjs/config';
       envFilePath: '.env',
       cache: true,
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().default('development'),
+        NODE_ENV: Joi.string()
+          .valid('development', 'production', 'test')
+          .default('development'),
         PORT: Joi.number().default(4000),
-        CORS_ORIGIN: Joi.string().default('http://localhost:3000'),
+        CORS_ORIGINS: Joi.string().default('http://localhost:3000'),
       }),
     }),
   ],

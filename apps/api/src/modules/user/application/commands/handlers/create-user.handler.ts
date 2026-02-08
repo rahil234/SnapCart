@@ -1,9 +1,10 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Inject, ConflictException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+
 import { CreateUserCommand } from '../create-user.command';
-import { UserRepository } from '@/modules/user/domain/repositories/user.repository';
+import { UserCreatedEvent } from '@/shared/events/user.events';
 import { User } from '@/modules/user/domain/entities/user.entity';
-import { UserCreatedEvent } from '@/modules/user/domain/events';
+import { UserRepository } from '@/modules/user/domain/repositories/user.repository';
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
@@ -16,7 +17,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
   async execute(command: CreateUserCommand): Promise<User> {
     const { email, phone, password, role } = command;
 
-    // Check if user already exists
+    // Check if a user already exists
     if (email) {
       const existingUser = await this.userRepository.findByEmail(email);
       if (existingUser) {
@@ -34,7 +35,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
     // Create domain entity using factory method
     const user = User.create(email, phone, password, role);
 
-    // Persist the user
+    // Persist the user aggregate (includes profiles)
     const createdUser = await this.userRepository.save(user);
 
     // Emit domain event

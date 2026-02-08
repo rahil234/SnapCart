@@ -1,12 +1,16 @@
-import { CartApi, CreateCartDto, UpdateCartDto } from '@/api/generated';
 import { apiConfig } from '@/api/client';
+import { apiClient } from '@/api/axios';
+import { CartApi, AddItemToCartDto, UpdateCartItemDto } from '@/api/generated';
+import { handleRequest } from '@/api/utils/handleRequest';
 
-const cartApi = new CartApi(apiConfig);
+const cartApi = new CartApi(apiConfig, undefined, apiClient);
 
 export const CartService = {
-  getCart: () => cartApi.cartControllerGetUserCart(),
-  addToCart: (dto: CreateCartDto) => cartApi.cartControllerAddToCart(dto),
-  updateCart: (itemId: string, dto: UpdateCartDto) =>
-    cartApi.cartControllerUpdateQuantity(itemId, dto),
-  removeItem: (itemId: string) => cartApi.cartControllerRemoveItem(itemId),
+  getCart: () => handleRequest(() => cartApi.cartControllerGetCart()),
+  addToCart: (dto: AddItemToCartDto) =>
+    handleRequest(() => cartApi.cartControllerAddItem(dto)),
+  updateCart: (itemId: string, dto: UpdateCartItemDto) =>
+    handleRequest(() => cartApi.cartControllerUpdateItem(itemId, dto)),
+  removeItem: (itemId: string) =>
+    handleRequest(() => cartApi.cartControllerRemoveItem(itemId)),
 };

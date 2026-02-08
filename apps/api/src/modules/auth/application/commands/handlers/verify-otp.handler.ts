@@ -1,11 +1,15 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Inject, UnauthorizedException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+
 import { VerifyOTPCommand } from '../verify-otp.command';
+import { OTPVerifiedEvent } from '@/shared/events/auth.events';
 import { OTPRepository } from '@/modules/auth/domain/repositories';
-import { OTPVerifiedEvent } from '@/modules/auth/domain/events';
 
 @CommandHandler(VerifyOTPCommand)
-export class VerifyOTPHandler implements ICommandHandler<VerifyOTPCommand, boolean> {
+export class VerifyOTPHandler implements ICommandHandler<
+  VerifyOTPCommand,
+  boolean
+> {
   constructor(
     @Inject('OTPRepository')
     private readonly otpRepository: OTPRepository,
@@ -16,7 +20,8 @@ export class VerifyOTPHandler implements ICommandHandler<VerifyOTPCommand, boole
     const { identifier, otp } = command;
 
     // Find latest OTP session
-    const otpSession = await this.otpRepository.findLatestByIdentifier(identifier);
+    const otpSession =
+      await this.otpRepository.findLatestByIdentifier(identifier);
 
     if (!otpSession) {
       throw new UnauthorizedException('No OTP session found');

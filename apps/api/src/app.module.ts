@@ -12,10 +12,11 @@ import { RedisModule } from '@/shared/infrastructure/redis/redis.module';
 // Feature Modules
 import { AuthModule } from '@/modules/auth/auth.module';
 import { UserModule } from '@/modules/user/user.module';
+import { FeedModule } from '@/modules/feed/feed.module';
+import { CartModule } from '@/modules/cart/cart.module';
+import { OfferModule } from '@/modules/offer/offer.module';
 import { ProductModule } from '@/modules/product/product.module';
 import { CategoryModule } from '@/modules/category/category.module';
-import { FeedModule } from '@/modules/feed/feed.module';
-import { OfferModule } from '@/modules/offer/offer.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { OfferModule } from '@/modules/offer/offer.module';
     UserModule,
     FeedModule,
     OfferModule,
+    CartModule,
   ],
   providers: [
     {

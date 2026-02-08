@@ -1,10 +1,4 @@
-export interface ReadUrlResponse {
-  readUrl: string;
-}
-
-export interface UploadUrlResponse extends ReadUrlResponse {
-  uploadUrl: string;
-}
+import { UploadDescriptor } from '@/shared/infrastructure/storage/upload-descriptor';
 
 export interface IStorageService {
   /**
@@ -16,6 +10,12 @@ export interface IStorageService {
    * Generate a read-only URL
    */
   generateReadUrl(blobName: string): string;
+
+  /**
+   * Generate presigned upload credentials for client-side upload to Cloudinary
+   * Returns structured upload descriptor with all required fields
+   */
+  generatePresignedUpload(blobName: string): UploadDescriptor;
 
   /**
    * Upload file directly from backend (buffer-based)

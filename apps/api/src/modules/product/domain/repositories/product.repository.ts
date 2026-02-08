@@ -65,11 +65,6 @@ export interface ProductRepository {
   findVariantById(id: string): Promise<ProductVariant | null>;
 
   /**
-   * Find variant by SKU (unique identifier)
-   */
-  findVariantBySku(sku: string): Promise<ProductVariant | null>;
-
-  /**
    * Find all variants for a specific product
    */
   findVariantsByProductId(productId: string): Promise<ProductVariant[]>;
@@ -91,10 +86,33 @@ export interface ProductRepository {
    */
   variantExists(id: string): Promise<boolean>;
 
+  // ============================================
+  // VARIANT IMAGE Operations
+  // ============================================
+
   /**
-   * Check if SKU is already taken
+   * Save a variant image URL
    */
-  skuExists(sku: string): Promise<boolean>;
+  saveVariantImage(
+    variantId: string,
+    publicId: string,
+    url: string,
+  ): Promise<void>;
+
+  /**
+   * Delete a variant image by URL
+   */
+  deleteVariantImage(variantId: string, position: number): Promise<void>;
+
+  /**
+   * Find all image URLs for a variant
+   */
+  findVariantImages(variantId: string): Promise<string[]>;
+
+  /**
+   * Delete all images for a variant (cascade)
+   */
+  deleteVariantImagesByVariantId(variantId: string): Promise<void>;
 
   // ============================================
   // COMBINED QUERIES (Product + Variants)
@@ -116,6 +134,51 @@ export interface ProductRepository {
     page?: number;
     limit?: number;
     search?: string;
+  }): Promise<{
+    products: Array<{
+      product: Product;
+      variants: ProductVariant[];
+    }>;
+    total: number;
+  }>;
+
+  // ============================================
+  // SELLER-SPECIFIC QUERIES
+  // ============================================
+
+  /**
+   * Find all products owned by a seller (via variants)
+   * Returns products where at least one variant belongs to the seller
+   */
+  findProductsBySellerProfileId(
+    sellerProfileId: string,
+    filters?: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      status?: string;
+    },
+  ): Promise<{
+    products: Array<{
+      product: Product;
+      variants: ProductVariant[];
+    }>;
+    total: number;
+  }>;
+
+  // ============================================
+  // ADMIN-SPECIFIC QUERIES
+  // ============================================
+
+  /**
+   * Find all products for admin panel (includes all statuses)
+   */
+  findAllProductsForAdmin(filters?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    categoryId?: string;
   }): Promise<{
     products: Array<{
       product: Product;

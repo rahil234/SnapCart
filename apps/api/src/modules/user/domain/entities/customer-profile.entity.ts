@@ -1,4 +1,4 @@
-import { v4 as uuid } from 'uuid';
+import cuid from '@paralleldrive/cuid2';
 import { UserGender } from '@/modules/user/domain/enums';
 
 export class CustomerProfile {
@@ -20,7 +20,7 @@ export class CustomerProfile {
     gender: UserGender | null = null,
   ): CustomerProfile {
     return new CustomerProfile(
-      uuid(),
+      cuid.createId(),
       userId,
       name,
       dob,
@@ -40,7 +40,15 @@ export class CustomerProfile {
     createdAt: Date,
     updatedAt: Date,
   ): CustomerProfile {
-    return new CustomerProfile(id, userId, name, dob, gender, createdAt, updatedAt);
+    return new CustomerProfile(
+      id,
+      userId,
+      name,
+      dob,
+      gender,
+      createdAt,
+      updatedAt,
+    );
   }
 
   // Business methods
@@ -86,7 +94,10 @@ export class CustomerProfile {
     const birthDate = new Date(this.dob);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
     return age;

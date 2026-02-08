@@ -3,16 +3,14 @@ import { useForm } from 'react-hook-form';
 import React, { useRef, useState } from 'react';
 import { Loader2, Upload, User as UserIcon } from 'lucide-react';
 
-import { IUser } from '@/types/user';
+import { User } from '@/types';
 import { Address } from '@/types/address';
-import { useAppDispatch } from '@/app/store';
+import { useAppDispatch } from '@/store/store';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { UserService } from '@/services/user.service';
-import { changeProfilePicture } from '@/features/auth/authSlice';
+import { changeProfilePicture } from '@/store/auth/authSlice';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-const imageUrl = import.meta.env.VITE_IMAGE_URL + '/profiles/';
 
 export interface ProfileFormValues {
   name: string;
@@ -20,10 +18,10 @@ export interface ProfileFormValues {
   addresses: Address[];
 }
 
-function ProfileSection({ user }: { user: IUser }) {
+function ProfileSection({ user }: { user: User }) {
   const [isLoading, setIsLoading] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(
-    imageUrl + user?.profilePicture || ''
+    user?.customerProfile?.profilePicture || ''
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
@@ -34,22 +32,22 @@ function ProfileSection({ user }: { user: IUser }) {
     formState: { errors },
   } = useForm<ProfileFormValues>({
     defaultValues: {
-      name: user?.firstName || '',
+      name: user?.customerProfile?.name || '',
     },
   });
 
   async function onSubmit(data: ProfileFormValues) {
-    try {
-      setIsLoading(true);
-      const response = await UserService.updateMe(data);
-      console.log(response);
-      setIsLoading(false);
-      toast.success('Profile updated successfully');
-    } catch (error) {
+    setIsLoading(true);
+    const { error } = await UserService.updateMe(data);
+
+    if (error) {
       console.error('Failed to update profile:', error);
       toast.error('Failed to update profile');
-      setIsLoading(false);
     }
+
+    toast.success('Profile updated successfully');
+
+    setIsLoading(false);
   }
 
   const handleAvatarChange = async (
@@ -61,8 +59,10 @@ function ProfileSection({ user }: { user: IUser }) {
       reader.onload = e => {
         setAvatarSrc(e.target?.result as string);
       };
-      const response = await UserService.uploadProfilePicture(file);
-      dispatch(changeProfilePicture(response.data.profilePicture));
+      const { data, error } = await UserService.uploadProfilePicture(file);
+
+      dispatch(changeProfilePicture(data.profilePicture));
+
       reader.readAsDataURL(file);
     }
   };

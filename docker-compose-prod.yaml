@@ -6,3 +6,5 @@ services:
     build:
       context: ./apps/api
       dockerfile: Dockerfile
+    env_file:
+      - ./apps/api/.env.production
