@@ -11,15 +11,19 @@ export class UserResponseDto {
     description:
       'Email address of the user. Optional if the user registered with phone number.',
     example: 'user@example.com',
+    type: String,
+    nullable: true,
   })
-  email?: string;
+  email: string | null;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description:
       'Phone number of the user. Optional if the user registered with email address.',
     example: '+1234567890',
+    type: String,
+    nullable: true,
   })
-  phone?: string;
+  phone: string | null;
 
   @ApiProperty({ enum: UserRole })
   role: UserRole;
@@ -36,8 +40,8 @@ export class UserResponseDto {
   static fromEntity(user: User): UserResponseDto {
     const dto = new UserResponseDto();
     dto.id = user.getId();
-    dto.email = user.getEmail() || undefined;
-    dto.phone = user.getPhone() || undefined;
+    dto.email = user.getEmail();
+    dto.phone = user.getPhone();
     dto.role = user.getRole();
     dto.status = user.getStatus();
     dto.createdAt = user.createdAt;

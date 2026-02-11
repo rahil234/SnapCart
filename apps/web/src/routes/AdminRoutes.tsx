@@ -6,15 +6,15 @@ import AdminLogin from '@/pages/admin/AdminLogin';
 import ComingSoon from '@/pages/admin/ComingSoon';
 import AdminUsers from '@/pages/admin/AdminUsers';
 import ProtectedRoute from '@/routes/ProtectedRoute';
-import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminCategory from '@/pages/admin/AdminCategory';
-// import AdminSellers from '@/pages/admin/AdminSellers';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
 // import AdminBanners from '@/pages/admin/AdminBanners';
 // import AdminCoupons from '@/pages/admin/AdminCoupons';
 import AdminProducts from '@/pages/admin/AdminProducts';
 import AdminCoupons from '@/pages/admin/AdminCoupons';
 // import AdminOrders from '@/pages/admin/AdminOrders';
-// import AdminOffers from '@/pages/admin/AdminOffers';
+import AdminOffers from '@/pages/admin/AdminOffers';
+import AdminOrders from '@/pages/admin/AdminOrders';
 // import SalesReport from '@/pages/admin/AdminSalesReport';
 
 const AdminRoutes = [
@@ -37,8 +37,8 @@ const AdminRoutes = [
           { path: 'coupons', element: <AdminCoupons /> },
           { path: 'categories', element: <AdminCategory /> },
           { path: 'products', element: <AdminProducts /> },
-          // { path: 'offers', element: <AdminOffers /> },
-          // { path: 'orders', element: <AdminOrders /> },
+          { path: 'offers', element: <AdminOffers /> },
+          { path: 'orders', element: <AdminOrders /> },
           // { path: 'sales', element: <SalesReport /> },
           { path: 'deals', element: <ComingSoon /> },
           { path: 'inbox', element: <ComingSoon /> },

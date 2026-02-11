@@ -9,9 +9,6 @@ class CustomerProfileDto {
 
   @ApiPropertyOptional()
   name?: string;
-
-  @ApiPropertyOptional()
-  cartId?: string;
 }
 
 class SellerProfileDto {
@@ -54,7 +51,6 @@ export class MeResponseDto {
         ? {
             id: result.customerProfile.id,
             name: result.customerProfile.name,
-            cartId: result.customerProfile.cartId,
           }
         : undefined,
       sellerProfile: result.sellerProfile

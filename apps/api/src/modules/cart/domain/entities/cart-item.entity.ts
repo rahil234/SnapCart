@@ -9,7 +9,7 @@ export class CartItem {
     public readonly id: string,
     private readonly cartId: string,
     private readonly productId: string,
-    private readonly productVariantId: string,
+    private readonly variantId: string,
     private quantity: number,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
@@ -21,14 +21,14 @@ export class CartItem {
   static create(
     cartId: string,
     productId: string,
-    productVariantId: string,
+    variantId: string,
     quantity: number,
   ): CartItem {
     return new CartItem(
       cuid.createId(),
       cartId,
       productId,
-      productVariantId,
+      variantId,
       quantity,
       new Date(),
       new Date(),
@@ -40,7 +40,7 @@ export class CartItem {
     id: string,
     cartId: string,
     productId: string,
-    productVariantId: string,
+    variantId: string,
     quantity: number,
     createdAt: Date,
     updatedAt: Date,
@@ -49,7 +49,7 @@ export class CartItem {
       id,
       cartId,
       productId,
-      productVariantId,
+      variantId,
       quantity,
       createdAt,
       updatedAt,
@@ -100,7 +100,7 @@ export class CartItem {
   }
 
   getProductVariantId(): string {
-    return this.productVariantId;
+    return this.variantId;
   }
 
   getQuantity(): number {

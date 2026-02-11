@@ -9,6 +9,7 @@ All URIs are relative to *http://localhost:4000*
 |[**adminCouponControllerDeactivate**](#admincouponcontrollerdeactivate) | **PATCH** /api/admin/coupons/{id}/deactivate | Deactivate coupon|
 |[**adminCouponControllerFindAll**](#admincouponcontrollerfindall) | **GET** /api/admin/coupons | Get all coupons|
 |[**adminCouponControllerFindOne**](#admincouponcontrollerfindone) | **GET** /api/admin/coupons/{id} | Get coupon by ID|
+|[**adminCouponControllerGetCouponAnalytics**](#admincouponcontrollergetcouponanalytics) | **GET** /api/admin/coupons/analytics/performance | Get coupon performance analytics|
 |[**adminCouponControllerGetUsageHistory**](#admincouponcontrollergetusagehistory) | **GET** /api/admin/coupons/{id}/usage | Get coupon usage history|
 |[**adminCouponControllerUpdate**](#admincouponcontrollerupdate) | **PATCH** /api/admin/coupons/{id} | Update coupon|
 
@@ -290,6 +291,64 @@ const { status, data } = await apiInstance.adminCouponControllerFindOne(
 |**401** | Authentication required |  -  |
 |**403** | Insufficient permissions |  -  |
 |**404** | Coupon not found |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **adminCouponControllerGetCouponAnalytics**
+> MessageOnlyResponse adminCouponControllerGetCouponAnalytics()
+
+Retrieve analytics and performance metrics for all coupons including usage stats, revenue impact, and top performers
+
+### Example
+
+```typescript
+import {
+    AdminCouponsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdminCouponsApi(configuration);
+
+let startDate: string; //Start date for analytics period (ISO format) (optional) (default to undefined)
+let endDate: string; //End date for analytics period (ISO format) (optional) (default to undefined)
+
+const { status, data } = await apiInstance.adminCouponControllerGetCouponAnalytics(
+    startDate,
+    endDate
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **startDate** | [**string**] | Start date for analytics period (ISO format) | (optional) defaults to undefined|
+| **endDate** | [**string**] | End date for analytics period (ISO format) | (optional) defaults to undefined|
+
+
+### Return type
+
+**MessageOnlyResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Analytics retrieved successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**401** | Authentication required |  -  |
+|**403** | Insufficient permissions |  -  |
 |**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

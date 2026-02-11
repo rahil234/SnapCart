@@ -1,20 +1,30 @@
+import { apiClient } from '@/api/axios';
 import { apiConfig } from '@/api/client';
-import { OrderApi } from '@/api/generated';
-
+import {
+  AdminOrdersApi,
+  OrdersCustomerApi,
+  SellerOrdersApi,
+  UpdateOrderStatusDto,
+} from '@/api/generated';
 import { handleRequest } from '@/api/utils/handleRequest';
 
-const orderApi = new OrderApi(apiConfig);
+const ordersApi = new OrdersCustomerApi(apiConfig, undefined, apiClient);
+
+const sellerOrdersApi = new SellerOrdersApi(apiConfig, undefined, apiClient);
+
+const adminOrdersApi = new AdminOrdersApi(apiConfig, undefined, apiClient);
 
 export const OrderService = {
-  getOrders: () => handleRequest(() => orderApi.orderControllerFindAll()),
+  getMyOrders: () =>
+    handleRequest(() => ordersApi.customerOrderControllerGetMyOrders()),
   getSellerOrders: () =>
-    handleRequest(() => orderApi.orderControllerFindSellerOrders()),
+    handleRequest(() => sellerOrdersApi.sellerOrderControllerGetSellerOrders()),
   getAdminOrders: () =>
-    handleRequest(() => orderApi.orderControllerFindAdminOrders()),
+    handleRequest(() => adminOrdersApi.adminOrderControllerGetAllOrders()),
   getOrder: (orderId: string) =>
-    handleRequest(() => orderApi.orderControllerFindOne(orderId)),
-  createOrder: (orderData: CreateOrderDto) =>
-    handleRequest(() => orderApi.orderControllerCreate(orderData)),
+    handleRequest(() =>
+      adminOrdersApi.adminOrderControllerGetOrderById(orderId)
+    ),
   verifyCheckout: () =>
     handleRequest(() => orderApi.orderControllerVerifyCheckout()),
   createPayment: (paymentData: CreatePaymentDto) =>
@@ -23,7 +33,7 @@ export const OrderService = {
     handleRequest(() => orderApi.orderControllerVerifyPayment(paymentData)),
   updateOrderStatus: (orderId: string, statusData: UpdateOrderStatusDto) =>
     handleRequest(() =>
-      orderApi.orderControllerUpdateStatus(orderId, statusData)
+      adminOrdersApi.adminOrderControllerUpdateOrderStatus(orderId, statusData)
     ),
   cancelOrder: (orderId: string) =>
     handleRequest(() => orderApi.orderControllerCancel(orderId)),

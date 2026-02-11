@@ -74,6 +74,26 @@ export interface AdminProductControllerGetAdminProducts200Response {
      */
     'meta': PaginationMetaDto;
 }
+export interface AppliedOfferDto {
+    /**
+     * Offer ID
+     */
+    'id': string;
+    /**
+     * Offer name
+     */
+    'name': string;
+    /**
+     * Discount amount applied
+     */
+    'discount': number;
+}
+export interface ApplyCouponDto {
+    /**
+     * Coupon code to apply
+     */
+    'code': string;
+}
 export interface BadRequestErrorDto {
     'statusCode': number;
     /**
@@ -82,6 +102,12 @@ export interface BadRequestErrorDto {
     'message': Array<string>;
     'error': string;
 }
+export interface CancelOrderDto {
+    /**
+     * Reason for cancelling the order
+     */
+    'cancelReason': string;
+}
 export interface CartControllerAddItem201Response {
     'message': string;
     'data': CartItemResponseDto;
@@ -89,6 +115,10 @@ export interface CartControllerAddItem201Response {
 export interface CartControllerGetCart200Response {
     'message': string;
     'data': CartWithDetailsResponseDto;
+}
+export interface CartControllerGetCartPricing200Response {
+    'message': string;
+    'data': CartPricingDto;
 }
 export interface CartItemResponseDto {
     /**
@@ -153,6 +183,44 @@ export interface CartItemWithDetailsResponseDto {
      * Updated at timestamp
      */
     'updatedAt': string;
+}
+export interface CartPricingDto {
+    /**
+     * Subtotal before any discounts
+     */
+    'subtotal': number;
+    /**
+     * Total discount from offers
+     */
+    'offerDiscount': number;
+    /**
+     * Discount from applied coupon
+     */
+    'couponDiscount': number;
+    /**
+     * Total discount amount
+     */
+    'totalDiscount': number;
+    /**
+     * Final total after all discounts
+     */
+    'finalTotal': number;
+    /**
+     * IDs of applied offers
+     */
+    'appliedOfferIds': Array<string>;
+    /**
+     * Applied coupon code
+     */
+    'appliedCouponCode'?: string;
+    /**
+     * Total savings from all discounts
+     */
+    'savings': number;
+    /**
+     * List of applied offers with details
+     */
+    'appliedOffers': Array<AppliedOfferDto>;
 }
 export interface CartWithDetailsResponseDto {
     /**
@@ -252,6 +320,146 @@ export const CategoryResponseDtoStatusEnum = {
 
 export type CategoryResponseDtoStatusEnum = typeof CategoryResponseDtoStatusEnum[keyof typeof CategoryResponseDtoStatusEnum];
 
+export interface CheckoutCommitDto {
+    /**
+     * Checkout source - where checkout is initiated from
+     */
+    'source': CheckoutCommitDtoSourceEnum;
+    /**
+     * Coupon code to apply
+     */
+    'couponCode'?: string;
+    /**
+     * Shipping address ID
+     */
+    'shippingAddressId': string;
+    /**
+     * Payment method
+     */
+    'paymentMethod': string;
+}
+
+export const CheckoutCommitDtoSourceEnum = {
+    Product: 'PRODUCT',
+    Cart: 'CART'
+} as const;
+
+export type CheckoutCommitDtoSourceEnum = typeof CheckoutCommitDtoSourceEnum[keyof typeof CheckoutCommitDtoSourceEnum];
+
+export interface CheckoutCommitResponseDto {
+    /**
+     * Order ID
+     */
+    'id': string;
+    /**
+     * Order number
+     */
+    'orderNumber': string;
+    /**
+     * Subtotal before any discounts
+     */
+    'subtotal': number;
+    /**
+     * Product-level discount
+     */
+    'discount': number;
+    /**
+     * Coupon discount applied
+     */
+    'couponDiscount': number;
+    /**
+     * Offer discount applied
+     */
+    'offerDiscount': number;
+    /**
+     * Shipping charge
+     */
+    'shippingCharge': number;
+    /**
+     * Tax amount
+     */
+    'tax': number;
+    /**
+     * Final total amount
+     */
+    'total': number;
+    /**
+     * Applied coupon code
+     */
+    'appliedCouponCode'?: object;
+    /**
+     * Order items
+     */
+    'items': Array<object>;
+    /**
+     * Payment status
+     */
+    'paymentStatus': string;
+    /**
+     * Order status
+     */
+    'orderStatus': string;
+}
+export interface CheckoutControllerCommitCheckout201Response {
+    'message': string;
+    'data': CheckoutCommitResponseDto;
+}
+export interface CheckoutControllerPreviewCheckout200Response {
+    'message': string;
+    'data': CheckoutPreviewResponseDto;
+}
+export interface CheckoutPreviewDto {
+    /**
+     * Checkout source - where checkout is initiated from
+     */
+    'source': CheckoutPreviewDtoSourceEnum;
+    /**
+     * Coupon code to apply
+     */
+    'couponCode'?: string;
+}
+
+export const CheckoutPreviewDtoSourceEnum = {
+    Product: 'PRODUCT',
+    Cart: 'CART'
+} as const;
+
+export type CheckoutPreviewDtoSourceEnum = typeof CheckoutPreviewDtoSourceEnum[keyof typeof CheckoutPreviewDtoSourceEnum];
+
+export interface CheckoutPreviewResponseDto {
+    /**
+     * Subtotal before any discounts
+     */
+    'subtotal': number;
+    /**
+     * Product-level discount
+     */
+    'productDiscount': number;
+    /**
+     * Coupon discount applied
+     */
+    'couponDiscount': number;
+    /**
+     * Offer discount applied
+     */
+    'offerDiscount': number;
+    /**
+     * Shipping charge
+     */
+    'shippingCharge': number;
+    /**
+     * Tax amount
+     */
+    'tax': number;
+    /**
+     * Final total amount
+     */
+    'total': number;
+    /**
+     * Applied coupon details
+     */
+    'couponSnapshot'?: CouponSnapshotDto;
+}
 export interface ConflictErrorDto {
     'statusCode': number;
     'message': string;
@@ -369,6 +577,24 @@ export const CouponResponseDtoApplicableToEnum = {
 
 export type CouponResponseDtoApplicableToEnum = typeof CouponResponseDtoApplicableToEnum[keyof typeof CouponResponseDtoApplicableToEnum];
 
+export interface CouponSnapshotDto {
+    /**
+     * Coupon code
+     */
+    'code': string;
+    /**
+     * Coupon type
+     */
+    'type': string;
+    /**
+     * Discount value
+     */
+    'discount': number;
+    /**
+     * Discount applied
+     */
+    'discountApplied': number;
+}
 export interface CouponUsageResponseDto {
     /**
      * Usage record ID
@@ -403,15 +629,15 @@ export interface CouponValidationResponseDto {
     /**
      * Reason if coupon is invalid
      */
-    'reason'?: string;
+    'reason': string | null;
     /**
      * Discount amount that will be applied
      */
-    'discount'?: number;
+    'discount': number;
     /**
      * Coupon code that was validated
      */
-    'code'?: string;
+    'code': string;
 }
 export interface CreateAddressDto {
     /**
@@ -526,6 +752,64 @@ export const CreateCouponDtoApplicableToEnum = {
 
 export type CreateCouponDtoApplicableToEnum = typeof CreateCouponDtoApplicableToEnum[keyof typeof CreateCouponDtoApplicableToEnum];
 
+export interface CreateOfferDto {
+    /**
+     * Offer name
+     */
+    'name': string;
+    /**
+     * Type of discount
+     */
+    'type': CreateOfferDtoTypeEnum;
+    /**
+     * Discount value (percentage or flat amount)
+     */
+    'discount': number;
+    /**
+     * Offer start date
+     */
+    'startDate': string;
+    /**
+     * Offer end date
+     */
+    'endDate': string;
+    /**
+     * Minimum purchase amount required
+     */
+    'minPurchaseAmount': number;
+    /**
+     * Maximum discount amount (for percentage offers)
+     */
+    'maxDiscount'?: number;
+    /**
+     * Priority (higher number = higher priority)
+     */
+    'priority': number;
+    /**
+     * Category IDs this offer applies to
+     */
+    'categories'?: Array<string>;
+    /**
+     * Product IDs this offer applies to
+     */
+    'products'?: Array<string>;
+    /**
+     * Whether offer can be combined with coupons
+     */
+    'isStackable': boolean;
+    /**
+     * Offer description for users
+     */
+    'description'?: string;
+}
+
+export const CreateOfferDtoTypeEnum = {
+    Percentage: 'Percentage',
+    Flat: 'Flat'
+} as const;
+
+export type CreateOfferDtoTypeEnum = typeof CreateOfferDtoTypeEnum[keyof typeof CreateOfferDtoTypeEnum];
+
 export interface CreateProductDto {
     /**
      * Product name (catalog identity)
@@ -570,10 +854,35 @@ export interface CreateVariantDto {
      */
     'attributes'?: object;
 }
+export interface CustomerInfoResponseDto {
+    /**
+     * Customer profile ID
+     */
+    'customerId': string;
+    /**
+     * Customer name
+     */
+    'customerName'?: string | null;
+    /**
+     * Customer email
+     */
+    'customerEmail'?: string | null;
+    /**
+     * Customer phone
+     */
+    'customerPhone'?: string | null;
+}
+export interface CustomerOrderControllerCancelOrder200Response {
+    'message': string;
+    'data': OrderResponseDto;
+}
+export interface CustomerOrderControllerGetMyOrders200Response {
+    'message': string;
+    'data': Array<OrderResponseDto>;
+}
 export interface CustomerProfileDto {
     'id': string;
     'name'?: string;
-    'cartId'?: string;
 }
 export interface FeedControllerGetFeed200Response {
     'message': string;
@@ -679,6 +988,270 @@ export interface NotFoundErrorDto {
     'message': string;
     'error': string;
 }
+export interface OfferControllerGetActiveOffers200Response {
+    'message': string;
+    'data': Array<OfferResponseDto>;
+}
+export interface OfferControllerGetOffer200Response {
+    'message': string;
+    'data': OfferResponseDto;
+}
+export interface OfferResponseDto {
+    /**
+     * Offer ID
+     */
+    'id': string;
+    /**
+     * Offer name
+     */
+    'name': string;
+    /**
+     * Discount type
+     */
+    'type': OfferResponseDtoTypeEnum;
+    /**
+     * Discount value
+     */
+    'discount': number;
+    /**
+     * Minimum purchase amount required
+     */
+    'minPurchaseAmount': number;
+    /**
+     * Maximum discount amount
+     */
+    'maxDiscount'?: number;
+    /**
+     * Priority (higher = more important)
+     */
+    'priority': number;
+    /**
+     * Offer start date
+     */
+    'startDate': string;
+    /**
+     * Offer end date
+     */
+    'endDate': string;
+    /**
+     * Offer status
+     */
+    'status': OfferResponseDtoStatusEnum;
+    /**
+     * Can be stacked with coupons
+     */
+    'isStackable': boolean;
+    /**
+     * Applicable category IDs
+     */
+    'categories': Array<string>;
+    /**
+     * Applicable product IDs
+     */
+    'products': Array<string>;
+    /**
+     * Offer description
+     */
+    'description'?: string;
+    /**
+     * Whether offer is currently active
+     */
+    'isActive': boolean;
+    /**
+     * Creation timestamp
+     */
+    'createdAt': string;
+    /**
+     * Last update timestamp
+     */
+    'updatedAt': string;
+}
+
+export const OfferResponseDtoTypeEnum = {
+    Percentage: 'Percentage',
+    Flat: 'Flat'
+} as const;
+
+export type OfferResponseDtoTypeEnum = typeof OfferResponseDtoTypeEnum[keyof typeof OfferResponseDtoTypeEnum];
+export const OfferResponseDtoStatusEnum = {
+    Active: 'active',
+    Inactive: 'inactive',
+    Expired: 'expired'
+} as const;
+
+export type OfferResponseDtoStatusEnum = typeof OfferResponseDtoStatusEnum[keyof typeof OfferResponseDtoStatusEnum];
+
+export interface OrderItemResponseDto {
+    /**
+     * Product ID
+     */
+    'productId': string;
+    /**
+     * Product name
+     */
+    'productName': string;
+    /**
+     * Variant ID
+     */
+    'variantId': string;
+    /**
+     * Variant name
+     */
+    'variantName': string;
+    /**
+     * Quantity ordered
+     */
+    'quantity': number;
+    /**
+     * Base price per item
+     */
+    'basePrice': number;
+    /**
+     * Discount percentage applied
+     */
+    'discountPercent': number;
+    /**
+     * Final price per item after discount
+     */
+    'finalPrice': number;
+    /**
+     * Total price for this item
+     */
+    'totalPrice': number;
+    /**
+     * Product variant attributes
+     */
+    'attributes': object;
+    /**
+     * Product image URL
+     */
+    'imageUrl': string | null;
+}
+export interface OrderResponseDto {
+    /**
+     * Order ID
+     */
+    'id': string;
+    /**
+     * Order number
+     */
+    'orderNumber': string;
+    /**
+     * Customer ID
+     */
+    'customerId': string;
+    /**
+     * Customer information
+     */
+    'customer'?: CustomerInfoResponseDto;
+    /**
+     * Order items
+     */
+    'items': Array<OrderItemResponseDto>;
+    /**
+     * Subtotal amount
+     */
+    'subtotal': number;
+    /**
+     * Discount amount
+     */
+    'discount': number;
+    /**
+     * Coupon discount amount
+     */
+    'couponDiscount': number;
+    /**
+     * Offer discount amount
+     */
+    'offerDiscount': number;
+    /**
+     * Shipping charge
+     */
+    'shippingCharge': number;
+    /**
+     * Tax amount
+     */
+    'tax': number;
+    /**
+     * Total amount
+     */
+    'total': number;
+    /**
+     * Applied coupon code
+     */
+    'appliedCouponCode': string | null;
+    /**
+     * Applied offer IDs
+     */
+    'appliedOfferIds': Array<string>;
+    /**
+     * Shipping address JSON
+     */
+    'shippingAddress': object;
+    /**
+     * Payment method
+     */
+    'paymentMethod': string | null;
+    /**
+     * Payment status
+     */
+    'paymentStatus': OrderResponseDtoPaymentStatusEnum;
+    /**
+     * Order status
+     */
+    'orderStatus': OrderResponseDtoOrderStatusEnum;
+    /**
+     * Order metadata
+     */
+    'metadata': object;
+    /**
+     * Cancel reason
+     */
+    'cancelReason': string | null;
+    /**
+     * Refund amount
+     */
+    'refundAmount': number | null;
+    /**
+     * Order placed date
+     */
+    'placedAt': string;
+    /**
+     * Delivered date
+     */
+    'deliveredAt': string | null;
+    /**
+     * Cancelled date
+     */
+    'cancelledAt': string | null;
+    /**
+     * Last updated date
+     */
+    'updatedAt': string;
+}
+
+export const OrderResponseDtoPaymentStatusEnum = {
+    Pending: 'pending',
+    Paid: 'paid',
+    Failed: 'failed',
+    Refunded: 'refunded'
+} as const;
+
+export type OrderResponseDtoPaymentStatusEnum = typeof OrderResponseDtoPaymentStatusEnum[keyof typeof OrderResponseDtoPaymentStatusEnum];
+export const OrderResponseDtoOrderStatusEnum = {
+    Pending: 'pending',
+    Processing: 'processing',
+    Shipping: 'shipping',
+    Delivered: 'delivered',
+    Canceled: 'canceled',
+    ReturnRequested: 'return_requested',
+    ReturnApproved: 'return_approved',
+    ReturnRejected: 'return_rejected',
+    Returned: 'returned'
+} as const;
+
+export type OrderResponseDtoOrderStatusEnum = typeof OrderResponseDtoOrderStatusEnum[keyof typeof OrderResponseDtoOrderStatusEnum];
+
 export interface PaginationMetaDto {
     /**
      * Current page number
@@ -1169,6 +1742,85 @@ export const UpdateCouponDtoApplicableToEnum = {
 
 export type UpdateCouponDtoApplicableToEnum = typeof UpdateCouponDtoApplicableToEnum[keyof typeof UpdateCouponDtoApplicableToEnum];
 
+export interface UpdateOfferDto {
+    /**
+     * Offer name
+     */
+    'name'?: string;
+    /**
+     * Type of discount
+     */
+    'type'?: UpdateOfferDtoTypeEnum;
+    /**
+     * Discount value
+     */
+    'discount'?: number;
+    /**
+     * Start date
+     */
+    'startDate'?: string;
+    /**
+     * End date
+     */
+    'endDate'?: string;
+    /**
+     * Minimum purchase amount
+     */
+    'minPurchaseAmount'?: number;
+    /**
+     * Maximum discount amount
+     */
+    'maxDiscount'?: number;
+    /**
+     * Priority
+     */
+    'priority'?: number;
+    /**
+     * Category IDs
+     */
+    'categories'?: Array<string>;
+    /**
+     * Product IDs
+     */
+    'products'?: Array<string>;
+    /**
+     * Stackable with coupons
+     */
+    'isStackable'?: boolean;
+    /**
+     * Offer description
+     */
+    'description'?: string;
+}
+
+export const UpdateOfferDtoTypeEnum = {
+    Percentage: 'Percentage',
+    Flat: 'Flat'
+} as const;
+
+export type UpdateOfferDtoTypeEnum = typeof UpdateOfferDtoTypeEnum[keyof typeof UpdateOfferDtoTypeEnum];
+
+export interface UpdateOrderStatusDto {
+    /**
+     * New order status
+     */
+    'status': UpdateOrderStatusDtoStatusEnum;
+}
+
+export const UpdateOrderStatusDtoStatusEnum = {
+    Pending: 'pending',
+    Processing: 'processing',
+    Shipping: 'shipping',
+    Delivered: 'delivered',
+    Canceled: 'canceled',
+    ReturnRequested: 'return_requested',
+    ReturnApproved: 'return_approved',
+    ReturnRejected: 'return_rejected',
+    Returned: 'returned'
+} as const;
+
+export type UpdateOrderStatusDtoStatusEnum = typeof UpdateOrderStatusDtoStatusEnum[keyof typeof UpdateOrderStatusDtoStatusEnum];
+
 export interface UpdateProductDto {
     /**
      * Product name
@@ -1374,11 +2026,11 @@ export interface UserResponseDto {
     /**
      * Email address of the user. Optional if the user registered with phone number.
      */
-    'email'?: string;
+    'email'?: string | null;
     /**
      * Phone number of the user. Optional if the user registered with email address.
      */
-    'phone'?: string;
+    'phone': string | null;
     'role': UserResponseDtoRoleEnum;
     'status': UserResponseDtoStatusEnum;
     'createdAt': string;
@@ -2068,6 +2720,50 @@ export const AdminCouponsApiAxiosParamCreator = function (configuration?: Config
             };
         },
         /**
+         * Retrieve analytics and performance metrics for all coupons including usage stats, revenue impact, and top performers
+         * @summary Get coupon performance analytics
+         * @param {string} [startDate] Start date for analytics period (ISO format)
+         * @param {string} [endDate] End date for analytics period (ISO format)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerGetCouponAnalytics: async (startDate?: string, endDate?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/coupons/analytics/performance`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (startDate !== undefined) {
+                localVarQueryParameter['startDate'] = startDate;
+            }
+
+            if (endDate !== undefined) {
+                localVarQueryParameter['endDate'] = endDate;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Retrieve detailed usage history for a specific coupon
          * @summary Get coupon usage history
          * @param {string} id Coupon ID
@@ -2224,6 +2920,20 @@ export const AdminCouponsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Retrieve analytics and performance metrics for all coupons including usage stats, revenue impact, and top performers
+         * @summary Get coupon performance analytics
+         * @param {string} [startDate] Start date for analytics period (ISO format)
+         * @param {string} [endDate] End date for analytics period (ISO format)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerGetCouponAnalytics(startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerGetCouponAnalytics(startDate, endDate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerGetCouponAnalytics']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Retrieve detailed usage history for a specific coupon
          * @summary Get coupon usage history
          * @param {string} id Coupon ID
@@ -2311,6 +3021,17 @@ export const AdminCouponsApiFactory = function (configuration?: Configuration, b
             return localVarFp.adminCouponControllerFindOne(id, options).then((request) => request(axios, basePath));
         },
         /**
+         * Retrieve analytics and performance metrics for all coupons including usage stats, revenue impact, and top performers
+         * @summary Get coupon performance analytics
+         * @param {string} [startDate] Start date for analytics period (ISO format)
+         * @param {string} [endDate] End date for analytics period (ISO format)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerGetCouponAnalytics(startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminCouponControllerGetCouponAnalytics(startDate, endDate, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Retrieve detailed usage history for a specific coupon
          * @summary Get coupon usage history
          * @param {string} id Coupon ID
@@ -2395,6 +3116,18 @@ export class AdminCouponsApi extends BaseAPI {
     }
 
     /**
+     * Retrieve analytics and performance metrics for all coupons including usage stats, revenue impact, and top performers
+     * @summary Get coupon performance analytics
+     * @param {string} [startDate] Start date for analytics period (ISO format)
+     * @param {string} [endDate] End date for analytics period (ISO format)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerGetCouponAnalytics(startDate?: string, endDate?: string, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerGetCouponAnalytics(startDate, endDate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Retrieve detailed usage history for a specific coupon
      * @summary Get coupon usage history
      * @param {string} id Coupon ID
@@ -2418,6 +3151,799 @@ export class AdminCouponsApi extends BaseAPI {
     }
 }
 
+
+
+/**
+ * AdminOffersApi - axios parameter creator
+ */
+export const AdminOffersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Activate an offer to make it available
+         * @summary Activate offer
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerActivate: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminOfferControllerActivate', 'id', id)
+            const localVarPath = `/api/admin/offers/{id}/activate`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Create a new promotional offer with priority and applicability rules
+         * @summary Create new offer
+         * @param {CreateOfferDto} createOfferDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerCreate: async (createOfferDto: CreateOfferDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createOfferDto' is not null or undefined
+            assertParamExists('adminOfferControllerCreate', 'createOfferDto', createOfferDto)
+            const localVarPath = `/api/admin/offers`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createOfferDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Deactivate an offer to prevent it from being applied
+         * @summary Deactivate offer
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerDeactivate: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminOfferControllerDeactivate', 'id', id)
+            const localVarPath = `/api/admin/offers/{id}/deactivate`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve all offers with pagination
+         * @summary Get all offers
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerFindAll: async (page?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/offers`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve detailed information about a specific offer
+         * @summary Get offer by ID
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminOfferControllerFindOne', 'id', id)
+            const localVarPath = `/api/admin/offers/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update offer details and configuration
+         * @summary Update offer
+         * @param {string} id Offer ID
+         * @param {UpdateOfferDto} updateOfferDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerUpdate: async (id: string, updateOfferDto: UpdateOfferDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminOfferControllerUpdate', 'id', id)
+            // verify required parameter 'updateOfferDto' is not null or undefined
+            assertParamExists('adminOfferControllerUpdate', 'updateOfferDto', updateOfferDto)
+            const localVarPath = `/api/admin/offers/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateOfferDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AdminOffersApi - functional programming interface
+ */
+export const AdminOffersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AdminOffersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Activate an offer to make it available
+         * @summary Activate offer
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOfferControllerActivate(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOfferControllerActivate(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOffersApi.adminOfferControllerActivate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Create a new promotional offer with priority and applicability rules
+         * @summary Create new offer
+         * @param {CreateOfferDto} createOfferDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOfferControllerCreate(createOfferDto: CreateOfferDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetOffer200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOfferControllerCreate(createOfferDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOffersApi.adminOfferControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Deactivate an offer to prevent it from being applied
+         * @summary Deactivate offer
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOfferControllerDeactivate(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOfferControllerDeactivate(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOffersApi.adminOfferControllerDeactivate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve all offers with pagination
+         * @summary Get all offers
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOfferControllerFindAll(page?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetActiveOffers200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOfferControllerFindAll(page, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOffersApi.adminOfferControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve detailed information about a specific offer
+         * @summary Get offer by ID
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOfferControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetOffer200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOfferControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOffersApi.adminOfferControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update offer details and configuration
+         * @summary Update offer
+         * @param {string} id Offer ID
+         * @param {UpdateOfferDto} updateOfferDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOfferControllerUpdate(id: string, updateOfferDto: UpdateOfferDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetOffer200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOfferControllerUpdate(id, updateOfferDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOffersApi.adminOfferControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AdminOffersApi - factory interface
+ */
+export const AdminOffersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AdminOffersApiFp(configuration)
+    return {
+        /**
+         * Activate an offer to make it available
+         * @summary Activate offer
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerActivate(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminOfferControllerActivate(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Create a new promotional offer with priority and applicability rules
+         * @summary Create new offer
+         * @param {CreateOfferDto} createOfferDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerCreate(createOfferDto: CreateOfferDto, options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetOffer200Response> {
+            return localVarFp.adminOfferControllerCreate(createOfferDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Deactivate an offer to prevent it from being applied
+         * @summary Deactivate offer
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerDeactivate(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminOfferControllerDeactivate(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve all offers with pagination
+         * @summary Get all offers
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerFindAll(page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetActiveOffers200Response> {
+            return localVarFp.adminOfferControllerFindAll(page, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve detailed information about a specific offer
+         * @summary Get offer by ID
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetOffer200Response> {
+            return localVarFp.adminOfferControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update offer details and configuration
+         * @summary Update offer
+         * @param {string} id Offer ID
+         * @param {UpdateOfferDto} updateOfferDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerUpdate(id: string, updateOfferDto: UpdateOfferDto, options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetOffer200Response> {
+            return localVarFp.adminOfferControllerUpdate(id, updateOfferDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AdminOffersApi - object-oriented interface
+ */
+export class AdminOffersApi extends BaseAPI {
+    /**
+     * Activate an offer to make it available
+     * @summary Activate offer
+     * @param {string} id Offer ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOfferControllerActivate(id: string, options?: RawAxiosRequestConfig) {
+        return AdminOffersApiFp(this.configuration).adminOfferControllerActivate(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Create a new promotional offer with priority and applicability rules
+     * @summary Create new offer
+     * @param {CreateOfferDto} createOfferDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOfferControllerCreate(createOfferDto: CreateOfferDto, options?: RawAxiosRequestConfig) {
+        return AdminOffersApiFp(this.configuration).adminOfferControllerCreate(createOfferDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Deactivate an offer to prevent it from being applied
+     * @summary Deactivate offer
+     * @param {string} id Offer ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOfferControllerDeactivate(id: string, options?: RawAxiosRequestConfig) {
+        return AdminOffersApiFp(this.configuration).adminOfferControllerDeactivate(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve all offers with pagination
+     * @summary Get all offers
+     * @param {number} [page] Page number
+     * @param {number} [limit] Items per page
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOfferControllerFindAll(page?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return AdminOffersApiFp(this.configuration).adminOfferControllerFindAll(page, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve detailed information about a specific offer
+     * @summary Get offer by ID
+     * @param {string} id Offer ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOfferControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return AdminOffersApiFp(this.configuration).adminOfferControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update offer details and configuration
+     * @summary Update offer
+     * @param {string} id Offer ID
+     * @param {UpdateOfferDto} updateOfferDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOfferControllerUpdate(id: string, updateOfferDto: UpdateOfferDto, options?: RawAxiosRequestConfig) {
+        return AdminOffersApiFp(this.configuration).adminOfferControllerUpdate(id, updateOfferDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * AdminOrdersApi - axios parameter creator
+ */
+export const AdminOrdersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Retrieve all orders with optional filtering
+         * @summary Get all orders
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {AdminOrderControllerGetAllOrdersStatusEnum} [status] Filter by order status
+         * @param {string} [customerId] Filter by customer ID
+         * @param {string} [startDate] Filter from date (ISO string)
+         * @param {string} [endDate] Filter to date (ISO string)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOrderControllerGetAllOrders: async (page?: number, limit?: number, status?: AdminOrderControllerGetAllOrdersStatusEnum, customerId?: string, startDate?: string, endDate?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/orders`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (customerId !== undefined) {
+                localVarQueryParameter['customerId'] = customerId;
+            }
+
+            if (startDate !== undefined) {
+                localVarQueryParameter['startDate'] = startDate;
+            }
+
+            if (endDate !== undefined) {
+                localVarQueryParameter['endDate'] = endDate;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve detailed information about a specific order
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOrderControllerGetOrderById: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminOrderControllerGetOrderById', 'id', id)
+            const localVarPath = `/api/admin/orders/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update the status of an order
+         * @summary Update order status
+         * @param {string} id Order ID
+         * @param {UpdateOrderStatusDto} updateOrderStatusDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOrderControllerUpdateOrderStatus: async (id: string, updateOrderStatusDto: UpdateOrderStatusDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminOrderControllerUpdateOrderStatus', 'id', id)
+            // verify required parameter 'updateOrderStatusDto' is not null or undefined
+            assertParamExists('adminOrderControllerUpdateOrderStatus', 'updateOrderStatusDto', updateOrderStatusDto)
+            const localVarPath = `/api/admin/orders/{id}/status`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateOrderStatusDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AdminOrdersApi - functional programming interface
+ */
+export const AdminOrdersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AdminOrdersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Retrieve all orders with optional filtering
+         * @summary Get all orders
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {AdminOrderControllerGetAllOrdersStatusEnum} [status] Filter by order status
+         * @param {string} [customerId] Filter by customer ID
+         * @param {string} [startDate] Filter from date (ISO string)
+         * @param {string} [endDate] Filter to date (ISO string)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOrderControllerGetAllOrders(page?: number, limit?: number, status?: AdminOrderControllerGetAllOrdersStatusEnum, customerId?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetMyOrders200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOrderControllerGetAllOrders(page, limit, status, customerId, startDate, endDate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOrdersApi.adminOrderControllerGetAllOrders']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve detailed information about a specific order
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerCancelOrder200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOrderControllerGetOrderById(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOrdersApi.adminOrderControllerGetOrderById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update the status of an order
+         * @summary Update order status
+         * @param {string} id Order ID
+         * @param {UpdateOrderStatusDto} updateOrderStatusDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOrderControllerUpdateOrderStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerCancelOrder200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOrderControllerUpdateOrderStatus(id, updateOrderStatusDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOrdersApi.adminOrderControllerUpdateOrderStatus']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AdminOrdersApi - factory interface
+ */
+export const AdminOrdersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AdminOrdersApiFp(configuration)
+    return {
+        /**
+         * Retrieve all orders with optional filtering
+         * @summary Get all orders
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {AdminOrderControllerGetAllOrdersStatusEnum} [status] Filter by order status
+         * @param {string} [customerId] Filter by customer ID
+         * @param {string} [startDate] Filter from date (ISO string)
+         * @param {string} [endDate] Filter to date (ISO string)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOrderControllerGetAllOrders(page?: number, limit?: number, status?: AdminOrderControllerGetAllOrdersStatusEnum, customerId?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetMyOrders200Response> {
+            return localVarFp.adminOrderControllerGetAllOrders(page, limit, status, customerId, startDate, endDate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve detailed information about a specific order
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerCancelOrder200Response> {
+            return localVarFp.adminOrderControllerGetOrderById(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update the status of an order
+         * @summary Update order status
+         * @param {string} id Order ID
+         * @param {UpdateOrderStatusDto} updateOrderStatusDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOrderControllerUpdateOrderStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerCancelOrder200Response> {
+            return localVarFp.adminOrderControllerUpdateOrderStatus(id, updateOrderStatusDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AdminOrdersApi - object-oriented interface
+ */
+export class AdminOrdersApi extends BaseAPI {
+    /**
+     * Retrieve all orders with optional filtering
+     * @summary Get all orders
+     * @param {number} [page] Page number
+     * @param {number} [limit] Items per page
+     * @param {AdminOrderControllerGetAllOrdersStatusEnum} [status] Filter by order status
+     * @param {string} [customerId] Filter by customer ID
+     * @param {string} [startDate] Filter from date (ISO string)
+     * @param {string} [endDate] Filter to date (ISO string)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOrderControllerGetAllOrders(page?: number, limit?: number, status?: AdminOrderControllerGetAllOrdersStatusEnum, customerId?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig) {
+        return AdminOrdersApiFp(this.configuration).adminOrderControllerGetAllOrders(page, limit, status, customerId, startDate, endDate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve detailed information about a specific order
+     * @summary Get order by ID
+     * @param {string} id Order ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig) {
+        return AdminOrdersApiFp(this.configuration).adminOrderControllerGetOrderById(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update the status of an order
+     * @summary Update order status
+     * @param {string} id Order ID
+     * @param {UpdateOrderStatusDto} updateOrderStatusDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOrderControllerUpdateOrderStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig) {
+        return AdminOrdersApiFp(this.configuration).adminOrderControllerUpdateOrderStatus(id, updateOrderStatusDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const AdminOrderControllerGetAllOrdersStatusEnum = {
+    Pending: 'pending',
+    Processing: 'processing',
+    Shipping: 'shipping',
+    Delivered: 'delivered',
+    Canceled: 'canceled',
+    ReturnRequested: 'return_requested',
+    ReturnApproved: 'return_approved',
+    ReturnRejected: 'return_rejected',
+    Returned: 'returned'
+} as const;
+export type AdminOrderControllerGetAllOrdersStatusEnum = typeof AdminOrderControllerGetAllOrdersStatusEnum[keyof typeof AdminOrderControllerGetAllOrdersStatusEnum];
 
 
 /**
@@ -2965,6 +4491,45 @@ export const CartApiAxiosParamCreator = function (configuration?: Configuration)
             };
         },
         /**
+         * Validate and apply a coupon code to the cart
+         * @summary Apply coupon to cart
+         * @param {ApplyCouponDto} applyCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerApplyCoupon: async (applyCouponDto: ApplyCouponDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'applyCouponDto' is not null or undefined
+            assertParamExists('cartControllerApplyCoupon', 'applyCouponDto', applyCouponDto)
+            const localVarPath = `/api/cart/apply-coupon`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(applyCouponDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary Clear all items from cart
          * @param {*} [options] Override http request option.
@@ -3020,6 +4585,45 @@ export const CartApiAxiosParamCreator = function (configuration?: Configuration)
             // authentication bearer required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Calculate cart pricing including active offers and optional coupon discount. Returns complete breakdown of all discounts.
+         * @summary Get cart pricing with offers and optional coupon
+         * @param {string} [couponCode] Coupon code to apply for pricing calculation
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerGetCartPricing: async (couponCode?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/cart/pricing`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (couponCode !== undefined) {
+                localVarQueryParameter['couponCode'] = couponCode;
+            }
 
             localVarHeaderParameter['Accept'] = 'application/json';
 
@@ -3136,6 +4740,19 @@ export const CartApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Validate and apply a coupon code to the cart
+         * @summary Apply coupon to cart
+         * @param {ApplyCouponDto} applyCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cartControllerApplyCoupon(applyCouponDto: ApplyCouponDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cartControllerApplyCoupon(applyCouponDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CartApi.cartControllerApplyCoupon']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @summary Clear all items from cart
          * @param {*} [options] Override http request option.
@@ -3157,6 +4774,19 @@ export const CartApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.cartControllerGetCart(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CartApi.cartControllerGetCart']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Calculate cart pricing including active offers and optional coupon discount. Returns complete breakdown of all discounts.
+         * @summary Get cart pricing with offers and optional coupon
+         * @param {string} [couponCode] Coupon code to apply for pricing calculation
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cartControllerGetCartPricing(couponCode?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CartControllerGetCartPricing200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cartControllerGetCartPricing(couponCode, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CartApi.cartControllerGetCartPricing']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3206,6 +4836,16 @@ export const CartApiFactory = function (configuration?: Configuration, basePath?
             return localVarFp.cartControllerAddItem(addItemToCartDto, options).then((request) => request(axios, basePath));
         },
         /**
+         * Validate and apply a coupon code to the cart
+         * @summary Apply coupon to cart
+         * @param {ApplyCouponDto} applyCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerApplyCoupon(applyCouponDto: ApplyCouponDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.cartControllerApplyCoupon(applyCouponDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary Clear all items from cart
          * @param {*} [options] Override http request option.
@@ -3222,6 +4862,16 @@ export const CartApiFactory = function (configuration?: Configuration, basePath?
          */
         cartControllerGetCart(options?: RawAxiosRequestConfig): AxiosPromise<CartControllerGetCart200Response> {
             return localVarFp.cartControllerGetCart(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Calculate cart pricing including active offers and optional coupon discount. Returns complete breakdown of all discounts.
+         * @summary Get cart pricing with offers and optional coupon
+         * @param {string} [couponCode] Coupon code to apply for pricing calculation
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerGetCartPricing(couponCode?: string, options?: RawAxiosRequestConfig): AxiosPromise<CartControllerGetCartPricing200Response> {
+            return localVarFp.cartControllerGetCartPricing(couponCode, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3263,6 +4913,17 @@ export class CartApi extends BaseAPI {
     }
 
     /**
+     * Validate and apply a coupon code to the cart
+     * @summary Apply coupon to cart
+     * @param {ApplyCouponDto} applyCouponDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public cartControllerApplyCoupon(applyCouponDto: ApplyCouponDto, options?: RawAxiosRequestConfig) {
+        return CartApiFp(this.configuration).cartControllerApplyCoupon(applyCouponDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
      * @summary Clear all items from cart
      * @param {*} [options] Override http request option.
@@ -3280,6 +4941,17 @@ export class CartApi extends BaseAPI {
      */
     public cartControllerGetCart(options?: RawAxiosRequestConfig) {
         return CartApiFp(this.configuration).cartControllerGetCart(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Calculate cart pricing including active offers and optional coupon discount. Returns complete breakdown of all discounts.
+     * @summary Get cart pricing with offers and optional coupon
+     * @param {string} [couponCode] Coupon code to apply for pricing calculation
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public cartControllerGetCartPricing(couponCode?: string, options?: RawAxiosRequestConfig) {
+        return CartApiFp(this.configuration).cartControllerGetCartPricing(couponCode, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3696,6 +5368,185 @@ export class CategoriesApi extends BaseAPI {
 
 
 /**
+ * CheckoutApi - axios parameter creator
+ */
+export const CheckoutApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Creates an order with pricing snapshot. Revalidates coupon, records usage, and clears cart if source is CART.
+         * @summary Commit checkout and create order
+         * @param {CheckoutCommitDto} checkoutCommitDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkoutControllerCommitCheckout: async (checkoutCommitDto: CheckoutCommitDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'checkoutCommitDto' is not null or undefined
+            assertParamExists('checkoutControllerCommitCheckout', 'checkoutCommitDto', checkoutCommitDto)
+            const localVarPath = `/api/checkout/commit`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(checkoutCommitDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get pricing breakdown for checkout without committing. Validates coupon if provided. Safe to call multiple times.
+         * @summary Preview checkout pricing
+         * @param {CheckoutPreviewDto} checkoutPreviewDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkoutControllerPreviewCheckout: async (checkoutPreviewDto: CheckoutPreviewDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'checkoutPreviewDto' is not null or undefined
+            assertParamExists('checkoutControllerPreviewCheckout', 'checkoutPreviewDto', checkoutPreviewDto)
+            const localVarPath = `/api/checkout/preview`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(checkoutPreviewDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CheckoutApi - functional programming interface
+ */
+export const CheckoutApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CheckoutApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Creates an order with pricing snapshot. Revalidates coupon, records usage, and clears cart if source is CART.
+         * @summary Commit checkout and create order
+         * @param {CheckoutCommitDto} checkoutCommitDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async checkoutControllerCommitCheckout(checkoutCommitDto: CheckoutCommitDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CheckoutControllerCommitCheckout201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.checkoutControllerCommitCheckout(checkoutCommitDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CheckoutApi.checkoutControllerCommitCheckout']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Get pricing breakdown for checkout without committing. Validates coupon if provided. Safe to call multiple times.
+         * @summary Preview checkout pricing
+         * @param {CheckoutPreviewDto} checkoutPreviewDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async checkoutControllerPreviewCheckout(checkoutPreviewDto: CheckoutPreviewDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CheckoutControllerPreviewCheckout200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.checkoutControllerPreviewCheckout(checkoutPreviewDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CheckoutApi.checkoutControllerPreviewCheckout']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * CheckoutApi - factory interface
+ */
+export const CheckoutApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CheckoutApiFp(configuration)
+    return {
+        /**
+         * Creates an order with pricing snapshot. Revalidates coupon, records usage, and clears cart if source is CART.
+         * @summary Commit checkout and create order
+         * @param {CheckoutCommitDto} checkoutCommitDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkoutControllerCommitCheckout(checkoutCommitDto: CheckoutCommitDto, options?: RawAxiosRequestConfig): AxiosPromise<CheckoutControllerCommitCheckout201Response> {
+            return localVarFp.checkoutControllerCommitCheckout(checkoutCommitDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get pricing breakdown for checkout without committing. Validates coupon if provided. Safe to call multiple times.
+         * @summary Preview checkout pricing
+         * @param {CheckoutPreviewDto} checkoutPreviewDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkoutControllerPreviewCheckout(checkoutPreviewDto: CheckoutPreviewDto, options?: RawAxiosRequestConfig): AxiosPromise<CheckoutControllerPreviewCheckout200Response> {
+            return localVarFp.checkoutControllerPreviewCheckout(checkoutPreviewDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * CheckoutApi - object-oriented interface
+ */
+export class CheckoutApi extends BaseAPI {
+    /**
+     * Creates an order with pricing snapshot. Revalidates coupon, records usage, and clears cart if source is CART.
+     * @summary Commit checkout and create order
+     * @param {CheckoutCommitDto} checkoutCommitDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public checkoutControllerCommitCheckout(checkoutCommitDto: CheckoutCommitDto, options?: RawAxiosRequestConfig) {
+        return CheckoutApiFp(this.configuration).checkoutControllerCommitCheckout(checkoutCommitDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get pricing breakdown for checkout without committing. Validates coupon if provided. Safe to call multiple times.
+     * @summary Preview checkout pricing
+     * @param {CheckoutPreviewDto} checkoutPreviewDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public checkoutControllerPreviewCheckout(checkoutPreviewDto: CheckoutPreviewDto, options?: RawAxiosRequestConfig) {
+        return CheckoutApiFp(this.configuration).checkoutControllerPreviewCheckout(checkoutPreviewDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
  * CouponsApi - axios parameter creator
  */
 export const CouponsApiAxiosParamCreator = function (configuration?: Configuration) {
@@ -4027,6 +5878,430 @@ export class FeedsApi extends BaseAPI {
      */
     public feedControllerGetFeed(options?: RawAxiosRequestConfig) {
         return FeedsApiFp(this.configuration).feedControllerGetFeed(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * OffersApi - axios parameter creator
+ */
+export const OffersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Returns all currently active offers sorted by priority
+         * @summary Get all active offers
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offerControllerGetActiveOffers: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/offers`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve detailed information about a specific offer
+         * @summary Get offer by ID
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offerControllerGetOffer: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('offerControllerGetOffer', 'id', id)
+            const localVarPath = `/api/offers/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Returns all active offers applicable to a specific product, sorted by priority
+         * @summary Get offers for product
+         * @param {string} productId Product ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offerControllerGetProductOffers: async (productId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('offerControllerGetProductOffers', 'productId', productId)
+            const localVarPath = `/api/offers/product/{productId}`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * OffersApi - functional programming interface
+ */
+export const OffersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = OffersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Returns all currently active offers sorted by priority
+         * @summary Get all active offers
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async offerControllerGetActiveOffers(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetActiveOffers200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.offerControllerGetActiveOffers(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OffersApi.offerControllerGetActiveOffers']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve detailed information about a specific offer
+         * @summary Get offer by ID
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async offerControllerGetOffer(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetOffer200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.offerControllerGetOffer(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OffersApi.offerControllerGetOffer']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Returns all active offers applicable to a specific product, sorted by priority
+         * @summary Get offers for product
+         * @param {string} productId Product ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async offerControllerGetProductOffers(productId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetActiveOffers200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.offerControllerGetProductOffers(productId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OffersApi.offerControllerGetProductOffers']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * OffersApi - factory interface
+ */
+export const OffersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = OffersApiFp(configuration)
+    return {
+        /**
+         * Returns all currently active offers sorted by priority
+         * @summary Get all active offers
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offerControllerGetActiveOffers(options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetActiveOffers200Response> {
+            return localVarFp.offerControllerGetActiveOffers(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve detailed information about a specific offer
+         * @summary Get offer by ID
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offerControllerGetOffer(id: string, options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetOffer200Response> {
+            return localVarFp.offerControllerGetOffer(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Returns all active offers applicable to a specific product, sorted by priority
+         * @summary Get offers for product
+         * @param {string} productId Product ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offerControllerGetProductOffers(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetActiveOffers200Response> {
+            return localVarFp.offerControllerGetProductOffers(productId, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * OffersApi - object-oriented interface
+ */
+export class OffersApi extends BaseAPI {
+    /**
+     * Returns all currently active offers sorted by priority
+     * @summary Get all active offers
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public offerControllerGetActiveOffers(options?: RawAxiosRequestConfig) {
+        return OffersApiFp(this.configuration).offerControllerGetActiveOffers(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve detailed information about a specific offer
+     * @summary Get offer by ID
+     * @param {string} id Offer ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public offerControllerGetOffer(id: string, options?: RawAxiosRequestConfig) {
+        return OffersApiFp(this.configuration).offerControllerGetOffer(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Returns all active offers applicable to a specific product, sorted by priority
+     * @summary Get offers for product
+     * @param {string} productId Product ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public offerControllerGetProductOffers(productId: string, options?: RawAxiosRequestConfig) {
+        return OffersApiFp(this.configuration).offerControllerGetProductOffers(productId, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * OrdersCustomerApi - axios parameter creator
+ */
+export const OrdersCustomerApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Cancel an order if it is still cancellable
+         * @summary Cancel order
+         * @param {string} id Order ID
+         * @param {CancelOrderDto} cancelOrderDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        customerOrderControllerCancelOrder: async (id: string, cancelOrderDto: CancelOrderDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('customerOrderControllerCancelOrder', 'id', id)
+            // verify required parameter 'cancelOrderDto' is not null or undefined
+            assertParamExists('customerOrderControllerCancelOrder', 'cancelOrderDto', cancelOrderDto)
+            const localVarPath = `/api/orders/{id}/cancel`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(cancelOrderDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve all orders for the authenticated customer
+         * @summary Get my orders
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        customerOrderControllerGetMyOrders: async (page?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/orders/my-orders`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * OrdersCustomerApi - functional programming interface
+ */
+export const OrdersCustomerApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = OrdersCustomerApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Cancel an order if it is still cancellable
+         * @summary Cancel order
+         * @param {string} id Order ID
+         * @param {CancelOrderDto} cancelOrderDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async customerOrderControllerCancelOrder(id: string, cancelOrderDto: CancelOrderDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerCancelOrder200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.customerOrderControllerCancelOrder(id, cancelOrderDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrdersCustomerApi.customerOrderControllerCancelOrder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve all orders for the authenticated customer
+         * @summary Get my orders
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async customerOrderControllerGetMyOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetMyOrders200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.customerOrderControllerGetMyOrders(page, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrdersCustomerApi.customerOrderControllerGetMyOrders']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * OrdersCustomerApi - factory interface
+ */
+export const OrdersCustomerApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = OrdersCustomerApiFp(configuration)
+    return {
+        /**
+         * Cancel an order if it is still cancellable
+         * @summary Cancel order
+         * @param {string} id Order ID
+         * @param {CancelOrderDto} cancelOrderDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        customerOrderControllerCancelOrder(id: string, cancelOrderDto: CancelOrderDto, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerCancelOrder200Response> {
+            return localVarFp.customerOrderControllerCancelOrder(id, cancelOrderDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve all orders for the authenticated customer
+         * @summary Get my orders
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        customerOrderControllerGetMyOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetMyOrders200Response> {
+            return localVarFp.customerOrderControllerGetMyOrders(page, limit, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * OrdersCustomerApi - object-oriented interface
+ */
+export class OrdersCustomerApi extends BaseAPI {
+    /**
+     * Cancel an order if it is still cancellable
+     * @summary Cancel order
+     * @param {string} id Order ID
+     * @param {CancelOrderDto} cancelOrderDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public customerOrderControllerCancelOrder(id: string, cancelOrderDto: CancelOrderDto, options?: RawAxiosRequestConfig) {
+        return OrdersCustomerApiFp(this.configuration).customerOrderControllerCancelOrder(id, cancelOrderDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve all orders for the authenticated customer
+     * @summary Get my orders
+     * @param {number} [page] Page number
+     * @param {number} [limit] Items per page
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public customerOrderControllerGetMyOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return OrdersCustomerApiFp(this.configuration).customerOrderControllerGetMyOrders(page, limit, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -6075,6 +8350,192 @@ export const SellerProductControllerGetSellerProductsSortOrderEnum = {
     Desc: 'desc'
 } as const;
 export type SellerProductControllerGetSellerProductsSortOrderEnum = typeof SellerProductControllerGetSellerProductsSortOrderEnum[keyof typeof SellerProductControllerGetSellerProductsSortOrderEnum];
+
+
+/**
+ * SellerOrdersApi - axios parameter creator
+ */
+export const SellerOrdersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Retrieve detailed information about a specific order (if it contains seller products)
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerOrderControllerGetOrderById: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('sellerOrderControllerGetOrderById', 'id', id)
+            const localVarPath = `/api/seller/orders/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve orders that contain products sold by this seller
+         * @summary Get orders containing my products
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerOrderControllerGetSellerOrders: async (page?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/seller/orders`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * SellerOrdersApi - functional programming interface
+ */
+export const SellerOrdersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = SellerOrdersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Retrieve detailed information about a specific order (if it contains seller products)
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sellerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerCancelOrder200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sellerOrderControllerGetOrderById(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SellerOrdersApi.sellerOrderControllerGetOrderById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve orders that contain products sold by this seller
+         * @summary Get orders containing my products
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sellerOrderControllerGetSellerOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetMyOrders200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sellerOrderControllerGetSellerOrders(page, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SellerOrdersApi.sellerOrderControllerGetSellerOrders']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * SellerOrdersApi - factory interface
+ */
+export const SellerOrdersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = SellerOrdersApiFp(configuration)
+    return {
+        /**
+         * Retrieve detailed information about a specific order (if it contains seller products)
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerCancelOrder200Response> {
+            return localVarFp.sellerOrderControllerGetOrderById(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve orders that contain products sold by this seller
+         * @summary Get orders containing my products
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerOrderControllerGetSellerOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetMyOrders200Response> {
+            return localVarFp.sellerOrderControllerGetSellerOrders(page, limit, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * SellerOrdersApi - object-oriented interface
+ */
+export class SellerOrdersApi extends BaseAPI {
+    /**
+     * Retrieve detailed information about a specific order (if it contains seller products)
+     * @summary Get order by ID
+     * @param {string} id Order ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sellerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig) {
+        return SellerOrdersApiFp(this.configuration).sellerOrderControllerGetOrderById(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve orders that contain products sold by this seller
+     * @summary Get orders containing my products
+     * @param {number} [page] Page number
+     * @param {number} [limit] Items per page
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sellerOrderControllerGetSellerOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return SellerOrdersApiFp(this.configuration).sellerOrderControllerGetSellerOrders(page, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
 
 
 /**

@@ -59,12 +59,12 @@ export class PrismaCartRepository implements CartRepository {
   }
 
   private toDomain(prismaCart: PrismaCartWithItems): Cart {
-    const items = prismaCart.items.map((item: any) =>
+    const items = prismaCart.items.map((item: PrismaCartItem) =>
       CartItem.from(
         item.id,
         item.cartId,
         item.productId,
-        item.productVariantId,
+        item.variantId,
         item.quantity,
         item.createdAt,
         item.updatedAt,

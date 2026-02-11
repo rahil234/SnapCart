@@ -19,28 +19,29 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
 import { Role } from '@/shared/enums/role.enum';
-import { Roles } from '@/shared/decorators/roles.decorator';
-import { HttpResponse } from '@/shared/dto/common/http-response.dto';
-import { ApiResponseWithType } from '@/shared/decorators/api-response.decorator';
 import {
   ApiAuthErrorResponses,
   ApiCommonErrorResponses,
   ApiNotFoundResponse,
 } from '@/shared/decorators/api-error-responses.decorator';
+import { Roles } from '@/shared/decorators/roles.decorator';
+import { HttpResponse } from '@/shared/dto/common/http-response.dto';
+import { ApiResponseWithType } from '@/shared/decorators/api-response.decorator';
 
-import { CreateCouponDto, UpdateCouponDto } from '../dtos/request';
-import { CouponResponseDto, CouponUsageResponseDto } from '../dtos/response';
+import {
+  GetAllCouponsQuery,
+  GetCouponAnalyticsQuery,
+  GetCouponQuery,
+  GetCouponUsageHistoryQuery,
+} from '@/modules/coupon/application/queries';
 import {
   ActivateCouponCommand,
   CreateCouponCommand,
   DeactivateCouponCommand,
   UpdateCouponCommand,
 } from '@/modules/coupon/application/commands';
-import {
-  GetAllCouponsQuery,
-  GetCouponQuery,
-  GetCouponUsageHistoryQuery,
-} from '@/modules/coupon/application/queries';
+import { CreateCouponDto, UpdateCouponDto } from '../dtos/request';
+import { CouponResponseDto, CouponUsageResponseDto } from '../dtos/response';
 
 @ApiTags('Admin - Coupons')
 @ApiBearerAuth()
@@ -308,6 +309,49 @@ export class AdminCouponController {
     return {
       message: 'Coupon usage history retrieved successfully',
       data: usages.map(CouponUsageResponseDto.fromDomain),
+    };
+  }
+
+  @Get('analytics/performance')
+  @ApiOperation({
+    summary: 'Get coupon performance analytics',
+    description:
+      'Retrieve analytics and performance metrics for all coupons including usage stats, revenue impact, and top performers',
+  })
+  @ApiQuery({
+    name: 'startDate',
+    required: false,
+    type: String,
+    description: 'Start date for analytics period (ISO format)',
+    example: '2026-02-01T00:00:00Z',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    required: false,
+    type: String,
+    description: 'End date for analytics period (ISO format)',
+    example: '2026-02-28T23:59:59Z',
+  })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Analytics retrieved successfully',
+  })
+  @ApiAuthErrorResponses()
+  @ApiCommonErrorResponses()
+  async getCouponAnalytics(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ): Promise<HttpResponse<any>> {
+    const analytics = await this.queryBus.execute(
+      new GetCouponAnalyticsQuery(
+        startDate ? new Date(startDate) : undefined,
+        endDate ? new Date(endDate) : undefined,
+      ),
+    );
+
+    return {
+      message: 'Coupon analytics retrieved successfully',
+      data: analytics,
     };
   }
 }

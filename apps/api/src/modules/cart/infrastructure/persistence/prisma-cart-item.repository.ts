@@ -65,6 +65,7 @@ export class PrismaCartItemRepository implements CartItemRepository {
   }
 
   private toDomain(prismaItem: PrismaCartItem): CartItem {
+    console.log('Mapping Prisma CartItem to Domain CartItem:', prismaItem);
     return CartItem.from(
       prismaItem.id,
       prismaItem.cartId,

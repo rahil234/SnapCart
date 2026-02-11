@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { AlertCircle, Download } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { ImportMeta } from '@/types';
+import { Order } from '@/types';
 import {
   Dialog,
   DialogContent,
@@ -12,28 +12,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { IOrder } from '@/types/order';
 import { Button } from '@/components/ui/button';
 import { OrderService } from '@/services/order.service';
 import OrderReturnCard from '@/components/user/OrderReturnCard';
 
-const imageUrl =
-  (import.meta as unknown as ImportMeta).env.VITE_IMAGE_URL + '/products/';
-
-interface IOrderDetails {
-  order: IOrder;
+interface IOrderDetailsProps {
+  order: Order;
   onClose: () => void;
 }
 
-const OrderDetails = ({ order, onClose }: IOrderDetails) => {
+const OrderDetails = ({ order, onClose }: IOrderDetailsProps) => {
   const [returnDialog, setReturnDialog] = useState(false);
 
   const queryClient = useQueryClient();
 
   const handleCancelOrder = async () => {
     try {
-      console.log(order.orderId);
-      await OrderService.cancelOrder(order.orderId);
+      await OrderService.cancelOrder(order.id);
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast.success('Order cancelled successfully');
       console.log(`Cancelling order ₹{order.orderId}`);
@@ -45,7 +40,7 @@ const OrderDetails = ({ order, onClose }: IOrderDetails) => {
 
   const handleCancelItem = async (itemId: string) => {
     try {
-      await OrderService.cancelOrderItem(order.orderId, itemId);
+      await OrderService.cancelOrderItem(order?.id, itemId);
       console.log(`Cancelling item ₹{itemId} from order ₹{order.orderId}`);
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast.success('Item cancelled successfully');
@@ -66,7 +61,7 @@ const OrderDetails = ({ order, onClose }: IOrderDetails) => {
 
   const handleGetInvoice = async (orderId: string) => {
     try {
-      const response = await OrderService.getInvoice(order.orderId);
+      const response = await OrderService.getInvoice(order.id);
 
       const url = window.URL.createObjectURL(
         new Blob([response.data], { type: 'application/pdf' })
@@ -91,11 +86,11 @@ const OrderDetails = ({ order, onClose }: IOrderDetails) => {
       <div className="space-y-2">
         <div className="flex justify-between">
           <p className="font-semibold">Order ID:</p>
-          <p>#{order.orderId}</p>
+          <p>#{order.orderNumber}</p>
         </div>
         <div className="flex justify-between">
           <p className="font-semibold">Order Date:</p>
-          <p>{new Date(order.orderDate).toLocaleDateString()}</p>
+          <p>{new Date(order.placedAt).toLocaleDateString()}</p>
         </div>
         <div className="flex justify-between">
           <p className="font-semibold">Payment Method:</p>
@@ -107,14 +102,14 @@ const OrderDetails = ({ order, onClose }: IOrderDetails) => {
         {/*</div>*/}
         <div className="flex justify-between">
           <p className="font-semibold">Order Status:</p>
-          <p>{order.status}</p>
+          <p>{order.orderStatus}</p>
         </div>
         <div className="flex justify-between">
           <p className="font-semibold">Shipping Address:</p>
-          <p>
-            {order.address &&
-              order.address.map((address: string) => `${address},\n`)}
-          </p>
+          {/*<p>*/}
+          {/*  {order.shippingAddress &&*/}
+          {/*    order.shippingAddress.map((address: string) => `${address},\n`)}*/}
+          {/*</p>*/}
         </div>
         {/*<div className="flex justify-between">*/}
         {/*  <p className="font-semibold">Shipping Method:</p>*/}
@@ -126,28 +121,23 @@ const OrderDetails = ({ order, onClose }: IOrderDetails) => {
         {/*</div>*/}
         <div className="flex justify-between">
           <p className="font-semibold">Subtotal:</p>
-          <p>
-            ₹
-            {order.items
-              .reduce((acc, item) => acc + item.price * item.quantity, 0)
-              .toFixed(2)}
-          </p>
+          <p>₹{order.subtotal}</p>
         </div>
         <div className="flex justify-between">
           <p className="font-semibold">Delivery Charge:</p>
-          <p>₹{order.deliveryCharge.toFixed(2)}</p>
+          <p>₹{order.shippingCharge}</p>
         </div>
         <div className="flex justify-between">
           <p className="font-semibold">Discount:</p>
-          <p>- ₹{order.discount.toFixed(2)}</p>
+          <p>- ₹{order.discount}</p>
         </div>
         <div className="flex justify-between">
           <p className="font-semibold">Total:</p>
-          <p>₹{order.price.toFixed(2)}</p>
+          <p>₹{order.total}</p>
         </div>
       </div>
       <div className="mt-5 felx gap-3 justify-end w-full">
-        {order.status === 'Delivered' ? (
+        {order.orderStatus === 'delivered' ? (
           <div className="flex gap-2 justify-end items-center">
             <Dialog open={returnDialog}>
               <DialogHeader>
@@ -166,15 +156,15 @@ const OrderDetails = ({ order, onClose }: IOrderDetails) => {
                 />
               </DialogContent>
             </Dialog>
-            <Button onClick={() => handleGetInvoice(order.orderId)}>
+            <Button onClick={() => handleGetInvoice(order.id)}>
               invoice
               <Download className="w-5 h-5 ml-2" />
             </Button>
           </div>
         ) : (
-          order.status === 'Shipped' ||
-          order.status === 'Processing' ||
-          (order.status === 'Pending' && (
+          order.orderStatus === 'shipping' ||
+          order.orderStatus === 'processing' ||
+          (order.orderStatus === 'pending' && (
             <div>
               <Button onClick={handleCancelOrder}>Cancel Order</Button>
             </div>
@@ -186,33 +176,29 @@ const OrderDetails = ({ order, onClose }: IOrderDetails) => {
         <div className="space-y-4">
           {order.items.map(item => (
             <div
-              key={item._id}
+              key={item.variantId}
               className="flex justify-between items-center border-b pb-4 gap-8"
             >
               <div className="flex items-center">
                 <img
-                  src={
-                    imageUrl + item.image || 'https://via.placeholder.com/150'
-                  }
-                  alt={item.name}
+                  src={item.imageUrl || '/placeholder.png'}
+                  alt={item.productName}
                   className="w-16 h-16 object-cover rounded-lg"
                 />
                 <div className="ml-4">
-                  <p className="font-semibold">{item.name}</p>
-                  <p className="text-sm">Price: ₹{item.price.toFixed(2)}</p>
+                  <p className="font-semibold">{item.variantName}</p>
+                  <p className="text-sm">Price: ₹{item.finalPrice}</p>
                   <p className="text-sm">Quantity: {item.quantity}</p>
                 </div>
               </div>
-              <div>{item.status}</div>
-              {item.status !== 'Delivered' && item.status !== 'Cancelled' && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleCancelItem(item._id)}
-                >
-                  Cancel Item
-                </Button>
-              )}
+              {/*{item.status !== 'Delivered' && item.status !== 'Cancelled' && (*/}
+              {/*  <Button*/}s{/*    variant="destructive"*/}
+              {/*    size="sm"*/}
+              {/*    onClick={() => handleCancelItem(item._id)}*/}
+              {/*  >*/}
+              {/*    Cancel Item*/}
+              {/*  </Button>*/}
+              {/*)}*/}
             </div>
           ))}
         </div>
@@ -228,7 +214,7 @@ const OrderDetails = ({ order, onClose }: IOrderDetails) => {
       {/*    </div>*/}
       {/*  </div>*/}
       {/*)}*/}
-      {order.status === 'Delivered' && (
+      {order.orderStatus === 'delivered' && (
         <div className="mt-6 flex justify-between items-center">
           <div className="flex items-center text-green-600">
             <AlertCircle className="w-5 h-5 mr-2" />

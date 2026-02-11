@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { CouponService } from '@/services/coupon.service';
 
-export const useGetCoupons = () => {
+export const useGetAvailableCoupons = () => {
   return useQuery({
     queryKey: ['coupons'],
     queryFn: async () => {
-      const { data, error } = await CouponService.getCoupons();
+      const { data, error } = await CouponService.getAvailableCoupons();
       if (error) {
         throw new Error(error.message);
       }

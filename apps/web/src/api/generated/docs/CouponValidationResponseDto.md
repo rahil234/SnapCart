@@ -6,9 +6,9 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **valid** | **boolean** | Whether the coupon is valid | [default to undefined]
-**reason** | **string** | Reason if coupon is invalid | [optional] [default to undefined]
-**discount** | **number** | Discount amount that will be applied | [optional] [default to undefined]
-**code** | **string** | Coupon code that was validated | [optional] [default to undefined]
+**reason** | **string** | Reason if coupon is invalid | [default to undefined]
+**discount** | **number** | Discount amount that will be applied | [default to undefined]
+**code** | **string** | Coupon code that was validated | [default to undefined]
 
 ## Example
 

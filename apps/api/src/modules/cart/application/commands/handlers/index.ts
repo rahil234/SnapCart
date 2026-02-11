@@ -3,6 +3,7 @@ import { AddItemToCartHandler } from './add-item-to-cart.handler';
 import { UpdateCartItemHandler } from './update-cart-item.handler';
 import { RemoveItemFromCartHandler } from './remove-item-from-cart.handler';
 import { ClearCartHandler } from './clear-cart.handler';
+import { ApplyCouponToCartHandler } from './apply-coupon-to-cart.handler';
 
 export const CartCommandHandlers = [
   CreateCartHandler,
@@ -10,4 +11,5 @@ export const CartCommandHandlers = [
   UpdateCartItemHandler,
   RemoveItemFromCartHandler,
   ClearCartHandler,
+  ApplyCouponToCartHandler,
 ];

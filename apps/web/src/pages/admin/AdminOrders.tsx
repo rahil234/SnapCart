@@ -1,22 +1,6 @@
-import {
-  Search,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-} from 'lucide-react';
-import { toast } from 'sonner';
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
@@ -24,238 +8,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { IOrder } from '@/types/order';
+import { Order } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import orderEndpoints from '@/api/order/order-service';
+import OrdersTable from '@/components/admin/OrdersTable';
 import { Card, CardContent } from '@/components/ui/card';
 import OrderDetailsModal from '@/components/common/OrderDetailsCard';
-
-interface UpdateOrderData {
-  orderId: string;
-  status:
-    | 'Payment Pending'
-    | 'Pending'
-    | 'Processing'
-    | 'Shipped'
-    | 'Delivered'
-    | 'Cancelled'
-    | 'Return Requested'
-    | 'Return Pending'
-    | 'Return Cancelled'
-    | 'Returned';
-}
-
-interface IOrderTableProps {
-  orders: IOrder[];
-  onViewDetails: (order: IOrder) => void;
-}
-
-const OrdersTable = ({ orders, onViewDetails }: IOrderTableProps) => {
-  const queryClient = useQueryClient();
-
-  const updateOrderMutation = useMutation<unknown, Error, UpdateOrderData>({
-    mutationFn: (data: UpdateOrderData) =>
-      orderEndpoints.updateOrderStatus(data.orderId, data.status),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
-      toast.success('Order status updated successfully');
-    },
-    onError: () => {
-      toast.error('Failed to update order status');
-    },
-  });
-
-  const handleStatusChange = (
-    orderId: string,
-    newStatus:
-      | 'Payment Pending'
-      | 'Pending'
-      | 'Processing'
-      | 'Shipped'
-      | 'Delivered'
-      | 'Cancelled'
-      | 'Return Requested'
-      | 'Return Pending'
-      | 'Return Cancelled'
-      | 'Returned'
-  ) => {
-    updateOrderMutation.mutate({ orderId, status: newStatus });
-  };
-
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          {['Order ID', 'Customer', 'Price', 'Status', 'Date', 'Actions'].map(
-            header => (
-              <TableHead key={header} className="text-left">
-                {header}
-              </TableHead>
-            )
-          )}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {orders.map(order => (
-          <TableRow key={order.orderId}>
-            <TableCell>{order.orderId}</TableCell>
-            <TableCell>{order.customerName}</TableCell>
-            <TableCell>₹{order.price.toFixed(2)}</TableCell>
-            <TableCell>
-              <span
-                className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                  order.status === 'Pending'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : order.status === 'Processing'
-                      ? 'bg-blue-100 text-blue-800'
-                      : order.status === 'Delivered'
-                        ? 'bg-green-100 text-green-800'
-                        : order.status === 'Shipped'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                }`}
-              >
-                {order.status}
-              </span>
-            </TableCell>
-            <TableCell>
-              {new Date(order.orderDate).toLocaleDateString()}
-            </TableCell>
-            <TableCell>
-              <div className="flex space-x-2">
-                <Select
-                  onValueChange={value =>
-                    handleStatusChange(
-                      order.orderId,
-                      value as UpdateOrderData['status']
-                    )
-                  }
-                  defaultValue={order.status}
-                >
-                  <SelectTrigger className="w-[130px]">
-                    <SelectValue placeholder="Update Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {order.status === 'Payment Pending' && (
-                      <>
-                        <SelectItem value="Payment Pending" disabled>
-                          Payment Pending
-                        </SelectItem>
-                        <SelectItem value="Processing">Processing</SelectItem>
-                        <SelectItem value="Pending">Pending</SelectItem>
-                        <SelectItem value="Cancelled">Cancelled</SelectItem>
-                      </>
-                    )}
-                    {order.status === 'Processing' && (
-                      <>
-                        <SelectItem value="Processing" disabled>
-                          Processing
-                        </SelectItem>
-                        <SelectItem value="Pending">Pending</SelectItem>
-                        <SelectItem value="Cancelled">Cancelled</SelectItem>
-                      </>
-                    )}
-                    {order.status === 'Pending' && (
-                      <>
-                        <SelectItem value="Pending" disabled>
-                          Pending
-                        </SelectItem>
-                        <SelectItem value="Shipped">Shipped</SelectItem>
-                        <SelectItem value="Delivered">Delivered</SelectItem>
-                      </>
-                    )}
-                    {order.status === 'Shipped' && (
-                      <>
-                        <SelectItem value="Shipped" disabled>
-                          Shipped
-                        </SelectItem>
-                        <SelectItem value="Delivered">Delivered</SelectItem>
-                      </>
-                    )}
-                    {order.status === 'Delivered' && (
-                      <SelectItem value="Delivered" disabled>
-                        Delivered
-                      </SelectItem>
-                    )}
-                    {order.status === 'Return Requested' && (
-                      <>
-                        <SelectItem value="Return Requested" disabled>
-                          Return Requested
-                        </SelectItem>
-                        <SelectItem value="Return Pending">Approve</SelectItem>
-                        <SelectItem value="Return Cancelled">Deny</SelectItem>
-                      </>
-                    )}
-                    {order.status === 'Return Pending' && (
-                      <>
-                        <SelectItem value="Return Pending" disabled>
-                          Return Pending
-                        </SelectItem>
-                        <SelectItem value="Returned">Returned</SelectItem>
-                      </>
-                    )}
-                    {order.status === 'Return Cancelled' && (
-                      <SelectItem value="Return Cancelled" disabled>
-                        Return Cancelled
-                      </SelectItem>
-                    )}
-                    {order.status === 'Returned' && (
-                      <SelectItem value="Returned" disabled>
-                        Returned
-                      </SelectItem>
-                    )}
-                    {order.status === 'Cancelled' && (
-                      <SelectItem value="Cancelled" disabled>
-                        Cancelled
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onViewDetails(order)}
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  View
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-};
+import { useGetAdminOrders } from '@/hooks/orders/use-get-admin-orders.hook';
+import { useUpdateOrderStatus } from '@/hooks/orders/use-update-order-status.hook';
 
 function AdminOrders() {
-  const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const queryClient = useQueryClient();
 
-  const {
-    data: orders,
-    isLoading,
-    isError,
-  } = useQuery<IOrder[]>({
-    queryKey: ['admin-orders'],
-    queryFn: orderEndpoints.getAdminOrders,
-  });
+  const { data: orders, isLoading, isError } = useGetAdminOrders();
 
-  const updateOrderMutation = useMutation<unknown, Error, UpdateOrderData>({
-    mutationFn: (data: UpdateOrderData) =>
-      orderEndpoints.updateOrderStatus(data.orderId,data.status),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
-      toast.success('Order status updated successfully');
-    },
-    onError: () => {
-      toast.error('Failed to update order status');
-    },
-  });
+  const updateOrderMutation = useUpdateOrderStatus();
 
-  const handleViewDetails = (order: IOrder) => {
+  const handleViewDetails = (order: Order) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
   };
@@ -265,10 +35,13 @@ function AdminOrders() {
     setIsModalOpen(false);
   };
 
-  const handleUpdateStatus = (orderId: string, newStatus: string) => {
-    updateOrderMutation.mutate({
-      orderId,
-      status: newStatus as UpdateOrderData['status'],
+  const handleUpdateStatus = async (
+    id: string,
+    orderStatus: Order['orderStatus']
+  ) => {
+    await updateOrderMutation.mutateAsync({
+      id,
+      orderStatus,
     });
   };
 

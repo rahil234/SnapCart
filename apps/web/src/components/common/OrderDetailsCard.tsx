@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import {
   Table,
@@ -15,27 +15,51 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { IOrder } from '@/types/order';
-
-const imageUrl = import.meta.env.VITE_IMAGE_URL + '/products/';
+import { Order } from '@/types';
+import { useGetAdminOrder } from '@/hooks/orders/use-get-admin-order.hook';
 
 interface OrderDetailsModalProps {
-  order: IOrder | null;
+  orderId: string;
   isOpen: boolean;
   onClose: () => void;
-  onUpdateStatus: (orderId: string, newStatus: string) => void;
+  onUpdateStatus: (id: string, status: Order['orderStatus']) => void;
 }
 
 const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
-  order,
+  orderId,
   isOpen,
   onClose,
 }) => {
-  if (!order) return null;
+  const { data: order, isLoading, error } = useGetAdminOrder(orderId);
 
-  useEffect(() => {
-    console.log('OrderDetailsModal mounted', order);
-  }, []);
+  if (isLoading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-3xl max-h-[70vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Loading...</DialogTitle>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!order || error) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-3xl max-h-[70vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Error</DialogTitle>
+            <DialogDescription>
+              Unable to load order details. Please try again later.
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  console.log('Order details:', order);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -43,34 +67,34 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         <DialogHeader>
           <DialogTitle>Order Details</DialogTitle>
           <DialogDescription>
-            # {order.orderId} | Order status: <strong>{order.status}</strong>
+            # {order.orderNumber} | Order status:{' '}
+            <strong>{order.orderStatus}</strong>
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <h3 className="text-lg font-semibold mb-2">Customer Information</h3>
             <p>
-              <strong>Name:</strong> {order.orderedBy.firstName}
+              <strong>Name:</strong> {order.customer?.customerName}
             </p>
             <p>
-              <strong>Email:</strong> {order.orderedBy.email}
+              <strong>Email:</strong> {order.customer?.customerEmail}
             </p>
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-2">Order Information</h3>
             <p>
-              <strong>Date:</strong>{' '}
-              {new Date(order.orderDate).toLocaleString()}
+              <strong>Date:</strong> {new Date(order.placedAt).toLocaleString()}
             </p>
             <p>
-              <strong>Total:</strong> ₹{order.price.toFixed(2)}
+              <strong>Total:</strong> ₹{order.total}
             </p>
             <p>
               <strong>Payment Method:</strong> {order.paymentMethod}
             </p>
-            <p>
-              <strong>Address:</strong> {order.address.join(', ')}
-            </p>
+            {/*<p>*/}
+            {/*  <strong>Address:</strong> {order.address.join(', ')}*/}
+            {/*</p>*/}
           </div>
         </div>
         <div className="mt-4">
@@ -89,16 +113,16 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 <TableRow key={index}>
                   <TableCell>
                     <img
-                      src={imageUrl + item.image}
-                      alt={item.name}
+                      src={item?.imageUrl || '/placeholder.png'}
+                      alt={item.productName}
                       width={50}
                       height={50}
                       className="rounded-md"
                     />
                   </TableCell>
-                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.variantName}</TableCell>
                   <TableCell>{item.quantity}</TableCell>
-                  <TableCell>₹{item.price.toFixed(2)}</TableCell>
+                  <TableCell>₹{item.finalPrice}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -8,11 +8,13 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -20,17 +22,23 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
 import {
   AddItemToCartCommand,
+  ApplyCouponToCartCommand,
   ClearCartCommand,
   RemoveItemFromCartCommand,
   UpdateCartItemCommand,
 } from '@/modules/cart/application/commands';
 import { Role } from '@/shared/enums/role.enum';
+import {
+  CartItemResponseDto,
+  CartPricingDto,
+} from '@/modules/cart/interfaces/http/dto/response';
 import { Roles } from '@/shared/decorators/roles.decorator';
 import { ParseCUIDPipe } from '@/shared/pipes/parse-cuid.pipe';
 import { UserId } from '@/shared/decorators/user-id.decorator';
 import { HttpResponse } from '@/shared/dto/common/http-response.dto';
 import { ApiResponseWithType } from '@/shared/decorators/api-response.decorator';
-import { CartItemResponseDto } from '@/modules/cart/interfaces/http/dto/response';
+import { ApplyCouponDto } from '@/modules/cart/interfaces/http/dto/request/apply-coupon.dto';
+import { GetCartPricingQuery } from '@/modules/cart/application/queries/get-cart-pricing.query';
 import { AddItemToCartDto } from '@/modules/cart/interfaces/http/dto/request/add-item-to-cart.dto';
 import { UpdateCartItemDto } from '@/modules/cart/interfaces/http/dto/request/update-cart-item.dto';
 import { GetCartWithDetailsQuery } from '@/modules/cart/application/queries/get-cart-with-details.query';
@@ -168,6 +176,66 @@ export class CartController {
     await this.commandBus.execute(new ClearCartCommand(userId));
     return {
       message: 'Cart cleared successfully',
+    };
+  }
+
+  @Get('pricing')
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Get cart pricing with offers and optional coupon',
+    description:
+      'Calculate cart pricing including active offers and optional coupon discount. Returns complete breakdown of all discounts.',
+  })
+  @ApiQuery({
+    name: 'couponCode',
+    required: false,
+    description: 'Coupon code to apply for pricing calculation',
+    example: 'SAVE20',
+  })
+  @ApiResponseWithType(
+    {
+      status: 200,
+      description: 'Cart pricing calculated successfully',
+    },
+    CartPricingDto,
+  )
+  @ApiResponse({ status: 404, description: 'Cart not found' })
+  async getCartPricing(
+    @UserId() userId: string,
+    @Query('couponCode') couponCode?: string,
+  ): Promise<HttpResponse<CartPricingDto>> {
+    const pricing = await this.queryBus.execute(
+      new GetCartPricingQuery(userId, couponCode),
+    );
+
+    return {
+      message: 'Cart pricing calculated successfully',
+      data: pricing,
+    };
+  }
+
+  @Post('apply-coupon')
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Apply coupon to cart',
+    description: 'Validate and apply a coupon code to the cart',
+  })
+  @ApiResponseWithType({
+    status: 200,
+    description: 'Coupon applied successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Cart or coupon not found' })
+  @ApiResponse({ status: 400, description: 'Invalid coupon or cart is empty' })
+  async applyCoupon(
+    @UserId() userId: string,
+    @Body() dto: ApplyCouponDto,
+  ): Promise<HttpResponse> {
+    await this.commandBus.execute(
+      new ApplyCouponToCartCommand(userId, dto.code),
+    );
+
+    return {
+      message: 'Coupon validated successfully',
     };
   }
 }

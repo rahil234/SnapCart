@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
-import CommandHandlers from './commands/handlers';
 import QueryHandlers from './queries/handlers';
+import CommandHandlers from './commands/handlers';
 
 import { PrismaCouponRepository } from '@/modules/coupon/infrastructure/persistence/repositories/prisma-coupon.repository';
 
@@ -16,5 +16,6 @@ import { PrismaCouponRepository } from '@/modules/coupon/infrastructure/persiste
       useClass: PrismaCouponRepository,
     },
   ],
+  exports: ['CouponRepository'],
 })
 export class CouponApplicationModule {}

@@ -21,6 +21,7 @@ import {
 import { RootState } from '@/store/store';
 import { Button } from '@/components/ui/button';
 import WalletSection from '@/pages/user/MyAccount/Wallet';
+import OrdersSection from '@/pages/user/MyAccount/Orders';
 import ProfileSection from '@/pages/user/MyAccount/Profile';
 import SecuritySection from '@/pages/user/MyAccount/Security';
 import AddressesSection from '@/pages/user/MyAccount/Address';
@@ -81,8 +82,8 @@ function AccountPage() {
         return <WalletSection />;
       case 'addresses':
         return <AddressesSection />;
-      // case 'orders':
-      // return <OrdersSection />;
+      case 'orders':
+      return <OrdersSection />;
       case 'security':
         return <SecuritySection />;
       case 'refer':

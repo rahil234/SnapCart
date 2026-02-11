@@ -4,3 +4,5 @@ export * from './category';
 export * from './cart';
 export * from './address';
 export * from './coupon';
+export * from './offer';
+export * from './order';

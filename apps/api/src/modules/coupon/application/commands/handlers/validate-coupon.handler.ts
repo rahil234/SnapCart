@@ -1,16 +1,13 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { ValidateCouponCommand } from '../validate-coupon.command';
 import { CouponRepository } from '@/modules/coupon/domain/repositories/coupon.repository';
 
 @CommandHandler(ValidateCouponCommand)
-export class ValidateCouponHandler
-  implements
-    ICommandHandler<
-      ValidateCouponCommand,
-      { valid: boolean; reason?: string; discount?: number }
-    >
-{
+export class ValidateCouponHandler implements ICommandHandler<
+  ValidateCouponCommand,
+  { valid: boolean; reason?: string; discount: number }
+> {
   constructor(
     @Inject('CouponRepository')
     private readonly couponRepository: CouponRepository,
@@ -19,7 +16,7 @@ export class ValidateCouponHandler
   async execute(command: ValidateCouponCommand): Promise<{
     valid: boolean;
     reason?: string;
-    discount?: number;
+    discount: number;
   }> {
     const { code, userId, cartTotal } = command;
 
@@ -28,6 +25,7 @@ export class ValidateCouponHandler
     if (!coupon) {
       return {
         valid: false,
+        discount: 0,
         reason: 'Coupon not found',
       };
     }
@@ -51,6 +49,7 @@ export class ValidateCouponHandler
 
     return {
       valid: false,
+      discount: 0,
       reason: validation.reason,
     };
   }

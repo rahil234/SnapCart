@@ -1,14 +1,19 @@
-export interface IOffer {
-  _id: string;
+export interface Offer {
+  id: string;
   name: string;
-  description: string;
+  type: 'Percentage' | 'Flat';
   discount: number;
-  type: 'percentage' | 'fixed';
-  startDate: Date;
-  endDate: Date;
-  products: any[]; // Replace 'any' with a more specific type if you have one for Product
-  categories: any[]; // Replace 'any' with a more specific type if you have one for Category
+  minPurchaseAmount: number;
+  maxDiscount?: number;
+  priority: number;
+  startDate: string;
+  endDate: string;
+  status: 'active' | 'inactive' | 'expired';
+  isStackable: boolean;
+  categories: Array<string>;
+  products: Array<string>;
+  description?: string;
   isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }

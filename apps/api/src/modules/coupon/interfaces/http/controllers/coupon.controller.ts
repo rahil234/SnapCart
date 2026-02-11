@@ -1,5 +1,10 @@
-import { Controller, Get, Post, Body, Param, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
 import { Role } from '@/shared/enums/role.enum';
@@ -8,8 +13,8 @@ import { UserId } from '@/shared/decorators/user-id.decorator';
 import { HttpResponse } from '@/shared/dto/common/http-response.dto';
 import { ApiResponseWithType } from '@/shared/decorators/api-response.decorator';
 import {
-  ApiCommonErrorResponses,
   ApiAuthErrorResponses,
+  ApiCommonErrorResponses,
   ApiNotFoundResponse,
 } from '@/shared/decorators/api-error-responses.decorator';
 
@@ -91,12 +96,12 @@ export class CouponController {
       message: result.valid
         ? 'Coupon is valid'
         : result.reason || 'Coupon is invalid',
-      data: {
-        valid: result.valid,
-        reason: result.reason,
-        discount: result.discount,
-        code: dto.code,
-      },
+      data: CouponValidationResponseDto.fromValidationResult(
+        result.valid,
+        result.discount,
+        dto.code,
+        result.reason,
+      ),
     };
   }
 
@@ -124,9 +129,7 @@ export class CouponController {
   async getCouponByCode(
     @Param('code') code: string,
   ): Promise<HttpResponse<CouponResponseDto>> {
-    const coupon = await this.queryBus.execute(
-      new GetCouponByCodeQuery(code),
-    );
+    const coupon = await this.queryBus.execute(new GetCouponByCodeQuery(code));
 
     return {
       message: 'Coupon retrieved successfully',

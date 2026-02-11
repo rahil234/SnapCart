@@ -21,16 +21,16 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import CouponsTable from '@/components/admin/CouponTable';
-import { useGetCoupons } from '@/hooks/coupons/use-get-coupons.hook';
-import EditCouponCard from '@/components/admin/EditCouponCard';
 import AddCouponCard from '@/components/admin/AddCouponCard';
+import EditCouponCard from '@/components/admin/EditCouponCard';
+import { useGetAdminCoupons } from '@/hooks/coupons/use-get-admin-coupons.hook';
 
 function CouponManagement() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
 
-  const { data: coupons, isLoading, isError } = useGetCoupons();
+  const { data: coupons, isLoading, isError } = useGetAdminCoupons();
 
   if (isLoading) return <div>Loading...</div>;
   if (isError || !coupons) return <div>Error loading coupons</div>;

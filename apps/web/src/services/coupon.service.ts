@@ -13,7 +13,11 @@ const couponsApi = new CouponsApi(apiConfig, undefined, apiClient);
 const adminCouponsApi = new AdminCouponsApi(apiConfig, undefined, apiClient);
 
 export const CouponService = {
-  getCoupons: () =>
+  getAvailableCoupons: () =>
+    handleRequest(() => couponsApi.couponControllerGetAvailableCoupons()),
+  getCouponByCode: (code: string) =>
+    handleRequest(() => couponsApi.couponControllerGetCouponByCode(code)),
+  getAdminCoupons: () =>
     handleRequest(() => adminCouponsApi.adminCouponControllerFindAll()),
   createCoupon: (coupon: CreateCouponDto) =>
     handleRequest(() => adminCouponsApi.adminCouponControllerCreate(coupon)),
@@ -21,8 +25,6 @@ export const CouponService = {
     handleRequest(() =>
       adminCouponsApi.adminCouponControllerUpdate(id, coupon)
     ),
-  getAvailableCoupons: () =>
-    handleRequest(() => couponsApi.couponControllerGetAvailableCoupons()),
   validateCoupon: (coupon: ValidateCouponDto) =>
     handleRequest(() => couponsApi.couponControllerValidateCoupon(coupon)),
 };

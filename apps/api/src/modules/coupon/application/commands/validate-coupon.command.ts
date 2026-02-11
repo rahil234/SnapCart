@@ -3,7 +3,7 @@ import { Command } from '@nestjs/cqrs';
 export class ValidateCouponCommand extends Command<{
   valid: boolean;
   reason?: string;
-  discount?: number;
+  discount: number;
 }> {
   constructor(
     public readonly code: string,

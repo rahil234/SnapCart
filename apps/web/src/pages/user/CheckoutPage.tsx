@@ -1,9 +1,9 @@
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import React, { useEffect, useState } from 'react';
-import { Edit2, Loader2, Plus, Trash2 } from 'lucide-react';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import {
   Card,
@@ -27,16 +27,12 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
-import { ICoupon } from '@/types/coupon';
+import { Coupon } from '@/types';
 import { Address } from '@/types/address';
-import { catchError } from '@/types/error';
-import { RootState, useAppDispatch } from '@/store/store';
-import AddressForm from '@/components/user/AddressForm';
-import { OrderService } from '@/services/order.service';
+import { RootState } from '@/store/store';
 import { CouponService } from '@/services/coupon.service';
 import PaymentButton from '@/components/user/PaymentButton';
-import { AddressService } from '@/services/address.service';
-import { clearCart } from '@/store/cart/cartSlice';
+import { CheckoutService } from '@/services/checkout.service';
 import AvailableCoupons from '@/components/user/AvailableCoupons';
 
 export interface CheckoutFormValues {
@@ -55,81 +51,60 @@ const calculateDiscount = (
 
 function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
-  const [editingAddressIndex, setEditingAddressIndex] = useState<number | null>(
-    null
-  );
-  const [couponCode, setCouponCode] = useState<string>('');
-  const [appliedCoupon, setAppliedCoupon] = useState<ICoupon | undefined>(
+  const [couponCode, setCouponCode] = useState<string | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | undefined>(
     undefined
   );
   const [couponError, setCouponError] = useState<string | undefined>(undefined);
   const [couponsModal, setCouponsModal] = useState(false);
 
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { cartData } = useSelector((state: RootState) => state.cart);
+  const { items, totalAmount } = useSelector((state: RootState) => state.cart);
 
   const { items: addresses } = useSelector((state: RootState) => state.address);
 
-  const { control, handleSubmit, getValues, watch } =
+  const { control, handleSubmit, getValues, watch, reset } =
     useForm<CheckoutFormValues>({
       defaultValues: {
-        selectedAddressId:
-          addresses && addresses.length > 0 ? addresses[0].id : null,
-        addresses: addresses || [],
+        selectedAddressId: null,
         paymentMethod: 'wallet',
       },
     });
 
   useEffect(() => {
-    console.log('applied coupon', appliedCoupon);
-  }, [appliedCoupon]);
-
-  const { fields, append, remove, update } = useFieldArray({
-    control,
-    name: 'addresses',
-  });
+    if (addresses && addresses.length > 0) {
+      reset({
+        selectedAddressId: addresses[0].id,
+        paymentMethod: watch('paymentMethod') || 'wallet',
+      });
+    }
+  }, [addresses, reset]);
 
   const selectedAddressId = watch('selectedAddressId');
   const selectedPaymentMethod = watch('paymentMethod');
 
-  const handleAddAddress = async (address: Address) => {
-    try {
-      await AddressService.addAddress(address);
-      append(address);
-      setIsAddressDialogOpen(false);
-    } catch (error) {
-      console.log(error);
+  const handleCouponSubmit = async (code: string | null) => {
+    setCouponError(undefined);
+    if (!code) return;
+    const { data, error } = await CouponService.validateCoupon({
+      code: code.toUpperCase(),
+      cartTotal: totalAmount || 0,
+    });
+
+    if (error) {
+      return;
     }
-  };
 
-  const handleEditAddress = async (index: number, address: Address) => {
-    await AddressService.updateAddress(fields[index].id, address);
-    update(index, address);
-    setEditingAddressIndex(null);
-    setIsAddressDialogOpen(false);
-  };
+    const { data: coupon, error: couponError } =
+      await CouponService.getCouponByCode(data.code);
 
-  const handleRemoveAddress = async (index: number) => {
-    await AddressService.deleteAddress(fields[index].id);
-    remove(index);
-    setEditingAddressIndex(null);
-    setIsAddressDialogOpen(false);
-  };
-
-  const handleCouponSubmit = async (code: string) => {
-    try {
-      setCouponError(undefined);
-      if (!code) return;
-      const coupon = (await CouponService.applyCoupon(code)).coupon;
-      setAppliedCoupon(coupon);
-    } catch (error) {
-      setAppliedCoupon(undefined);
-      setCouponError((error as catchError).response.data.message);
-      toast.error((error as catchError).response.data.message);
+    if (couponError) {
+      toast.error('Failed to retrieve coupon details');
+      return;
     }
+
+    setAppliedCoupon(coupon);
   };
 
   const handlePaymentDismissed = () => {
@@ -137,22 +112,43 @@ function CheckoutPage() {
   };
 
   const onSubmit = async (data: CheckoutFormValues) => {
-    console.log('data', data);
-    try {
-      setIsLoading(true);
-      console.log('coupon', appliedCoupon);
-      const { error, data } = await OrderService.createOrder(
-        data,
-        appliedCoupon?.code || undefined
-      );
+    setIsLoading(true);
 
+    if (!data.selectedAddressId) {
+      toast.error('Please select a shipping address');
       setIsLoading(false);
-      dispatch(clearCart());
-    } catch (error) {
+      return;
+    }
+
+    const { error } = await CheckoutService.commitCheckout({
+      source: 'CART',
+      couponCode: appliedCoupon?.code || undefined,
+      shippingAddressId: data.selectedAddressId,
+      paymentMethod: data.paymentMethod,
+    });
+
+    if (error) {
       setIsLoading(false);
       console.log(error);
-      toast.error((error as catchError).response.data.message);
+      toast.error(error.response.data.message);
     }
+
+    if (data.paymentMethod === 'cod') {
+      toast.success('Order placed successfully');
+      navigate('/order-success', { replace: true });
+    }
+
+    if (data.paymentMethod === 'wallet') {
+      toast.success('Payment successful and order placed');
+      navigate('/order-success', { replace: true });
+    }
+
+    if (data.paymentMethod === 'razorpay') {
+      // Payment will be handled in the PaymentButton component
+      // and user will be redirected based on payment outcome
+    }
+
+    setIsLoading(false);
   };
 
   return (
@@ -168,87 +164,43 @@ function CheckoutPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <Controller
-                  name="selectedAddressId"
-                  control={control}
-                  rules={{ required: 'Please select an address' }}
-                  render={({ field }) => (
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      className="space-y-4"
-                    >
-                      {fields.map((address, index) => (
-                        <div
-                          key={address.id}
-                          className="flex items-center space-x-2"
-                        >
-                          <RadioGroupItem value={address.id} id={address.id} />
-                          <Label htmlFor={address.id} className="flex-grow">
-                            <div>
-                              <p>{address.street}</p>
-                              <p>{`${address.city}, ${address.state} ${address.pincode}`}</p>
-                            </div>
-                          </Label>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setEditingAddressIndex(index);
-                              setIsAddressDialogOpen(true);
-                            }}
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleRemoveAddress(index)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                  )}
-                />
-              </form>
-              <Dialog
-                open={isAddressDialogOpen}
-                onOpenChange={setIsAddressDialogOpen}
+              <Controller
+                name="selectedAddressId"
+                control={control}
+                rules={{ required: 'Please select an address' }}
+                render={({ field }) => (
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    className="space-y-4"
+                  >
+                    {addresses.map(address => (
+                      <div
+                        key={address.id}
+                        className="flex items-center space-x-2"
+                      >
+                        <RadioGroupItem value={address.id} id={address.id} />
+                        <Label htmlFor={address.id}>
+                          <div>
+                            <p>{address.street}</p>
+                            <p>
+                              {address.city}, {address.state} {address.pincode}
+                            </p>
+                          </div>
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                )}
+              />
+
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => navigate('/my-account#addresses')}
               >
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="mt-4">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add New Address
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>
-                      {editingAddressIndex !== null
-                        ? 'Edit Address'
-                        : 'Add New Address'}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <AddressForm
-                    onSubmit={
-                      editingAddressIndex !== null
-                        ? address =>
-                            handleEditAddress(editingAddressIndex, address)
-                        : handleAddAddress
-                    }
-                    initialData={
-                      editingAddressIndex !== null
-                        ? fields[editingAddressIndex]
-                        : undefined
-                    }
-                  />
-                </DialogContent>
-              </Dialog>
+                Manage Addresses
+              </Button>
             </CardContent>
           </Card>
 
@@ -282,16 +234,16 @@ function CheckoutPage() {
                       <RadioGroupItem
                         value="cod"
                         id="cod"
-                        disabled={cartData.totalAmount > 1000}
+                        disabled={totalAmount > 1000}
                       />
                       <div>
                         <Label
                           htmlFor="cod"
-                          className={`${cartData.totalAmount > 1000 && 'text-gray-500'}`}
+                          className={`${totalAmount > 1000 && 'text-gray-500'}`}
                         >
                           Cash on Delivery
                         </Label>
-                        {cartData.totalAmount > 1000 && (
+                        {totalAmount > 1000 && (
                           <p className="text-red-400 text-xs">
                             Not available for orders above 1000
                           </p>
@@ -309,8 +261,8 @@ function CheckoutPage() {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              {cartData.items &&
-                cartData.items.map(item => (
+              {items &&
+                items.map(item => (
                   <div
                     key={item.id}
                     className="flex justify-between items-center mb-2"
@@ -350,7 +302,7 @@ function CheckoutPage() {
             <CardContent>
               <Input
                 onChange={e => setCouponCode(e.target.value.toUpperCase())}
-                value={couponCode}
+                value={couponCode || undefined}
                 placeholder="Enter coupon code"
               />
               <div className="flex justify-end">
@@ -388,7 +340,7 @@ function CheckoutPage() {
               <CardContent>
                 <div className="flex justify-between">
                   <span className="text-green-500">
-                    {appliedCoupon.type === 'percentage'
+                    {appliedCoupon.type === 'Percentage'
                       ? `coupon applied: ${appliedCoupon.discount}% off`
                       : `coupon applied: ₹${appliedCoupon.discount} off`}
                   </span>
@@ -410,24 +362,23 @@ function CheckoutPage() {
             <CardContent>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span>Price ({cartData.items?.length} items)</span>
-                  <span>₹{cartData?.totalAmount}</span>
+                  <span>Price ({items?.length} items)</span>
+                  <span>₹{totalAmount}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery Charges</span>
                   <span className="text-green-600">
-                    ₹{cartData.totalAmount > 500 ? 'Free' : '50'}
+                    ₹{totalAmount > 500 ? 'Free' : '50'}
                   </span>
                 </div>
                 {appliedCoupon && (
                   <div className="flex justify-between">
                     <span>Coupon</span>
-                    {appliedCoupon.type === 'percentage' ? (
+                    {appliedCoupon.type === 'Percentage' ? (
                       <span>
                         - ₹
                         {Math.round(
-                          (cartData?.totalAmount / 100) *
-                            appliedCoupon?.discount
+                          (totalAmount / 100) * appliedCoupon?.discount
                         )}
                       </span>
                     ) : (
@@ -439,31 +390,27 @@ function CheckoutPage() {
                 {appliedCoupon ? (
                   <div className="flex justify-between font-semibold">
                     <span>Total Amount</span>
-                    {appliedCoupon.type === 'percentage' ? (
+                    {appliedCoupon.type === 'Percentage' ? (
                       <span>
                         ₹
                         {calculateDiscount(
-                          cartData?.totalAmount,
+                          totalAmount,
                           appliedCoupon.discount
-                        ) + (cartData.totalAmount > 500 ? 0 : 50)}
+                        ) + (totalAmount > 500 ? 0 : 50)}
                       </span>
                     ) : (
                       <span>
                         ₹
-                        {cartData?.totalAmount -
+                        {totalAmount -
                           appliedCoupon.discount +
-                          (cartData.totalAmount > 500 ? 0 : 50)}
+                          (totalAmount > 500 ? 0 : 50)}
                       </span>
                     )}
                   </div>
                 ) : (
                   <div className="flex justify-between font-semibold">
                     <span>Total Amount</span>
-                    <span>
-                      ₹
-                      {cartData?.totalAmount +
-                        (cartData.totalAmount > 500 ? 0 : 50)}
-                    </span>
+                    <span>₹{totalAmount + (totalAmount > 500 ? 0 : 50)}</span>
                   </div>
                 )}
               </div>
