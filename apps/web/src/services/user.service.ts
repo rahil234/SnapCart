@@ -1,6 +1,3 @@
-import { apiClient } from '@/api/axios';
-import { apiConfig } from '@/api/client';
-import { handleRequest } from '@/api/utils/handleRequest';
 import {
   GenerateProfilePictureUploadUrlDto,
   SaveProfilePictureDto,
@@ -8,6 +5,9 @@ import {
   UpdateUserStatusDto,
   UsersApi,
 } from '@/api/generated';
+import { apiClient } from '@/api/axios';
+import { apiConfig } from '@/api/client';
+import { handleRequest } from '@/api/utils/handleRequest';
 
 const userApi = new UsersApi(apiConfig, undefined, apiClient);
 
