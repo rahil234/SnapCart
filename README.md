@@ -1,13 +1,19 @@
-# SnapCart 🛒
+# SnapCart
 
 SnapCart is a quick delivery website for groceries and foods, designed to provide users with a seamless shopping
 experience. It focuses on efficiency, scalability, and user satisfaction.
 
 ---
-images:
+
+### Desktop View
 
 <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;">
   <img src="docs/img.png" alt="Image Description" style="border-radius: 10px;">
+</div>
+
+### Mobile View
+
+<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;">
   <img src="docs/IMG_2.jpg" alt="Image Description" style="width: 300px; border-radius: 10px;">
 </div>
 
@@ -17,7 +23,7 @@ images:
 
 - **Quick Delivery**: Lightning-fast grocery and food deliveries.
 - **Variants Management**: Easily manage product variants on a single product page.
-- **Role-Based Access Control**: Admin, seller, and user roles with tailored functionalities.
+- **Role-Based Access Control**: Admin, seller, and customer roles with tailored functionalities.
 - **Secure Authentication**: Includes OTP verification for enhanced security.
 - **Banner Management**: Manage promotional banners to enhance user engagement.
 - **Cart System**: Efficient and scalable cart system using a dedicated collection for better performance.
@@ -29,22 +35,32 @@ images:
 **Frontend**:
 
 - React
+- React Router (for routing)
 - Redux (for state management)
 - Tailwind CSS (for styling)
+- Shadcn UI (for UI components)
 
 **Backend**:
 
 - Node.js
-- Express.js
-- MongoDB
+- Nest.js (for building the API)
+- PostgreSQL (for database)
 - Redis
 
-**Other Tools**:
+## Project Structure 📂
 
-- TypeScript (strong typing)
-- Axios (API communication)
-- Docker (containerization for deployment)
-- Nginx (reverse proxy)
+This Project follows turbo monorepo structure, with separate folders for the frontend and backend applications. The root
+directory contains the docker-compose file for easy deployment.
+
+```bash
+snapcart/
+  │
+  ├── apps /
+  │   ├── web / (React application)
+  │   └── api / (Nest.js backend)
+  ├── docker-compose.yml
+  └── README.md
+```
 
 ---
 
@@ -52,63 +68,38 @@ images:
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
-- MongoDB (Community version 7.0 or higher)
+- Node.js (v22 or higher)
+- Postgres (v15 or higher)
 - Docker & Docker Compose
 
 ### Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/snapcart.git
+git clone https://github.com/rahil234/snapcart.git
 cd snapcart
 ```
 
 ## Docker Deployment 🐳
 
-To deploy the entire application using Docker, ensure docker-compose.yml is configured correctly, then run:
+To deploy the entire application using Docker, ensure docker-compose.yaml is configured correctly, then run:
 
 ```bash
 
-docker-compose up --build
+docker compose up
 
 ```
-
-## API Endpoints 🌐
-
-### Authentication
-
-	•	POST /api/auth/signup - User signup
-	•	POST /api/auth/login - User login
-	•	POST /api/auth/verify-otp - OTP verification
-
-### Products
-
-	•	GET /api/products - Fetch all products
-	•	POST /api/products - Add a new product (Admin only)
-
-### Variants
-
-	•	GET /api/variants/:productId - Fetch variants of a product
-	•	POST /api/variants - Add variants to a product
-
-### Cart
-
-	•	GET /api/cart - Fetch cart items
-	•	POST /api/cart - Add items to cart
 
 ---
 
-## Project Structure 📂
+## API Documentation 🌐
 
-```bash
-snapcart/
-  │
-  ├── backend/         # Server-side code
-  ├── frontend/        # Client-side code
-  ├── shared/          # Shared types for backend and frontend
-  ├── docker-compose.yml
-  └── README.md        # Project documentation
-```
+Full API documentation is available via Swagger UI:
+
+**Live API Docs**: [https://api.snapcart.live/api/docs](https://api.snapcart.live/api/docs)
+
+For programmatic access to the OpenAPI specification:
+
+**API JSON Schema**: [https://api.snapcart.live/api/docs-json](https://api.snapcart.live/api/docs-json)
 
 ---
 
