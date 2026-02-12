@@ -60,3 +60,12 @@ export class SellerVerifiedEvent {
     public readonly occurredAt: Date = new Date(),
   ) {}
 }
+
+export class ProfilePictureUpdatedEvent {
+  constructor(
+    public readonly userId: string,
+    public readonly profilePictureUrl: string,
+    public readonly occurredAt: Date = new Date(),
+  ) {}
+}
+

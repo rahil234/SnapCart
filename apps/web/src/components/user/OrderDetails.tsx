@@ -1,9 +1,8 @@
 import { toast } from 'sonner';
 import React, { useState } from 'react';
-import { AlertCircle, Download } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { Order } from '@/types';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Order } from '@/types';
 import { Button } from '@/components/ui/button';
 import { OrderService } from '@/services/order.service';
 import OrderReturnCard from '@/components/user/OrderReturnCard';
@@ -38,17 +38,17 @@ const OrderDetails = ({ order, onClose }: IOrderDetailsProps) => {
     }
   };
 
-  const handleCancelItem = async (itemId: string) => {
-    try {
-      await OrderService.cancelOrderItem(order?.id, itemId);
-      console.log(`Cancelling item ₹{itemId} from order ₹{order.orderId}`);
-      await queryClient.invalidateQueries({ queryKey: ['orders'] });
-      toast.success('Item cancelled successfully');
-      onClose();
-    } catch (error) {
-      console.error('Error cancelling item:', error);
-    }
-  };
+  // const handleCancelItem = async (itemId: string) => {
+  //   try {
+  //     await OrderService.cancelOrder(order.id, itemId);
+  //     console.log(`Cancelling item ₹{itemId} from order ₹{order.orderId}`);
+  //     await queryClient.invalidateQueries({ queryKey: ['orders'] });
+  //     toast.success('Item cancelled successfully');
+  //     onClose();
+  //   } catch (error) {
+  //     console.error('Error cancelling item:', error);
+  //   }
+  // };
 
   // const handleReturnOrder = async () => {
   //   try {
@@ -59,27 +59,27 @@ const OrderDetails = ({ order, onClose }: IOrderDetailsProps) => {
   //   }
   // };
 
-  const handleGetInvoice = async (orderId: string) => {
-    try {
-      const response = await OrderService.getInvoice(order.id);
-
-      const url = window.URL.createObjectURL(
-        new Blob([response.data], { type: 'application/pdf' })
-      );
-      console.log(url);
-
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `receipt-${orderId}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-
-      if (link?.parentNode) link.parentNode.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading the receipt:', error);
-    }
-  };
+  // const handleGetInvoice = async (orderId: string) => {
+  //   try {
+  //     const response = await OrderService.getInvoice(order.id);
+  //
+  //     const url = window.URL.createObjectURL(
+  //       new Blob([response.data], { type: 'application/pdf' })
+  //     );
+  //     console.log(url);
+  //
+  //     const link = document.createElement('a');
+  //     link.href = url;
+  //     link.setAttribute('download', `receipt-${orderId}.pdf`);
+  //     document.body.appendChild(link);
+  //     link.click();
+  //
+  //     if (link?.parentNode) link.parentNode.removeChild(link);
+  //     window.URL.revokeObjectURL(url);
+  //   } catch (error) {
+  //     console.error('Error downloading the receipt:', error);
+  //   }
+  // };
 
   return (
     <div className="bg-white mx-auto rounded-lg">
@@ -156,10 +156,10 @@ const OrderDetails = ({ order, onClose }: IOrderDetailsProps) => {
                 />
               </DialogContent>
             </Dialog>
-            <Button onClick={() => handleGetInvoice(order.id)}>
-              invoice
-              <Download className="w-5 h-5 ml-2" />
-            </Button>
+            {/*<Button onClick={() => handleGetInvoice(order.id)}>*/}
+            {/*  invoice*/}
+            {/*  <Download className="w-5 h-5 ml-2" />*/}
+            {/*</Button>*/}
           </div>
         ) : (
           order.orderStatus === 'shipping' ||

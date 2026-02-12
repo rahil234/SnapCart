@@ -5,6 +5,8 @@ import { CreateAddressHandler } from './create-address.handler';
 import { UpdateAddressHandler } from './update-address.handler';
 import { DeleteAddressHandler } from './delete-address.handler';
 import { UpgradeToSellerHandler } from './upgrade-to-seller.handler';
+import { GenerateProfilePictureUploadUrlHandler } from './generate-profile-picture-upload-url.handler';
+import { SaveProfilePictureHandler } from './save-profile-picture.handler';
 
 export class CommandHandlers {
   static handlers = [
@@ -15,5 +17,7 @@ export class CommandHandlers {
     UpdateAddressHandler,
     DeleteAddressHandler,
     UpgradeToSellerHandler,
+    GenerateProfilePictureUploadUrlHandler,
+    SaveProfilePictureHandler,
   ];
 }

@@ -23,6 +23,7 @@ export class PrismaMeReadRepository implements MeReadRepository {
           select: {
             id: true,
             name: true,
+            profilePicture: true,
             addresses: {
               select: {
                 id: true,
@@ -59,6 +60,7 @@ export class PrismaMeReadRepository implements MeReadRepository {
         ? {
             id: user.customerProfile.id,
             name: user.customerProfile.name ?? undefined,
+            profilePicture: user.customerProfile.profilePicture ?? undefined,
           }
         : undefined,
       sellerProfile: user.sellerProfile ?? undefined,

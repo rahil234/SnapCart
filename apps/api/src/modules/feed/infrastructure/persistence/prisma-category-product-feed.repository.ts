@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '@/shared/prisma/prisma.service';
-import { CategoryProductFeedRepository } from '@/modules/feed/application/repositories/category-product-feed.repository';
 import { CategoryProductFeedItem } from '@/modules/feed/application/queries/results';
+import { CategoryProductFeedRepository } from '@/modules/feed/application/repositories/category-product-feed.repository';
 
 @Injectable()
 export class PrismaCategoryProductFeedRepository implements CategoryProductFeedRepository {
@@ -41,8 +41,8 @@ export class PrismaCategoryProductFeedRepository implements CategoryProductFeedR
                   },
                 },
               },
-              take: 1, // Get first available variant for display
-              orderBy: { price: 'asc' }, // Show cheapest variant first
+              take: 1, // Get the first available variant for display
+              orderBy: { price: 'asc' }, // Show the cheapest variant first
             },
           },
         },
@@ -69,6 +69,7 @@ export class PrismaCategoryProductFeedRepository implements CategoryProductFeedR
             price: firstVariant.price,
             discountPercent: firstVariant.discountPercent,
             images: firstVariant.images.map((img) => img.url),
+            stock: firstVariant.stock,
           },
         } satisfies CategoryProductFeedItem['products'][number];
       }),

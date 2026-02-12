@@ -2,6 +2,7 @@ import { toast } from 'sonner';
 import React, { useState } from 'react';
 import { Archive, ArchiveXIcon, Edit } from 'lucide-react';
 
+import { Category } from '@/types';
 import {
   Tooltip,
   TooltipContent,
@@ -18,12 +19,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Category } from '@/types';
 import EditCategoryCard from '@/components/admin/EditCategoryCard';
-import {
-  useArchiveCategory,
-  useUnarchiveCategory,
-} from '@/hooks/category.hooks';
+import { useArchiveCategoryMutation } from '@/hooks/categories/use-archive-category-mutation.hook';
+import { useUnarchiveCategoryMutation } from '@/hooks/categories/use-unarchive-category-mutation.hook';
 
 type CategoryTableProps = {
   categories: Category[];
@@ -32,8 +30,8 @@ type CategoryTableProps = {
 const CategoryTable: React.FC<CategoryTableProps> = ({ categories }) => {
   const [editCategory, setEditCategory] = useState<Category | null>(null);
 
-  const archiveCategory = useArchiveCategory();
-  const unarchiveCategory = useUnarchiveCategory();
+  const archiveCategory = useArchiveCategoryMutation();
+  const unarchiveCategory = useUnarchiveCategoryMutation();
 
   const handleStatusToggle = async (
     categoryId: string,

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
-import { useGetCategories } from '@/hooks/category.hooks';
 import CategoryTable from '@/components/admin/CategoryTable';
 import AddCategoryCard from '@/components/admin/AddCategoryCard';
+import { useGetCategories } from '@/hooks/categories/use-get-categories.hook';
 
 const AdminCategory = () => {
   const [isAddingCategory, setIsAddingCategory] = useState(false);

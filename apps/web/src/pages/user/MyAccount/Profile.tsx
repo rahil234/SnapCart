@@ -5,11 +5,12 @@ import { Loader2, Upload, User as UserIcon } from 'lucide-react';
 
 import { User } from '@/types';
 import { Address } from '@/types/address';
-import { useAppDispatch } from '@/store/store';
 import { Input } from '@/components/ui/input';
+import { useAppDispatch } from '@/store/store';
 import { Button } from '@/components/ui/button';
+import { fetchUser } from '@/store/auth/authSlice';
 import { UserService } from '@/services/user.service';
-import { changeProfilePicture } from '@/store/auth/authSlice';
+import { uploadImageToProvider } from '@/utils/upload-image-to-provider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export interface ProfileFormValues {
@@ -59,9 +60,31 @@ function ProfileSection({ user }: { user: User }) {
       reader.onload = e => {
         setAvatarSrc(e.target?.result as string);
       };
-      const { data, error } = await UserService.uploadProfilePicture(file);
 
-      dispatch(changeProfilePicture(data.profilePicture));
+      const { data: descriptor, error } =
+        await UserService.generateProfilePictureUploadUrl({
+          fileName: file.name,
+        });
+
+      if (error) {
+        console.error('Failed to get upload URL:', error);
+        toast.error('Failed to upload profile picture');
+        return;
+      }
+
+      const { url } = await uploadImageToProvider(descriptor, file);
+
+      const { error: imageUploadError } = await UserService.saveProfilePicture({
+        url,
+      });
+
+      if (imageUploadError) {
+        console.error('Failed to save profile picture:', error);
+        toast.error('Failed to save profile picture');
+        return;
+      }
+
+      dispatch(fetchUser());
 
       reader.readAsDataURL(file);
     }

@@ -4,6 +4,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { PrismaModule } from '@/shared/prisma/prisma.module';
 import { OrderInfrastructureModule } from '../infrastructure/order-infrastructure.module';
 import { UserApplicationModule } from '@/modules/user/application/user-application.module';
+import { WalletApplicationModule } from '@/modules/wallet/application/wallet-application.module';
 
 import {
   GetAllOrdersHandler,
@@ -31,6 +32,7 @@ const CommandHandlers = [CancelOrderHandler, UpdateOrderStatusHandler];
     CqrsModule,
     OrderInfrastructureModule,
     UserApplicationModule,
+    WalletApplicationModule,
     PrismaModule,
   ],
   providers: [...QueryHandlers, ...CommandHandlers],

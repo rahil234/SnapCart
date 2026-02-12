@@ -1,0 +1,7 @@
+tunnel: snapcart-razorpay
+credentials-file: /etc/cloudflared/snapcart-razorpay.json
+
+ingress:
+  - hostname: webhooks.snapcart.live
+    service: http://api:4000
+  - service: http_status:404

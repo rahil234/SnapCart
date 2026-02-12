@@ -7,7 +7,7 @@ export const useGetAdminOrder = (id: string) => {
   return useQuery<Order>({
     queryKey: ['order', id],
     queryFn: async () => {
-      const { data, error } = await OrderService.getOrder(id);
+      const { data, error } = await OrderService.getAdminOrder(id);
 
       if (error) {
         throw new Error(error.message);

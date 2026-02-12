@@ -1,23 +1,48 @@
-import { UploadVariantImageResponseDto } from '@/api/generated';
+interface UploadImageDescriptor {
+  /**
+   * Image storage provider
+   */
+  provider: string;
+  /**
+   * URL of the storage bucket to upload the image to
+   */
+  uploadUrl: string;
+  /**
+   * HTTP method to use for upload
+   */
+  method: string;
+  /**
+   * URL to read/access the uploaded image
+   */
+  readUrl?: string;
+  /**
+   * Additional fields required for the upload
+   */
+  fields?: object;
+}
 
 export async function uploadImageToProvider(
-  descriptor: UploadVariantImageResponseDto,
+  descriptor: UploadImageDescriptor,
   file: File
 ): Promise<{
   provider: string;
   publicId: string;
   url: string;
 }> {
-  switch (descriptor.provider) {
+  const { fields, provider } = descriptor;
+
+  switch (provider) {
     case 'cloudinary': {
       const formData = new FormData();
 
-      // Cloudinary expects fields first
-      Object.entries(descriptor.fields).forEach(([key, value]) => {
+      if (!fields) {
+        throw new Error('Missing fields for Cloudinary upload');
+      }
+
+      Object.entries(fields).forEach(([key, value]) => {
         formData.append(key, value);
       });
 
-      // Actual file
       formData.set('file', file);
 
       const response = await fetch(descriptor.uploadUrl, {
@@ -38,27 +63,8 @@ export async function uploadImageToProvider(
       };
     }
 
-    case 'azure': {
-      const response = await fetch(descriptor.uploadUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': file.type,
-        },
-        body: file,
-      });
-
-      if (!response.ok) {
-        throw new Error('Azure upload failed');
-      }
-
-      return {
-        provider: 'azure',
-        url: descriptor.readUrl,
-      };
-    }
-
     default: {
-      return descriptor;
+      throw new Error(`Unsupported provider: ${provider}`);
     }
   }
 }

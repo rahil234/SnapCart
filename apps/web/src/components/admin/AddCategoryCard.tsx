@@ -10,7 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { useAddCategory } from '@/hooks/category.hooks';
+import { useAddCategoryMutation } from '@/hooks/categories/use-add-category-mutation.hook';
 
 type AddCategoryFormInputs = {
   name: string;
@@ -24,7 +24,7 @@ type AddCategoryCardProps = {
 const AddCategoryCard: React.FC<AddCategoryCardProps> = ({ open, onClose }) => {
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const addCategoryMutation = useAddCategory();
+  const addCategoryMutation = useAddCategoryMutation();
 
   const {
     register,

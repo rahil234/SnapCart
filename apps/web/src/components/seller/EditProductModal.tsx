@@ -1,35 +1,34 @@
-import React, { useState } from 'react';
 import {
+  closestCenter,
   DndContext,
-  PointerSensor,
   KeyboardSensor,
+  PointerSensor,
   useSensor,
   useSensors,
-  closestCenter,
 } from '@dnd-kit/core';
 import {
-  SortableContext,
-  useSortable,
-  sortableKeyboardCoordinates,
   horizontalListSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, ImageIcon, Plus, X, Trash2 } from 'lucide-react';
-import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import React, { useState } from 'react';
+import { CSS } from '@dnd-kit/utilities';
+import { useForm } from 'react-hook-form';
+import { GripVertical, ImageIcon, Plus, Trash2, X } from 'lucide-react';
 
+import { ProductWithVariants } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
 import { ProductService } from '@/services/product.service';
-import { ProductVariantService } from '@/services/product-variant.service';
 import AddImageCropper from '@/components/seller/addImageCropper';
-import { ProductWithVariants } from '@/types';
 import { uploadImageToProvider } from '@/utils/upload-image-to-provider';
+import { ProductVariantService } from '@/services/product-variant.service';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -175,7 +174,6 @@ export default function EditProductModal({
             variantName: variant.variantName,
             price: variant.price,
             stock: variant.stock,
-            sku: `SKU-${Date.now()}`,
           });
 
         if (error || !created) {

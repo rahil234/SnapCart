@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { SellerService } from '@/services/seller.service';
 
 interface AddSellerCardProps {
   onClose: () => void;
@@ -26,7 +25,7 @@ const AddSellerCard: React.FC<AddSellerCardProps> = ({ onClose }) => {
 
   const handleAddSeller: SubmitHandler<FormValues> = async data => {
     try {
-      await SellerService.addSeller(data);
+      // await SellerService.addSeller(data);
       onClose();
     } catch (error) {
       console.error('Failed to add seller:', error);

@@ -21,7 +21,6 @@ export class UserRegisteredEvent {
 export class OTPRequestedEvent {
   constructor(
     public readonly identifier: string,
-    public readonly otpSessionId: string,
     public readonly occurredAt: Date = new Date(),
   ) {}
 }
@@ -29,7 +28,6 @@ export class OTPRequestedEvent {
 export class OTPVerifiedEvent {
   constructor(
     public readonly identifier: string,
-    public readonly otpSessionId: string,
     public readonly occurredAt: Date = new Date(),
   ) {}
 }
@@ -47,3 +45,18 @@ export class UserLoggedOutEvent {
     public readonly occurredAt: Date = new Date(),
   ) {}
 }
+
+export class PasswordChangedEvent {
+  constructor(
+    public readonly userId: string,
+    public readonly occurredAt: Date = new Date(),
+  ) {}
+}
+
+export class PasswordResetEvent {
+  constructor(
+    public readonly userId: string,
+    public readonly occurredAt: Date = new Date(),
+  ) {}
+}
+

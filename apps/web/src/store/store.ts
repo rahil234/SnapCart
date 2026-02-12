@@ -3,6 +3,7 @@ import { configureStore } from '@reduxjs/toolkit';
 
 import authReducer from '@/store/auth/authSlice';
 import cartReducer from '@/store/cart/cartSlice';
+import walletReducer from '@/store/wallet/walletSlice';
 import addressReducer from '@/store/address/address.slice';
 
 const store = configureStore({
@@ -10,6 +11,7 @@ const store = configureStore({
     cart: cartReducer,
     auth: authReducer,
     address: addressReducer,
+    wallet: walletReducer,
   },
 });
 

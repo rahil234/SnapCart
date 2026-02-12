@@ -8,6 +8,7 @@ export class CustomerProfile {
     private name: string | null,
     private dob: Date | null,
     private gender: UserGender | null,
+    private profilePicture: string | null,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {}
@@ -25,6 +26,7 @@ export class CustomerProfile {
       name,
       dob,
       gender,
+      null, // profilePicture
       new Date(),
       new Date(),
     );
@@ -37,6 +39,7 @@ export class CustomerProfile {
     name: string | null,
     dob: Date | null,
     gender: UserGender | null,
+    profilePicture: string | null,
     createdAt: Date,
     updatedAt: Date,
   ): CustomerProfile {
@@ -46,6 +49,7 @@ export class CustomerProfile {
       name,
       dob,
       gender,
+      profilePicture,
       createdAt,
       updatedAt,
     );
@@ -67,6 +71,10 @@ export class CustomerProfile {
     this.gender = newGender;
   }
 
+  updateProfilePicture(newProfilePicture: string | null): void {
+    this.profilePicture = newProfilePicture;
+  }
+
   // Getters
   getId(): string {
     return this.id;
@@ -86,6 +94,10 @@ export class CustomerProfile {
 
   getGender(): UserGender | null {
     return this.gender;
+  }
+
+  getProfilePicture(): string | null {
+    return this.profilePicture;
   }
 
   getAge(): number | null {

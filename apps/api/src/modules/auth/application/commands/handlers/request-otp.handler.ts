@@ -23,7 +23,7 @@ export class RequestOTPHandler implements ICommandHandler<RequestOTPCommand> {
     // Generate OTP
     const otpCode = this.otpService.generate();
 
-    // Create OTP session
+    // Create an OTP session
     const otpSession = OTPSession.create(identifier, otpCode, 5);
 
     // Save session
@@ -33,8 +33,6 @@ export class RequestOTPHandler implements ICommandHandler<RequestOTPCommand> {
     await this.otpService.send(identifier, otpCode);
 
     // Emit event
-    await this.eventBus.publish(
-      new OTPRequestedEvent(identifier, otpSession.id),
-    );
+    await this.eventBus.publish(new OTPRequestedEvent(identifier));
   }
 }

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Search, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 import { ProductWithVariants } from '@/types';
-import { useGetSellerProducts } from '@/hooks/product.hooks';
-import { ProductsTable } from '@/components/seller/ProductsTable';
+import ProductsTable from '@/components/seller/ProductsTable';
 import AddProductModal from '@/components/seller/AddProductModal';
 import EditProductModal from '@/components/seller/EditProductModal';
+import { useGetSellerProducts } from '@/hooks/products/use-get-seller-products.hook';
 
 function SellerProducts() {
   const [showAddProduct, setShowAddProduct] = useState(false);

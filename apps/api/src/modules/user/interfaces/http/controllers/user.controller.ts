@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Patch,
+  Post,
   Query,
 } from '@nestjs/common';
 import {
@@ -33,13 +34,18 @@ import {
 import { UpdateUserDto } from '@/modules/user/interfaces/http/dtos/request/update-user.dto';
 import { UpdateUserStatusDto } from '@/modules/user/interfaces/http/dtos/request/update-user-status.dto';
 import { GetUsersDto } from '@/modules/user/interfaces/http/dtos/request/get-users.dto';
+import { GenerateProfilePictureUploadUrlDto } from '@/modules/user/interfaces/http/dtos/request/generate-profile-picture-upload-url.dto';
+import { SaveProfilePictureDto } from '@/modules/user/interfaces/http/dtos/request/save-profile-picture.dto';
 import { UserResponseDto } from '@/modules/user/interfaces/http/dtos/response/user-response.dto';
 import { MeResponseDto } from '@/modules/user/interfaces/http/dtos/response/me-response.dto';
+import { ProfilePictureUploadResponseDto } from '@/modules/user/interfaces/http/dtos/response/profile-picture-upload-response.dto';
 
 // Commands
 import {
   UpdateUserCommand,
   UpdateUserStatusCommand,
+  GenerateProfilePictureUploadUrlCommand,
+  SaveProfilePictureCommand,
 } from '@/modules/user/application/commands';
 
 // Queries
@@ -232,6 +238,69 @@ export class UserController {
     return {
       message: 'User status updated successfully',
       data: UserResponseDto.fromEntity(user),
+    };
+  }
+
+  @Post('profile-picture/generate-upload-url')
+  @Roles(Role.CUSTOMER, Role.SELLER, Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Generate presigned URL for profile picture upload',
+    description:
+      'Generates presigned upload credentials for client-side profile picture upload to Cloudinary',
+  })
+  @ApiResponseWithType(
+    {
+      status: HttpStatus.CREATED,
+      description: 'Upload URL generated successfully',
+    },
+    ProfilePictureUploadResponseDto,
+  )
+  @ApiAuthErrorResponses()
+  @ApiCommonErrorResponses()
+  async generateProfilePictureUploadUrl(
+    @UserId() userId: string,
+    @Body() dto: GenerateProfilePictureUploadUrlDto,
+  ): Promise<HttpResponse<ProfilePictureUploadResponseDto>> {
+    const command = new GenerateProfilePictureUploadUrlCommand(
+      userId,
+      dto.fileName,
+    );
+
+    const uploadDescriptor = await this.commandBus.execute(command);
+
+    return {
+      message: 'Profile picture upload URL generated successfully',
+      data: ProfilePictureUploadResponseDto.fromUploadDescriptor(
+        uploadDescriptor,
+      ),
+    };
+  }
+
+  @Post('profile-picture')
+  @Roles(Role.CUSTOMER, Role.SELLER, Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Save profile picture URL',
+    description:
+      'Saves the profile picture URL after successful upload to storage',
+  })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Profile picture saved successfully',
+  })
+  @ApiAuthErrorResponses()
+  @ApiCommonErrorResponses()
+  async saveProfilePicture(
+    @UserId() userId: string,
+    @Body() dto: SaveProfilePictureDto,
+  ): Promise<HttpResponse> {
+    const command = new SaveProfilePictureCommand(userId, dto.url);
+
+    await this.commandBus.execute(command);
+
+    return {
+      message: 'Profile picture updated successfully',
     };
   }
 }

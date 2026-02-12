@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Order } from '@/types';
 import { Button } from '@/components/ui/button';
-import { useUpdateOrderStatus } from '@/hooks/orders/use-update-order-status.hook';
+import { useUpdateOrderStatusMutation } from '@/hooks/orders/use-update-order-status-mutation.hook';
 
 interface IOrderTableProps {
   orders: Order[];
@@ -26,7 +26,7 @@ interface IOrderTableProps {
 }
 
 const OrdersTable = ({ orders, onViewDetails }: IOrderTableProps) => {
-  const updateOrderMutation = useUpdateOrderStatus();
+  const updateOrderMutation = useUpdateOrderStatusMutation();
 
   const handleStatusChange = (
     id: string,

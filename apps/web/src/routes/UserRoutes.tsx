@@ -12,6 +12,8 @@ import MyAccount from '@/pages/user/MyAccount/MyAccount';
 import ChangePasswordPage from '@/pages/user/ChangePasswordPage';
 import ForgotPasswordPage from '@/pages/user/ForgotPasswordPage';
 import CheckoutPage from '@/pages/user/CheckoutPage';
+import OrderSuccessPage from '@/pages/user/OrderSuccessPage';
+import PaymentFailurePage from '@/pages/user/PaymentFailurePage';
 
 function Root() {
   return <Outlet />;
@@ -57,9 +59,8 @@ const UserRoutes = [
       { path: 'change-password', element: <ChangePasswordPage /> },
       { path: 'forgot-password', element: <ForgotPasswordPage /> },
       { path: 'checkout', element: <CheckoutPage /> },
-      // { path: 'order-success/:orderId', element: <OrderSuccessPage /> },
-      // { path: 'payment-failure', element: <PaymentFailurePage /> },
-      // { path: 'order-failure', element: <OrderFailurePage /> },
+      { path: 'order-success/:orderId', element: <OrderSuccessPage /> },
+      { path: 'payment-failure/:orderId', element: <PaymentFailurePage /> },
     ],
   },
 ];

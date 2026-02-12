@@ -1,4 +1,8 @@
 import { toast } from 'sonner';
+import React, { useState } from 'react';
+import { Edit, ListMinus, ListPlus } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import {
   Tooltip,
   TooltipContent,
@@ -15,9 +19,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import React, { useState } from 'react';
-import { Edit, ListMinus, ListPlus } from 'lucide-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { ProductWithVariants } from '@/types';
 import { ProductService } from '@/services/product.service';
@@ -27,10 +28,7 @@ interface ProductsTableProps {
   onEdit: (product: ProductWithVariants) => void;
 }
 
-export const ProductsTable: React.FC<ProductsTableProps> = ({
-  products,
-  onEdit,
-}) => {
+const ProductsTable: React.FC<ProductsTableProps> = ({ products, onEdit }) => {
   const [selectedProduct, setSelectedProduct] =
     useState<ProductWithVariants | null>(null);
   const [actionType, setActionType] = useState<'list' | 'un-list'>('list');
@@ -209,3 +207,5 @@ export const ProductsTable: React.FC<ProductsTableProps> = ({
     </div>
   );
 };
+
+export default ProductsTable;

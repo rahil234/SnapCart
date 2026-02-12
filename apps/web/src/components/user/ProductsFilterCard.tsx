@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { useGetCategories } from '@/hooks/category.hooks';
+import { useGetCategories } from '@/hooks/categories/use-get-categories.hook';
 
 interface FilterCardProps {
   handleCategoryChange: (value: string) => void;

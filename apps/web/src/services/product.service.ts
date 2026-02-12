@@ -26,11 +26,6 @@ export const ProductService = {
       productPublicApi.productPublicControllerFindOne(productId)
     ),
 
-  fetchProductWithVariantsById: (variantId: string) =>
-    handleRequest(() =>
-      productApi.productControllerGetProductWithVariants(variantId)
-    ),
-
   getProductsByCategory: (categoryId: string) =>
     handleRequest(() =>
       productPublicApi.productPublicControllerFindAll(
@@ -67,12 +62,6 @@ export const ProductService = {
       productsSellerApi.sellerProductControllerDeactivateProduct(productId)
     ),
 
-  getRelatedProduct: (productId: string) =>
-    handleRequest(() => productApi.productControllerActivateProduct(productId)),
-
-  getAllProducts: () =>
-    handleRequest(() => productApi.productControllerFindAll()),
-
   searchProducts: (params: {
     query?: string;
     category?: string;
@@ -92,7 +81,4 @@ export const ProductService = {
         params.sortBy
       )
     ),
-
-  getTopProducts: () =>
-    handleRequest(() => productApi.productControllerFindTop()),
 };

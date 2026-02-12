@@ -9,6 +9,9 @@ class CustomerProfileDto {
 
   @ApiPropertyOptional()
   name?: string;
+
+  @ApiPropertyOptional()
+  profilePicture?: string;
 }
 
 class SellerProfileDto {
@@ -51,6 +54,7 @@ export class MeResponseDto {
         ? {
             id: result.customerProfile.id,
             name: result.customerProfile.name,
+            profilePicture: result.customerProfile.profilePicture,
           }
         : undefined,
       sellerProfile: result.sellerProfile

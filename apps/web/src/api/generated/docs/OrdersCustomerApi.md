@@ -6,9 +6,10 @@ All URIs are relative to *http://localhost:4000*
 |------------- | ------------- | -------------|
 |[**customerOrderControllerCancelOrder**](#customerordercontrollercancelorder) | **PATCH** /api/orders/{id}/cancel | Cancel order|
 |[**customerOrderControllerGetMyOrders**](#customerordercontrollergetmyorders) | **GET** /api/orders/my-orders | Get my orders|
+|[**customerOrderControllerGetOrderById**](#customerordercontrollergetorderbyid) | **GET** /api/orders/{id} | Get order by ID|
 
 # **customerOrderControllerCancelOrder**
-> CustomerOrderControllerCancelOrder200Response customerOrderControllerCancelOrder(cancelOrderDto)
+> CustomerOrderControllerGetOrderById200Response customerOrderControllerCancelOrder(cancelOrderDto)
 
 Cancel an order if it is still cancellable
 
@@ -43,7 +44,7 @@ const { status, data } = await apiInstance.customerOrderControllerCancelOrder(
 
 ### Return type
 
-**CustomerOrderControllerCancelOrder200Response**
+**CustomerOrderControllerGetOrderById200Response**
 
 ### Authorization
 
@@ -121,6 +122,62 @@ const { status, data } = await apiInstance.customerOrderControllerGetMyOrders(
 |**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
 |**403** | Insufficient permissions |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **customerOrderControllerGetOrderById**
+> CustomerOrderControllerGetOrderById200Response customerOrderControllerGetOrderById()
+
+Retrieve a specific order by its ID
+
+### Example
+
+```typescript
+import {
+    OrdersCustomerApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new OrdersCustomerApi(configuration);
+
+let id: string; //Order ID (default to undefined)
+
+const { status, data } = await apiInstance.customerOrderControllerGetOrderById(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] | Order ID | defaults to undefined|
+
+
+### Return type
+
+**CustomerOrderControllerGetOrderById200Response**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Order retrieved successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**401** | Authentication required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**404** | Order not found not found |  -  |
 |**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

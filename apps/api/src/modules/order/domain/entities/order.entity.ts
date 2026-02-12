@@ -279,4 +279,13 @@ export class Order {
   markPaymentAsFailed(): void {
     this.paymentStatus = PaymentStatus.FAILED;
   }
+
+  markPaymentAsRefunded(): void {
+    this.paymentStatus = PaymentStatus.REFUNDED;
+  }
+
+  setRefundAmount(amount: number): void {
+    this.refundAmount = amount;
+    this.paymentStatus = PaymentStatus.REFUNDED;
+  }
 }

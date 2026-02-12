@@ -35,13 +35,11 @@ export class VerifyOTPHandler implements ICommandHandler<
       throw new UnauthorizedException('Invalid OTP');
     }
 
-    // Save verified session
+    // Save a verified session
     await this.otpRepository.save(otpSession);
 
     // Emit event
-    await this.eventBus.publish(
-      new OTPVerifiedEvent(identifier, otpSession.id),
-    );
+    await this.eventBus.publish(new OTPVerifiedEvent(identifier));
 
     return true;
   }

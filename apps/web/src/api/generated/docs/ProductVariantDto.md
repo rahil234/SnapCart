@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **variantName** | **string** | The name of the product variant | [default to undefined]
 **price** | **number** | The price of the product variant | [default to undefined]
 **discountPercentage** | **number** | The discount percentage of the product variant | [optional] [default to undefined]
+**stock** | **number** | The available stock quantity of the product variant | [default to undefined]
 **imageUrl** | **string** | The URL of the product variant image | [default to undefined]
 
 ## Example
@@ -21,6 +22,7 @@ const instance: ProductVariantDto = {
     variantName,
     price,
     discountPercentage,
+    stock,
     imageUrl,
 };
 ```

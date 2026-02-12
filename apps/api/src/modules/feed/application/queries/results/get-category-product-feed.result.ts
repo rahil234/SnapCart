@@ -11,6 +11,7 @@ export interface ProductFeedItem {
     price: number;
     discountPercent: number | null;
     images: string[];
+    stock: number;
   };
 }
 

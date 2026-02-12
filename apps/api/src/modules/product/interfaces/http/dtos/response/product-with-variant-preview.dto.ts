@@ -45,11 +45,11 @@ export class VariantPreviewDto {
   })
   stock: number;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Single image URL (first image)',
     example: 'https://res.cloudinary.com/demo/image1.jpg',
   })
-  imageUrl?: string;
+  imageUrl: string;
 
   @ApiProperty({
     description: 'Whether variant is available for purchase',
@@ -66,7 +66,7 @@ export class VariantPreviewDto {
       discountPercent: variant.getDiscountPercent(),
       finalPrice: variant.calculateFinalPrice(),
       stock: variant.getStock(),
-      imageUrl: images.length > 0 ? images[0] : undefined,
+      imageUrl: images[0],
       availableForPurchase: variant.isAvailableForPurchase(),
     };
   }

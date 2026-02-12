@@ -15,12 +15,12 @@ import { ProductVariant } from '@/types';
 import { UIContext } from '@/context/UIContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGetProductById } from '@/hooks/product.hooks';
 import { RootState, useAppDispatch } from '@/store/store';
 import ZoomableImage from '@/components/user/ZoomableImage';
 import ProductNotFound from '@/components/user/ProductNotFound';
 import RelatedProducts from '@/components/user/RelatedProducts';
 import { addItemToCart, updateQuantity } from '@/store/cart/cartSlice';
+import { useGetProductById } from '@/hooks/products/use-get-product-by-id.hook';
 
 const ProductPage: React.FC = () => {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(

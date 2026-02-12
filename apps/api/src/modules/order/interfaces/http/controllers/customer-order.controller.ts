@@ -31,6 +31,7 @@ import { UserRole } from '@/shared/decorators/user-role.decorator';
 import {
   GetMyOrdersQuery,
   CancelOrderCommand,
+  GetOrderByIdQuery,  // Add this import
 } from '@/modules/order/application';
 import { CancelOrderDto } from '../dtos/request';
 import { OrderResponseDto } from '../dtos/response';
@@ -90,6 +91,41 @@ export class CustomerOrderController {
     return {
       message: 'Orders retrieved successfully',
       data: result.orders.map(OrderResponseDto.fromDomain),
+    };
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get order by ID',
+    description: 'Retrieve a specific order by its ID',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Order ID',
+    type: 'string',
+  })
+  @ApiResponseWithType(
+    {
+      status: HttpStatus.OK,
+      description: 'Order retrieved successfully',
+    },
+    OrderResponseDto,
+  )
+  @ApiAuthErrorResponses()
+  @ApiCommonErrorResponses()
+  @ApiNotFoundResponse('Order not found')
+  async getOrderById(
+    @Param('id') orderId: string,
+    @UserId() userId: string,
+    @UserRole() userRole: Role,
+  ): Promise<HttpResponse<OrderResponseDto>> {
+    const order = await this.queryBus.execute(
+      new GetOrderByIdQuery(orderId, userId, userRole),
+    );
+
+    return {
+      message: 'Order retrieved successfully',
+      data: OrderResponseDto.fromDomain(order),
     };
   }
 

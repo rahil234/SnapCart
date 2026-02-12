@@ -79,7 +79,7 @@ const { status, data } = await apiInstance.adminOrderControllerGetAllOrders(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **adminOrderControllerGetOrderById**
-> CustomerOrderControllerCancelOrder200Response adminOrderControllerGetOrderById()
+> CustomerOrderControllerGetOrderById200Response adminOrderControllerGetOrderById()
 
 Retrieve detailed information about a specific order
 
@@ -110,7 +110,7 @@ const { status, data } = await apiInstance.adminOrderControllerGetOrderById(
 
 ### Return type
 
-**CustomerOrderControllerCancelOrder200Response**
+**CustomerOrderControllerGetOrderById200Response**
 
 ### Authorization
 
@@ -135,7 +135,7 @@ const { status, data } = await apiInstance.adminOrderControllerGetOrderById(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **adminOrderControllerUpdateOrderStatus**
-> CustomerOrderControllerCancelOrder200Response adminOrderControllerUpdateOrderStatus(updateOrderStatusDto)
+> CustomerOrderControllerGetOrderById200Response adminOrderControllerUpdateOrderStatus(updateOrderStatusDto)
 
 Update the status of an order
 
@@ -170,7 +170,7 @@ const { status, data } = await apiInstance.adminOrderControllerUpdateOrderStatus
 
 ### Return type
 
-**CustomerOrderControllerCancelOrder200Response**
+**CustomerOrderControllerGetOrderById200Response**
 
 ### Authorization
 

@@ -8,7 +8,7 @@ All URIs are relative to *http://localhost:4000*
 |[**sellerOrderControllerGetSellerOrders**](#sellerordercontrollergetsellerorders) | **GET** /api/seller/orders | Get orders containing my products|
 
 # **sellerOrderControllerGetOrderById**
-> CustomerOrderControllerCancelOrder200Response sellerOrderControllerGetOrderById()
+> CustomerOrderControllerGetOrderById200Response sellerOrderControllerGetOrderById()
 
 Retrieve detailed information about a specific order (if it contains seller products)
 
@@ -39,7 +39,7 @@ const { status, data } = await apiInstance.sellerOrderControllerGetOrderById(
 
 ### Return type
 
-**CustomerOrderControllerCancelOrder200Response**
+**CustomerOrderControllerGetOrderById200Response**
 
 ### Authorization
 

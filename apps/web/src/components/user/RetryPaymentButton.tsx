@@ -2,10 +2,9 @@ import { toast } from 'sonner';
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 
-import { catchError } from '@/types/error';
 import { Button } from '@/components/ui/button';
+import { RazorpayOptions } from '@/types/razorpay';
 import { OrderService } from '@/services/order.service';
-import { RazorpayOptions, RazorpayResponse } from '@/types/razorpay';
 
 const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
@@ -35,7 +34,14 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 
   const handlePayment = async () => {
     try {
-      const order = (await OrderService.createPayment(orderId)).data;
+      const { data: order, error } = await OrderService.createPayment({
+        orderId,
+      });
+
+      if (error) {
+        toast.error('Failed to create payment order');
+        return;
+      }
 
       if (!window.Razorpay) {
         alert('Razorpay SDK failed to load. Please check your connection.');
@@ -47,7 +53,12 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         order_id: order.id,
         description: 'Product Purchase',
         handler: response => {
-          verifyPayment({ ...response, orderId });
+          verifyPayment({
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            orderId,
+          });
         },
         modal: {
           ondismiss: () => {},
@@ -68,17 +79,32 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       });
       rzp.open();
     } catch (error) {
-      toast.error((error as catchError).response.data.message);
+      console.error('Payment initiation error:', error);
+      toast.error('Failed to initiate payment');
     }
   };
 
-  const verifyPayment = async (data: RazorpayResponse) => {
+  const verifyPayment = async (data: {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
+    orderId: string;
+  }) => {
     try {
-      const orderId = (await OrderService.verifyPayment(data)).orderId;
+      const result = await OrderService.verifyPayment(data);
 
-      navigate('/order-success/' + orderId, { replace: true });
+      if (result.error) {
+        toast.error('Payment verification failed');
+        navigate('/payment-failure', { replace: true });
+        return;
+      }
+
+      toast.success('Payment successful!');
+      navigate('/order-success/' + data.orderId, { replace: true });
     } catch (error) {
-      toast.error((error as catchError).response.data.message);
+      console.error('Payment verification error:', error);
+      toast.error('Payment verification failed');
+      navigate('/payment-failure', { replace: true });
     }
   };
 

@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { IOrder } from '@/types/order';
+import { Order } from '@/types/order';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,7 @@ const OrderReturnCard = ({
   order,
   onClose,
 }: {
-  order: IOrder;
+  order: Order;
   onClose: () => void;
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,7 +47,7 @@ const OrderReturnCard = ({
     setValue,
   } = useForm<ReturnFormData>({
     defaultValues: {
-      orderId: order.orderId,
+      orderId: order.id,
       itemsToReturn: [],
       returnReason: '',
       description: '',
@@ -60,7 +60,7 @@ const OrderReturnCard = ({
   const onSubmit = async (data: ReturnFormData) => {
     setIsSubmitting(true);
     try {
-      await OrderService.submitReturnRequest(data.orderId, {});
+      // await OrderService.submitReturnRequest(data.orderId, {});
       await queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast('Your return request has been successfully submitted.');
       onClose();
@@ -87,22 +87,26 @@ const OrderReturnCard = ({
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="order-number">Order Number</Label>
-            <Input id="order-number" value={order.orderId} disabled />
+            <Input id="order-number" value={order.orderNumber} disabled />
           </div>
           <div className="space-y-2">
             <Label>Items to Return</Label>
             <div className="space-y-2">
               {order.items.map(item => (
-                <div key={item._id} className="flex items-center space-x-2">
+                <div
+                  key={item.variantId}
+                  className="flex items-center space-x-2"
+                >
                   <Checkbox
-                    id={`item-${item._id}`}
-                    checked={selectedItems.includes(item._id)}
+                    id={`item-${item.variantId}`}
+                    checked={selectedItems.includes(item.variantId)}
                     onCheckedChange={checked =>
-                      handleItemSelection(item._id, checked as boolean)
+                      handleItemSelection(item.variantId, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`item-${item._id}`}>
-                    {item.name} - Quantity: {item.quantity}
+                  <Label htmlFor={`item-${item.variantId}`}>
+                    {item.productName} {item.variantName} - Quantity:{' '}
+                    {item.quantity}
                   </Label>
                 </div>
               ))}

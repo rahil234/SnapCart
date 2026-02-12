@@ -13,4 +13,6 @@ export const CartService = {
     handleRequest(() => cartApi.cartControllerUpdateItem(itemId, dto)),
   removeItem: (itemId: string) =>
     handleRequest(() => cartApi.cartControllerRemoveItem(itemId)),
+  clearCart: () =>
+    handleRequest(() => cartApi.cartControllerClearCart()),
 };

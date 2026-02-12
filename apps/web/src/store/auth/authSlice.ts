@@ -2,8 +2,9 @@ import axios from 'axios';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import { User } from '@/types';
-import { UserService } from '@/services/user.service';
 import { fetchCart } from '@/store/cart/cartSlice';
+import { UserService } from '@/services/user.service';
+import { fetchWallet } from '@/store/wallet/walletSlice';
 import { fetchMyAddresses } from '@/store/address/address.slice';
 
 interface AuthState {
@@ -28,6 +29,7 @@ export const fetchUser = createAsyncThunk(
     if (data.role === 'CUSTOMER') {
       dispatch(fetchCart());
       dispatch(fetchMyAddresses());
+      dispatch(fetchWallet());
     }
 
     return data;
@@ -131,6 +133,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, changeProfilePicture } = authSlice.actions;
+export const { changeProfilePicture } = authSlice.actions;
 
 export default authSlice.reducer;

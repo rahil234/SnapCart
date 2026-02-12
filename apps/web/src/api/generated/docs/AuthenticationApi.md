@@ -4,13 +4,124 @@ All URIs are relative to *http://localhost:4000*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**authControllerChangePassword**](#authcontrollerchangepassword) | **POST** /api/auth/password/change | Change password|
+|[**authControllerForgotPassword**](#authcontrollerforgotpassword) | **POST** /api/auth/password/forgot | Forgot password|
 |[**authControllerLogin**](#authcontrollerlogin) | **POST** /api/auth/login | Login with password or OTP|
 |[**authControllerLoginWithGoogle**](#authcontrollerloginwithgoogle) | **POST** /api/auth/login/google | Login with Google|
 |[**authControllerLogout**](#authcontrollerlogout) | **POST** /api/auth/logout | Logout|
 |[**authControllerRefreshToken**](#authcontrollerrefreshtoken) | **POST** /api/auth/refresh | Refresh access token|
 |[**authControllerRegister**](#authcontrollerregister) | **POST** /api/auth/register | Register a new user|
 |[**authControllerRequestOTP**](#authcontrollerrequestotp) | **POST** /api/auth/otp/request | Request OTP|
+|[**authControllerResetPassword**](#authcontrollerresetpassword) | **POST** /api/auth/password/reset | Reset password|
 |[**authControllerVerifyOTP**](#authcontrollerverifyotp) | **POST** /api/auth/otp/verify | Verify OTP|
+
+# **authControllerChangePassword**
+> MessageOnlyResponse authControllerChangePassword(changePasswordDto)
+
+Change password for authenticated user
+
+### Example
+
+```typescript
+import {
+    AuthenticationApi,
+    Configuration,
+    ChangePasswordDto
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AuthenticationApi(configuration);
+
+let changePasswordDto: ChangePasswordDto; //
+
+const { status, data } = await apiInstance.authControllerChangePassword(
+    changePasswordDto
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **changePasswordDto** | **ChangePasswordDto**|  | |
+
+
+### Return type
+
+**MessageOnlyResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Password changed successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **authControllerForgotPassword**
+> MessageOnlyResponse authControllerForgotPassword(forgotPasswordDto)
+
+Request OTP for password reset
+
+### Example
+
+```typescript
+import {
+    AuthenticationApi,
+    Configuration,
+    ForgotPasswordDto
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AuthenticationApi(configuration);
+
+let forgotPasswordDto: ForgotPasswordDto; //
+
+const { status, data } = await apiInstance.authControllerForgotPassword(
+    forgotPasswordDto
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **forgotPasswordDto** | **ForgotPasswordDto**|  | |
+
+
+### Return type
+
+**MessageOnlyResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Password reset OTP sent successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **authControllerLogin**
 > MessageOnlyResponse authControllerLogin(loginDto)
@@ -314,6 +425,60 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | OTP sent successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **authControllerResetPassword**
+> MessageOnlyResponse authControllerResetPassword(resetPasswordDto)
+
+Reset password using OTP
+
+### Example
+
+```typescript
+import {
+    AuthenticationApi,
+    Configuration,
+    ResetPasswordDto
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AuthenticationApi(configuration);
+
+let resetPasswordDto: ResetPasswordDto; //
+
+const { status, data } = await apiInstance.authControllerResetPassword(
+    resetPasswordDto
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **resetPasswordDto** | **ResetPasswordDto**|  | |
+
+
+### Return type
+
+**MessageOnlyResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Password reset successfully |  -  |
 |**400** | Invalid input data or validation failed |  -  |
 |**500** | Internal server error |  -  |
 

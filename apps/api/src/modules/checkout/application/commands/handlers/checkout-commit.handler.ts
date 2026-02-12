@@ -1,16 +1,24 @@
+import { v4 as uuidv4 } from 'uuid';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException, Inject, Injectable, NotFoundException, } from '@nestjs/common';
-import { CheckoutCommitCommand } from '../checkout-commit.command';
-import { PrismaService } from '@/shared/prisma/prisma.service';
-import { CouponRepository } from '@/modules/coupon/domain/repositories/coupon.repository';
-import { CartItemWithPricing, PricingCalculationService, } from '../../../domain/services';
+
 import { CheckoutSource } from '../../../domain/enums';
 import { CouponUsage } from '@/modules/coupon/domain/entities';
-import { Coupon } from '@/modules/coupon/domain/entities/coupon.entity';
+import { PrismaService } from '@/shared/prisma/prisma.service';
+import { CheckoutCommitCommand } from '../checkout-commit.command';
+import {
+  WalletTransaction,
+  WalletTransactionStatus,
+  WalletTransactionType,
+} from '@/modules/wallet/domain/entities/wallet-transaction.entity';
 import {
   CUSTOMER_IDENTITY_RESOLVER,
   CustomerIdentityResolver,
 } from '@/modules/user/application/ports/customer-identity.resolver';
+import { Coupon } from '@/modules/coupon/domain/entities/coupon.entity';
+import { CouponRepository } from '@/modules/coupon/domain/repositories/coupon.repository';
+import { WalletRepository } from '@/modules/wallet/domain/repositories/wallet.repository';
+import { CartItemWithPricing, PricingCalculationService, } from '../../../domain/services';
 
 /**
  * Order Response DTO
@@ -37,6 +45,7 @@ export interface OrderResponseDto {
  * - Revalidates all pricing
  * - Creates order with pricing snapshot
  * - Records coupon usage
+ * - Handles wallet payment
  * - Clears cart if source is CART
  */
 @CommandHandler(CheckoutCommitCommand)
@@ -46,6 +55,8 @@ export class CheckoutCommitHandler implements ICommandHandler<CheckoutCommitComm
     private readonly prisma: PrismaService,
     @Inject('CouponRepository')
     private readonly couponRepository: CouponRepository,
+    @Inject('WalletRepository')
+    private readonly walletRepository: WalletRepository,
     private readonly pricingService: PricingCalculationService,
     @Inject(CUSTOMER_IDENTITY_RESOLVER)
     private readonly customerIdentityResolver: CustomerIdentityResolver,
@@ -101,6 +112,27 @@ export class CheckoutCommitHandler implements ICommandHandler<CheckoutCommitComm
       throw new NotFoundException('Shipping address not found');
     }
 
+    // Step 4.5: Validate and process wallet payment if payment method is wallet
+    if (paymentMethod === 'wallet') {
+      const wallet = await this.walletRepository.findByCustomerId(customerId);
+
+      if (!wallet) {
+        throw new BadRequestException(
+          'Wallet not found. Please add money to your wallet first.',
+        );
+      }
+
+      if (!wallet.getIsActive()) {
+        throw new BadRequestException('Wallet is not active');
+      }
+
+      if (!wallet.hasSufficientBalance(pricing.total)) {
+        throw new BadRequestException(
+          `Insufficient wallet balance. Required: ₹${pricing.total.toFixed(2)}, Available: ₹${wallet.getBalance().toFixed(2)}`,
+        );
+      }
+    }
+
     // Step 5: Create order
     const order = await this.createOrder(
       customerId,
@@ -120,6 +152,63 @@ export class CheckoutCommitHandler implements ICommandHandler<CheckoutCommitComm
         order.id,
       );
       await this.couponRepository.recordUsage(couponUsage);
+    }
+
+    // Step 6.5: Process wallet payment after order creation
+    if (paymentMethod === 'wallet') {
+      const wallet = await this.walletRepository.findByCustomerId(customerId);
+
+      if (wallet) {
+        const newBalance = wallet.getBalance() - pricing.total;
+
+        // Create wallet transaction
+        const transaction = WalletTransaction.create(
+          uuidv4(),
+          wallet.getId(),
+          pricing.total,
+          WalletTransactionType.DEBIT,
+          WalletTransactionStatus.COMPLETED,
+          `Payment for order ${order.orderNumber}`,
+          null,
+          order.id,
+          null,
+        );
+
+        // Save transaction and update balance atomically
+        await this.walletRepository.createTransactionWithBalanceUpdate(
+          transaction,
+          newBalance,
+        );
+
+        // Update order payment status to paid
+        await this.prisma.order.update({
+          where: { id: order.id },
+          data: { paymentStatus: 'paid' },
+        });
+
+        order.paymentStatus = 'paid';
+      }
+    }
+
+    // Step 7: Clear cart after successful order creation (for COD and wallet payments)
+    // For Razorpay payments, cart will be cleared after successful payment verification
+    if (
+      source === CheckoutSource.CART &&
+      (paymentMethod === 'cod' || paymentMethod === 'wallet')
+    ) {
+      try {
+        await this.prisma.cart.update({
+          where: { customerId },
+          data: {
+            items: {
+              deleteMany: {},
+            },
+          },
+        });
+      } catch (error) {
+        // Log but don't fail the order creation if cart clearing fails
+        console.warn('Failed to clear cart after order creation:', error);
+      }
     }
 
     // Transform to response DTO
@@ -194,7 +283,7 @@ export class CheckoutCommitHandler implements ICommandHandler<CheckoutCommitComm
   }
 
   /**
-   * Create order in database
+   * Create order in a database
    */
   private async createOrder(
     customerId: string,
@@ -239,7 +328,7 @@ export class CheckoutCommitHandler implements ICommandHandler<CheckoutCommitComm
         variantId: { in: variantIds },
       },
       orderBy: {
-        position: 'asc', // Get the primary image (lowest position)
+        position: 'asc', // Get the primary image (the lowest position)
       },
     });
 
@@ -271,7 +360,7 @@ export class CheckoutCommitHandler implements ICommandHandler<CheckoutCommitComm
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
     // Create order
-    const order = await this.prisma.order.create({
+    return this.prisma.order.create({
       data: {
         orderNumber,
         customerId,
@@ -294,7 +383,5 @@ export class CheckoutCommitHandler implements ICommandHandler<CheckoutCommitComm
         },
       },
     });
-
-    return order;
   }
 }

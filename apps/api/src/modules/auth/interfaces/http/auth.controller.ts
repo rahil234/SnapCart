@@ -10,22 +10,28 @@ import {
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { Request, Response } from 'express';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 
-import { HttpResponse } from '@/shared/dto/common/http-response.dto';
-import { Public } from '@/shared/decorators/public.decorator';
-import { ApiResponseWithType } from '@/shared/decorators/api-response.decorator';
+import { Role } from '@/shared/enums/role.enum';
 import {
   ApiCommonErrorResponses,
   ApiConflictResponse,
 } from '@/shared/decorators/api-error-responses.decorator';
+import { Roles } from '@/shared/decorators/roles.decorator';
+import { Public } from '@/shared/decorators/public.decorator';
+import { UserId } from '@/shared/decorators/user-id.decorator';
+import { HttpResponse } from '@/shared/dto/common/http-response.dto';
+import { ApiResponseWithType } from '@/shared/decorators/api-response.decorator';
 
 // DTOs
-import { RegisterDto } from '@/modules/auth/application/dtos/request/register.dto';
 import { LoginDto } from '@/modules/auth/application/dtos/request/login.dto';
-import { LoginWithGoogleDto } from '@/modules/auth/application/dtos/request/login-with-google.dto';
-import { RequestOTPDto } from '@/modules/auth/application/dtos/request/request-otp.dto';
+import { RegisterDto } from '@/modules/auth/application/dtos/request/register.dto';
 import { VerifyOTPDto } from '@/modules/auth/application/dtos/request/verify-otp.dto';
+import { RequestOTPDto } from '@/modules/auth/application/dtos/request/request-otp.dto';
+import { ResetPasswordDto } from '@/modules/auth/application/dtos/request/reset-password.dto';
+import { ChangePasswordDto } from '@/modules/auth/application/dtos/request/change-password.dto';
+import { ForgotPasswordDto } from '@/modules/auth/application/dtos/request/forgot-password.dto';
+import { LoginWithGoogleDto } from '@/modules/auth/application/dtos/request/login-with-google.dto';
 
 // Commands
 import {
@@ -35,6 +41,9 @@ import {
   RequestOTPCommand,
   VerifyOTPCommand,
   RefreshTokenCommand,
+  ForgotPasswordCommand,
+  ResetPasswordCommand,
+  ChangePasswordCommand,
 } from '@/modules/auth/application/commands';
 
 @ApiTags('Authentication')
@@ -202,6 +211,81 @@ export class AuthController {
 
     return {
       message: 'Token refreshed successfully',
+    };
+  }
+
+  @Post('password/forgot')
+  @Public()
+  @ApiOperation({
+    summary: 'Forgot password',
+    description: 'Request OTP for password reset',
+  })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Password reset OTP sent successfully',
+  })
+  @ApiCommonErrorResponses()
+  async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<HttpResponse> {
+    const command = new ForgotPasswordCommand(dto.identifier);
+
+    await this.commandBus.execute(command);
+
+    return {
+      message: 'Password reset OTP sent successfully',
+    };
+  }
+
+  @Post('password/reset')
+  @Public()
+  @ApiOperation({
+    summary: 'Reset password',
+    description: 'Reset password using OTP',
+  })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Password reset successfully',
+  })
+  @ApiCommonErrorResponses()
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<HttpResponse> {
+    const command = new ResetPasswordCommand(
+      dto.identifier,
+      dto.otp,
+      dto.newPassword,
+    );
+
+    await this.commandBus.execute(command);
+
+    return {
+      message: 'Password reset successfully',
+    };
+  }
+
+  @Post('password/change')
+  @Roles(Role.CUSTOMER, Role.SELLER, Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Change password',
+    description: 'Change password for authenticated user',
+  })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Password changed successfully',
+  })
+  @ApiCommonErrorResponses()
+  async changePassword(
+    @UserId() userId: string,
+    @Body() dto: ChangePasswordDto,
+  ): Promise<HttpResponse> {
+    const command = new ChangePasswordCommand(
+      userId,
+      dto.currentPassword,
+      dto.newPassword,
+    );
+
+    await this.commandBus.execute(command);
+
+    return {
+      message: 'Password changed successfully',
     };
   }
 

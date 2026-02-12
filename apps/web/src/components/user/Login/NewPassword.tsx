@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+
 import InputField from '@/components/ui/InputField';
-import { UserService } from '@/services/user.service';
-import { catchError } from 'shared/types';
+import { AuthService } from '@/services/auth.service';
 
 interface ForgotPasswordInputs {
   password: string;
@@ -12,10 +12,23 @@ interface ForgotPasswordInputs {
 
 interface ForgotPasswordCardProps {
   email: string | undefined;
-  setActiveTab: (tab: 'login' | 'signup' | 'forgotPassword' | 'verifyOtp' | 'forgot-verify' | 'new-password') => void;
+  otp: string | undefined;
+  setActiveTab: (
+    tab:
+      | 'login'
+      | 'signup'
+      | 'forgotPassword'
+      | 'verifyOtp'
+      | 'forgot-verify'
+      | 'new-password'
+  ) => void;
 }
 
-export default function ForgotPasswordCard({ email, setActiveTab }: ForgotPasswordCardProps) {
+export default function ForgotPasswordCard({
+  email,
+  otp,
+  setActiveTab,
+}: ForgotPasswordCardProps) {
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -25,17 +38,24 @@ export default function ForgotPasswordCard({ email, setActiveTab }: ForgotPasswo
     formState: { errors },
   } = useForm<ForgotPasswordInputs>();
 
-  const onSubmit: SubmitHandler<ForgotPasswordInputs> = async (data) => {
+  const onSubmit: SubmitHandler<ForgotPasswordInputs> = async data => {
     try {
       if (!email) {
         throw new Error('No email found');
       }
+      if (!otp) {
+        throw new Error('No OTP found');
+      }
       setError(null);
-      await UserService.resetPassword({ email, password: data.password});
+      await AuthService.resetPassword({
+        identifier: email,
+        otp,
+        newPassword: data.password,
+      });
       setActiveTab('login');
     } catch (error) {
       console.error('error', error);
-      setError((error as catchError).response?.data?.message || 'An error occurred. Please try again.');
+      setError('An error occurred. Please try again.');
     }
   };
 
@@ -52,7 +72,10 @@ export default function ForgotPasswordCard({ email, setActiveTab }: ForgotPasswo
       <div className="flex flex-col justify-center items-center px-8 pb-4">
         <div className="w-full">
           <h2 className="text-2xl font-bold mb-6 text-center">New Password</h2>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col space-y-4"
+          >
             <p className="text-red-500 text-sm h-[5px] text-center">
               {error && error}
             </p>
@@ -74,7 +97,8 @@ export default function ForgotPasswordCard({ email, setActiveTab }: ForgotPasswo
                 className="border border-gray-300 rounded-lg p-2 w-full"
                 {...register('confirmPassword', {
                   required: 'Password is required',
-                  validate: (value) => value === watch('password') || 'Passwords do not match',
+                  validate: value =>
+                    value === watch('password') || 'Passwords do not match',
                 })}
               />
               <p className="text-red-500 h-1 text-sm mt-1">

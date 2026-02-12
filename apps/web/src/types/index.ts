@@ -6,3 +6,4 @@ export * from './address';
 export * from './coupon';
 export * from './offer';
 export * from './order';
+export * from './wallet';

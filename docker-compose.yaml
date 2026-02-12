@@ -42,6 +42,16 @@ services:
       - postgres
       - redis
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command: tunnel --no-autoupdate run snapcart-razorpay
+    volumes:
+      - ./infra/cloudflared:/etc/cloudflared
+    restart: unless-stopped
+    depends_on:
+      - api
+
 #  web:
 #    container_name: snapcart-web
 #    build:

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Plus, X, ImageIcon } from 'lucide-react';
-import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Plus, X, ImageIcon } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,12 +10,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
-import { ProductService } from '@/services/product.service';
-import { ProductVariantService } from '@/services/product-variant.service';
 import AddImageCropper from './addImageCropper';
-
+import { ProductService } from '@/services/product.service';
 import { uploadImageToProvider } from '@/utils/upload-image-to-provider';
-import { useGetCategories } from '@/hooks/category.hooks';
+import { ProductVariantService } from '@/services/product-variant.service';
+import { useGetCategories } from '@/hooks/categories/use-get-categories.hook';
 
 /* -------------------------------------------------------------------------- */
 /* TYPES                                                                       */
@@ -110,7 +109,6 @@ export default function AddProductModal({ onClose }: { onClose: () => void }) {
             variantName: variant.variantName,
             price: variant.price,
             stock: variant.stock,
-            sku: `SKU-${Date.now()}`,
           });
 
         if (!createdVariant) {

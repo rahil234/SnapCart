@@ -10,6 +10,7 @@ export type GetMeResult = {
   customerProfile?: {
     id: string;
     name?: string;
+    profilePicture?: string;
     cartId?: string;
   };
 

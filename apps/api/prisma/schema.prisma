@@ -21,15 +21,17 @@ model User {
 }
 
 model CustomerProfile {
-  id        String      @id @default(cuid())
-  userId    String      @unique
-  name      String?
-  dob       DateTime?
-  gender    UserGender?
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id             String      @id @default(cuid())
+  userId         String      @unique
+  name           String?
+  dob            DateTime?
+  gender         UserGender?
+  profilePicture String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
   Cart      Cart?
+  Wallet    Wallet?
   addresses Address[]
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   orders    Order[]
@@ -250,6 +252,48 @@ model CouponUsage {
   @@index([orderId])
 }
 
+model Wallet {
+  id           String              @id @default(cuid())
+  customerId   String              @unique
+  balance      Float               @default(0)
+  currency     String              @default("INR")
+  isActive     Boolean             @default(true)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  customer     CustomerProfile     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  transactions WalletTransaction[]
+}
+
+model WalletTransaction {
+  id          String                  @id @default(cuid())
+  walletId    String
+  amount      Float
+  type        WalletTransactionType
+  status      WalletTransactionStatus @default(pending)
+  description String?
+  reference   String?
+  orderId     String?
+  metadata    Json?
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+  wallet      Wallet                  @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@index([orderId])
+  @@index([status])
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  order     Int
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+}
+
 enum UserRole {
   ADMIN
   SELLER
@@ -330,4 +374,18 @@ enum Applicability {
   all
   specific_products
   specific_categories
+}
+
+enum WalletTransactionType {
+  credit
+  debit
+  refund
+  cashback
+}
+
+enum WalletTransactionStatus {
+  pending
+  completed
+  failed
+  reversed
 }

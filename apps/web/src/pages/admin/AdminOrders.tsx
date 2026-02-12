@@ -15,7 +15,7 @@ import OrdersTable from '@/components/admin/OrdersTable';
 import { Card, CardContent } from '@/components/ui/card';
 import OrderDetailsModal from '@/components/common/OrderDetailsCard';
 import { useGetAdminOrders } from '@/hooks/orders/use-get-admin-orders.hook';
-import { useUpdateOrderStatus } from '@/hooks/orders/use-update-order-status.hook';
+import { useUpdateOrderStatusMutation } from '@/hooks/orders/use-update-order-status-mutation.hook';
 
 function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -23,7 +23,7 @@ function AdminOrders() {
 
   const { data: orders, isLoading, isError } = useGetAdminOrders();
 
-  const updateOrderMutation = useUpdateOrderStatus();
+  const updateOrderMutation = useUpdateOrderStatusMutation();
 
   const handleViewDetails = (order: Order) => {
     setSelectedOrder(order);
@@ -53,7 +53,7 @@ function AdminOrders() {
     );
   }
 
-  if (isError) {
+  if (isError || !orders) {
     return (
       <div className="text-center text-red-600">
         Error loading orders. Please try again later.
@@ -122,12 +122,14 @@ function AdminOrders() {
           </div>
         )}
 
-        <OrderDetailsModal
-          order={selectedOrder}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onUpdateStatus={handleUpdateStatus}
-        />
+        {selectedOrder && (
+          <OrderDetailsModal
+            orderId={selectedOrder.id}
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            onUpdateStatus={handleUpdateStatus}
+          />
+        )}
       </CardContent>
     </Card>
   );

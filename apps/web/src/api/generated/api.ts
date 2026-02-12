@@ -37,6 +37,38 @@ export interface AddItemToCartDto {
      */
     'quantity': number;
 }
+export interface AddMoneyDto {
+    /**
+     * Amount to add to wallet
+     */
+    'amount': number;
+    /**
+     * Description for the transaction
+     */
+    'description'?: string;
+    /**
+     * External reference (e.g., payment gateway transaction ID)
+     */
+    'reference'?: string;
+}
+export interface AddMoneyResponseDto {
+    /**
+     * Transaction ID
+     */
+    'transactionId': string;
+    /**
+     * New wallet balance after adding money
+     */
+    'newBalance': number;
+    /**
+     * Amount added
+     */
+    'amount': number;
+    /**
+     * Transaction status
+     */
+    'status': string;
+}
 export interface AddressControllerCreate201Response {
     'message': string;
     'data': AddressResponseDto;
@@ -62,9 +94,22 @@ export interface AddressResponseDto {
     'createdAt': string;
     'updatedAt': string;
 }
+export interface AdminBannerControllerCreate201Response {
+    'message': string;
+    'data': BannerResponseDto;
+}
+export interface AdminBannerControllerGenerateUploadUrl201Response {
+    'message': string;
+    'data': UploadUrlResponseDto;
+}
 export interface AdminCouponControllerGetUsageHistory200Response {
     'message': string;
     'data': Array<CouponUsageResponseDto>;
+}
+export interface AdminDashboardResponseDto {
+    'stats': DashboardStatsDto;
+    'recentOrders': Array<RecentOrderDto>;
+    'topProducts': Array<TopProductDto>;
 }
 export interface AdminProductControllerGetAdminProducts200Response {
     'message': string;
@@ -73,6 +118,18 @@ export interface AdminProductControllerGetAdminProducts200Response {
      * Pagination metadata
      */
     'meta': PaginationMetaDto;
+}
+export interface AnalyticsControllerGetAdminDashboard200Response {
+    'message': string;
+    'data': AdminDashboardResponseDto;
+}
+export interface AnalyticsControllerGetSalesReport200Response {
+    'message': string;
+    'data': Array<SalesReportItemDto>;
+}
+export interface AnalyticsControllerGetSellerDashboard200Response {
+    'message': string;
+    'data': SellerDashboardResponseDto;
 }
 export interface AppliedOfferDto {
     /**
@@ -101,6 +158,46 @@ export interface BadRequestErrorDto {
      */
     'message': Array<string>;
     'error': string;
+}
+export interface BannerControllerFindAll200Response {
+    'message': string;
+    'data': Array<BannerResponseDto>;
+}
+export interface BannerOrderItemDto {
+    /**
+     * Banner ID
+     */
+    'id': string;
+    /**
+     * New order position
+     */
+    'order': number;
+}
+export interface BannerResponseDto {
+    /**
+     * Banner ID
+     */
+    'id': string;
+    /**
+     * URL of the banner image
+     */
+    'imageUrl': string;
+    /**
+     * Display order (lower numbers appear first)
+     */
+    'order': number;
+    /**
+     * Whether the banner is active
+     */
+    'isActive': boolean;
+    /**
+     * Creation timestamp
+     */
+    'createdAt': string;
+    /**
+     * Last update timestamp
+     */
+    'updatedAt': string;
 }
 export interface CancelOrderDto {
     /**
@@ -320,6 +417,16 @@ export const CategoryResponseDtoStatusEnum = {
 
 export type CategoryResponseDtoStatusEnum = typeof CategoryResponseDtoStatusEnum[keyof typeof CategoryResponseDtoStatusEnum];
 
+export interface ChangePasswordDto {
+    /**
+     * Current password
+     */
+    'currentPassword': string;
+    /**
+     * New password (min 6 characters)
+     */
+    'newPassword': string;
+}
 export interface CheckoutCommitDto {
     /**
      * Checkout source - where checkout is initiated from
@@ -669,6 +776,16 @@ export interface CreateAddressDto {
      */
     'isPrimary'?: boolean;
 }
+export interface CreateBannerDto {
+    /**
+     * URL of the banner image
+     */
+    'imageUrl': string;
+    /**
+     * Display order of the banner (lower numbers appear first)
+     */
+    'order'?: number;
+}
 export interface CreateCategoryDto {
     /**
      * Category name
@@ -810,6 +927,38 @@ export const CreateOfferDtoTypeEnum = {
 
 export type CreateOfferDtoTypeEnum = typeof CreateOfferDtoTypeEnum[keyof typeof CreateOfferDtoTypeEnum];
 
+export interface CreatePaymentDto {
+    /**
+     * Order ID for which to create payment
+     */
+    'orderId': string;
+}
+export interface CreatePaymentResponseDto {
+    /**
+     * Razorpay order ID
+     */
+    'id': string;
+    /**
+     * Entity type
+     */
+    'entity': string;
+    /**
+     * Amount in paise
+     */
+    'amount': number;
+    /**
+     * Currency code
+     */
+    'currency': string;
+    /**
+     * Receipt identifier
+     */
+    'receipt': string;
+    /**
+     * Order status
+     */
+    'status': string;
+}
 export interface CreateProductDto {
     /**
      * Product name (catalog identity)
@@ -872,17 +1021,44 @@ export interface CustomerInfoResponseDto {
      */
     'customerPhone'?: string | null;
 }
-export interface CustomerOrderControllerCancelOrder200Response {
-    'message': string;
-    'data': OrderResponseDto;
-}
 export interface CustomerOrderControllerGetMyOrders200Response {
     'message': string;
     'data': Array<OrderResponseDto>;
 }
+export interface CustomerOrderControllerGetOrderById200Response {
+    'message': string;
+    'data': OrderResponseDto;
+}
 export interface CustomerProfileDto {
     'id': string;
     'name'?: string;
+    'profilePicture'?: string;
+}
+export interface DashboardStatsDto {
+    /**
+     * Total revenue
+     */
+    'totalRevenue': number;
+    /**
+     * Total orders
+     */
+    'totalOrders': number;
+    /**
+     * Total customers
+     */
+    'totalCustomers'?: number;
+    /**
+     * Total products sold
+     */
+    'totalProductsSold': number;
+    /**
+     * Average order value
+     */
+    'averageOrderValue': number;
+    /**
+     * Total discount given
+     */
+    'totalDiscount': number;
 }
 export interface FeedControllerGetFeed200Response {
     'message': string;
@@ -892,6 +1068,24 @@ export interface ForbiddenErrorDto {
     'statusCode': number;
     'message': string;
     'error': string;
+}
+export interface ForgotPasswordDto {
+    /**
+     * Email or phone number
+     */
+    'identifier': string;
+}
+export interface GenerateBannerUploadUrlDto {
+    /**
+     * Original filename for the banner image
+     */
+    'fileName': string;
+}
+export interface GenerateProfilePictureUploadUrlDto {
+    /**
+     * File name for the profile picture
+     */
+    'fileName': string;
 }
 export interface GetCategoryProductFeedResponseDto {
     /**
@@ -1274,6 +1468,14 @@ export interface PaginationMetaDto {
      */
     'hasPrevPage': boolean;
 }
+export interface PaymentControllerCreatePayment200Response {
+    'message': string;
+    'data': CreatePaymentResponseDto;
+}
+export interface PaymentControllerVerifyPayment200Response {
+    'message': string;
+    'data': VerifyPaymentResponseDto;
+}
 export interface ProductControllerUpdate200Response {
     'message': string;
     'data': ProductResponseDto;
@@ -1482,6 +1684,10 @@ export interface ProductVariantDto {
      */
     'discountPercentage'?: number;
     /**
+     * The available stock quantity of the product variant
+     */
+    'stock': number;
+    /**
      * The URL of the product variant image
      */
     'imageUrl': string;
@@ -1567,6 +1773,36 @@ export const ProductWithVariantsResponseDtoStatusEnum = {
 
 export type ProductWithVariantsResponseDtoStatusEnum = typeof ProductWithVariantsResponseDtoStatusEnum[keyof typeof ProductWithVariantsResponseDtoStatusEnum];
 
+export interface ProfilePictureUploadResponseDto {
+    /**
+     * Storage provider (cloudinary or azure)
+     */
+    'provider': string;
+    /**
+     * Upload URL
+     */
+    'uploadUrl': string;
+    /**
+     * HTTP method to use for upload
+     */
+    'method': string;
+    /**
+     * Additional fields required for upload (for Cloudinary)
+     */
+    'fields'?: object;
+    /**
+     * Read URL for the uploaded file (for Azure)
+     */
+    'readUrl'?: string;
+}
+export interface RecentOrderDto {
+    'id': string;
+    'orderNumber': string;
+    'total': number;
+    'orderStatus': string;
+    'placedAt': string;
+    'customerName'?: object | null;
+}
 export interface RegisterDto {
     /**
      * Email address
@@ -1581,11 +1817,71 @@ export interface RegisterDto {
      */
     'password': string;
 }
+export interface ReorderBannersDto {
+    /**
+     * Array of banner IDs with their new order positions
+     */
+    'banners': Array<BannerOrderItemDto>;
+}
 export interface RequestOTPDto {
     /**
      * Email or phone number
      */
     'identifier': string;
+}
+export interface ResetPasswordDto {
+    /**
+     * Email or phone number
+     */
+    'identifier': string;
+    /**
+     * OTP code (4 digits)
+     */
+    'otp': string;
+    /**
+     * New password (min 6 characters)
+     */
+    'newPassword': string;
+}
+export interface SalesReportItemDto {
+    /**
+     * Date or period identifier
+     */
+    'date': object | null;
+    /**
+     * Start date of the period
+     */
+    'startDate': object | null;
+    /**
+     * End date of the period
+     */
+    'endDate': object | null;
+    /**
+     * Total number of orders
+     */
+    'totalOrders': number;
+    /**
+     * Total sales amount
+     */
+    'totalSales': number;
+    /**
+     * Total discount applied
+     */
+    'totalDiscountApplied': number;
+    /**
+     * Net sales after discounts
+     */
+    'netSales': number;
+    /**
+     * Total items sold
+     */
+    'totalItemsSold': number;
+}
+export interface SaveProfilePictureDto {
+    /**
+     * URL of the uploaded profile picture
+     */
+    'url': string;
 }
 export interface SaveVariantImageDto {
     /**
@@ -1596,6 +1892,11 @@ export interface SaveVariantImageDto {
      * Image URL returned from Cloudinary
      */
     'url': string;
+}
+export interface SellerDashboardResponseDto {
+    'stats': DashboardStatsDto;
+    'recentOrders': Array<RecentOrderDto>;
+    'topProducts': Array<TopProductDto>;
 }
 export interface SellerProductControllerGetSellerProducts200Response {
     'message': string;
@@ -1610,6 +1911,64 @@ export interface SellerProfileDto {
     'storeName': string;
     'isVerified': boolean;
 }
+export interface TopProductDto {
+    'productId': string;
+    'productName': string;
+    'totalSold': number;
+    'revenue': number;
+}
+export interface TransactionResponseDto {
+    /**
+     * Transaction ID
+     */
+    'id': string;
+    /**
+     * Transaction amount
+     */
+    'amount': number;
+    /**
+     * Transaction type
+     */
+    'type': TransactionResponseDtoTypeEnum;
+    /**
+     * Transaction status
+     */
+    'status': TransactionResponseDtoStatusEnum;
+    /**
+     * Transaction description
+     */
+    'description': string | null;
+    /**
+     * External reference
+     */
+    'reference': string | null;
+    /**
+     * Associated order ID
+     */
+    'orderId': string | null;
+    /**
+     * Transaction date
+     */
+    'createdAt': string;
+}
+
+export const TransactionResponseDtoTypeEnum = {
+    Credit: 'credit',
+    Debit: 'debit',
+    Refund: 'refund',
+    Cashback: 'cashback'
+} as const;
+
+export type TransactionResponseDtoTypeEnum = typeof TransactionResponseDtoTypeEnum[keyof typeof TransactionResponseDtoTypeEnum];
+export const TransactionResponseDtoStatusEnum = {
+    Pending: 'pending',
+    Completed: 'completed',
+    Failed: 'failed',
+    Reversed: 'reversed'
+} as const;
+
+export type TransactionResponseDtoStatusEnum = typeof TransactionResponseDtoStatusEnum[keyof typeof TransactionResponseDtoStatusEnum];
+
 export interface UnauthorizedErrorDto {
     'statusCode': number;
     'message': string;
@@ -1644,6 +2003,16 @@ export interface UpdateAddressDto {
      * Is primary address
      */
     'isPrimary'?: boolean;
+}
+export interface UpdateBannerDto {
+    /**
+     * URL of the banner image
+     */
+    'imageUrl'?: string;
+    /**
+     * Whether the banner is active
+     */
+    'isActive'?: boolean;
 }
 export interface UpdateCartItemDto {
     /**
@@ -1975,6 +2344,28 @@ export const UpdateVariantStockDtoActionEnum = {
 
 export type UpdateVariantStockDtoActionEnum = typeof UpdateVariantStockDtoActionEnum[keyof typeof UpdateVariantStockDtoActionEnum];
 
+export interface UploadUrlResponseDto {
+    /**
+     * Storage provider
+     */
+    'provider': string;
+    /**
+     * Upload URL
+     */
+    'uploadUrl': string;
+    /**
+     * HTTP method to use for upload
+     */
+    'method': string;
+    /**
+     * Additional fields required for upload (for cloudinary)
+     */
+    'fields'?: object;
+    /**
+     * Read URL for the uploaded file (for azure)
+     */
+    'readUrl'?: string;
+}
 export interface UploadVariantImageResponseDto {
     /**
      * Image storage provider
@@ -2012,6 +2403,10 @@ export interface UserControllerFindAll200Response {
      * Pagination metadata
      */
     'meta': PaginationMetaDto;
+}
+export interface UserControllerGenerateProfilePictureUploadUrl201Response {
+    'message': string;
+    'data': ProfilePictureUploadResponseDto;
 }
 export interface UserControllerGetMe200Response {
     'message': string;
@@ -2052,6 +2447,30 @@ export const UserResponseDtoStatusEnum = {
 
 export type UserResponseDtoStatusEnum = typeof UserResponseDtoStatusEnum[keyof typeof UserResponseDtoStatusEnum];
 
+export interface ValidateBalanceDto {
+    /**
+     * Amount to validate against wallet balance
+     */
+    'amount': number;
+}
+export interface ValidateBalanceResponseDto {
+    /**
+     * Whether wallet has sufficient balance
+     */
+    'isValid': boolean;
+    /**
+     * Current wallet balance
+     */
+    'currentBalance': number;
+    /**
+     * Required amount for the operation
+     */
+    'requiredAmount': number;
+    /**
+     * Shortfall amount (0 if sufficient balance)
+     */
+    'shortfall': number;
+}
 export interface ValidateCouponDto {
     /**
      * Coupon code to validate
@@ -2102,7 +2521,7 @@ export interface VariantPreviewDto {
     /**
      * Single image URL (first image)
      */
-    'imageUrl'?: string;
+    'imageUrl': string;
     /**
      * Whether variant is available for purchase
      */
@@ -2192,6 +2611,98 @@ export interface VerifyOTPDto {
      * OTP code (4 digits)
      */
     'otp': string;
+}
+export interface VerifyPaymentDto {
+    /**
+     * Razorpay order ID
+     */
+    'razorpay_order_id': string;
+    /**
+     * Razorpay payment ID
+     */
+    'razorpay_payment_id': string;
+    /**
+     * Razorpay signature for verification
+     */
+    'razorpay_signature': string;
+    /**
+     * Our internal order ID
+     */
+    'orderId': string;
+}
+export interface VerifyPaymentResponseDto {
+    /**
+     * Payment verification success message
+     */
+    'message': string;
+    /**
+     * Order ID
+     */
+    'orderId': string;
+}
+export interface WalletControllerAddMoney201Response {
+    'message': string;
+    'data': AddMoneyResponseDto;
+}
+export interface WalletControllerGetTransactions200Response {
+    'message': string;
+    'data': WalletTransactionsResponseDto;
+}
+export interface WalletControllerGetWallet200Response {
+    'message': string;
+    'data': WalletResponseDto;
+}
+export interface WalletControllerValidateBalance200Response {
+    'message': string;
+    'data': ValidateBalanceResponseDto;
+}
+export interface WalletResponseDto {
+    /**
+     * Wallet ID
+     */
+    'id': string;
+    /**
+     * Customer ID
+     */
+    'customerId': string;
+    /**
+     * Current wallet balance
+     */
+    'balance': number;
+    /**
+     * Currency code
+     */
+    'currency': string;
+    /**
+     * Whether the wallet is active
+     */
+    'isActive': boolean;
+    /**
+     * Wallet creation date
+     */
+    'createdAt': string;
+    /**
+     * Wallet last update date
+     */
+    'updatedAt': string;
+}
+export interface WalletTransactionsResponseDto {
+    /**
+     * List of transactions
+     */
+    'transactions': Array<TransactionResponseDto>;
+    /**
+     * Total number of transactions
+     */
+    'total': number;
+    /**
+     * Number of transactions returned
+     */
+    'limit': number;
+    /**
+     * Offset from start
+     */
+    'offset': number;
 }
 
 /**
@@ -2512,6 +3023,547 @@ export class AddressesApi extends BaseAPI {
      */
     public addressControllerUpdate(id: string, updateAddressDto: UpdateAddressDto, options?: RawAxiosRequestConfig) {
         return AddressesApiFp(this.configuration).addressControllerUpdate(id, updateAddressDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * AdminBannersApi - axios parameter creator
+ */
+export const AdminBannersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Create a new banner for the homepage
+         * @summary Create a new banner
+         * @param {CreateBannerDto} createBannerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerCreate: async (createBannerDto: CreateBannerDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createBannerDto' is not null or undefined
+            assertParamExists('adminBannerControllerCreate', 'createBannerDto', createBannerDto)
+            const localVarPath = `/api/admin/banners`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createBannerDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Permanently delete a banner
+         * @summary Delete a banner
+         * @param {string} id Banner ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerDelete: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminBannerControllerDelete', 'id', id)
+            const localVarPath = `/api/admin/banners/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve all banners (including inactive) for admin management
+         * @summary Get all banners
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerFindAll: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/banners`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve a specific banner by its ID
+         * @summary Get banner by ID
+         * @param {string} id Banner ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminBannerControllerFindOne', 'id', id)
+            const localVarPath = `/api/admin/banners/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Generate a presigned URL for client-side banner image upload to Cloudinary
+         * @summary Generate presigned upload URL
+         * @param {GenerateBannerUploadUrlDto} generateBannerUploadUrlDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerGenerateUploadUrl: async (generateBannerUploadUrlDto: GenerateBannerUploadUrlDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'generateBannerUploadUrlDto' is not null or undefined
+            assertParamExists('adminBannerControllerGenerateUploadUrl', 'generateBannerUploadUrlDto', generateBannerUploadUrlDto)
+            const localVarPath = `/api/admin/banners/generate-upload-url`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(generateBannerUploadUrlDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update the display order of multiple banners at once (for drag and drop)
+         * @summary Reorder banners
+         * @param {ReorderBannersDto} reorderBannersDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerReorder: async (reorderBannersDto: ReorderBannersDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'reorderBannersDto' is not null or undefined
+            assertParamExists('adminBannerControllerReorder', 'reorderBannersDto', reorderBannersDto)
+            const localVarPath = `/api/admin/banners/reorder`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(reorderBannersDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update an existing banner (image URL or active status)
+         * @summary Update a banner
+         * @param {string} id Banner ID
+         * @param {UpdateBannerDto} updateBannerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerUpdate: async (id: string, updateBannerDto: UpdateBannerDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminBannerControllerUpdate', 'id', id)
+            // verify required parameter 'updateBannerDto' is not null or undefined
+            assertParamExists('adminBannerControllerUpdate', 'updateBannerDto', updateBannerDto)
+            const localVarPath = `/api/admin/banners/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateBannerDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AdminBannersApi - functional programming interface
+ */
+export const AdminBannersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AdminBannersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Create a new banner for the homepage
+         * @summary Create a new banner
+         * @param {CreateBannerDto} createBannerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerCreate(createBannerDto: CreateBannerDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminBannerControllerCreate201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerCreate(createBannerDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Permanently delete a banner
+         * @summary Delete a banner
+         * @param {string} id Banner ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerDelete(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerDelete(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve all banners (including inactive) for admin management
+         * @summary Get all banners
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerFindAll(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BannerControllerFindAll200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerFindAll(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve a specific banner by its ID
+         * @summary Get banner by ID
+         * @param {string} id Banner ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminBannerControllerCreate201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Generate a presigned URL for client-side banner image upload to Cloudinary
+         * @summary Generate presigned upload URL
+         * @param {GenerateBannerUploadUrlDto} generateBannerUploadUrlDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerGenerateUploadUrl(generateBannerUploadUrlDto: GenerateBannerUploadUrlDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminBannerControllerGenerateUploadUrl201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerGenerateUploadUrl(generateBannerUploadUrlDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerGenerateUploadUrl']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update the display order of multiple banners at once (for drag and drop)
+         * @summary Reorder banners
+         * @param {ReorderBannersDto} reorderBannersDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerReorder(reorderBannersDto: ReorderBannersDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerReorder(reorderBannersDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerReorder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update an existing banner (image URL or active status)
+         * @summary Update a banner
+         * @param {string} id Banner ID
+         * @param {UpdateBannerDto} updateBannerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerUpdate(id: string, updateBannerDto: UpdateBannerDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminBannerControllerCreate201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerUpdate(id, updateBannerDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AdminBannersApi - factory interface
+ */
+export const AdminBannersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AdminBannersApiFp(configuration)
+    return {
+        /**
+         * Create a new banner for the homepage
+         * @summary Create a new banner
+         * @param {CreateBannerDto} createBannerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerCreate(createBannerDto: CreateBannerDto, options?: RawAxiosRequestConfig): AxiosPromise<AdminBannerControllerCreate201Response> {
+            return localVarFp.adminBannerControllerCreate(createBannerDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Permanently delete a banner
+         * @summary Delete a banner
+         * @param {string} id Banner ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerDelete(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminBannerControllerDelete(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve all banners (including inactive) for admin management
+         * @summary Get all banners
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerFindAll(options?: RawAxiosRequestConfig): AxiosPromise<BannerControllerFindAll200Response> {
+            return localVarFp.adminBannerControllerFindAll(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve a specific banner by its ID
+         * @summary Get banner by ID
+         * @param {string} id Banner ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<AdminBannerControllerCreate201Response> {
+            return localVarFp.adminBannerControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Generate a presigned URL for client-side banner image upload to Cloudinary
+         * @summary Generate presigned upload URL
+         * @param {GenerateBannerUploadUrlDto} generateBannerUploadUrlDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerGenerateUploadUrl(generateBannerUploadUrlDto: GenerateBannerUploadUrlDto, options?: RawAxiosRequestConfig): AxiosPromise<AdminBannerControllerGenerateUploadUrl201Response> {
+            return localVarFp.adminBannerControllerGenerateUploadUrl(generateBannerUploadUrlDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update the display order of multiple banners at once (for drag and drop)
+         * @summary Reorder banners
+         * @param {ReorderBannersDto} reorderBannersDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerReorder(reorderBannersDto: ReorderBannersDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminBannerControllerReorder(reorderBannersDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update an existing banner (image URL or active status)
+         * @summary Update a banner
+         * @param {string} id Banner ID
+         * @param {UpdateBannerDto} updateBannerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerUpdate(id: string, updateBannerDto: UpdateBannerDto, options?: RawAxiosRequestConfig): AxiosPromise<AdminBannerControllerCreate201Response> {
+            return localVarFp.adminBannerControllerUpdate(id, updateBannerDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AdminBannersApi - object-oriented interface
+ */
+export class AdminBannersApi extends BaseAPI {
+    /**
+     * Create a new banner for the homepage
+     * @summary Create a new banner
+     * @param {CreateBannerDto} createBannerDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerCreate(createBannerDto: CreateBannerDto, options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerCreate(createBannerDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Permanently delete a banner
+     * @summary Delete a banner
+     * @param {string} id Banner ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerDelete(id: string, options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerDelete(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve all banners (including inactive) for admin management
+     * @summary Get all banners
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerFindAll(options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerFindAll(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve a specific banner by its ID
+     * @summary Get banner by ID
+     * @param {string} id Banner ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Generate a presigned URL for client-side banner image upload to Cloudinary
+     * @summary Generate presigned upload URL
+     * @param {GenerateBannerUploadUrlDto} generateBannerUploadUrlDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerGenerateUploadUrl(generateBannerUploadUrlDto: GenerateBannerUploadUrlDto, options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerGenerateUploadUrl(generateBannerUploadUrlDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update the display order of multiple banners at once (for drag and drop)
+     * @summary Reorder banners
+     * @param {ReorderBannersDto} reorderBannersDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerReorder(reorderBannersDto: ReorderBannersDto, options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerReorder(reorderBannersDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update an existing banner (image URL or active status)
+     * @summary Update a banner
+     * @param {string} id Banner ID
+     * @param {UpdateBannerDto} updateBannerDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerUpdate(id: string, updateBannerDto: UpdateBannerDto, options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerUpdate(id, updateBannerDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -3820,7 +4872,7 @@ export const AdminOrdersApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async adminOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerCancelOrder200Response>> {
+        async adminOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetOrderById200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.adminOrderControllerGetOrderById(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminOrdersApi.adminOrderControllerGetOrderById']?.[localVarOperationServerIndex]?.url;
@@ -3834,7 +4886,7 @@ export const AdminOrdersApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async adminOrderControllerUpdateOrderStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerCancelOrder200Response>> {
+        async adminOrderControllerUpdateOrderStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetOrderById200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.adminOrderControllerUpdateOrderStatus(id, updateOrderStatusDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminOrdersApi.adminOrderControllerUpdateOrderStatus']?.[localVarOperationServerIndex]?.url;
@@ -3871,7 +4923,7 @@ export const AdminOrdersApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        adminOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerCancelOrder200Response> {
+        adminOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetOrderById200Response> {
             return localVarFp.adminOrderControllerGetOrderById(id, options).then((request) => request(axios, basePath));
         },
         /**
@@ -3882,7 +4934,7 @@ export const AdminOrdersApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        adminOrderControllerUpdateOrderStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerCancelOrder200Response> {
+        adminOrderControllerUpdateOrderStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetOrderById200Response> {
             return localVarFp.adminOrderControllerUpdateOrderStatus(id, updateOrderStatusDto, options).then((request) => request(axios, basePath));
         },
     };
@@ -3947,10 +4999,337 @@ export type AdminOrderControllerGetAllOrdersStatusEnum = typeof AdminOrderContro
 
 
 /**
+ * AnalyticsApi - axios parameter creator
+ */
+export const AnalyticsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Get admin dashboard analytics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        analyticsControllerGetAdminDashboard: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/analytics/admin-dashboard`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get sales report with date filtering
+         * @param {AnalyticsControllerGetSalesReportTimeframeEnum} timeframe Timeframe for grouping sales data
+         * @param {string} startDate Start date in YYYY-MM-DD format
+         * @param {string} endDate End date in YYYY-MM-DD format
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        analyticsControllerGetSalesReport: async (timeframe: AnalyticsControllerGetSalesReportTimeframeEnum, startDate: string, endDate: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'timeframe' is not null or undefined
+            assertParamExists('analyticsControllerGetSalesReport', 'timeframe', timeframe)
+            // verify required parameter 'startDate' is not null or undefined
+            assertParamExists('analyticsControllerGetSalesReport', 'startDate', startDate)
+            // verify required parameter 'endDate' is not null or undefined
+            assertParamExists('analyticsControllerGetSalesReport', 'endDate', endDate)
+            const localVarPath = `/api/analytics/sales-report`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (timeframe !== undefined) {
+                localVarQueryParameter['timeframe'] = timeframe;
+            }
+
+            if (startDate !== undefined) {
+                localVarQueryParameter['startDate'] = startDate;
+            }
+
+            if (endDate !== undefined) {
+                localVarQueryParameter['endDate'] = endDate;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get seller dashboard analytics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        analyticsControllerGetSellerDashboard: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/analytics/seller-dashboard`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AnalyticsApi - functional programming interface
+ */
+export const AnalyticsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AnalyticsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Get admin dashboard analytics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async analyticsControllerGetAdminDashboard(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AnalyticsControllerGetAdminDashboard200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.analyticsControllerGetAdminDashboard(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AnalyticsApi.analyticsControllerGetAdminDashboard']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get sales report with date filtering
+         * @param {AnalyticsControllerGetSalesReportTimeframeEnum} timeframe Timeframe for grouping sales data
+         * @param {string} startDate Start date in YYYY-MM-DD format
+         * @param {string} endDate End date in YYYY-MM-DD format
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async analyticsControllerGetSalesReport(timeframe: AnalyticsControllerGetSalesReportTimeframeEnum, startDate: string, endDate: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AnalyticsControllerGetSalesReport200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.analyticsControllerGetSalesReport(timeframe, startDate, endDate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AnalyticsApi.analyticsControllerGetSalesReport']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get seller dashboard analytics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async analyticsControllerGetSellerDashboard(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AnalyticsControllerGetSellerDashboard200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.analyticsControllerGetSellerDashboard(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AnalyticsApi.analyticsControllerGetSellerDashboard']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AnalyticsApi - factory interface
+ */
+export const AnalyticsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AnalyticsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Get admin dashboard analytics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        analyticsControllerGetAdminDashboard(options?: RawAxiosRequestConfig): AxiosPromise<AnalyticsControllerGetAdminDashboard200Response> {
+            return localVarFp.analyticsControllerGetAdminDashboard(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get sales report with date filtering
+         * @param {AnalyticsControllerGetSalesReportTimeframeEnum} timeframe Timeframe for grouping sales data
+         * @param {string} startDate Start date in YYYY-MM-DD format
+         * @param {string} endDate End date in YYYY-MM-DD format
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        analyticsControllerGetSalesReport(timeframe: AnalyticsControllerGetSalesReportTimeframeEnum, startDate: string, endDate: string, options?: RawAxiosRequestConfig): AxiosPromise<AnalyticsControllerGetSalesReport200Response> {
+            return localVarFp.analyticsControllerGetSalesReport(timeframe, startDate, endDate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get seller dashboard analytics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        analyticsControllerGetSellerDashboard(options?: RawAxiosRequestConfig): AxiosPromise<AnalyticsControllerGetSellerDashboard200Response> {
+            return localVarFp.analyticsControllerGetSellerDashboard(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AnalyticsApi - object-oriented interface
+ */
+export class AnalyticsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Get admin dashboard analytics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public analyticsControllerGetAdminDashboard(options?: RawAxiosRequestConfig) {
+        return AnalyticsApiFp(this.configuration).analyticsControllerGetAdminDashboard(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get sales report with date filtering
+     * @param {AnalyticsControllerGetSalesReportTimeframeEnum} timeframe Timeframe for grouping sales data
+     * @param {string} startDate Start date in YYYY-MM-DD format
+     * @param {string} endDate End date in YYYY-MM-DD format
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public analyticsControllerGetSalesReport(timeframe: AnalyticsControllerGetSalesReportTimeframeEnum, startDate: string, endDate: string, options?: RawAxiosRequestConfig) {
+        return AnalyticsApiFp(this.configuration).analyticsControllerGetSalesReport(timeframe, startDate, endDate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get seller dashboard analytics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public analyticsControllerGetSellerDashboard(options?: RawAxiosRequestConfig) {
+        return AnalyticsApiFp(this.configuration).analyticsControllerGetSellerDashboard(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const AnalyticsControllerGetSalesReportTimeframeEnum = {
+    Daily: 'daily',
+    Weekly: 'weekly',
+    Monthly: 'monthly',
+    Yearly: 'yearly'
+} as const;
+export type AnalyticsControllerGetSalesReportTimeframeEnum = typeof AnalyticsControllerGetSalesReportTimeframeEnum[keyof typeof AnalyticsControllerGetSalesReportTimeframeEnum];
+
+
+/**
  * AuthenticationApi - axios parameter creator
  */
 export const AuthenticationApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * Change password for authenticated user
+         * @summary Change password
+         * @param {ChangePasswordDto} changePasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerChangePassword: async (changePasswordDto: ChangePasswordDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'changePasswordDto' is not null or undefined
+            assertParamExists('authControllerChangePassword', 'changePasswordDto', changePasswordDto)
+            const localVarPath = `/api/auth/password/change`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(changePasswordDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Request OTP for password reset
+         * @summary Forgot password
+         * @param {ForgotPasswordDto} forgotPasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerForgotPassword: async (forgotPasswordDto: ForgotPasswordDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'forgotPasswordDto' is not null or undefined
+            assertParamExists('authControllerForgotPassword', 'forgotPasswordDto', forgotPasswordDto)
+            const localVarPath = `/api/auth/password/forgot`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(forgotPasswordDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * Authenticate user with password or OTP
          * @summary Login with password or OTP
@@ -4152,6 +5531,41 @@ export const AuthenticationApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
+         * Reset password using OTP
+         * @summary Reset password
+         * @param {ResetPasswordDto} resetPasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerResetPassword: async (resetPasswordDto: ResetPasswordDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'resetPasswordDto' is not null or undefined
+            assertParamExists('authControllerResetPassword', 'resetPasswordDto', resetPasswordDto)
+            const localVarPath = `/api/auth/password/reset`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(resetPasswordDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Verify OTP code
          * @summary Verify OTP
          * @param {VerifyOTPDto} verifyOTPDto 
@@ -4195,6 +5609,32 @@ export const AuthenticationApiAxiosParamCreator = function (configuration?: Conf
 export const AuthenticationApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = AuthenticationApiAxiosParamCreator(configuration)
     return {
+        /**
+         * Change password for authenticated user
+         * @summary Change password
+         * @param {ChangePasswordDto} changePasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authControllerChangePassword(changePasswordDto: ChangePasswordDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authControllerChangePassword(changePasswordDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationApi.authControllerChangePassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Request OTP for password reset
+         * @summary Forgot password
+         * @param {ForgotPasswordDto} forgotPasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authControllerForgotPassword(forgotPasswordDto: ForgotPasswordDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authControllerForgotPassword(forgotPasswordDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationApi.authControllerForgotPassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
         /**
          * Authenticate user with password or OTP
          * @summary Login with password or OTP
@@ -4272,6 +5712,19 @@ export const AuthenticationApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Reset password using OTP
+         * @summary Reset password
+         * @param {ResetPasswordDto} resetPasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authControllerResetPassword(resetPasswordDto: ResetPasswordDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authControllerResetPassword(resetPasswordDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationApi.authControllerResetPassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Verify OTP code
          * @summary Verify OTP
          * @param {VerifyOTPDto} verifyOTPDto 
@@ -4293,6 +5746,26 @@ export const AuthenticationApiFp = function(configuration?: Configuration) {
 export const AuthenticationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = AuthenticationApiFp(configuration)
     return {
+        /**
+         * Change password for authenticated user
+         * @summary Change password
+         * @param {ChangePasswordDto} changePasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerChangePassword(changePasswordDto: ChangePasswordDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.authControllerChangePassword(changePasswordDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Request OTP for password reset
+         * @summary Forgot password
+         * @param {ForgotPasswordDto} forgotPasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerForgotPassword(forgotPasswordDto: ForgotPasswordDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.authControllerForgotPassword(forgotPasswordDto, options).then((request) => request(axios, basePath));
+        },
         /**
          * Authenticate user with password or OTP
          * @summary Login with password or OTP
@@ -4352,6 +5825,16 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
             return localVarFp.authControllerRequestOTP(requestOTPDto, options).then((request) => request(axios, basePath));
         },
         /**
+         * Reset password using OTP
+         * @summary Reset password
+         * @param {ResetPasswordDto} resetPasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerResetPassword(resetPasswordDto: ResetPasswordDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.authControllerResetPassword(resetPasswordDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Verify OTP code
          * @summary Verify OTP
          * @param {VerifyOTPDto} verifyOTPDto 
@@ -4368,6 +5851,28 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
  * AuthenticationApi - object-oriented interface
  */
 export class AuthenticationApi extends BaseAPI {
+    /**
+     * Change password for authenticated user
+     * @summary Change password
+     * @param {ChangePasswordDto} changePasswordDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public authControllerChangePassword(changePasswordDto: ChangePasswordDto, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).authControllerChangePassword(changePasswordDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Request OTP for password reset
+     * @summary Forgot password
+     * @param {ForgotPasswordDto} forgotPasswordDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public authControllerForgotPassword(forgotPasswordDto: ForgotPasswordDto, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).authControllerForgotPassword(forgotPasswordDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * Authenticate user with password or OTP
      * @summary Login with password or OTP
@@ -4433,6 +5938,17 @@ export class AuthenticationApi extends BaseAPI {
     }
 
     /**
+     * Reset password using OTP
+     * @summary Reset password
+     * @param {ResetPasswordDto} resetPasswordDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public authControllerResetPassword(resetPasswordDto: ResetPasswordDto, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).authControllerResetPassword(resetPasswordDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Verify OTP code
      * @summary Verify OTP
      * @param {VerifyOTPDto} verifyOTPDto 
@@ -4441,6 +5957,108 @@ export class AuthenticationApi extends BaseAPI {
      */
     public authControllerVerifyOTP(verifyOTPDto: VerifyOTPDto, options?: RawAxiosRequestConfig) {
         return AuthenticationApiFp(this.configuration).authControllerVerifyOTP(verifyOTPDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * BannersApi - axios parameter creator
+ */
+export const BannersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Retrieve all active banners for display on the homepage
+         * @summary Get active banners
+         * @param {boolean} [activeOnly] Filter to show only active banners (default: true for public)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        bannerControllerFindAll: async (activeOnly?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/banners`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (activeOnly !== undefined) {
+                localVarQueryParameter['activeOnly'] = activeOnly;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * BannersApi - functional programming interface
+ */
+export const BannersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = BannersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Retrieve all active banners for display on the homepage
+         * @summary Get active banners
+         * @param {boolean} [activeOnly] Filter to show only active banners (default: true for public)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async bannerControllerFindAll(activeOnly?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BannerControllerFindAll200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.bannerControllerFindAll(activeOnly, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BannersApi.bannerControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * BannersApi - factory interface
+ */
+export const BannersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = BannersApiFp(configuration)
+    return {
+        /**
+         * Retrieve all active banners for display on the homepage
+         * @summary Get active banners
+         * @param {boolean} [activeOnly] Filter to show only active banners (default: true for public)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        bannerControllerFindAll(activeOnly?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<BannerControllerFindAll200Response> {
+            return localVarFp.bannerControllerFindAll(activeOnly, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * BannersApi - object-oriented interface
+ */
+export class BannersApi extends BaseAPI {
+    /**
+     * Retrieve all active banners for display on the homepage
+     * @summary Get active banners
+     * @param {boolean} [activeOnly] Filter to show only active banners (default: true for public)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public bannerControllerFindAll(activeOnly?: boolean, options?: RawAxiosRequestConfig) {
+        return BannersApiFp(this.configuration).bannerControllerFindAll(activeOnly, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -6205,6 +7823,44 @@ export const OrdersCustomerApiAxiosParamCreator = function (configuration?: Conf
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Retrieve a specific order by its ID
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        customerOrderControllerGetOrderById: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('customerOrderControllerGetOrderById', 'id', id)
+            const localVarPath = `/api/orders/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -6222,7 +7878,7 @@ export const OrdersCustomerApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async customerOrderControllerCancelOrder(id: string, cancelOrderDto: CancelOrderDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerCancelOrder200Response>> {
+        async customerOrderControllerCancelOrder(id: string, cancelOrderDto: CancelOrderDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetOrderById200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.customerOrderControllerCancelOrder(id, cancelOrderDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OrdersCustomerApi.customerOrderControllerCancelOrder']?.[localVarOperationServerIndex]?.url;
@@ -6242,6 +7898,19 @@ export const OrdersCustomerApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['OrdersCustomerApi.customerOrderControllerGetMyOrders']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * Retrieve a specific order by its ID
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async customerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetOrderById200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.customerOrderControllerGetOrderById(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrdersCustomerApi.customerOrderControllerGetOrderById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -6259,7 +7928,7 @@ export const OrdersCustomerApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        customerOrderControllerCancelOrder(id: string, cancelOrderDto: CancelOrderDto, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerCancelOrder200Response> {
+        customerOrderControllerCancelOrder(id: string, cancelOrderDto: CancelOrderDto, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetOrderById200Response> {
             return localVarFp.customerOrderControllerCancelOrder(id, cancelOrderDto, options).then((request) => request(axios, basePath));
         },
         /**
@@ -6272,6 +7941,16 @@ export const OrdersCustomerApiFactory = function (configuration?: Configuration,
          */
         customerOrderControllerGetMyOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetMyOrders200Response> {
             return localVarFp.customerOrderControllerGetMyOrders(page, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve a specific order by its ID
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        customerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetOrderById200Response> {
+            return localVarFp.customerOrderControllerGetOrderById(id, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -6302,6 +7981,196 @@ export class OrdersCustomerApi extends BaseAPI {
      */
     public customerOrderControllerGetMyOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig) {
         return OrdersCustomerApiFp(this.configuration).customerOrderControllerGetMyOrders(page, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve a specific order by its ID
+     * @summary Get order by ID
+     * @param {string} id Order ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public customerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig) {
+        return OrdersCustomerApiFp(this.configuration).customerOrderControllerGetOrderById(id, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * PaymentApi - axios parameter creator
+ */
+export const PaymentApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Creates a Razorpay order for the given order ID
+         * @summary Create Razorpay payment order
+         * @param {CreatePaymentDto} createPaymentDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        paymentControllerCreatePayment: async (createPaymentDto: CreatePaymentDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createPaymentDto' is not null or undefined
+            assertParamExists('paymentControllerCreatePayment', 'createPaymentDto', createPaymentDto)
+            const localVarPath = `/api/payment/create`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createPaymentDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Verifies the Razorpay payment and updates order status
+         * @summary Verify Razorpay payment
+         * @param {VerifyPaymentDto} verifyPaymentDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        paymentControllerVerifyPayment: async (verifyPaymentDto: VerifyPaymentDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'verifyPaymentDto' is not null or undefined
+            assertParamExists('paymentControllerVerifyPayment', 'verifyPaymentDto', verifyPaymentDto)
+            const localVarPath = `/api/payment/verify`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(verifyPaymentDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * PaymentApi - functional programming interface
+ */
+export const PaymentApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PaymentApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Creates a Razorpay order for the given order ID
+         * @summary Create Razorpay payment order
+         * @param {CreatePaymentDto} createPaymentDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async paymentControllerCreatePayment(createPaymentDto: CreatePaymentDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaymentControllerCreatePayment200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.paymentControllerCreatePayment(createPaymentDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PaymentApi.paymentControllerCreatePayment']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Verifies the Razorpay payment and updates order status
+         * @summary Verify Razorpay payment
+         * @param {VerifyPaymentDto} verifyPaymentDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async paymentControllerVerifyPayment(verifyPaymentDto: VerifyPaymentDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaymentControllerVerifyPayment200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.paymentControllerVerifyPayment(verifyPaymentDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PaymentApi.paymentControllerVerifyPayment']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * PaymentApi - factory interface
+ */
+export const PaymentApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PaymentApiFp(configuration)
+    return {
+        /**
+         * Creates a Razorpay order for the given order ID
+         * @summary Create Razorpay payment order
+         * @param {CreatePaymentDto} createPaymentDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        paymentControllerCreatePayment(createPaymentDto: CreatePaymentDto, options?: RawAxiosRequestConfig): AxiosPromise<PaymentControllerCreatePayment200Response> {
+            return localVarFp.paymentControllerCreatePayment(createPaymentDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Verifies the Razorpay payment and updates order status
+         * @summary Verify Razorpay payment
+         * @param {VerifyPaymentDto} verifyPaymentDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        paymentControllerVerifyPayment(verifyPaymentDto: VerifyPaymentDto, options?: RawAxiosRequestConfig): AxiosPromise<PaymentControllerVerifyPayment200Response> {
+            return localVarFp.paymentControllerVerifyPayment(verifyPaymentDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * PaymentApi - object-oriented interface
+ */
+export class PaymentApi extends BaseAPI {
+    /**
+     * Creates a Razorpay order for the given order ID
+     * @summary Create Razorpay payment order
+     * @param {CreatePaymentDto} createPaymentDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public paymentControllerCreatePayment(createPaymentDto: CreatePaymentDto, options?: RawAxiosRequestConfig) {
+        return PaymentApiFp(this.configuration).paymentControllerCreatePayment(createPaymentDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Verifies the Razorpay payment and updates order status
+     * @summary Verify Razorpay payment
+     * @param {VerifyPaymentDto} verifyPaymentDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public paymentControllerVerifyPayment(verifyPaymentDto: VerifyPaymentDto, options?: RawAxiosRequestConfig) {
+        return PaymentApiFp(this.configuration).paymentControllerVerifyPayment(verifyPaymentDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -8455,7 +10324,7 @@ export const SellerOrdersApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async sellerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerCancelOrder200Response>> {
+        async sellerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetOrderById200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.sellerOrderControllerGetOrderById(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SellerOrdersApi.sellerOrderControllerGetOrderById']?.[localVarOperationServerIndex]?.url;
@@ -8491,7 +10360,7 @@ export const SellerOrdersApiFactory = function (configuration?: Configuration, b
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        sellerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerCancelOrder200Response> {
+        sellerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetOrderById200Response> {
             return localVarFp.sellerOrderControllerGetOrderById(id, options).then((request) => request(axios, basePath));
         },
         /**
@@ -8636,6 +10505,45 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
+         * Generates presigned upload credentials for client-side profile picture upload to Cloudinary
+         * @summary Generate presigned URL for profile picture upload
+         * @param {GenerateProfilePictureUploadUrlDto} generateProfilePictureUploadUrlDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        userControllerGenerateProfilePictureUploadUrl: async (generateProfilePictureUploadUrlDto: GenerateProfilePictureUploadUrlDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'generateProfilePictureUploadUrlDto' is not null or undefined
+            assertParamExists('userControllerGenerateProfilePictureUploadUrl', 'generateProfilePictureUploadUrlDto', generateProfilePictureUploadUrlDto)
+            const localVarPath = `/api/users/profile-picture/generate-upload-url`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(generateProfilePictureUploadUrlDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Retrieves the authenticated user profile
          * @summary Get current user profile
          * @param {*} [options] Override http request option.
@@ -8663,6 +10571,45 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Saves the profile picture URL after successful upload to storage
+         * @summary Save profile picture URL
+         * @param {SaveProfilePictureDto} saveProfilePictureDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        userControllerSaveProfilePicture: async (saveProfilePictureDto: SaveProfilePictureDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'saveProfilePictureDto' is not null or undefined
+            assertParamExists('userControllerSaveProfilePicture', 'saveProfilePictureDto', saveProfilePictureDto)
+            const localVarPath = `/api/users/profile-picture`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(saveProfilePictureDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -8790,6 +10737,19 @@ export const UsersApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Generates presigned upload credentials for client-side profile picture upload to Cloudinary
+         * @summary Generate presigned URL for profile picture upload
+         * @param {GenerateProfilePictureUploadUrlDto} generateProfilePictureUploadUrlDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto: GenerateProfilePictureUploadUrlDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserControllerGenerateProfilePictureUploadUrl201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.userControllerGenerateProfilePictureUploadUrl']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Retrieves the authenticated user profile
          * @summary Get current user profile
          * @param {*} [options] Override http request option.
@@ -8799,6 +10759,19 @@ export const UsersApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.userControllerGetMe(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.userControllerGetMe']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Saves the profile picture URL after successful upload to storage
+         * @summary Save profile picture URL
+         * @param {SaveProfilePictureDto} saveProfilePictureDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async userControllerSaveProfilePicture(saveProfilePictureDto: SaveProfilePictureDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.userControllerSaveProfilePicture(saveProfilePictureDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.userControllerSaveProfilePicture']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -8861,6 +10834,16 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
             return localVarFp.userControllerFindOne(id, options).then((request) => request(axios, basePath));
         },
         /**
+         * Generates presigned upload credentials for client-side profile picture upload to Cloudinary
+         * @summary Generate presigned URL for profile picture upload
+         * @param {GenerateProfilePictureUploadUrlDto} generateProfilePictureUploadUrlDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto: GenerateProfilePictureUploadUrlDto, options?: RawAxiosRequestConfig): AxiosPromise<UserControllerGenerateProfilePictureUploadUrl201Response> {
+            return localVarFp.userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Retrieves the authenticated user profile
          * @summary Get current user profile
          * @param {*} [options] Override http request option.
@@ -8868,6 +10851,16 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
          */
         userControllerGetMe(options?: RawAxiosRequestConfig): AxiosPromise<UserControllerGetMe200Response> {
             return localVarFp.userControllerGetMe(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Saves the profile picture URL after successful upload to storage
+         * @summary Save profile picture URL
+         * @param {SaveProfilePictureDto} saveProfilePictureDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        userControllerSaveProfilePicture(saveProfilePictureDto: SaveProfilePictureDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.userControllerSaveProfilePicture(saveProfilePictureDto, options).then((request) => request(axios, basePath));
         },
         /**
          * Updates the authenticated user profile
@@ -8923,6 +10916,17 @@ export class UsersApi extends BaseAPI {
     }
 
     /**
+     * Generates presigned upload credentials for client-side profile picture upload to Cloudinary
+     * @summary Generate presigned URL for profile picture upload
+     * @param {GenerateProfilePictureUploadUrlDto} generateProfilePictureUploadUrlDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto: GenerateProfilePictureUploadUrlDto, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Retrieves the authenticated user profile
      * @summary Get current user profile
      * @param {*} [options] Override http request option.
@@ -8930,6 +10934,17 @@ export class UsersApi extends BaseAPI {
      */
     public userControllerGetMe(options?: RawAxiosRequestConfig) {
         return UsersApiFp(this.configuration).userControllerGetMe(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Saves the profile picture URL after successful upload to storage
+     * @summary Save profile picture URL
+     * @param {SaveProfilePictureDto} saveProfilePictureDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public userControllerSaveProfilePicture(saveProfilePictureDto: SaveProfilePictureDto, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).userControllerSaveProfilePicture(saveProfilePictureDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -8962,5 +10977,441 @@ export const UserControllerFindAllStatusEnum = {
     Disabled: 'disabled'
 } as const;
 export type UserControllerFindAllStatusEnum = typeof UserControllerFindAllStatusEnum[keyof typeof UserControllerFindAllStatusEnum];
+
+
+/**
+ * WalletApi - axios parameter creator
+ */
+export const WalletApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Adds funds to the customer wallet.
+         * @summary Add money to wallet
+         * @param {AddMoneyDto} addMoneyDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerAddMoney: async (addMoneyDto: AddMoneyDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'addMoneyDto' is not null or undefined
+            assertParamExists('walletControllerAddMoney', 'addMoneyDto', addMoneyDto)
+            const localVarPath = `/api/wallet/add-money`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(addMoneyDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieves transaction history for the wallet with pagination.
+         * @summary Get wallet transactions
+         * @param {number} [limit] Number of transactions to retrieve
+         * @param {number} [offset] Offset for pagination
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerGetTransactions: async (limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/wallet/transactions`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieves wallet information for the authenticated customer. Creates wallet if not exists.
+         * @summary Get wallet
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerGetWallet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/wallet`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Checks if wallet has sufficient balance for the given amount.
+         * @summary Validate wallet balance
+         * @param {ValidateBalanceDto} validateBalanceDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerValidateBalance: async (validateBalanceDto: ValidateBalanceDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'validateBalanceDto' is not null or undefined
+            assertParamExists('walletControllerValidateBalance', 'validateBalanceDto', validateBalanceDto)
+            const localVarPath = `/api/wallet/validate-balance`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(validateBalanceDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * WalletApi - functional programming interface
+ */
+export const WalletApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = WalletApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Adds funds to the customer wallet.
+         * @summary Add money to wallet
+         * @param {AddMoneyDto} addMoneyDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async walletControllerAddMoney(addMoneyDto: AddMoneyDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletControllerAddMoney201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.walletControllerAddMoney(addMoneyDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletApi.walletControllerAddMoney']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieves transaction history for the wallet with pagination.
+         * @summary Get wallet transactions
+         * @param {number} [limit] Number of transactions to retrieve
+         * @param {number} [offset] Offset for pagination
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async walletControllerGetTransactions(limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletControllerGetTransactions200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.walletControllerGetTransactions(limit, offset, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletApi.walletControllerGetTransactions']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieves wallet information for the authenticated customer. Creates wallet if not exists.
+         * @summary Get wallet
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async walletControllerGetWallet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletControllerGetWallet200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.walletControllerGetWallet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletApi.walletControllerGetWallet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Checks if wallet has sufficient balance for the given amount.
+         * @summary Validate wallet balance
+         * @param {ValidateBalanceDto} validateBalanceDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async walletControllerValidateBalance(validateBalanceDto: ValidateBalanceDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletControllerValidateBalance200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.walletControllerValidateBalance(validateBalanceDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletApi.walletControllerValidateBalance']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * WalletApi - factory interface
+ */
+export const WalletApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = WalletApiFp(configuration)
+    return {
+        /**
+         * Adds funds to the customer wallet.
+         * @summary Add money to wallet
+         * @param {AddMoneyDto} addMoneyDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerAddMoney(addMoneyDto: AddMoneyDto, options?: RawAxiosRequestConfig): AxiosPromise<WalletControllerAddMoney201Response> {
+            return localVarFp.walletControllerAddMoney(addMoneyDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieves transaction history for the wallet with pagination.
+         * @summary Get wallet transactions
+         * @param {number} [limit] Number of transactions to retrieve
+         * @param {number} [offset] Offset for pagination
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerGetTransactions(limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<WalletControllerGetTransactions200Response> {
+            return localVarFp.walletControllerGetTransactions(limit, offset, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieves wallet information for the authenticated customer. Creates wallet if not exists.
+         * @summary Get wallet
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerGetWallet(options?: RawAxiosRequestConfig): AxiosPromise<WalletControllerGetWallet200Response> {
+            return localVarFp.walletControllerGetWallet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Checks if wallet has sufficient balance for the given amount.
+         * @summary Validate wallet balance
+         * @param {ValidateBalanceDto} validateBalanceDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerValidateBalance(validateBalanceDto: ValidateBalanceDto, options?: RawAxiosRequestConfig): AxiosPromise<WalletControllerValidateBalance200Response> {
+            return localVarFp.walletControllerValidateBalance(validateBalanceDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * WalletApi - object-oriented interface
+ */
+export class WalletApi extends BaseAPI {
+    /**
+     * Adds funds to the customer wallet.
+     * @summary Add money to wallet
+     * @param {AddMoneyDto} addMoneyDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public walletControllerAddMoney(addMoneyDto: AddMoneyDto, options?: RawAxiosRequestConfig) {
+        return WalletApiFp(this.configuration).walletControllerAddMoney(addMoneyDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieves transaction history for the wallet with pagination.
+     * @summary Get wallet transactions
+     * @param {number} [limit] Number of transactions to retrieve
+     * @param {number} [offset] Offset for pagination
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public walletControllerGetTransactions(limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
+        return WalletApiFp(this.configuration).walletControllerGetTransactions(limit, offset, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieves wallet information for the authenticated customer. Creates wallet if not exists.
+     * @summary Get wallet
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public walletControllerGetWallet(options?: RawAxiosRequestConfig) {
+        return WalletApiFp(this.configuration).walletControllerGetWallet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Checks if wallet has sufficient balance for the given amount.
+     * @summary Validate wallet balance
+     * @param {ValidateBalanceDto} validateBalanceDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public walletControllerValidateBalance(validateBalanceDto: ValidateBalanceDto, options?: RawAxiosRequestConfig) {
+        return WalletApiFp(this.configuration).walletControllerValidateBalance(validateBalanceDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * WebhooksApi - axios parameter creator
+ */
+export const WebhooksApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Process payment confirmation webhooks from Razorpay
+         * @summary Handle Razorpay webhook
+         * @param {string} xRazorpaySignature 
+         * @param {string} xRazorpaySignature2 Webhook signature for verification
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        webhookControllerHandleRazorpayWebhook: async (xRazorpaySignature: string, xRazorpaySignature2: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'xRazorpaySignature' is not null or undefined
+            assertParamExists('webhookControllerHandleRazorpayWebhook', 'xRazorpaySignature', xRazorpaySignature)
+            // verify required parameter 'xRazorpaySignature2' is not null or undefined
+            assertParamExists('webhookControllerHandleRazorpayWebhook', 'xRazorpaySignature2', xRazorpaySignature2)
+            const localVarPath = `/api/webhooks/razorpay`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            if (xRazorpaySignature != null) {
+                localVarHeaderParameter['x-razorpay-signature'] = String(xRazorpaySignature);
+            }
+            if (xRazorpaySignature2 != null) {
+                localVarHeaderParameter['X-Razorpay-Signature'] = String(xRazorpaySignature2);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * WebhooksApi - functional programming interface
+ */
+export const WebhooksApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = WebhooksApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Process payment confirmation webhooks from Razorpay
+         * @summary Handle Razorpay webhook
+         * @param {string} xRazorpaySignature 
+         * @param {string} xRazorpaySignature2 Webhook signature for verification
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async webhookControllerHandleRazorpayWebhook(xRazorpaySignature: string, xRazorpaySignature2: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.webhookControllerHandleRazorpayWebhook(xRazorpaySignature, xRazorpaySignature2, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WebhooksApi.webhookControllerHandleRazorpayWebhook']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * WebhooksApi - factory interface
+ */
+export const WebhooksApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = WebhooksApiFp(configuration)
+    return {
+        /**
+         * Process payment confirmation webhooks from Razorpay
+         * @summary Handle Razorpay webhook
+         * @param {string} xRazorpaySignature 
+         * @param {string} xRazorpaySignature2 Webhook signature for verification
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        webhookControllerHandleRazorpayWebhook(xRazorpaySignature: string, xRazorpaySignature2: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.webhookControllerHandleRazorpayWebhook(xRazorpaySignature, xRazorpaySignature2, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * WebhooksApi - object-oriented interface
+ */
+export class WebhooksApi extends BaseAPI {
+    /**
+     * Process payment confirmation webhooks from Razorpay
+     * @summary Handle Razorpay webhook
+     * @param {string} xRazorpaySignature 
+     * @param {string} xRazorpaySignature2 Webhook signature for verification
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public webhookControllerHandleRazorpayWebhook(xRazorpaySignature: string, xRazorpaySignature2: string, options?: RawAxiosRequestConfig) {
+        return WebhooksApiFp(this.configuration).webhookControllerHandleRazorpayWebhook(xRazorpaySignature, xRazorpaySignature2, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
 
 

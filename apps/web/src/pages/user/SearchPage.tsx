@@ -4,7 +4,7 @@ import React, { useCallback, useState } from 'react';
 import { Toggle } from '@/components/ui/toggle';
 import ProductCard from '@/components/user/ProductCard';
 import ProductsFilterCard from '@/components/user/ProductsFilterCard';
-import { useSearchProducts } from '@/hooks/products/useSearchProducts';
+import { useSearchProductsHook } from '@/hooks/products/use-search-products.hook';
 
 function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -87,7 +87,7 @@ const ProductsTable = React.memo(function ProductsTable({
     data: products = [],
     isLoading,
     error,
-  } = useSearchProducts({
+  } = useSearchProductsHook({
     query: searchParams.get('query') || '',
     category: searchParams.get('category') || undefined,
     minPrice: Number(searchParams.get('minPrice') || 0),

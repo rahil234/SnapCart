@@ -1,5 +1,5 @@
 import ProductCard from '@/components/user/ProductCard';
-import { useGetProductsByCategoryId } from '@/hooks/product.hooks';
+import { useGetProductsByCategoryId } from '@/hooks/products/use-get-product-by-category-id.hook';
 
 function RelatedProducts({ categoryId }: { categoryId: string }) {
   const {

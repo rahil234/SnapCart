@@ -1,11 +1,11 @@
-import { apiClient } from '@/api/axios';
-import { apiConfig } from '@/api/client';
 import {
   CreateVariantDto,
   ProductVariantsApi,
   UpdateVariantDto,
   SaveVariantImageDto,
 } from '@/api/generated';
+import { apiClient } from '@/api/axios';
+import { apiConfig } from '@/api/client';
 import { handleRequest } from '@/api/utils/handleRequest';
 
 const productVariantApi = new ProductVariantsApi(

@@ -1,18 +1,20 @@
-import { apiClient } from '@/api/axios';
-import { apiConfig } from '@/api/client';
 import {
   AdminOrdersApi,
+  CreatePaymentDto,
   OrdersCustomerApi,
+  PaymentApi,
   SellerOrdersApi,
   UpdateOrderStatusDto,
+  VerifyPaymentDto,
 } from '@/api/generated';
+import { apiClient } from '@/api/axios';
+import { apiConfig } from '@/api/client';
 import { handleRequest } from '@/api/utils/handleRequest';
 
 const ordersApi = new OrdersCustomerApi(apiConfig, undefined, apiClient);
-
 const sellerOrdersApi = new SellerOrdersApi(apiConfig, undefined, apiClient);
-
 const adminOrdersApi = new AdminOrdersApi(apiConfig, undefined, apiClient);
+const paymentApi = new PaymentApi(apiConfig, undefined, apiClient);
 
 export const OrderService = {
   getMyOrders: () =>
@@ -21,32 +23,25 @@ export const OrderService = {
     handleRequest(() => sellerOrdersApi.sellerOrderControllerGetSellerOrders()),
   getAdminOrders: () =>
     handleRequest(() => adminOrdersApi.adminOrderControllerGetAllOrders()),
-  getOrder: (orderId: string) =>
+  getOrderDetails: (orderId: string) =>
+    handleRequest(() => ordersApi.customerOrderControllerGetOrderById(orderId)),
+  getAdminOrder: (orderId: string) =>
     handleRequest(() =>
       adminOrdersApi.adminOrderControllerGetOrderById(orderId)
     ),
-  verifyCheckout: () =>
-    handleRequest(() => orderApi.orderControllerVerifyCheckout()),
   createPayment: (paymentData: CreatePaymentDto) =>
-    handleRequest(() => orderApi.orderControllerCreatePayment(paymentData)),
+    handleRequest(() => paymentApi.paymentControllerCreatePayment(paymentData)),
   verifyPayment: (paymentData: VerifyPaymentDto) =>
-    handleRequest(() => orderApi.orderControllerVerifyPayment(paymentData)),
+    handleRequest(() => paymentApi.paymentControllerVerifyPayment(paymentData)),
   updateOrderStatus: (orderId: string, statusData: UpdateOrderStatusDto) =>
     handleRequest(() =>
       adminOrdersApi.adminOrderControllerUpdateOrderStatus(orderId, statusData)
     ),
-  cancelOrder: (orderId: string) =>
-    handleRequest(() => orderApi.orderControllerCancel(orderId)),
-  cancelOrderItem: (orderId: string, itemId: string) =>
-    handleRequest(() => orderApi.orderControllerCancelItem(orderId, itemId)),
-  getInvoice: (orderId: string) =>
+  cancelOrder: (
+    orderId: string,
+    cancelReason: string = 'Customer requested cancellation'
+  ) =>
     handleRequest(() =>
-      orderApi.orderControllerDownloadInvoice(orderId, {
-        responseType: 'blob',
-      })
-    ),
-  submitReturnRequest: (orderId: string, data: ReturnRequestDto) =>
-    handleRequest(() =>
-      orderApi.orderControllerReturnOrder(orderId, returnData)
+      ordersApi.customerOrderControllerCancelOrder(orderId, { cancelReason })
     ),
 };

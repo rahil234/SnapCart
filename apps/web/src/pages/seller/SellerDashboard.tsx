@@ -1,18 +1,22 @@
-import React, { useEffect, useState } from 'react';
 import {
   Area,
   AreaChart,
   Bar,
   BarChart,
+  Cell,
   Pie,
   PieChart,
   XAxis,
   YAxis,
-  Cell,
 } from 'recharts';
-import { DollarSign, ShoppingCart, TrendingUp, Users } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React from 'react';
+import { DollarSign, Package, ShoppingCart, TrendingUp } from 'lucide-react';
 
+import {
+  RecentOrderDto,
+  SellerDashboardResponseDto,
+  TopProductDto,
+} from '@/api/generated';
 import {
   Card,
   CardContent,
@@ -25,76 +29,60 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-
-import { IProduct } from '@/types/product';
-import { ICategory } from '@/types/category';
 import { useQuery } from '@tanstack/react-query';
-import ProductCard from '@/components/user/ProductCard';
-import { SalesService } from '@/services/sales.service';
-import { ProductService } from '@/services/product.service';
-import { CategoryService } from '@/services/category.service';
-
-interface SalesReport {
-  _id: number;
-  totalOrders: number;
-  totalSales: number;
-  totalDiscountApplied: number;
-  deliveryCharges: number;
-  netSales: number;
-  totalItemsSold: number;
-  date: number;
-}
+import { AnalyticsService } from '@/services/analytics.service';
 
 function SellerDashboard() {
-  const [timeFrame, setTimeFrame] = useState<'daily' | 'weekly' | 'monthly'>(
-    'daily'
-  );
-
-  const { data: salesData, isLoading } = useQuery<SalesReport[]>({
-    queryKey: ['sales', timeFrame],
-    queryFn: () =>
-      SalesService.fetchSalesData(timeFrame, '2021-01-01', '2024-12-31'),
+  const {
+    data: dashboardData,
+    isLoading,
+    error,
+  } = useQuery<SellerDashboardResponseDto>({
+    queryKey: ['seller-dashboard'],
+    queryFn: () => AnalyticsService.getSellerDashboard(),
   });
 
-  const { data: topProducts, isLoading: isProductLoading } = useQuery<
-    IProduct[]
-  >({
-    queryKey: ['topProducts'],
-    queryFn: () => ProductService.getTopProducts(),
-  });
-
-  const { data: topCategories, isLoading: isCatLoading } = useQuery<
-    ICategory[]
-  >({
-    queryKey: ['topCategories'],
-    queryFn: () => CategoryService.getTopCategories(),
-  });
-
-  useEffect(() => {
-    console.log(topCategories);
-  }, [topCategories]);
-
-  if (isLoading || isProductLoading || isCatLoading) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-lg">Loading dashboard...</div>
+      </div>
+    );
   }
 
-  if (!salesData || salesData.length === 0) {
-    return <div>No data available</div>;
+  if (error || !dashboardData) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-lg text-red-500">
+          Error loading dashboard: {String(error)}
+        </div>
+      </div>
+    );
   }
 
-  const latestReport = salesData[salesData.length - 1];
+  const { stats, recentOrders, topProducts } = dashboardData;
 
-  const revenueData = salesData.map(report => ({
-    date: new Date(report.date).toLocaleDateString(),
-    sales: report.totalSales,
-    profit: report.netSales,
-  }));
+  // Prepare chart data from recent orders
+  const revenueData = recentOrders
+    .slice(0, 10)
+    .map((order: RecentOrderDto) => ({
+      date: new Date(order.placedAt).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }),
+      sales: order.total,
+    }));
 
-  const customerData = [
-    { name: 'Total Orders', value: latestReport.totalOrders, color: '#4CAF50' },
+  // Prepare pie chart data
+  const orderOverviewData = [
     {
-      name: 'Total Items Sold',
-      value: latestReport.totalItemsSold,
+      name: 'Total Orders',
+      value: stats.totalOrders,
+      color: '#4CAF50',
+    },
+    {
+      name: 'Products Sold',
+      value: stats.totalProductsSold,
       color: '#2196F3',
     },
   ];
@@ -115,23 +103,25 @@ function SellerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold">
-                ₹{latestReport.totalSales.toFixed(2)}
+                ₹{stats.totalRevenue.toFixed(2)}
               </div>
               <p className="text-xs text-muted-foreground">
-                Latest total sales
+                From your products
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Net Sales</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Average Order Value
+              </CardTitle>
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold">
-                ₹{latestReport.netSales.toFixed(2)}
+                ₹{stats.averageOrderValue.toFixed(2)}
               </div>
-              <p className="text-xs text-muted-foreground">Latest net sales</p>
+              <p className="text-xs text-muted-foreground">Per order</p>
             </CardContent>
           </Card>
           <Card>
@@ -139,14 +129,14 @@ function SellerDashboard() {
               <CardTitle className="text-sm font-medium">
                 Total Orders
               </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold">
-                {latestReport.totalOrders}
+                {stats.totalOrders}
               </div>
               <p className="text-xs text-muted-foreground">
-                Latest total orders
+                Containing your products
               </p>
             </CardContent>
           </Card>
@@ -159,67 +149,41 @@ function SellerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold">
-                ₹{latestReport.totalDiscountApplied.toFixed(2)}
+                ₹{stats.totalDiscount.toFixed(2)}
               </div>
               <p className="text-xs text-muted-foreground">
-                Latest total discount applied
+                Proportional discount
               </p>
             </CardContent>
           </Card>
         </div>
         <Card className="mb-4 sm:mb-6">
           <CardHeader>
-            <CardTitle>Revenue Overview</CardTitle>
+            <CardTitle>Recent Orders Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs
-              value={timeFrame}
-              onValueChange={value =>
-                setTimeFrame(value as 'daily' | 'weekly' | 'monthly')
-              }
-              className="space-y-10"
+            <ChartContainer
+              config={{
+                sales: {
+                  label: 'Sales',
+                  color: 'hsl(var(--chart-3))',
+                },
+              }}
+              className="h-[300px] w-full sm:h-[350px]"
             >
-              <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
-                <TabsTrigger value="daily">Daily</TabsTrigger>
-                <TabsTrigger value="monthly">Monthly</TabsTrigger>
-                <TabsTrigger value="yearly">Yearly</TabsTrigger>
-              </TabsList>
-              <TabsContent value={timeFrame} className="space-y-4">
-                <ChartContainer
-                  config={{
-                    sales: {
-                      label: 'Sales',
-                      color: 'hsl(var(--chart-3))',
-                    },
-                    profit: {
-                      label: 'Profit',
-                      color: 'hsl(var(--chart-2))',
-                    },
-                  }}
-                  className="h-[300px] w-full sm:h-[350px]"
-                >
-                  <AreaChart data={revenueData}>
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Area
-                      type="monotone"
-                      dataKey="sales"
-                      stroke="var(--color-sales)"
-                      fill="var(--color-sales)"
-                      fillOpacity={0.2}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="profit"
-                      stroke="var(--color-profit)"
-                      fill="var(--color-profit)"
-                      fillOpacity={0.2}
-                    />
-                  </AreaChart>
-                </ChartContainer>
-              </TabsContent>
-            </Tabs>
+              <AreaChart data={revenueData}>
+                <XAxis dataKey="date" />
+                <YAxis />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Area
+                  type="monotone"
+                  dataKey="sales"
+                  stroke="var(--color-sales)"
+                  fill="var(--color-sales)"
+                  fillOpacity={0.2}
+                />
+              </AreaChart>
+            </ChartContainer>
           </CardContent>
         </Card>
         <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
@@ -230,7 +194,7 @@ function SellerDashboard() {
             <CardContent>
               <ChartContainer
                 config={{
-                  customers: {
+                  orders: {
                     label: 'Orders',
                     color: 'hsl(var(--chart-3))',
                   },
@@ -239,17 +203,21 @@ function SellerDashboard() {
               >
                 <PieChart>
                   <Pie
-                    data={customerData}
+                    data={orderOverviewData}
                     cx="50%"
                     cy="50%"
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
-                    }
+                    label={({
+                      name,
+                      percent,
+                    }: {
+                      name: string;
+                      percent: number;
+                    }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   >
-                    {customerData.map((entry, index) => (
+                    {orderOverviewData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -261,13 +229,13 @@ function SellerDashboard() {
               <div className="mb-2 sm:mb-0">
                 <p className="text-sm font-medium">Total Orders</p>
                 <p className="text-xl sm:text-2xl font-bold">
-                  {latestReport.totalOrders}
+                  {stats.totalOrders}
                 </p>
               </div>
               <div>
                 <p className="text-sm font-medium">Total Items Sold</p>
                 <p className="text-xl sm:text-2xl font-bold">
-                  {latestReport.totalItemsSold}
+                  {stats.totalProductsSold}
                 </p>
               </div>
             </CardFooter>
@@ -284,10 +252,6 @@ function SellerDashboard() {
                     label: 'Sales',
                     color: 'hsl(var(--chart-1))',
                   },
-                  profit: {
-                    label: 'Net Sales',
-                    color: 'hsl(var(--chart-2))',
-                  },
                 }}
                 className="h-[300px] w-full"
               >
@@ -296,35 +260,50 @@ function SellerDashboard() {
                   <YAxis />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="sales" fill="var(--color-sales)" />
-                  <Bar dataKey="profit" fill="var(--color-profit)" />
                 </BarChart>
               </ChartContainer>
             </CardContent>
           </Card>
-          <div>
-            <h1 className="text-xl font-bold mb-4">Top Products</h1>
-            <div className="grid grid-cols-2 place-items-end gap-1">
-              {topProducts &&
-                topProducts.map((product: IProduct, index) => (
-                  <div key={product._id} className="flex gap-2 pe-10">
-                    <h2 className="text-4xl font-bold">{index + 1}</h2>
-                    <ProductCard product={product} />
-                  </div>
-                ))}
-            </div>
-          </div>
-          <div>
-            <h1 className="text-xl font-bold mb-4">Top Category</h1>
-            <div className="grid grid-cols-2 gap-5">
-              {topCategories &&
-                topCategories.map((category: ICategory, index) => (
-                  <div key={category._id} className="flex gap-5 pe-10">
-                    <h2 className="text-4xl font-bold">{index + 1}</h2>
-                    <span className="text-xl">{category.name}</span>
-                  </div>
-                ))}
-            </div>
-          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Products</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {topProducts.length > 0 ? (
+                  topProducts.map((product: TopProductDto, index: number) => (
+                    <div
+                      key={product.productId}
+                      className="flex items-center justify-between border-b pb-2"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl font-bold text-muted-foreground">
+                          {index + 1}
+                        </span>
+                        <div>
+                          <p className="font-medium">{product.productName}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {product.totalSold} units sold
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold">
+                          ₹{product.revenue.toFixed(2)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Revenue</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-muted-foreground py-8">
+                    No products sold yet
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>

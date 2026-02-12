@@ -58,6 +58,13 @@ class ProductVariantDto {
   discountPercentage?: number;
 
   @ApiProperty({
+    type: Number,
+    description: 'The available stock quantity of the product variant',
+    example: 50,
+  })
+  stock: number;
+
+  @ApiProperty({
     type: String,
     description: 'The URL of the product variant image',
     example: 'https://example.com/images/variant-1-img1.jpg',
@@ -72,6 +79,7 @@ class ProductVariantDto {
       variantName: variant.name,
       price: variant.price,
       imageUrl: variant.images[0] || '',
+      stock: variant.stock,
       discountPercentage: variant.discountPercent || undefined,
     };
   }

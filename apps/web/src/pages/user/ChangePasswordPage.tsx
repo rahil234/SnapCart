@@ -1,12 +1,13 @@
 'use client';
 
+import { toast } from 'sonner';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import { Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -15,8 +16,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { UserService } from '@/services/user.service';
 import { catchError } from '@/types/error';
+import { AuthService } from '@/services/auth.service';
 
 interface ChangePasswordFormValues {
   currentPassword: string;
@@ -43,12 +44,15 @@ function ChangePasswordPage() {
   async function onSubmit(data: ChangePasswordFormValues) {
     setIsLoading(true);
     try {
-      await UserService.changePassword(data.currentPassword, data.newPassword);
+      await AuthService.changePassword({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
       toast.success('Password changed successfully');
       navigate('/my-account#security');
     } catch (error) {
       console.error(error);
-      toast.error((error as catchError).response.data.message ? (error as catchError).response.data.message : 'Failed to change password');
+      toast.error((error as catchError).response?.data?.message || 'Failed to change password');
     } finally {
       setIsLoading(false);
     }

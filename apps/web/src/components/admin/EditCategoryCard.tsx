@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { Category } from '@/types';
-import { useEditCategory } from '@/hooks/category.hooks';
+import { useEditCategoryMutation } from '@/hooks/categories/use-edit-category-mutation.hook';
 
 interface EditCategoryCardProps {
   onClose: () => void;
@@ -23,7 +23,7 @@ const EditCategoryCard: React.FC<EditCategoryCardProps> = ({
     defaultValues: category,
   });
 
-  const editCategoryMutation = useEditCategory();
+  const editCategoryMutation = useEditCategoryMutation();
 
   const onSubmit: SubmitHandler<Category> = async data => {
     const { error } = await editCategoryMutation.mutateAsync({

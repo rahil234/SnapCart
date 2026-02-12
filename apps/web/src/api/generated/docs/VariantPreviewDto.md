@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **discountPercent** | **number** | Discount percentage | [default to undefined]
 **finalPrice** | **number** | Final price after discount | [default to undefined]
 **stock** | **number** | Stock quantity | [default to undefined]
-**imageUrl** | **string** | Single image URL (first image) | [optional] [default to undefined]
+**imageUrl** | **string** | Single image URL (first image) | [default to undefined]
 **availableForPurchase** | **boolean** | Whether variant is available for purchase | [default to undefined]
 
 ## Example
