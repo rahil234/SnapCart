@@ -13,7 +13,7 @@ import AdminRoutes from '@/routes/AdminRoutes';
 import SellerRoutes from '@/routes/SellerRoutes';
 import { Toaster } from '@/components/ui/sonner';
 import NotAuthorised from '@/pages/NotAuthorised';
-import { fetchUser } from '@/store/auth/authSlice';
+import { initialAuthSync } from '@/store/auth/authSlice';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
 const routes = createBrowserRouter([
@@ -33,7 +33,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      await store.dispatch(fetchUser());
+      await store.dispatch(initialAuthSync());
       setIsLoading(false);
     })();
   }, []);

@@ -2,7 +2,7 @@
   "name": "snapcart",
   "private": true,
   "dependencies": {
-    "pnpm": "10.26.2"
+    "pnpm": "^10.29.3"
   },
   "packageManager": "pnpm@10.26.2",
   "devDependencies": {

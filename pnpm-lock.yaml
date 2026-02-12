@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       pnpm:
-        specifier: 10.26.2
-        version: 10.26.2
+        specifier: ^10.29.3
+        version: 10.29.3
     devDependencies:
       '@types/bcrypt':
         specifier: ^6.0.0
@@ -5357,8 +5357,8 @@ packages:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
     engines: {node: '>=4'}
 
-  pnpm@10.26.2:
-    resolution: {integrity: sha512-DjCP8gBfx0EDZvFU9iX2YxqysWsdLnAjhETdaunWMKhILZKkURRN68SSQWiW7Rb3sRSobsaLhASyRDhp5o/9pg==}
+  pnpm@10.29.3:
+    resolution: {integrity: sha512-SY4ftMylqgbB3PJhHm+vxQly/+cYmZjECekN50VmREKY/+Q+bNKs3Hdboap8xeCSqLcFTIEbqMV3D4RpPTPS3A==}
     engines: {node: '>=18.12'}
     hasBin: true
 
@@ -12165,7 +12165,7 @@ snapshots:
 
   pluralize@8.0.0: {}
 
-  pnpm@10.26.2: {}
+  pnpm@10.29.3: {}
 
   possible-typed-array-names@1.1.0: {}
 

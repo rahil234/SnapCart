@@ -16,6 +16,17 @@ interface AuthState {
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
+export const initialAuthSync = createAsyncThunk(
+  'auth/initialSync',
+  async (_, { dispatch }) => {
+    const sessionActive = localStorage.getItem('sessionActive');
+
+    if (sessionActive) {
+      await dispatch(fetchUser());
+    }
+  }
+);
+
 export const fetchUser = createAsyncThunk(
   'auth/me',
   async (_, { dispatch, rejectWithValue }) => {
@@ -81,11 +92,6 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       localStorage.setItem('sessionActive', 'true');
     },
-    changeProfilePicture: (state, action) => {
-      if (state.user) {
-        state.user.customerProfile!.profilePicture = action.payload;
-      }
-    },
     clearUser: state => {
       localStorage.removeItem('sessionActive');
       state.isAuthenticated = false;
@@ -132,7 +138,5 @@ const authSlice = createSlice({
       });
   },
 });
-
-export const { changeProfilePicture } = authSlice.actions;
 
 export default authSlice.reducer;
