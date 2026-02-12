@@ -13,110 +13,134 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { toast } from 'sonner';
+import React, { useState } from 'react';
 import { CSS } from '@dnd-kit/utilities';
-import React, { useState, useEffect } from 'react';
-import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { GripVertical, ImageIcon, Plus, X } from 'lucide-react';
-import { useForm, SubmitHandler, FieldErrors } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import { GripVertical, ImageIcon, Plus, Trash2, X } from 'lucide-react';
 
+import { ProductWithVariants } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Product, Variant, VariantImage } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { ProductService } from '@/services/product.service';
-import { CategoryService } from '@/services/category.service';
 import AddImageCropper from '@/components/seller/addImageCropper';
-import { Category as OriginalCategory, Subcategory } from '@/types';
+import { uploadImageToProvider } from '@/utils/upload-image-to-provider';
+import { ProductVariantService } from '@/services/product-variant.service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-interface Category extends OriginalCategory {
-  subcategories: Subcategory[];
+/* -------------------------------------------------------------------------- */
+/*                                   TYPES                                    */
+/* -------------------------------------------------------------------------- */
+
+interface EditableVariantImage {
+  id: string;
+  preview: string;
+  file?: File;
 }
 
-interface FormValues {
-  productName: string;
-  description: string;
-  category: string;
-  subcategory: string;
-  variants: Variant[];
+interface EditableProductVariant {
+  uiId: string;
+  backendId?: string;
+  variantName: string;
+  price: number;
+  stock: number;
+  images: EditableVariantImage[];
 }
+
+/* -------------------------------------------------------------------------- */
+/*                             SORTABLE IMAGE                                  */
+/* -------------------------------------------------------------------------- */
 
 function SortableImage({
   image,
-  variantId,
-  removeVariantImage,
+  onRemove,
 }: {
-  image: VariantImage;
-  variantId: number;
-  removeVariantImage: (variantId: number, id: number) => void;
+  image: EditableVariantImage;
+  onRemove: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: image.id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
       {...attributes}
       {...listeners}
       className="relative group"
     >
       <img
         src={image.preview}
-        alt="Product variant"
+        alt="Variant image"
         className="w-24 h-24 object-cover rounded-lg"
       />
       <button
         type="button"
-        className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-        onMouseDown={() => removeVariantImage(variantId, image.id)}
+        className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
+        onMouseDown={onRemove}
       >
         <X size={12} />
       </button>
       <div className="absolute top-1 left-1 cursor-move">
-        <GripVertical size={16} className="text-white drop-shadow-lg" />
+        <GripVertical size={16} className="text-white drop-shadow" />
       </div>
     </div>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/*                              MAIN COMPONENT                                 */
+/* -------------------------------------------------------------------------- */
 
 export default function EditProductModal({
   onClose,
   product,
 }: {
   onClose: () => void;
-  product: Product;
+  product: ProductWithVariants;
 }) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm<FormValues>();
+  /* ----------------------------- PRODUCT FORM ----------------------------- */
 
-  const defaultVariant = {
-    id: 0,
-    variantName: `Variant 0`,
-    price: '',
-    stock: '',
-    images: [],
-  };
+  const productForm = useForm({
+    defaultValues: {
+      name: product.name,
+      description: product.description,
+    },
+  });
 
-  const [variants, setVariants] = useState<Variant[]>(product.variants);
-  const [activeTab, setActiveTab] = useState(defaultVariant.id);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [subcategory, setSubcategory] = useState<Subcategory[]>([]);
+  /* ----------------------------- VARIANT STATE ----------------------------- */
+
+  const [variants, setVariants] = useState<EditableProductVariant[]>(
+    product.variants.map(v => ({
+      uiId: crypto.randomUUID(),
+      backendId: v.id,
+      variantName: v.variantName,
+      price: v.price,
+      stock: v.stock,
+      images: v.images.map(url => ({
+        id: crypto.randomUUID(),
+        preview: url,
+      })),
+    }))
+  );
+
+  const [activeTab, setActiveTab] = useState<string | undefined>(
+    variants[0]?.uiId
+  );
+
+  /* ----------------------------- IMAGE CROP ----------------------------- */
 
   const [cropperOpen, setCropperOpen] = useState(false);
-  const [currentImages, setCurrentImages] = useState<File[]>([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const [cropFiles, setCropFiles] = useState<File[]>([]);
+  const [cropIndex, setCropIndex] = useState(0);
+  const [cropVariantUiId, setCropVariantUiId] = useState<string | null>(null);
+
+  /* ----------------------------- DND ----------------------------- */
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -125,423 +149,329 @@ export default function EditProductModal({
     })
   );
 
-  const category = watch('category');
+  /* ----------------------------- PRODUCT SAVE ----------------------------- */
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await CategoryService.getCategories();
-        setCategories(data);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    const selectedCategory = categories.find(cat => cat._id === category);
-    if (selectedCategory) {
-      const activeSubcategories = selectedCategory.subcategories.filter(
-        subcat => subcat.status !== 'Blocked'
-      );
-      setSubcategory(activeSubcategories);
-    } else {
-      setSubcategory([]);
-    }
-  }, [category, categories]);
-
-  const handleImageUpload = (variantId: number, files: FileList | null) => {
-    if (files) {
-      const variant = variants.find((v: Variant) => v.id === variantId);
-      if (variant && variant.images.length + files.length > 6) {
-        alert('You can only add up to 6 images per variant.');
-        return;
-      }
-      setCurrentImages(Array.from(files));
-      setCurrentImageIndex(0);
-      setCropperOpen(true);
+  const saveProduct = async () => {
+    try {
+      const values = productForm.getValues();
+      await ProductService.updateProduct(product.id, {
+        name: values.name,
+        description: values.description,
+      });
+      toast.success('Product updated');
+    } catch {
+      toast.error('Failed to update product');
     }
   };
 
-  const pushCroppedImage = (image: VariantImage) => {
-    setVariants((prevVariants: Variant[]) =>
-      prevVariants.map((v: Variant) =>
-        v.id === activeTab
-          ? {
-              ...v,
-              images: [...v.images, { ...image, id: v.images.length }],
-            }
+  /* ----------------------------- VARIANT SAVE ----------------------------- */
+
+  const saveVariant = async (variant: EditableProductVariant) => {
+    try {
+      if (!variant.backendId) {
+        const { data: created, error } =
+          await ProductVariantService.createVariant(product.id, {
+            variantName: variant.variantName,
+            price: variant.price,
+            stock: variant.stock,
+          });
+
+        if (error || !created) {
+          throw new Error('Failed to create variant');
+        }
+
+        setVariants(prev =>
+          prev.map(v =>
+            v.uiId === variant.uiId ? { ...v, backendId: created.id } : v
+          )
+        );
+      } else {
+        await ProductVariantService.updateVariant(variant.backendId, {
+          variantName: variant.variantName,
+          price: variant.price,
+          stock: variant.stock,
+        });
+      }
+
+      toast.success('Variant saved');
+    } catch {
+      toast.error('Failed to save variant');
+    }
+  };
+
+  /* ----------------------------- VARIANT DELETE ----------------------------- */
+
+  const deleteVariant = async (variant: EditableProductVariant) => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this variant?'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      if (variant.backendId) {
+        await ProductVariantService.deactivateVariant(variant.backendId);
+      }
+
+      setVariants(prev => prev.filter(v => v.uiId !== variant.uiId));
+
+      if (activeTab === variant.uiId) {
+        setActiveTab(prev =>
+          prev === variant.uiId ? variants[0]?.uiId : prev
+        );
+      }
+
+      toast.success('Variant deleted');
+    } catch {
+      toast.error('Failed to delete variant');
+    }
+  };
+
+  /* ----------------------------- IMAGE SAVE ----------------------------- */
+
+  const saveImages = async (variant: EditableProductVariant) => {
+    try {
+      if (!variant.backendId) {
+        toast.error('Save variant before uploading images');
+        return;
+      }
+
+      for (let i = 0; i < variant.images.length; i++) {
+        const img = variant.images[i];
+
+        if (!img.file) continue;
+
+        // 1️⃣ Ask backend for upload instructions
+        const { data: descriptor } =
+          await ProductVariantService.uploadVariantImage(variant.backendId);
+
+        if (!descriptor) {
+          throw new Error('Failed to get upload descriptor');
+        }
+
+        // 2️⃣ Upload directly to provider
+        const uploaded = await uploadImageToProvider(descriptor, img.file);
+
+        // 3️⃣ Persist image metadata in backend
+        await ProductVariantService.saveVariantImage(variant.backendId, {
+          url: uploaded.url,
+          publicId: uploaded.publicId,
+        });
+
+        // mark as saved
+        img.file = undefined;
+      }
+
+      toast.success('Images uploaded successfully');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to upload images');
+    }
+  };
+
+  /* ----------------------------- UI HELPERS ----------------------------- */
+
+  const addVariant = () => {
+    const v: EditableProductVariant = {
+      uiId: crypto.randomUUID(),
+      variantName: '',
+      price: 0,
+      stock: 0,
+      images: [],
+    };
+    setVariants(prev => [...prev, v]);
+    setActiveTab(v.uiId);
+  };
+
+  const removeVariantImage = (variantUiId: string, imageId: string) => {
+    setVariants(prev =>
+      prev.map(v =>
+        v.uiId === variantUiId
+          ? { ...v, images: v.images.filter(i => i.id !== imageId) }
           : v
       )
     );
   };
 
-  const closeImageCropper = () => {
-    setCropperOpen(false);
+  const handleImageUpload = (variantUiId: string, files: FileList | null) => {
+    if (!files) return;
+    setCropFiles(Array.from(files));
+    setCropIndex(0);
+    setCropVariantUiId(variantUiId);
+    setCropperOpen(true);
   };
 
-  const addVariant = () => {
-    if (variants.length >= 6) {
-      alert('You can only add up to 6 variants.');
-      return;
-    }
-    const newVariant = {
-      id: variants.length,
-      name: `Variant ${variants.length}`,
-      price: 0,
-      stock: 0,
-      images: [],
-    };
-    setVariants(prev => [...prev, newVariant]);
-    setActiveTab(newVariant.id);
+  const pushCroppedImage = (image: EditableVariantImage) => {
+    setVariants(prev =>
+      prev.map(v =>
+        v.uiId === cropVariantUiId ? { ...v, images: [...v.images, image] } : v
+      )
+    );
   };
 
-  const removeVariant = (id: number) => {
-    // setActiveTab('0');
-    // Update variants state
-    setVariants(prevVariants => {
-      return prevVariants
-        .filter(variant => variant.id !== id)
-        .map((variant, index) => ({ ...variant, id: index }));
-
-      // const maxIndex = prevVariants.length;
-      // for (let i = 0; i < maxIndex; i++) {
-      //   setValue(`variants.${i+1}.name`, '');
-      //   setValue(`variants.${i+1}.price`, '');
-      //   setValue(`variants.${i+1}.stock`, '');
-      //   clearErrors(`variants.${i+1}`);
-      // }
-    });
-  };
-
-  const removeVariantImage = (variantId: number, id: number) => {
-    console.log('removeVariantImage', variantId, ' ', id);
-    setVariants(prevVariants => {
-      return prevVariants.map(variant => {
-        if (variant.id === variantId) {
-          return {
-            ...variant,
-            images: variant.images.filter(image => image.id !== id),
-          };
-        }
-        return variant;
-      });
-    });
-  };
-
-  const onSubmit: SubmitHandler<FormValues> = async data => {
-    try {
-      const formData = new FormData();
-      formData.append('productName', data.productName);
-      formData.append('description', data.description);
-      formData.append('category', data.category);
-      formData.append('subcategory', data.subcategory);
-
-      variants.forEach((_variant, index) => {
-        formData.append(`variants[${index}][name]`, data.variants[index].name);
-        formData.append(
-          `variants[${index}][price]`,
-          String(data.variants[index].price)
-        );
-        formData.append(
-          `variants[${index}][stock]`,
-          String(data.variants[index].stock)
-        );
-      });
-      variants.map((variant, index) => {
-        variant.images.forEach((image, imgIndex) => {
-          formData.append(
-            `variants[${index}][images][${imgIndex}]`,
-            image.file
-          );
-        });
-      });
-
-      // formData.forEach((value, key) => {
-      //   console.log(key, value);
-      // });
-      //
-      // const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
-      //   if (progressEvent.progress) {
-      //     console.log(progressEvent.progress * 100 + '%');
-      //   }
-      // };
-
-      const response = await ProductService.editProduct(formData);
-
-      if (response.status === 201) {
-        toast.success('Product added successfully');
-        onClose();
-      } else {
-        toast.error('Failed to add product. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error adding product:', error);
-      toast.error('Failed to add product. Please try again.');
-    }
-  };
-
-  function onInvalid(data: FieldErrors): void {
-    console.log(data.variants);
-  }
+  /* ----------------------------- RENDER ----------------------------- */
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <form
-        onSubmit={handleSubmit(onSubmit, onInvalid)}
-        className="space-y-8 w-full max-h-[90vh] overflow-y-auto max-w-2xl p-6 bg-white rounded-lg shadow-lg relative"
-      >
+    <div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center">
+      <div className="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 rounded-lg space-y-8 relative">
         <button
           type="button"
+          className="absolute top-4 right-4"
           onClick={onClose}
-          className="absolute top-4 right-4 text-black"
         >
-          <X size={25} />
+          <X size={22} />
         </button>
-        <div className="space-y-2">
-          <Label htmlFor="productName">Product Name</Label>
-          <Input
-            id="productName"
-            {...register('productName', {
-              required: 'Product Name is required',
-            })}
-          />
-          {errors.productName && (
-            <span className="text-red-500 text-xs">
-              {errors.productName.message}
-            </span>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
-          <Textarea
-            id="description"
-            className="max-h-[250px] h-fit"
-            {...register('description', {
-              required: 'Description is required',
-            })}
-          />
-          {errors.description && (
-            <span className="text-red-500 text-xs">
-              {errors.description.message}
-            </span>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="category">Category</Label>
-          <select
-            id="category"
-            {...register('category', { required: 'Category is required' })}
-            className="w-full px-4 py-2 border rounded"
-          >
-            <option value="">Select a category</option>
-            {categories.map(category => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-          {errors.category && (
-            <span className="text-red-500 text-xs">
-              {errors.category.message}
-            </span>
-          )}
-        </div>
-        {category && (
-          <div className="space-y-2">
-            <Label htmlFor="subcategory">Subcategory</Label>
-            <select
-              id="subcategory"
-              {...register('subcategory', {
-                required: 'Subcategory is required',
-              })}
-              className="w-full px-4 py-2 border rounded"
-            >
-              <option value="">Select a subcategory</option>
-              {subcategory.map(subcategory => (
-                <option key={subcategory._id} value={subcategory._id}>
-                  {subcategory.name}
-                </option>
-              ))}
-            </select>
-            {errors.subcategory && (
-              <span className="text-red-500 text-xs">
-                {errors.subcategory.message}
-              </span>
-            )}
-          </div>
-        )}
-        <Tabs value={String(activeTab)} className="w-full">
-          <div className="flex items-center justify-between mb-4">
-            <Label>Variants</Label>
-          </div>
-          <div className="flex space-x-2 overflow-x-auto p-4 items-center justify-center">
-            <TabsList className="flex-grow flex space-x-2 bg-transparent h-22">
-              {variants.map(variant => (
-                <TabsTrigger
-                  key={variant.id}
-                  value={String(variant.id)}
-                  className="relative flex flex-col items-center justify-center rounded-lg border-2 data-[state=active]:border-primary"
-                  onClick={() => {
-                    setActiveTab(variant.id);
-                  }}
-                >
-                  <span className="text-sm font-medium">{`Variant ${variant.id}`}</span>
-                  {variants.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      asChild
-                      size="icon"
-                      className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      onClick={e => {
-                        e.stopPropagation();
-                        removeVariant(variant.id);
-                      }}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  )}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {variants.length < 6 && (
-              <Button
-                type="button"
-                onClick={addVariant}
-                size="sm"
-                className="shrink-0 h-16 w-16"
+
+        {/* PRODUCT */}
+        <Card>
+          <CardContent className="space-y-4 pt-6">
+            <h2 className="font-semibold text-lg">Product Details</h2>
+
+            <div>
+              <Label>Product Name</Label>
+              <Input {...productForm.register('name')} />
+            </div>
+
+            <div>
+              <Label>Description</Label>
+              <Textarea {...productForm.register('description')} />
+            </div>
+
+            <Button onClick={saveProduct}>Save Product</Button>
+          </CardContent>
+        </Card>
+
+        {/* VARIANTS */}
+        <Tabs value={activeTab}>
+          <TabsList>
+            {variants.map(v => (
+              <TabsTrigger
+                key={v.uiId}
+                value={v.uiId}
+                onClick={() => setActiveTab(v.uiId)}
               >
-                <Plus className="h-6 w-6" />
-              </Button>
-            )}
-          </div>
+                {v.variantName || 'New Variant'}
+              </TabsTrigger>
+            ))}
+            <Button size="icon" type="button" onClick={addVariant}>
+              <Plus />
+            </Button>
+          </TabsList>
+
           {variants.map(variant => (
-            <TabsContent value={String(variant.id)} key={variant.id}>
-              {cropperOpen && (
-                <AddImageCropper
-                  currentImages={currentImages}
-                  pushCroppedImage={pushCroppedImage}
-                  currentImageIndex={currentImageIndex}
-                  setCurrentImageIndex={setCurrentImageIndex}
-                  currentVariantId={variant.id}
-                  onClose={closeImageCropper}
-                />
-              )}
+            <TabsContent key={variant.uiId} value={variant.uiId}>
               <Card>
                 <CardContent className="space-y-4 pt-6">
-                  <div className="space-y-2">
-                    <Label htmlFor={`variantName-${variant.id}`}>
-                      Variant Name
-                    </Label>
+                  <div>
+                    <Label>Variant Name</Label>
                     <Input
-                      id={`variantName-${variant.id}`}
-                      {...register(`variants.${variant.id}.name`, {
-                        required: 'Variant Name is required',
-                      })}
+                      value={variant.variantName}
+                      onChange={e =>
+                        setVariants(prev =>
+                          prev.map(v =>
+                            v.uiId === variant.uiId
+                              ? { ...v, variantName: e.target.value }
+                              : v
+                          )
+                        )
+                      }
                     />
-                    {errors.variants?.[variant.id]?.name && (
-                      <span className="text-red-500 text-xs">
-                        {errors.variants?.[variant.id]?.name?.message ?? ''}
-                      </span>
-                    )}
                   </div>
+
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor={`variantPrice-${variant.id}`}>
-                        Price
-                      </Label>
+                    <div>
+                      <Label>Price</Label>
                       <Input
-                        id={`variantPrice-${variant.id}`}
                         type="number"
-                        min="1"
-                        {...register(`variants.${variant.id}.price`, {
-                          required: 'Price is required',
-                          min: {
-                            value: 1,
-                            message: 'Price must be at least 1',
-                          },
-                        })}
-                      />
-                      {errors.variants?.[variant.id]?.price && (
-                        <span className="text-red-500 text-xs">
-                          {errors.variants[variant.id]?.price?.message}
-                        </span>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`variantStock-${variant.id}`}>
-                        Stock
-                      </Label>
-                      <Input
-                        id={`variantStock-${variant.id}`}
-                        type="number"
-                        min="1"
-                        {...register(`variants.${variant.id}.stock`, {
-                          required: 'Stock is required',
-                          min: {
-                            value: 1,
-                            message: 'Stock must be at least 1',
-                          },
-                        })}
-                      />
-                      {errors.variants?.[variant.id]?.stock && (
-                        <span className="text-red-500 text-xs">
-                          {errors.variants[variant.id]?.stock?.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Images (Max 6)</Label>
-                    <div
-                      className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors"
-                      onDragOver={e => e.preventDefault()}
-                      onDrop={e => {
-                        e.preventDefault();
-                        handleImageUpload(variant.id, e.dataTransfer.files);
-                      }}
-                    >
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        multiple
-                        id={`imageUpload-${variant.id}`}
+                        value={variant.price}
                         onChange={e =>
-                          handleImageUpload(variant.id, e.target.files)
+                          setVariants(prev =>
+                            prev.map(v =>
+                              v.uiId === variant.uiId
+                                ? { ...v, price: +e.target.value }
+                                : v
+                            )
+                          )
                         }
-                        disabled={variant.images.length >= 6}
                       />
-                      <Label
-                        htmlFor={`imageUpload-${variant.id}`}
-                        className="cursor-pointer"
-                      >
-                        <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-                        <span className="mt-2 block text-sm font-medium text-gray-900">
-                          {variant.images.length < 6
-                            ? 'Drop image here or click to upload and crop'
-                            : 'Maximum number of images reached'}
-                        </span>
-                      </Label>
+                    </div>
+
+                    <div>
+                      <Label>Stock</Label>
+                      <Input
+                        type="number"
+                        value={variant.stock}
+                        onChange={e =>
+                          setVariants(prev =>
+                            prev.map(v =>
+                              v.uiId === variant.uiId
+                                ? { ...v, stock: +e.target.value }
+                                : v
+                            )
+                          )
+                        }
+                      />
                     </div>
                   </div>
+
+                  <div className="flex gap-2">
+                    <Button onClick={() => saveVariant(variant)}>
+                      Save Variant
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => saveImages(variant)}
+                    >
+                      Save Images
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => deleteVariant(variant)}
+                    >
+                      <Trash2 size={16} className="mr-1" />
+                      Delete Variant
+                    </Button>
+                  </div>
+
+                  <div>
+                    <Label>Variant Images</Label>
+                    <div
+                      className="border-dashed border-2 p-4 text-center cursor-pointer"
+                      onClick={() =>
+                        document
+                          .getElementById(`upload-${variant.uiId}`)
+                          ?.click()
+                      }
+                    >
+                      <ImageIcon className="mx-auto" />
+                      <input
+                        id={`upload-${variant.uiId}`}
+                        type="file"
+                        multiple
+                        hidden
+                        onChange={e =>
+                          handleImageUpload(variant.uiId, e.target.files)
+                        }
+                      />
+                    </div>
+                  </div>
+
                   <DndContext
                     sensors={sensors}
                     collisionDetection={closestCenter}
-                    modifiers={[restrictToParentElement]}
                   >
                     <SortableContext
-                      items={variant.images}
+                      items={variant.images.map(i => i.id)}
                       strategy={horizontalListSortingStrategy}
                     >
-                      <div className="grid grid-cols-6 gap-x-1.5">
-                        {variant.images.map((image, index) => (
+                      <div className="grid grid-cols-6 gap-2">
+                        {variant.images.map(img => (
                           <SortableImage
-                            key={index}
-                            image={image}
-                            variantId={variant.id}
-                            removeVariantImage={removeVariantImage}
+                            key={img.id}
+                            image={img}
+                            onRemove={() =>
+                              removeVariantImage(variant.uiId, img.id)
+                            }
                           />
                         ))}
                       </div>
@@ -552,10 +482,17 @@ export default function EditProductModal({
             </TabsContent>
           ))}
         </Tabs>
-        <Button type="submit" className="w-full">
-          Submit Product
-        </Button>
-      </form>
+
+        {cropperOpen && cropVariantUiId && (
+          <AddImageCropper
+            currentImages={cropFiles}
+            currentImageIndex={cropIndex}
+            setCurrentImageIndex={setCropIndex}
+            pushCroppedImage={pushCroppedImage}
+            onClose={() => setCropperOpen(false)}
+          />
+        )}
+      </div>
     </div>
   );
 }

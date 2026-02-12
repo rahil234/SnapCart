@@ -6,14 +6,14 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import store from '@/app/store';
+import store from '@/store/store';
 import Page404 from '@/pages/Page404';
 import UserRoutes from '@/routes/UserRoutes';
 import AdminRoutes from '@/routes/AdminRoutes';
 import SellerRoutes from '@/routes/SellerRoutes';
 import { Toaster } from '@/components/ui/sonner';
 import NotAuthorised from '@/pages/NotAuthorised';
-import { fetchUser } from '@/features/auth/authSlice';
+import { fetchUser } from '@/store/auth/authSlice';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
 const routes = createBrowserRouter([

@@ -8,7 +8,7 @@ import { catchError } from '@/types/error';
 import InputField from '@/components/ui/InputField';
 import { AuthService } from '@/services/auth.service';
 
-interface SignUpFormInputs {
+export interface SignUpFormInputs {
   name: string;
   email: string;
   password: string;

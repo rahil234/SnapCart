@@ -6,9 +6,9 @@ import {
   Patch,
   Param,
   Delete,
-  ParseUUIDPipe,
   HttpStatus,
   HttpCode,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -41,6 +41,9 @@ import {
   CreateVariantCommand,
   UpdateVariantCommand,
   UpdateVariantStockCommand,
+  GeneratePresignedImageUploadCommand,
+  SaveVariantImageCommand,
+  DeleteVariantImageCommand,
 } from '@/modules/product/application/commands';
 
 // Queries
@@ -48,6 +51,10 @@ import {
   GetVariantByIdQuery,
   GetVariantsByProductIdQuery,
 } from '@/modules/product/application/queries';
+import { ParseCUIDPipe } from '@/shared/pipes/parse-cuid.pipe';
+import { UploadVariantImageResponseDto } from '@/modules/product/interfaces/http/dtos/response/upload-variant-image-response.dto';
+import { SaveVariantImageDto } from '@/modules/product/interfaces/http/dtos/request/upload-variant-image.dto';
+import { UserId } from '@/shared/decorators/user-id.decorator';
 
 /**
  * Variant Controller
@@ -94,19 +101,18 @@ export class VariantController {
   @ApiCommonErrorResponses()
   @ApiAuthErrorResponses()
   async createVariant(
-    @Param('productId', ParseUUIDPipe) productId: string,
+    @Param('productId', ParseCUIDPipe) productId: string,
     @Body() createVariantDto: CreateVariantDto,
+    @UserId() userId: string,
   ): Promise<HttpResponse<VariantResponseDto>> {
     const command = new CreateVariantCommand(
       productId,
-      createVariantDto.sku,
       createVariantDto.variantName,
       createVariantDto.price,
       createVariantDto.stock,
-      createVariantDto.sellerProfileId,
+      userId,
       createVariantDto.discountPercent,
-      null, // attributes can be added later
-      createVariantDto.imageUrl,
+      createVariantDto.attributes,
     );
 
     const variant = await this.commandBus.execute(command);
@@ -129,9 +135,9 @@ export class VariantController {
   })
   @ApiParam({
     name: 'productId',
-    description: 'Product UUID',
+    description: 'Product CUID',
     type: 'string',
-    format: 'uuid',
+    format: 'cuid',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ApiResponseWithType(
@@ -145,7 +151,7 @@ export class VariantController {
   @ApiNotFoundResponse('Product')
   @ApiCommonErrorResponses()
   async getVariantsByProduct(
-    @Param('productId', ParseUUIDPipe) productId: string,
+    @Param('productId', ParseCUIDPipe) productId: string,
   ): Promise<HttpResponse<VariantResponseDto[]>> {
     const query = new GetVariantsByProductIdQuery(productId);
     const variants = await this.queryBus.execute(query);
@@ -179,7 +185,7 @@ export class VariantController {
   @ApiNotFoundResponse('Variant')
   @ApiCommonErrorResponses()
   async getVariant(
-    @Param('variantId', ParseUUIDPipe) variantId: string,
+    @Param('variantId', ParseCUIDPipe) variantId: string,
   ): Promise<HttpResponse<VariantResponseDto>> {
     const query = new GetVariantByIdQuery(variantId);
     const variant = await this.queryBus.execute(query);
@@ -217,7 +223,7 @@ export class VariantController {
   @ApiCommonErrorResponses()
   @ApiAuthErrorResponses()
   async updateVariant(
-    @Param('variantId', ParseUUIDPipe) variantId: string,
+    @Param('variantId', ParseCUIDPipe) variantId: string,
     @Body() updateVariantDto: UpdateVariantDto,
   ): Promise<HttpResponse> {
     const command = new UpdateVariantCommand(
@@ -229,8 +235,7 @@ export class VariantController {
       updateVariantDto.status as any, // DTO enum matches domain enum
       updateVariantDto.isActive,
       updateVariantDto.sellerProfileId,
-      null, // attributes can be added later
-      updateVariantDto.imageUrl,
+      updateVariantDto.attributes,
     );
 
     await this.commandBus.execute(command);
@@ -267,7 +272,7 @@ export class VariantController {
   @ApiCommonErrorResponses()
   @ApiAuthErrorResponses()
   async updateStock(
-    @Param('variantId', ParseUUIDPipe) variantId: string,
+    @Param('variantId', ParseCUIDPipe) variantId: string,
     @Body() updateStockDto: UpdateVariantStockDto,
   ): Promise<HttpResponse> {
     const command = new UpdateVariantStockCommand(
@@ -310,7 +315,7 @@ export class VariantController {
   @ApiCommonErrorResponses()
   @ApiAuthErrorResponses()
   async activateVariant(
-    @Param('variantId', ParseUUIDPipe) variantId: string,
+    @Param('variantId', ParseCUIDPipe) variantId: string,
   ): Promise<HttpResponse> {
     const command = new UpdateVariantCommand(
       variantId,
@@ -352,7 +357,7 @@ export class VariantController {
   @ApiCommonErrorResponses()
   @ApiAuthErrorResponses()
   async deactivateVariant(
-    @Param('variantId', ParseUUIDPipe) variantId: string,
+    @Param('variantId', ParseCUIDPipe) variantId: string,
   ): Promise<HttpResponse> {
     const command = new UpdateVariantCommand(
       variantId,
@@ -398,7 +403,7 @@ export class VariantController {
   @ApiCommonErrorResponses()
   @ApiAuthErrorResponses()
   async deleteVariant(
-    @Param('variantId', ParseUUIDPipe) variantId: string,
+    @Param('variantId', ParseCUIDPipe) variantId: string,
   ): Promise<HttpResponse> {
     // Soft delete by setting isActive = false and marking deleted
     const command = new UpdateVariantCommand(
@@ -415,6 +420,117 @@ export class VariantController {
 
     return {
       message: 'Variant deleted successfully',
+    };
+  }
+
+  // ============================================
+  // IMAGE MANAGEMENT
+  // ============================================
+
+  @Post('variants/:variantId/images')
+  @Roles(Role.SELLER)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Upload variant image',
+    description: 'Uploads an image for a variant and associates it.',
+  })
+  @ApiParam({
+    name: 'variantId',
+    description: 'Variant CUID',
+    type: 'string',
+    format: 'cuid',
+    example: 'lqctr0s04iwd0hmx46g2xd6b',
+  })
+  @ApiResponseWithType(
+    {
+      status: HttpStatus.CREATED,
+      description: 'Image uploaded successfully',
+    },
+    UploadVariantImageResponseDto,
+  )
+  @ApiNotFoundResponse('Variant')
+  @ApiCommonErrorResponses()
+  @ApiAuthErrorResponses()
+  async uploadVariantImage(
+    @Param('variantId', ParseCUIDPipe) variantId: string,
+  ): Promise<HttpResponse<UploadVariantImageResponseDto>> {
+    const generateCommand = new GeneratePresignedImageUploadCommand(variantId);
+    const data = await this.commandBus.execute(generateCommand);
+
+    return {
+      message: 'Image upload URL generated successfully',
+      data: UploadVariantImageResponseDto.fromDomain(data),
+    };
+  }
+
+  @Post('variants/:variantId/images/save')
+  @Roles(Role.ADMIN, Role.SELLER)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Save variant image',
+    description: 'Saves the uploaded image information to the variant.',
+  })
+  @ApiParam({
+    name: 'variantId',
+    description: 'Variant UUID',
+    type: 'string',
+    format: 'uuid',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Image saved successfully',
+  })
+  @ApiNotFoundResponse('Variant')
+  @ApiCommonErrorResponses()
+  @ApiAuthErrorResponses()
+  async saveVariantImage(
+    @Param('variantId', ParseCUIDPipe) variantId: string,
+    @Body() dto: SaveVariantImageDto,
+  ): Promise<HttpResponse> {
+    const command = new SaveVariantImageCommand(
+      variantId,
+      dto.publicId,
+      dto.url,
+    );
+    await this.commandBus.execute(command);
+
+    return {
+      message: 'Image saved successfully',
+    };
+  }
+
+  @Delete('variants/:variantId/images/:position')
+  @Roles(Role.ADMIN, Role.SELLER)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Delete variant image',
+    description: 'Deletes an image associated with a variant.',
+  })
+  @ApiParam({
+    name: 'variantId',
+    description: 'Variant UUID',
+    type: 'string',
+    format: 'uuid',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponseWithType({
+    status: HttpStatus.OK,
+    description: 'Image deleted successfully',
+  })
+  @ApiNotFoundResponse('Variant')
+  @ApiCommonErrorResponses()
+  @ApiAuthErrorResponses()
+  async deleteVariantImage(
+    @Param('variantId', ParseCUIDPipe) variantId: string,
+    @Param('position', ParseIntPipe) position: number,
+  ): Promise<HttpResponse> {
+    const command = new DeleteVariantImageCommand(variantId, position);
+    await this.commandBus.execute(command);
+
+    return {
+      message: 'Image deleted successfully',
     };
   }
 }

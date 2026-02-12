@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
-import { catchError } from 'shared/types';
-import { UserService } from '@/services/user.service';
+import React, { useEffect, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+
+import { AuthService } from '@/services/auth.service';
 
 interface VerifyOTPFormInputs {
   otp: string;
@@ -10,11 +10,23 @@ interface VerifyOTPFormInputs {
 
 interface VerifyOTPCardProps {
   email: string;
-  setActiveTab: (tab: 'login' | 'signup' | 'forgotPassword' | 'verifyOtp' | 'forgot-verify' | 'new-password') => void;
+  setActiveTab: (
+    tab:
+      | 'login'
+      | 'signup'
+      | 'forgotPassword'
+      | 'verifyOtp'
+      | 'forgot-verify'
+      | 'new-password'
+  ) => void;
   onOTPSubmit: (otp: string) => void;
 }
 
-const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ email, setActiveTab, onOTPSubmit }) => {
+const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({
+  email,
+  setActiveTab,
+  onOTPSubmit,
+}) => {
   const [otpValues, setOtpValues] = useState(['', '', '', '']);
   const [error, setError] = useState<string | null>(null);
   const [timer, setTimer] = useState(60);
@@ -24,7 +36,7 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ email, setActiveTab, onOT
   useEffect(() => {
     if (timer > 0) {
       const countdown = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1);
+        setTimer(prevTimer => prevTimer - 1);
       }, 1000);
       return () => clearInterval(countdown);
     } else {
@@ -38,8 +50,8 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ email, setActiveTab, onOT
       onOTPSubmit(otp);
       setActiveTab('new-password');
     } catch (error) {
-      const newError = error as catchError;
-      setError(newError.response?.data?.message || 'An error occurred');
+      console.log(error);
+      setError('An error occurred while verifying OTP. Please try again.');
     }
   };
 
@@ -54,29 +66,32 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ email, setActiveTab, onOT
         nextInput?.focus();
       }
 
-      if (newOtpValues.every((val) => val !== '')) {
+      if (newOtpValues.every(val => val !== '')) {
         const otp = newOtpValues.join('');
         onOTPSubmit(otp);
       }
     }
   };
 
-  const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (event.key === 'Backspace' && otpValues[index] === '' && index > 0) {
       const prevInput = document.getElementById(`otp-${index - 1}`);
       prevInput?.focus();
     }
   };
 
-  const handleResendOtp = () => {
+  const handleResendOtp = async () => {
     setTimer(60);
     try {
-      UserService.resendOtp(email);
+      await AuthService.requestOTP({ identifier: email });
       setIsResendEnabled(false);
       console.log('OTP resent');
     } catch (err) {
-      console.error('Error:', err);
-      setError((err as catchError).response?.data?.message || 'An error occurred');
+      console.error('Error: ', err);
+      setError('An error occurred while resending OTP. Please try again.');
     }
     setIsResendEnabled(false);
   };
@@ -84,13 +99,20 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ email, setActiveTab, onOT
   return (
     <div className="flex w-full h-full flex-col items-center p-8">
       <header className="w-full flex justify-start mb-8">
-        <ArrowLeft className="cursor-pointer" onClick={() => setActiveTab('signup')} />
+        <ArrowLeft
+          className="cursor-pointer"
+          onClick={() => setActiveTab('signup')}
+        />
       </header>
       <h1 className="text-3xl font-bold mb-4">Verify OTP</h1>
       <p className="text-gray-600 text-center mb-8">
-        A message with a verification code of 4 digits has been sent to your email.
+        A message with a verification code of 4 digits has been sent to your
+        email.
       </p>
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col items-center gap-6">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-full flex flex-col items-center gap-6"
+      >
         <div className="flex justify-center gap-4">
           {otpValues.map((value, index) => (
             <input
@@ -99,8 +121,8 @@ const VerifyOTPCard: React.FC<VerifyOTPCardProps> = ({ email, setActiveTab, onOT
               type="text"
               maxLength={1}
               value={value}
-              onChange={(e) => handleOtpChange(index, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
+              onChange={e => handleOtpChange(index, e.target.value)}
+              onKeyDown={e => handleKeyDown(index, e)}
               className="w-14 h-14 text-center text-2xl border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none"
             />
           ))}

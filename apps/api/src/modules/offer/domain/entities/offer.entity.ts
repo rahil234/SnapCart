@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { OfferType, OfferStatus } from '@/modules/offer/domain/enums';
+import { OfferStatus, OfferType } from '@/modules/offer/domain/enums';
 
 export class Offer {
   private constructor(
@@ -7,11 +7,16 @@ export class Offer {
     private name: string,
     private type: OfferType,
     private discount: number,
+    private minPurchaseAmount: number,
+    private maxDiscount: number | undefined,
+    private priority: number,
     private startDate: Date,
     private endDate: Date,
     private status: OfferStatus,
+    private isStackable: boolean,
     private categories: string[],
     private products: string[],
+    private description: string | undefined,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {}
@@ -23,8 +28,13 @@ export class Offer {
     discount: number,
     startDate: Date,
     endDate: Date,
+    minPurchaseAmount: number = 0,
+    maxDiscount?: number,
+    priority: number = 0,
     categories: string[] = [],
     products: string[] = [],
+    isStackable: boolean = false,
+    description?: string,
   ): Offer {
     if (discount <= 0) {
       throw new Error('Discount must be greater than 0');
@@ -38,16 +48,29 @@ export class Offer {
       throw new Error('End date must be after start date');
     }
 
+    if (minPurchaseAmount < 0) {
+      throw new Error('Minimum purchase amount cannot be negative');
+    }
+
+    if (maxDiscount !== undefined && maxDiscount <= 0) {
+      throw new Error('Max discount must be greater than 0');
+    }
+
     return new Offer(
       uuid(),
       name,
       type,
       discount,
+      minPurchaseAmount,
+      maxDiscount,
+      priority,
       startDate,
       endDate,
       OfferStatus.ACTIVE,
+      isStackable,
       categories,
       products,
+      description,
       new Date(),
       new Date(),
     );
@@ -59,11 +82,16 @@ export class Offer {
     name: string,
     type: OfferType,
     discount: number,
+    minPurchaseAmount: number,
+    maxDiscount: number | undefined,
+    priority: number,
     startDate: Date,
     endDate: Date,
     status: OfferStatus,
+    isStackable: boolean,
     categories: string[],
     products: string[],
+    description: string | undefined,
     createdAt: Date,
     updatedAt: Date,
   ): Offer {
@@ -72,11 +100,16 @@ export class Offer {
       name,
       type,
       discount,
+      minPurchaseAmount,
+      maxDiscount,
+      priority,
       startDate,
       endDate,
       status,
+      isStackable,
       categories,
       products,
+      description,
       createdAt,
       updatedAt,
     );
@@ -118,22 +151,55 @@ export class Offer {
     return this.categories.includes(categoryId);
   }
 
+  /**
+   * Check if offer meets minimum purchase amount requirement
+   */
+  validateMinPurchaseAmount(amount: number): boolean {
+    return amount >= this.minPurchaseAmount;
+  }
+
+  /**
+   * Check if offer can be stacked with other offers/coupons
+   */
+  canStack(): boolean {
+    return this.isStackable;
+  }
+
+  /**
+   * Calculate discount amount for a given price with max discount cap
+   */
   calculateDiscountAmount(originalPrice: number): number {
     if (!this.isActive()) return 0;
+    if (!this.validateMinPurchaseAmount(originalPrice)) return 0;
+
+    let discountAmount = 0;
 
     if (this.type === OfferType.PERCENTAGE) {
-      return (originalPrice * this.discount) / 100;
+      discountAmount = (originalPrice * this.discount) / 100;
     } else {
-      return Math.min(this.discount, originalPrice);
+      discountAmount = Math.min(this.discount, originalPrice);
     }
+
+    // Apply max discount cap if specified
+    if (this.maxDiscount !== undefined) {
+      discountAmount = Math.min(discountAmount, this.maxDiscount);
+    }
+
+    // Ensure discount doesn't exceed original price
+    return Math.min(discountAmount, originalPrice);
   }
 
   updateDetails(
     name?: string,
     type?: OfferType,
     discount?: number,
+    minPurchaseAmount?: number,
+    maxDiscount?: number,
+    priority?: number,
     startDate?: Date,
     endDate?: Date,
+    isStackable?: boolean,
+    description?: string,
   ): void {
     if (name) this.name = name;
     if (type) this.type = type;
@@ -144,6 +210,19 @@ export class Offer {
       }
       this.discount = discount;
     }
+    if (minPurchaseAmount !== undefined) {
+      if (minPurchaseAmount < 0) {
+        throw new Error('Minimum purchase amount cannot be negative');
+      }
+      this.minPurchaseAmount = minPurchaseAmount;
+    }
+    if (maxDiscount !== undefined) {
+      if (maxDiscount <= 0) {
+        throw new Error('Max discount must be greater than 0');
+      }
+      this.maxDiscount = maxDiscount;
+    }
+    if (priority !== undefined) this.priority = priority;
     if (startDate) this.startDate = startDate;
     if (endDate) {
       if (endDate <= this.startDate) {
@@ -151,6 +230,8 @@ export class Offer {
       }
       this.endDate = endDate;
     }
+    if (isStackable !== undefined) this.isStackable = isStackable;
+    if (description !== undefined) this.description = description;
   }
 
   updateApplicability(categories?: string[], products?: string[]): void {
@@ -175,6 +256,18 @@ export class Offer {
     return this.discount;
   }
 
+  getMinPurchaseAmount(): number {
+    return this.minPurchaseAmount;
+  }
+
+  getMaxDiscount(): number | undefined {
+    return this.maxDiscount;
+  }
+
+  getPriority(): number {
+    return this.priority;
+  }
+
   getStartDate(): Date {
     return this.startDate;
   }
@@ -187,11 +280,27 @@ export class Offer {
     return this.status;
   }
 
+  getIsStackable(): boolean {
+    return this.isStackable;
+  }
+
   getCategories(): string[] {
     return [...this.categories];
   }
 
   getProducts(): string[] {
     return [...this.products];
+  }
+
+  getDescription(): string | undefined {
+    return this.description;
+  }
+
+  getCreatedAt(): Date {
+    return this.createdAt;
+  }
+
+  getUpdatedAt(): Date {
+    return this.updatedAt;
   }
 }

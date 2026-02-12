@@ -1,10 +1,10 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
-import { Outlet, NavLink } from 'react-router';
-import { Search, Bell, ChevronDown } from 'lucide-react';
-import { logoutUser } from '@/features/auth/authSlice';
-import { RootState, useAppDispatch } from '@/app/store';
 import { useSelector } from 'react-redux';
+import { Bell, ChevronDown, Search } from 'lucide-react';
+import { NavLink, Outlet, useNavigate } from 'react-router';
+
+import { logoutUser } from '@/store/auth/authSlice';
+import { RootState, useAppDispatch } from '@/store/store';
 
 interface SidebarProps {
   sellerLogout: () => void;
@@ -79,7 +79,9 @@ const Header = () => {
             className="w-8 h-8 rounded-full"
           />
           <div>
-            <div className="text-sm font-semibold">{user?.firstName}</div>
+            <div className="text-sm font-semibold">
+              {user?.sellerProfile?.storeName || user?.email || 'Seller'}
+            </div>
             <div className="text-xs text-gray-500">Seller</div>
           </div>
           <ChevronDown size={16} className="text-gray-400" />

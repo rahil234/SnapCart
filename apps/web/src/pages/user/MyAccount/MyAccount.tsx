@@ -1,12 +1,14 @@
 import {
-  User,
-  MapPin,
-  ShoppingBag,
-  Shield,
-  Wallet,
+  ArrowLeft,
   HandCoins,
+  MapPin,
+  Shield,
+  ShoppingBag,
+  User,
+  Wallet,
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
 import React, { useEffect, useState } from 'react';
 
 import {
@@ -16,18 +18,20 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { RootState } from '@/store/store';
 import { Button } from '@/components/ui/button';
-import { AuthState } from '@/features/auth/authSlice';
-import OrdersSection from '@/pages/user/MyAccount/Orders';
 import WalletSection from '@/pages/user/MyAccount/Wallet';
+import OrdersSection from '@/pages/user/MyAccount/Orders';
 import ProfileSection from '@/pages/user/MyAccount/Profile';
 import SecuritySection from '@/pages/user/MyAccount/Security';
 import AddressesSection from '@/pages/user/MyAccount/Address';
 import ReferSection from '@/pages/user/MyAccount/ReferSection';
 
 function AccountPage() {
-  const { user } = useSelector((state: { auth: AuthState }) => state.auth);
+  const { user } = useSelector((state: RootState) => state.auth);
   const [activeSection, setActiveSection] = useState('profile');
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -53,6 +57,14 @@ function AccountPage() {
     };
   }, []);
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
     window.history.replaceState(null, '', `#${section}`);
@@ -66,12 +78,12 @@ function AccountPage() {
     switch (activeSection) {
       case 'profile':
         return <ProfileSection user={user} />;
-      // case 'wallet':
-        // return <WalletSection />;
+      case 'wallet':
+        return <WalletSection />;
       case 'addresses':
-        return <AddressesSection addresses={user.addresses} />;
-      // case 'orders':
-        // return <OrdersSection />;
+        return <AddressesSection />;
+      case 'orders':
+      return <OrdersSection />;
       case 'security':
         return <SecuritySection />;
       case 'refer':
@@ -83,6 +95,15 @@ function AccountPage() {
 
   return (
     <div className="mx-auto p-6">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="mb-4 flex items-center gap-2 text-muted-foreground hover:text-foreground"
+        onClick={handleBack}
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back
+      </Button>
       <div className="flex gap-6">
         <Card className="w-64 h-fit sticky top-5">
           <CardHeader>

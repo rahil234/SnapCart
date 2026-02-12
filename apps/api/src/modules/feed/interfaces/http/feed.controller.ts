@@ -36,7 +36,7 @@ export class FeedController {
 
     return {
       message: 'Feed retrieved successfully',
-      data: categories,
+      data: categories.map(GetCategoryProductFeedResponseDto.fromCategory),
     };
   }
 }

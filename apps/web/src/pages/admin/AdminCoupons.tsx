@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import {
-  Search,
-  ChevronDown,
-  Edit,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+
 import {
   Select,
   SelectContent,
@@ -18,14 +9,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -33,110 +16,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
-import { ICoupon } from '@/types/coupon';
-import { CouponService } from '@/services/coupon.service';
-import CouponForm from '@/components/admin/CouponForm';
-
-const CouponsTable = ({
-  coupons,
-  onEditClick,
-}: {
-  coupons: ICoupon[];
-  onEditClick: (coupon: ICoupon) => void;
-}) => {
-  return (
-    <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {[
-              'Code',
-              'Discount',
-              'Valid From',
-              'Valid To',
-              'Min Amount',
-              'Max Discount',
-              'Status',
-              'Applicable To',
-              'Actions',
-            ].map(header => (
-              <TableHead key={header}>{header}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {coupons &&
-            coupons.map(coupon => (
-              <TableRow key={coupon._id}>
-                <TableCell>{coupon.code}</TableCell>
-                <TableCell>
-                  {coupon.discount}
-                  {coupon.type === 'percentage' ? '%' : ' ₹'}
-                </TableCell>
-                <TableCell>
-                  {new Date(coupon.startDate).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  {new Date(coupon.endDate).toLocaleDateString()}
-                </TableCell>
-                <TableCell>{coupon.minAmount}</TableCell>
-                <TableCell>{coupon.maxDiscount}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      coupon.status === 'Active'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}
-                  >
-                    {coupon.status}
-                  </span>
-                </TableCell>
-                <TableCell>{coupon.applicableTo}</TableCell>
-                <TableCell>
-                  <div className=" space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEditClick(coupon)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
-};
+import { Coupon } from '@/types';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import CouponsTable from '@/components/admin/CouponTable';
+import AddCouponCard from '@/components/admin/AddCouponCard';
+import EditCouponCard from '@/components/admin/EditCouponCard';
+import { useGetAdminCoupons } from '@/hooks/coupons/use-get-admin-coupons.hook';
 
 function CouponManagement() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedCoupon, setSelectedCoupon] = useState<ICoupon | null>(null);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
 
-  const {
-    data: coupons,
-    isLoading,
-    isError,
-  } = useQuery<ICoupon[]>({
-    queryKey: ['admin-coupons'],
-    queryFn: CouponService.getCoupons,
-  });
+  const { data: coupons, isLoading, isError } = useGetAdminCoupons();
 
   if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error loading coupons</div>;
+  if (isError || !coupons) return <div>Error loading coupons</div>;
 
   return (
     <Card className="m-4">
@@ -154,19 +51,17 @@ function CouponManagement() {
                   Create a new coupon to add to your store.
                 </DialogDescription>
               </DialogHeader>
-              <CouponForm onClose={() => setIsAddModalOpen(false)} />
+              <AddCouponCard onClose={() => setIsAddModalOpen(false)} />
             </DialogContent>
           </Dialog>
           <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Edit Coupon</DialogTitle>
-                <DialogDescription>
-                  Edit an existing coupon.
-                </DialogDescription>
+                <DialogDescription>Edit an existing coupon.</DialogDescription>
               </DialogHeader>
               {selectedCoupon && (
-                <CouponForm
+                <EditCouponCard
                   coupon={selectedCoupon}
                   onClose={() => setIsEditModalOpen(false)}
                 />

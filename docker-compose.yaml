@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: snapcart
     volumes:
-      - pg-data:/var/lib/postgresql/data
+      - pg-data:/var/lib/postgresql
     command:
       - postgres
       - -c
@@ -30,6 +30,7 @@ services:
       dockerfile: Dockerfile.dev
     environment:
       - PORT=4000
+      - TZ=Asia/Kolkata
       - REDIS_URL=redis://redis:6379
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/snapcart
     volumes:
@@ -40,6 +41,16 @@ services:
     depends_on:
       - postgres
       - redis
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command: tunnel --no-autoupdate run snapcart-razorpay
+    volumes:
+      - ./infra/cloudflared:/etc/cloudflared
+    restart: unless-stopped
+    depends_on:
+      - api
 
 #  web:
 #    container_name: snapcart-web
@@ -63,5 +74,4 @@ services:
 #      - "80:80"
 
 volumes:
-  mongo-data:
   pg-data:

@@ -5,7 +5,6 @@ import cartModel from '@/models/cartModel';
 import configRazorpay from '@/config/Razorpay';
 import orderModel from '@models/orderModel';
 import generateOrderId from '@/utils/generateOrderId';
-import { ICartP, IOrderItem } from '@snapcart/shared/types';
 import userModel from '@models/userModel';
 import couponModel from '@models/couponModel';
 import productModel from '@models/productModel';

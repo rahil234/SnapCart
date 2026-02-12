@@ -1,18 +1,18 @@
 import { motion } from 'motion/react';
 import React, { useContext, useState } from 'react';
 
-import { useAppDispatch } from '@/app/store';
+import SignUpCard, {
+  SignUpFormInputs,
+} from '@/components/user/Login/SignUpCard';
 import { UIContext } from '@/context/UIContext';
-import { UserService } from '@/services/user.service';
 import LoginCard from '@/components/user/Login/LoginCard';
-import { setCredentials } from '@/features/auth/authSlice';
-import SignUpCard from '@/components/user/Login/SignUpCard';
 import NewPassword from '@/components/user/Login/NewPassword';
 import VerifyOTPCard from '@/components/user/Login/VerifyOTPCard';
 import ForgotPasswordCard from '@/components/user/Login/ForgetPasswordCard';
 import ForgetPasswordVerifyOTPCard from '@/components/user/Login/ForgetPasswordVerifyOTPCard';
 import giftBoxTopOpenBackgroundRemoved1 from '@/assets/gift-box-top-open-background-removed-1.png';
 import giftBoxTopOpen2BackgroundRemoved1 from '@/assets/gift-box-top-open2-background-removed-1.png';
+import { AuthService } from '@/services/auth.service';
 
 const LoginMain = () => {
   return (
@@ -60,51 +60,53 @@ function LoginController() {
   const { hideLoginOverlay } = useContext(UIContext);
   const [signupData, setSignupData] = useState<SignUpFormInputs>();
   const [email, setEmail] = useState<string>();
+  const [verifiedOtp, setVerifiedOtp] = useState<string>();
 
   const { activeTab, setActiveTab } = useContext(UIContext);
 
-  const dispatch = useAppDispatch();
-
   const onOtpSubmit = async (otp: string) => {
-    try {
-      if (!signupData) {
-        throw new Error('no data found');
-      }
-      const response = await UserService.verifyOtp(signupData.email, otp);
-      if (response.data.success) {
-        console.log('OTP verified successfully');
-        setActiveTab('login');
-        const signupResponse = await UserService.userSignUp(signupData);
-        dispatch(setCredentials(signupResponse.data));
-        setSignupData(undefined);
-        hideLoginOverlay();
-      } else {
-        console.error('Failed to verify OTP');
-        setSignupData(undefined);
-      }
-    } catch (error) {
-      console.error('Error verifying OTP:', error);
-      setSignupData(undefined);
+    if (!signupData) {
+      throw new Error('no data found');
     }
+
+    const { error: verifyOtpError } = await AuthService.verifyOTP(
+      signupData.email,
+      otp
+    );
+
+    if (verifyOtpError) {
+      console.error('Failed to verify OTP');
+      setSignupData(undefined);
+      throw verifyOtpError;
+    }
+
+    setActiveTab('login');
+    const { error } = await AuthService.register(signupData);
+
+    if (error) {
+      console.error('Failed to register user:', error);
+      setSignupData(undefined);
+      throw error;
+    }
+
+    setSignupData(undefined);
+    hideLoginOverlay();
   };
 
   const onOtpSubmitForget = async (otp: string) => {
-    try {
-      if (!email) {
-        throw new Error('No email provided');
-      }
-      const response = await UserService.verifyOtp(email, otp);
-      if (response.data.success) {
-        console.log('OTP verified successfully');
-        setActiveTab('new-password');
-      } else {
-        console.error('Failed to verify OTP');
-        setSignupData(undefined);
-      }
-    } catch (error) {
+    if (!email) {
+      throw new Error('No email provided');
+    }
+    const { error } = await AuthService.verifyOTP(email, otp);
+
+    if (error) {
       console.error('Error verifying OTP:', error);
       setSignupData(undefined);
     }
+
+    console.log('OTP verified successfully');
+    setVerifiedOtp(otp);
+    setActiveTab('new-password');
   };
 
   switch (activeTab) {
@@ -121,7 +123,6 @@ function LoginController() {
           setActiveTab={setActiveTab}
           hideLoginOverlay={hideLoginOverlay}
           signupData={signupData}
-          setUserData={setSignupData}
         />
       );
 
@@ -148,7 +149,14 @@ function LoginController() {
       );
 
     case 'new-password':
-      return <NewPassword email={email} setActiveTab={setActiveTab} />;
+      return (
+        <NewPassword
+          email={email}
+          otp={verifiedOtp}
+          setActiveTab={setActiveTab}
+        />
+      );
+
     default:
       return <></>;
   }

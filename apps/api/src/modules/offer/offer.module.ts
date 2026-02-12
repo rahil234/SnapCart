@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 
-// TODO: Implement offer module with application layer, infrastructure, controllers, etc.
+import { OfferApplicationModule } from './application/offer-application.module';
+import { OfferHttpModule } from './interfaces/http/offer.http.module';
+
 @Module({
-  imports: [],
-  controllers: [],
-  providers: [],
-  exports: [],
+  imports: [OfferApplicationModule, OfferHttpModule],
 })
 export class OfferModule {}

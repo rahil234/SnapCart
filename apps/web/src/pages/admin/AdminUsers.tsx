@@ -1,12 +1,17 @@
-import React, { useEffect, useState } from 'react';
 import {
   Ban,
   ChevronLeft,
   ChevronRight,
-  Search,
   CircleCheck,
+  Search,
 } from 'lucide-react';
+import React from 'react';
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,211 +24,140 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { UserService } from '@/services/user.service';
-
-interface User {
-  _id: string; // Assuming each user has a unique ID
-  firstName: string;
-  email: string;
-  phone: string;
-  gender: string;
-  status: 'Active' | 'Blocked';
-}
+import { User } from '@/types';
+import { useGetUsers } from '@/hooks/users/get-users.hook';
+import { useUpdateUserStatus } from '@/hooks/users/use-update-user-status';
+import { Button } from '@/components/ui/button';
 
 const AdminUsers = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [actionType, setActionType] = useState<'block' | 'allow' | null>(null);
+  const { data: users, isLoading, isError } = useGetUsers();
+  const { mutate: updateStatus, isPending } = useUpdateUserStatus();
 
-  useEffect(() => {
-    const request = async () => {
-      const { data, meta, error } = await UserService.getUsers();
+  const getNextStatus = (status: User['status']) =>
+    status === 'active' ? 'suspended' : 'active';
 
-      if (error) {
-        console.error('Failed to fetch users:', error);
-        return;
-      }
-
-      setUsers(data);
-    };
-    request();
-  }, []);
-
-  const handleBlockUser = async (userId: string) => {
-    try {
-      await UserService.blockUser(userId);
-      setUsers(prevUsers =>
-        prevUsers.map(user =>
-          user._id === userId ? { ...user, status: 'Blocked' } : user
-        )
-      );
-    } catch (error) {
-      console.error('Failed to block user:', error);
-    }
+  const toggleStatus = (id: string, status: User['status']) => {
+    updateStatus({
+      id,
+      status: getNextStatus(status),
+    });
   };
 
-  const handleAllowUser = async (userId: string) => {
-    try {
-      await UserService.allowUser(userId);
-      setUsers(prevUsers =>
-        prevUsers.map(user =>
-          user._id === userId ? { ...user, status: 'Active' } : user
-        )
-      );
-    } catch (error) {
-      console.error('Failed to allow user:', error);
-    }
-  };
-
-  const handleAction = () => {
-    if (selectedUser && actionType) {
-      if (actionType === 'block') {
-        handleBlockUser(selectedUser._id);
-      } else if (actionType === 'allow') {
-        handleAllowUser(selectedUser._id);
-      }
-      setSelectedUser(null);
-      setActionType(null);
-    }
-  };
+  if (isLoading) return <div>Loading...</div>;
+  if (isError || !users) return <div>Error loading users.</div>;
+  if (users.length === 0) return <div>No users found.</div>;
 
   return (
     <div className="bg-gray-50 h-full p-8">
-      <div className="flex justify-end items-center mb-6">
-        <div className="flex space-x-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search user details"
-              className="pl-10 pr-4 py-2 rounded-lg border"
-            />
-            <Search
-              className="absolute left-3 top-2.5 text-gray-400"
-              size={20}
-            />
-          </div>
+      {/* Search */}
+      <div className="flex justify-end mb-6">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search user details"
+            className="pl-10 pr-4 py-2 rounded-lg border"
+          />
+          <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
         </div>
       </div>
+
+      {/* Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="bg-gray-50 text-left">
-              <th className="px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
-                NAME
-              </th>
-              <th className="px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
-                EMAIL
-              </th>
-              <th className="px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
-                PHONE
-              </th>
-              <th className="px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
-                GENDER
-              </th>
-              <th className="px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
-                STATUS
-              </th>
-              <th className="px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
-                ACTION
-              </th>
+            <tr className="bg-gray-50 text-center text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3">EMAIL</th>
+              <th className="px-6 py-3">PHONE</th>
+              <th className="px-6 py-3">ROLE</th>
+              <th className="px-6 py-3">STATUS</th>
+              <th className="px-6 py-3">ACTIONS</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y text-center divide-gray-200">
-            {users.map((user, index) => (
-              <tr key={index}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {user.firstName}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.phone}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.gender}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.status === 'Blocked'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}
-                  >
-                    {user.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                  <AlertDialog>
-                    <AlertDialogTrigger>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span
-                            className={`${
-                              user.status === 'Blocked'
-                                ? 'text-green-600 hover:text-green-900'
-                                : 'text-red-600 hover:text-red-900'
-                            } cursor-pointer`}
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setActionType(
-                                user.status === 'Active' ? 'block' : 'allow'
-                              );
-                            }}
-                          >
-                            {user.status === 'Blocked' ? (
-                              <CircleCheck className="w-5 h-5 text-green-500" />
-                            ) : (
-                              <Ban className="w-5 h-5 text-red-500" />
-                            )}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-white text-black shadow-lg">
-                          <p>
-                            {user.status === 'Blocked'
-                              ? 'Allow user'
-                              : 'Block user'}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-gray-100">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-red-600">
-                          Are you sure?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className="text-gray-700">
-                          Do you want to{' '}
-                          {actionType === 'block' ? 'block' : 'allow'} the user.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-gray-200 text-gray-700">
-                          Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-red-600 hover:bg-red-400 text-white"
-                          onClick={handleAction}
+
+          <tbody className="divide-y text-center">
+            {users.map(user => {
+              const isSuspended = user.status === 'suspended';
+
+              return (
+                <tr key={user.id}>
+                  <td className="px-6 py-4">{user.email || 'NA'}</td>
+                  <td className="px-6 py-4">{user.phone || 'NA'}</td>
+                  <td className="px-6 py-4">{user.role}</td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        isSuspended
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-green-100 text-green-800'
+                      }`}
+                    >
+                      {user.status}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          disabled={isPending}
                         >
-                          Continue
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </td>
-              </tr>
-            ))}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span>
+                                {isSuspended ? (
+                                  <CircleCheck className="w-5 h-5 text-green-500" />
+                                ) : (
+                                  <Ban className="w-5 h-5 text-red-500" />
+                                )}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {isSuspended ? 'Allow user' : 'Block user'}
+                            </TooltipContent>
+                          </Tooltip>
+                        </Button>
+                      </AlertDialogTrigger>
+
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Do you want to{' '}
+                            <strong>{isSuspended ? 'allow' : 'block'}</strong>{' '}
+                            this user?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => toggleStatus(user.id, user.status)}
+                            disabled={isPending}
+                          >
+                            Continue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
       <div className="mt-4 flex items-center justify-between">
-        <span className="text-sm text-gray-700">Showing 1-09 of 78</span>
-        <div className="flex space-x-2">
-          <button className="p-2 rounded bg-white shadow">
-            <ChevronLeft className="w-5 h-5 text-gray-600" />
+        <span className="text-sm text-gray-700">Showing 1–09 of 78</span>
+        <div className="flex gap-2">
+          <button className="p-2 bg-white shadow rounded">
+            <ChevronLeft />
           </button>
-          <button className="p-2 rounded bg-white shadow">
-            <ChevronRight className="w-5 h-5 text-gray-600" />
+          <button className="p-2 bg-white shadow rounded">
+            <ChevronRight />
           </button>
         </div>
       </div>

@@ -10,6 +10,7 @@ export class PrismaCustomerProfileMapper {
       raw.name,
       raw.dob,
       raw.gender as UserGender | null,
+      raw.profilePicture,
       raw.createdAt,
       raw.updatedAt,
     );
@@ -23,6 +24,7 @@ export class PrismaCustomerProfileMapper {
       name: profile.getName(),
       dob: profile.getDob(),
       gender: profile.getGender(),
+      profilePicture: profile.getProfilePicture(),
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
     };

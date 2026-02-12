@@ -1,4 +1,4 @@
-import { v4 as uuid } from 'uuid';
+import cuid from '@paralleldrive/cuid2';
 import { UserGender } from '@/modules/user/domain/enums';
 
 export class CustomerProfile {
@@ -8,6 +8,7 @@ export class CustomerProfile {
     private name: string | null,
     private dob: Date | null,
     private gender: UserGender | null,
+    private profilePicture: string | null,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {}
@@ -20,11 +21,12 @@ export class CustomerProfile {
     gender: UserGender | null = null,
   ): CustomerProfile {
     return new CustomerProfile(
-      uuid(),
+      cuid.createId(),
       userId,
       name,
       dob,
       gender,
+      null, // profilePicture
       new Date(),
       new Date(),
     );
@@ -37,10 +39,20 @@ export class CustomerProfile {
     name: string | null,
     dob: Date | null,
     gender: UserGender | null,
+    profilePicture: string | null,
     createdAt: Date,
     updatedAt: Date,
   ): CustomerProfile {
-    return new CustomerProfile(id, userId, name, dob, gender, createdAt, updatedAt);
+    return new CustomerProfile(
+      id,
+      userId,
+      name,
+      dob,
+      gender,
+      profilePicture,
+      createdAt,
+      updatedAt,
+    );
   }
 
   // Business methods
@@ -57,6 +69,10 @@ export class CustomerProfile {
 
   updateGender(newGender: UserGender | null): void {
     this.gender = newGender;
+  }
+
+  updateProfilePicture(newProfilePicture: string | null): void {
+    this.profilePicture = newProfilePicture;
   }
 
   // Getters
@@ -80,13 +96,20 @@ export class CustomerProfile {
     return this.gender;
   }
 
+  getProfilePicture(): string | null {
+    return this.profilePicture;
+  }
+
   getAge(): number | null {
     if (!this.dob) return null;
     const today = new Date();
     const birthDate = new Date(this.dob);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
     return age;

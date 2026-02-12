@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsObject, IsBoolean, Min, Max, IsUrl, IsEnum } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsObject, IsBoolean, Min, Max, IsEnum } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 
@@ -13,6 +13,7 @@ export enum VariantStatusDto {
  *
  * Updates commerce attributes of a variant.
  * SKU and productId cannot be changed (immutable).
+ * Images are managed via separate /images endpoint.
  */
 export class UpdateVariantDto {
   @ApiPropertyOptional({
@@ -88,12 +89,10 @@ export class UpdateVariantDto {
   sellerProfileId?: string | null;
 
   @ApiPropertyOptional({
-    description: 'Image URL for this variant',
-    example: 'https://example.com/images/basmati-1kg-premium.jpg',
-    nullable: true
+    description: 'Additional attributes (e.g., weight, organic flag)',
+    example: { weight: '1kg', organic: true }
   })
   @IsOptional()
-  @IsString()
-  @IsUrl()
-  imageUrl?: string | null;
+  @IsObject()
+  attributes?: Record<string, any> | null;
 }

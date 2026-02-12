@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **status** | **string** | Variant status | [optional] [default to undefined]
 **isActive** | **boolean** | Whether variant is active (available for purchase) | [optional] [default to undefined]
 **sellerProfileId** | **object** | Seller profile ID (null to remove seller) | [optional] [default to undefined]
-**imageUrl** | **object** | Image URL for this variant | [optional] [default to undefined]
+**attributes** | **object** | Additional attributes (e.g., weight, organic flag) | [optional] [default to undefined]
 
 ## Example
 
@@ -27,7 +27,7 @@ const instance: UpdateVariantDto = {
     status,
     isActive,
     sellerProfileId,
-    imageUrl,
+    attributes,
 };
 ```
 

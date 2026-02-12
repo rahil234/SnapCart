@@ -1,21 +1,18 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Inject, ConflictException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+
 import { RegisterCommand } from '../register.command';
-import { UserRepository } from '@/modules/user/domain/repositories/user.repository';
-import { CustomerProfileRepository } from '@/modules/user/domain/repositories/customer-profile.repository';
-import { User } from '@/modules/user/domain/entities/user.entity';
-import { CustomerProfile } from '@/modules/user/domain/entities/customer-profile.entity';
 import { UserRole } from '@/modules/user/domain/enums';
+import { User } from '@/modules/user/domain/entities/user.entity';
+import { UserRegisteredEvent } from '@/shared/events/auth.events';
 import { PasswordHashService } from '@/modules/auth/domain/services';
-import { UserRegisteredEvent } from '@/modules/auth/domain/events';
+import { UserRepository } from '@/modules/user/domain/repositories/user.repository';
 
 @CommandHandler(RegisterCommand)
 export class RegisterHandler implements ICommandHandler<RegisterCommand> {
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
-    @Inject('CustomerProfileRepository')
-    private readonly customerProfileRepository: CustomerProfileRepository,
     @Inject('PasswordHashService')
     private readonly passwordHashService: PasswordHashService,
     private readonly eventBus: EventBus,
@@ -47,10 +44,6 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand> {
 
     // Persist user
     const createdUser = await this.userRepository.save(user);
-
-    // Create customer profile
-    const customerProfile = CustomerProfile.create(createdUser.id);
-    await this.customerProfileRepository.save(customerProfile);
 
     // Emit event
     await this.eventBus.publish(

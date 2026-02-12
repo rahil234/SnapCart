@@ -11,6 +11,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { IStorageService } from '@/shared/infrastructure/storage/storage.interface';
+import { UploadDescriptor } from '../upload-descriptor';
 
 @Injectable()
 export class AzureBlobService implements IStorageService {
@@ -45,6 +46,9 @@ export class AzureBlobService implements IStorageService {
     this.containerClient = this.blobServiceClient.getContainerClient(
       this.containerName,
     );
+  }
+  generatePresignedUpload(blobName: string): UploadDescriptor {
+    throw new Error('Method not implemented.');
   }
 
   generateUploadUrl(blobName: string): string {

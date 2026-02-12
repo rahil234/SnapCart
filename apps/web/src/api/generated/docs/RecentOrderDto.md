@@ -5,11 +5,12 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**orderId** | **string** | Unique identifier for the order | [default to undefined]
-**customerName** | **string** | Name of the customer who placed the order | [default to undefined]
-**total** | **number** | Total amount for the order | [default to undefined]
-**date** | **string** | Date when the order was placed | [default to undefined]
-**status** | **string** | Current status of the order | [default to undefined]
+**id** | **string** |  | [default to undefined]
+**orderNumber** | **string** |  | [default to undefined]
+**total** | **number** |  | [default to undefined]
+**orderStatus** | **string** |  | [default to undefined]
+**placedAt** | **string** |  | [default to undefined]
+**customerName** | **object** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -17,11 +18,12 @@ Name | Type | Description | Notes
 import { RecentOrderDto } from './api';
 
 const instance: RecentOrderDto = {
-    orderId,
-    customerName,
+    id,
+    orderNumber,
     total,
-    date,
-    status,
+    orderStatus,
+    placedAt,
+    customerName,
 };
 ```
 

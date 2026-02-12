@@ -1,70 +1,108 @@
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  Gift,
+  Plus,
+  RefreshCw,
+  RotateCcw,
+  Wallet,
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { format } from 'date-fns';
 import { useSelector } from 'react-redux';
-import React, { useState, useEffect } from 'react';
-import { Plus, ArrowUpRight, ArrowDownLeft, Wallet } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  addMoneyToWallet,
+  fetchTransactions,
+  fetchWallet,
+} from '@/store/wallet/walletSlice';
 import { Button } from '@/components/ui/button';
-import { AuthState } from '@/features/auth/authSlice';
-import { WalletService } from '@/services/wallet.service';
+import { RootState, useAppDispatch } from '@/store/store';
 import AddFundsComponent from '@/components/user/addWalletFundCard';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-interface Transaction {
-  _id: string;
-  userId: string;
-  amount: number;
-  type: 'credit' | 'debit';
-  description: string;
-  // date: string;
-}
-
 export default function WalletSection() {
-  const [balance, setBalance] = useState(256);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
   const [isAddFundsDialogOpen, setIsAddFundsDialogOpen] = useState(false);
 
-  const user = useSelector((state: { auth: AuthState }) => state.auth.user);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const {
+    wallet,
+    transactions,
+    totalTransactions,
+    status,
+    transactionsStatus,
+  } = useSelector((state: RootState) => state.wallet);
 
   useEffect(() => {
-    if (!user) return;
-    (async () => {
-      try {
-        setIsLoading(true);
-        const balanceResponse = await WalletService.getBalance();
-        const transactionsResponse = await WalletService.getTransactions();
-        console.log(transactionsResponse.transactions);
-        setBalance(balanceResponse.balance);
-        setTransactions(transactionsResponse.transactions);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Failed to fetch wallet data:', error);
-        setError('Failed to fetch wallet data');
-        setIsLoading(false);
-      }
-    })();
-  }, [user]);
+    if (user) {
+      dispatch(fetchWallet());
+      dispatch(fetchTransactions({ limit: 20, offset: 0 }));
+    }
+  }, [user, dispatch]);
 
   const handleAddFunds = async (amount: number) => {
     try {
-      const response = await WalletService.addFunds(amount);
-      setBalance(response.data.newBalance);
-      setTransactions([response.data.transactions, ...transactions]);
+      await dispatch(
+        addMoneyToWallet({ amount, description: 'Added money via dashboard' })
+      ).unwrap();
+      toast.success(`₹${amount} added to wallet successfully!`);
+      dispatch(fetchTransactions({ limit: 20, offset: 0 }));
       setIsAddFundsDialogOpen(false);
     } catch (error) {
-      console.error('Failed to add funds:', error);
-      setError('Failed to add funds. Please try again.');
-      alert('Failed to add funds. Please try again.');
+      toast.error(
+        (error as string) || 'Failed to add funds. Please try again.'
+      );
     }
   };
 
-  if (isLoading) {
-    return <div className="text-center">Loading wallet data...</div>;
-  }
+  const getTransactionIcon = (type: string) => {
+    switch (type) {
+      case 'credit':
+        return <ArrowUpRight className="mr-2 h-4 w-4 text-green-500" />;
+      case 'debit':
+        return <ArrowDownLeft className="mr-2 h-4 w-4 text-red-500" />;
+      case 'refund':
+        return <RotateCcw className="mr-2 h-4 w-4 text-blue-500" />;
+      case 'cashback':
+        return <Gift className="mr-2 h-4 w-4 text-purple-500" />;
+      default:
+        return <ArrowUpRight className="mr-2 h-4 w-4 text-gray-500" />;
+    }
+  };
 
-  if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
+  const getTransactionColor = (type: string) => {
+    switch (type) {
+      case 'credit':
+      case 'refund':
+      case 'cashback':
+        return 'text-green-600';
+      case 'debit':
+        return 'text-red-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
+  const isCredit = (type: string) => {
+    return ['credit', 'refund', 'cashback'].includes(type);
+  };
+
+  if (status === 'loading' && !wallet) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <RefreshCw className="h-6 w-6 animate-spin text-indigo-600" />
+        <span className="ml-2">Loading wallet data...</span>
+      </div>
+    );
   }
 
   return (
@@ -80,7 +118,14 @@ export default function WalletSection() {
           <div className="flex justify-between items-center">
             <div>
               <p className="text-sm opacity-80">Current Balance</p>
-              <p className="text-4xl font-bold mt-1">₹{balance.toFixed(2)}</p>
+              <p className="text-4xl font-bold mt-1">
+                ₹{wallet?.balance?.toFixed(2) ?? '0.00'}
+              </p>
+              {wallet && (
+                <p className="text-xs opacity-60 mt-1">
+                  Currency: {wallet.currency}
+                </p>
+              )}
             </div>
             <Dialog
               open={isAddFundsDialogOpen}
@@ -95,6 +140,9 @@ export default function WalletSection() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add Money to Wallet</DialogTitle>
+                </DialogHeader>
                 <AddFundsComponent onAddFunds={handleAddFunds} />
               </DialogContent>
             </Dialog>
@@ -103,38 +151,70 @@ export default function WalletSection() {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Transaction History</CardTitle>
+          {totalTransactions > 0 && (
+            <span className="text-sm text-gray-500">
+              {totalTransactions} transaction
+              {totalTransactions !== 1 ? 's' : ''}
+            </span>
+          )}
         </CardHeader>
         <CardContent>
-          {transactions.length === 0 ? (
-            <p className="text-center text-gray-500">No transactions yet.</p>
+          {transactionsStatus === 'loading' ? (
+            <div className="flex items-center justify-center py-8">
+              <RefreshCw className="h-5 w-5 animate-spin text-gray-400" />
+            </div>
+          ) : transactions.length === 0 ? (
+            <p className="text-center text-gray-500 py-8">
+              No transactions yet. Add funds to get started!
+            </p>
           ) : (
             <ul className="space-y-4">
               {transactions.map(transaction => (
                 <li
-                  key={transaction._id}
-                  className="flex justify-between items-center"
+                  key={transaction.id}
+                  className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center">
-                    {transaction.type === 'credit' ? (
-                      <ArrowUpRight className="mr-2 h-4 w-4 text-green-500" />
-                    ) : (
-                      <ArrowDownLeft className="mr-2 h-4 w-4 text-red-500" />
-                    )}
+                    {getTransactionIcon(transaction.type)}
                     <div>
-                      <p className="font-medium">{transaction.description}</p>
-                      {/*<p className="text-sm text-gray-500">*/}
-                      {/*  {format(new Date(transaction.date), 'PPp')}*/}
-                      {/*</p>*/}
+                      <p className="font-medium">
+                        {transaction.description ||
+                          transaction.type.charAt(0).toUpperCase() +
+                            transaction.type.slice(1)}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {format(new Date(transaction.createdAt), 'PPp')}
+                      </p>
+                      {transaction.orderId && (
+                        <p className="text-xs text-gray-400">
+                          Order: {transaction.orderId.substring(0, 8)}...
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <p
-                    className={`font-medium ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}
-                  >
-                    {transaction.type === 'credit' ? '+' : '-'}₹
-                    {transaction.amount.toFixed(2)}
-                  </p>
+                  <div className="text-right">
+                    <p
+                      className={`font-medium ${getTransactionColor(transaction.type)}`}
+                    >
+                      {isCredit(transaction.type) ? '+' : '-'}₹
+                      {transaction.amount.toFixed(2)}
+                    </p>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${
+                        transaction.status === 'completed'
+                          ? 'bg-green-100 text-green-700'
+                          : transaction.status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : transaction.status === 'failed'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-gray-100 text-gray-700'
+                      }`}
+                    >
+                      {transaction.status}
+                    </span>
+                  </div>
                 </li>
               ))}
             </ul>

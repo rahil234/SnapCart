@@ -2,7 +2,7 @@ import { toast } from 'sonner';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2, Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 
 import {
@@ -12,45 +12,36 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  updateQuantity,
-  CartState,
-  removeItem,
-} from '@/features/cart/cartSlice';
-import { useAppDispatch } from '@/app/store';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { OrderService } from '@/services/order.service';
-
-const imageUrl = import.meta.env.VITE_IMAGE_URL + '/products/';
+import { RootState, useAppDispatch } from '@/store/store';
+import { removeItem, updateQuantity } from '@/store/cart/cartSlice';
+// import { OrderService } from '@/services/order.service';
 
 const CartPage = () => {
-  const { cartData } = useSelector((state: { cart: CartState }) => state.cart);
+  const { items, totalAmount } = useSelector((state: RootState) => state.cart);
   const [isLoading] = useState(0);
 
   const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
 
-  const handleIncreaseQuantity = async (_id: string, quantity: number) => {
-    if (!cartData) return;
-    dispatch(updateQuantity({ _id, quantity: quantity + 1 }));
+  const handleIncreaseQuantity = async (id: string, quantity: number) => {
+    dispatch(updateQuantity({ id, quantity }));
   };
 
-  const handleDecreaseQuantity = async (_id: string, quantity: number) => {
-    if (!cartData) return;
-    dispatch(updateQuantity({ _id, quantity: quantity - 1 }));
+  const handleDecreaseQuantity = async (id: string, quantity: number) => {
+    dispatch(updateQuantity({ id, quantity }));
   };
 
-  const handleRemoveItem = async (productId: string) => {
-    if (!cartData) return;
-    dispatch(removeItem({ _id: productId }));
+  const handleRemoveItem = async (id: string) => {
+    dispatch(removeItem({ id }));
   };
 
   const handleCheckout = async () => {
-    if (!cartData) return;
+    if (!items.length) return;
     try {
-      await OrderService.verifyCheckout();
+      // await OrderService.verifyCheckout();
       navigate('/checkout');
     } catch (error) {
       toast.error('Error checking out cart');
@@ -58,7 +49,7 @@ const CartPage = () => {
     }
   };
 
-  if (!cartData || isLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="w-8 h-8 animate-spin" />
@@ -69,7 +60,7 @@ const CartPage = () => {
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-semibold mb-6">Shopping Cart</h1>
-      {!cartData || cartData.items.length === 0 ? (
+      {items.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center h-64">
             <ShoppingCart className="w-16 h-16 text-gray-400 mb-4" />
@@ -85,9 +76,9 @@ const CartPage = () => {
         <div className="grid md:grid-cols-3 gap-6">
           <div className="md:col-span-2">
             <AnimatePresence>
-              {cartData.items.map(item => (
+              {items.map(item => (
                 <motion.div
-                  key={item._id}
+                  key={item.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
@@ -96,33 +87,23 @@ const CartPage = () => {
                   <Card className="mb-4">
                     <CardContent className="flex items-center p-4">
                       <img
-                        src={imageUrl + item.product.images[0]}
-                        alt={item.product.name}
+                        src={item.variant.imageUrl}
+                        alt={item.variant.variantName}
                         className="w-24 h-24 object-cover rounded-md mr-4"
                       />
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold">
-                          {item.product.name}
+                          {item.variant.productName}
                         </h3>
-                        <p className="text-sm text-gray-500">
-                          Price: ₹{item.offerPrice || item.product.price}
-                        </p>
-                        {item.quantity > item.product.stock && (
-                          <p className="text-red-600 text-sm">
-                            Max stock available is {item.product.stock}
-                          </p>
-                        )}
                         <div className="flex items-center mt-2">
                           <Button
                             size="icon"
                             variant="outline"
                             onClick={() =>
-                              handleDecreaseQuantity(
-                                item.product._id,
-                                item.quantity
-                              )
+                              handleDecreaseQuantity(item.id, item.quantity - 1)
                             }
                             aria-label="Decrease quantity"
+                            disabled={item.quantity < 2}
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
@@ -133,10 +114,7 @@ const CartPage = () => {
                             size="icon"
                             variant="outline"
                             onClick={() =>
-                              handleIncreaseQuantity(
-                                item.product._id,
-                                item.quantity
-                              )
+                              handleIncreaseQuantity(item.id, item.quantity + 1)
                             }
                             aria-label="Increase quantity"
                             disabled={item.quantity > 9}
@@ -147,18 +125,15 @@ const CartPage = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-semibold">
-                          ₹
-                          {(item.offerPrice || item.product.price) *
-                            item.quantity}
+                          ₹{item.variant.price * item.quantity}
                         </p>
                         <Button
                           size="sm"
                           variant="destructive"
                           className="mt-2"
-                          onClick={() => handleRemoveItem(item.product._id)}
+                          onClick={() => handleRemoveItem(item.id)}
                         >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Remove
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </CardContent>
@@ -176,7 +151,7 @@ const CartPage = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span>₹{cartData.totalAmount}</span>
+                    <span>₹{totalAmount}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
@@ -185,7 +160,7 @@ const CartPage = () => {
                   <Separator />
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>₹{cartData.totalAmount}</span>
+                    <span>₹{totalAmount}</span>
                   </div>
                 </div>
               </CardContent>

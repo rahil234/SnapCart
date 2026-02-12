@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * Cloudberry API
- * API documentation for the Cloudberry E-commerce Api
+ * Snapcart API
+ * API documentation for the Snapcart Quick e-Commerce platform
  *
  * The version of the OpenAPI document: 1.0
  * Contact: rahilsardar234@gmail.com
@@ -23,6 +23,52 @@ import type { RequestArgs } from './base';
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
+export interface AddItemToCartDto {
+    /**
+     * Product ID to add to cart
+     */
+    'productId': string;
+    /**
+     * Product variant ID to add to cart
+     */
+    'productVariantId': string;
+    /**
+     * Quantity to add
+     */
+    'quantity': number;
+}
+export interface AddMoneyDto {
+    /**
+     * Amount to add to wallet
+     */
+    'amount': number;
+    /**
+     * Description for the transaction
+     */
+    'description'?: string;
+    /**
+     * External reference (e.g., payment gateway transaction ID)
+     */
+    'reference'?: string;
+}
+export interface AddMoneyResponseDto {
+    /**
+     * Transaction ID
+     */
+    'transactionId': string;
+    /**
+     * New wallet balance after adding money
+     */
+    'newBalance': number;
+    /**
+     * Amount added
+     */
+    'amount': number;
+    /**
+     * Transaction status
+     */
+    'status': string;
+}
 export interface AddressControllerCreate201Response {
     'message': string;
     'data': AddressResponseDto;
@@ -31,18 +77,79 @@ export interface AddressControllerDelete200Response {
     'message': string;
     'data': object;
 }
+export interface AddressControllerFind200Response {
+    'message': string;
+    'data': Array<AddressResponseDto>;
+}
 export interface AddressResponseDto {
     'id': string;
-    'userId': string;
+    'customerId': string;
     'isPrimary': boolean;
-    'houseNo'?: object;
-    'street'?: object;
-    'city'?: object;
-    'state'?: object;
-    'country'?: object;
-    'pincode'?: object;
+    'houseNo'?: string;
+    'street'?: string;
+    'city'?: string;
+    'state'?: string;
+    'country'?: string;
+    'pincode'?: string;
     'createdAt': string;
     'updatedAt': string;
+}
+export interface AdminBannerControllerCreate201Response {
+    'message': string;
+    'data': BannerResponseDto;
+}
+export interface AdminBannerControllerGenerateUploadUrl201Response {
+    'message': string;
+    'data': UploadUrlResponseDto;
+}
+export interface AdminCouponControllerGetUsageHistory200Response {
+    'message': string;
+    'data': Array<CouponUsageResponseDto>;
+}
+export interface AdminDashboardResponseDto {
+    'stats': DashboardStatsDto;
+    'recentOrders': Array<RecentOrderDto>;
+    'topProducts': Array<TopProductDto>;
+}
+export interface AdminProductControllerGetAdminProducts200Response {
+    'message': string;
+    'data': Array<ProductResponseDto>;
+    /**
+     * Pagination metadata
+     */
+    'meta': PaginationMetaDto;
+}
+export interface AnalyticsControllerGetAdminDashboard200Response {
+    'message': string;
+    'data': AdminDashboardResponseDto;
+}
+export interface AnalyticsControllerGetSalesReport200Response {
+    'message': string;
+    'data': Array<SalesReportItemDto>;
+}
+export interface AnalyticsControllerGetSellerDashboard200Response {
+    'message': string;
+    'data': SellerDashboardResponseDto;
+}
+export interface AppliedOfferDto {
+    /**
+     * Offer ID
+     */
+    'id': string;
+    /**
+     * Offer name
+     */
+    'name': string;
+    /**
+     * Discount amount applied
+     */
+    'discount': number;
+}
+export interface ApplyCouponDto {
+    /**
+     * Coupon code to apply
+     */
+    'code': string;
 }
 export interface BadRequestErrorDto {
     'statusCode': number;
@@ -52,6 +159,204 @@ export interface BadRequestErrorDto {
     'message': Array<string>;
     'error': string;
 }
+export interface BannerControllerFindAll200Response {
+    'message': string;
+    'data': Array<BannerResponseDto>;
+}
+export interface BannerOrderItemDto {
+    /**
+     * Banner ID
+     */
+    'id': string;
+    /**
+     * New order position
+     */
+    'order': number;
+}
+export interface BannerResponseDto {
+    /**
+     * Banner ID
+     */
+    'id': string;
+    /**
+     * URL of the banner image
+     */
+    'imageUrl': string;
+    /**
+     * Display order (lower numbers appear first)
+     */
+    'order': number;
+    /**
+     * Whether the banner is active
+     */
+    'isActive': boolean;
+    /**
+     * Creation timestamp
+     */
+    'createdAt': string;
+    /**
+     * Last update timestamp
+     */
+    'updatedAt': string;
+}
+export interface CancelOrderDto {
+    /**
+     * Reason for cancelling the order
+     */
+    'cancelReason': string;
+}
+export interface CartControllerAddItem201Response {
+    'message': string;
+    'data': CartItemResponseDto;
+}
+export interface CartControllerGetCart200Response {
+    'message': string;
+    'data': CartWithDetailsResponseDto;
+}
+export interface CartControllerGetCartPricing200Response {
+    'message': string;
+    'data': CartPricingDto;
+}
+export interface CartItemResponseDto {
+    /**
+     * Cart item ID
+     */
+    'id': string;
+    /**
+     * Cart ID
+     */
+    'cartId': string;
+    /**
+     * Product variant ID
+     */
+    'productId': string;
+    /**
+     * Product variant ID
+     */
+    'variantId': string;
+    /**
+     * Quantity of the item
+     */
+    'quantity': number;
+    /**
+     * Created at timestamp
+     */
+    'createdAt': string;
+    /**
+     * Updated at timestamp
+     */
+    'updatedAt': string;
+}
+export interface CartItemWithDetailsResponseDto {
+    /**
+     * Cart item ID
+     */
+    'id': string;
+    /**
+     * Cart ID
+     */
+    'cartId': string;
+    /**
+     * Product variant ID
+     */
+    'productVariantId': string;
+    /**
+     * Quantity of the item
+     */
+    'quantity': number;
+    /**
+     * Product variant details
+     */
+    'variant': ProductVariantDetailDto;
+    /**
+     * Subtotal (quantity × final price)
+     */
+    'subtotal': number;
+    /**
+     * Created at timestamp
+     */
+    'createdAt': string;
+    /**
+     * Updated at timestamp
+     */
+    'updatedAt': string;
+}
+export interface CartPricingDto {
+    /**
+     * Subtotal before any discounts
+     */
+    'subtotal': number;
+    /**
+     * Total discount from offers
+     */
+    'offerDiscount': number;
+    /**
+     * Discount from applied coupon
+     */
+    'couponDiscount': number;
+    /**
+     * Total discount amount
+     */
+    'totalDiscount': number;
+    /**
+     * Final total after all discounts
+     */
+    'finalTotal': number;
+    /**
+     * IDs of applied offers
+     */
+    'appliedOfferIds': Array<string>;
+    /**
+     * Applied coupon code
+     */
+    'appliedCouponCode'?: string;
+    /**
+     * Total savings from all discounts
+     */
+    'savings': number;
+    /**
+     * List of applied offers with details
+     */
+    'appliedOffers': Array<AppliedOfferDto>;
+}
+export interface CartWithDetailsResponseDto {
+    /**
+     * Cart ID
+     */
+    'id': string;
+    /**
+     * Customer ID
+     */
+    'customerId': string;
+    /**
+     * Cart items with full product details
+     */
+    'items': Array<CartItemWithDetailsResponseDto>;
+    /**
+     * Total number of items (sum of all quantities)
+     */
+    'totalItems': number;
+    /**
+     * Number of unique items
+     */
+    'uniqueItemsCount': number;
+    /**
+     * Total amount (sum of all subtotals)
+     */
+    'totalAmount': number;
+    /**
+     * Whether the cart is empty
+     */
+    'isEmpty': boolean;
+    /**
+     * Created at timestamp
+     */
+    'createdAt': string;
+    /**
+     * Updated at timestamp
+     */
+    'updatedAt': string;
+}
 export interface CategoryControllerFindAll200Response {
     'message': string;
     'data': Array<CategoryResponseDto>;
@@ -60,6 +365,28 @@ export interface CategoryControllerFindOne200Response {
     'message': string;
     'data': CategoryResponseDto;
 }
+export interface CategoryNestedDto {
+    /**
+     * Category ID
+     */
+    'id': string;
+    /**
+     * Category name
+     */
+    'name': string;
+    /**
+     * Category status
+     */
+    'status': CategoryNestedDtoStatusEnum;
+}
+
+export const CategoryNestedDtoStatusEnum = {
+    Active: 'active',
+    Inactive: 'inactive'
+} as const;
+
+export type CategoryNestedDtoStatusEnum = typeof CategoryNestedDtoStatusEnum[keyof typeof CategoryNestedDtoStatusEnum];
+
 export interface CategoryResponseDto {
     /**
      * Category ID
@@ -70,17 +397,9 @@ export interface CategoryResponseDto {
      */
     'name': string;
     /**
-     * Category description
+     * Category status
      */
-    'description'?: object;
-    /**
-     * Category image URL
-     */
-    'imageUrl'?: object;
-    /**
-     * Parent category ID
-     */
-    'parentId'?: object;
+    'status': CategoryResponseDtoStatusEnum;
     /**
      * Creation timestamp
      */
@@ -90,10 +409,342 @@ export interface CategoryResponseDto {
      */
     'updatedAt': string;
 }
+
+export const CategoryResponseDtoStatusEnum = {
+    Active: 'active',
+    Inactive: 'inactive'
+} as const;
+
+export type CategoryResponseDtoStatusEnum = typeof CategoryResponseDtoStatusEnum[keyof typeof CategoryResponseDtoStatusEnum];
+
+export interface ChangePasswordDto {
+    /**
+     * Current password
+     */
+    'currentPassword': string;
+    /**
+     * New password (min 6 characters)
+     */
+    'newPassword': string;
+}
+export interface CheckoutCommitDto {
+    /**
+     * Checkout source - where checkout is initiated from
+     */
+    'source': CheckoutCommitDtoSourceEnum;
+    /**
+     * Coupon code to apply
+     */
+    'couponCode'?: string;
+    /**
+     * Shipping address ID
+     */
+    'shippingAddressId': string;
+    /**
+     * Payment method
+     */
+    'paymentMethod': string;
+}
+
+export const CheckoutCommitDtoSourceEnum = {
+    Product: 'PRODUCT',
+    Cart: 'CART'
+} as const;
+
+export type CheckoutCommitDtoSourceEnum = typeof CheckoutCommitDtoSourceEnum[keyof typeof CheckoutCommitDtoSourceEnum];
+
+export interface CheckoutCommitResponseDto {
+    /**
+     * Order ID
+     */
+    'id': string;
+    /**
+     * Order number
+     */
+    'orderNumber': string;
+    /**
+     * Subtotal before any discounts
+     */
+    'subtotal': number;
+    /**
+     * Product-level discount
+     */
+    'discount': number;
+    /**
+     * Coupon discount applied
+     */
+    'couponDiscount': number;
+    /**
+     * Offer discount applied
+     */
+    'offerDiscount': number;
+    /**
+     * Shipping charge
+     */
+    'shippingCharge': number;
+    /**
+     * Tax amount
+     */
+    'tax': number;
+    /**
+     * Final total amount
+     */
+    'total': number;
+    /**
+     * Applied coupon code
+     */
+    'appliedCouponCode'?: object;
+    /**
+     * Order items
+     */
+    'items': Array<object>;
+    /**
+     * Payment status
+     */
+    'paymentStatus': string;
+    /**
+     * Order status
+     */
+    'orderStatus': string;
+}
+export interface CheckoutControllerCommitCheckout201Response {
+    'message': string;
+    'data': CheckoutCommitResponseDto;
+}
+export interface CheckoutControllerPreviewCheckout200Response {
+    'message': string;
+    'data': CheckoutPreviewResponseDto;
+}
+export interface CheckoutPreviewDto {
+    /**
+     * Checkout source - where checkout is initiated from
+     */
+    'source': CheckoutPreviewDtoSourceEnum;
+    /**
+     * Coupon code to apply
+     */
+    'couponCode'?: string;
+}
+
+export const CheckoutPreviewDtoSourceEnum = {
+    Product: 'PRODUCT',
+    Cart: 'CART'
+} as const;
+
+export type CheckoutPreviewDtoSourceEnum = typeof CheckoutPreviewDtoSourceEnum[keyof typeof CheckoutPreviewDtoSourceEnum];
+
+export interface CheckoutPreviewResponseDto {
+    /**
+     * Subtotal before any discounts
+     */
+    'subtotal': number;
+    /**
+     * Product-level discount
+     */
+    'productDiscount': number;
+    /**
+     * Coupon discount applied
+     */
+    'couponDiscount': number;
+    /**
+     * Offer discount applied
+     */
+    'offerDiscount': number;
+    /**
+     * Shipping charge
+     */
+    'shippingCharge': number;
+    /**
+     * Tax amount
+     */
+    'tax': number;
+    /**
+     * Final total amount
+     */
+    'total': number;
+    /**
+     * Applied coupon details
+     */
+    'couponSnapshot'?: CouponSnapshotDto;
+}
 export interface ConflictErrorDto {
     'statusCode': number;
     'message': string;
     'error': string;
+}
+export interface CouponControllerGetAvailableCoupons200Response {
+    'message': string;
+    'data': Array<CouponResponseDto>;
+}
+export interface CouponControllerGetCouponByCode200Response {
+    'message': string;
+    'data': CouponResponseDto;
+}
+export interface CouponControllerValidateCoupon200Response {
+    'message': string;
+    'data': CouponValidationResponseDto;
+}
+export interface CouponResponseDto {
+    /**
+     * Coupon ID
+     */
+    'id': string;
+    /**
+     * Coupon code
+     */
+    'code': string;
+    /**
+     * Discount type
+     */
+    'type': CouponResponseDtoTypeEnum;
+    /**
+     * Discount value
+     */
+    'discount': number;
+    /**
+     * Minimum cart amount required
+     */
+    'minAmount': number;
+    /**
+     * Maximum discount amount
+     */
+    'maxDiscount'?: number;
+    /**
+     * Coupon start date
+     */
+    'startDate': string;
+    /**
+     * Coupon end date
+     */
+    'endDate': string;
+    /**
+     * Coupon status
+     */
+    'status': CouponResponseDtoStatusEnum;
+    /**
+     * Total usage limit
+     */
+    'usageLimit'?: number;
+    /**
+     * Times this coupon has been used
+     */
+    'usedCount': number;
+    /**
+     * Maximum times a user can use this coupon
+     */
+    'maxUsagePerUser': number;
+    /**
+     * Applicability scope
+     */
+    'applicableTo': CouponResponseDtoApplicableToEnum;
+    /**
+     * Can be stacked with offers
+     */
+    'isStackable': boolean;
+    /**
+     * Coupon description
+     */
+    'description'?: string;
+    /**
+     * Whether coupon is currently active
+     */
+    'isActive': boolean;
+    /**
+     * Whether usage limit is reached
+     */
+    'isLimitReached': boolean;
+    /**
+     * Creation timestamp
+     */
+    'createdAt': string;
+    /**
+     * Last update timestamp
+     */
+    'updatedAt': string;
+}
+
+export const CouponResponseDtoTypeEnum = {
+    Percentage: 'Percentage',
+    Flat: 'Flat'
+} as const;
+
+export type CouponResponseDtoTypeEnum = typeof CouponResponseDtoTypeEnum[keyof typeof CouponResponseDtoTypeEnum];
+export const CouponResponseDtoStatusEnum = {
+    Active: 'active',
+    Inactive: 'inactive',
+    Expired: 'expired'
+} as const;
+
+export type CouponResponseDtoStatusEnum = typeof CouponResponseDtoStatusEnum[keyof typeof CouponResponseDtoStatusEnum];
+export const CouponResponseDtoApplicableToEnum = {
+    All: 'all',
+    SpecificProducts: 'specific_products',
+    SpecificCategories: 'specific_categories'
+} as const;
+
+export type CouponResponseDtoApplicableToEnum = typeof CouponResponseDtoApplicableToEnum[keyof typeof CouponResponseDtoApplicableToEnum];
+
+export interface CouponSnapshotDto {
+    /**
+     * Coupon code
+     */
+    'code': string;
+    /**
+     * Coupon type
+     */
+    'type': string;
+    /**
+     * Discount value
+     */
+    'discount': number;
+    /**
+     * Discount applied
+     */
+    'discountApplied': number;
+}
+export interface CouponUsageResponseDto {
+    /**
+     * Usage record ID
+     */
+    'id': string;
+    /**
+     * Coupon ID
+     */
+    'couponId': string;
+    /**
+     * User ID who used the coupon
+     */
+    'userId': string;
+    /**
+     * Order ID where coupon was applied
+     */
+    'orderId'?: string;
+    /**
+     * Discount amount that was applied
+     */
+    'discountApplied': number;
+    /**
+     * When the coupon was used
+     */
+    'usedAt': string;
+}
+export interface CouponValidationResponseDto {
+    /**
+     * Whether the coupon is valid
+     */
+    'valid': boolean;
+    /**
+     * Reason if coupon is invalid
+     */
+    'reason': string | null;
+    /**
+     * Discount amount that will be applied
+     */
+    'discount': number;
+    /**
+     * Coupon code that was validated
+     */
+    'code': string;
 }
 export interface CreateAddressDto {
     /**
@@ -125,6 +776,16 @@ export interface CreateAddressDto {
      */
     'isPrimary'?: boolean;
 }
+export interface CreateBannerDto {
+    /**
+     * URL of the banner image
+     */
+    'imageUrl': string;
+    /**
+     * Display order of the banner (lower numbers appear first)
+     */
+    'order'?: number;
+}
 export interface CreateCategoryDto {
     /**
      * Category name
@@ -142,6 +803,161 @@ export interface CreateCategoryDto {
      * Parent category ID for subcategories
      */
     'parentId'?: object;
+}
+export interface CreateCouponDto {
+    /**
+     * Unique coupon code (will be converted to uppercase)
+     */
+    'code': string;
+    /**
+     * Type of discount
+     */
+    'type': CreateCouponDtoTypeEnum;
+    /**
+     * Discount value (percentage or flat amount)
+     */
+    'discount': number;
+    /**
+     * Minimum cart amount required to use coupon
+     */
+    'minAmount': number;
+    /**
+     * Coupon start date
+     */
+    'startDate': string;
+    /**
+     * Coupon end date
+     */
+    'endDate': string;
+    /**
+     * Maximum discount amount (for percentage coupons)
+     */
+    'maxDiscount'?: number;
+    /**
+     * Total usage limit for this coupon
+     */
+    'usageLimit'?: number;
+    /**
+     * Maximum times a single user can use this coupon
+     */
+    'maxUsagePerUser': number;
+    /**
+     * Applicability scope
+     */
+    'applicableTo': CreateCouponDtoApplicableToEnum;
+    /**
+     * Whether coupon can be combined with offers
+     */
+    'isStackable': boolean;
+    /**
+     * Coupon description for users
+     */
+    'description'?: string;
+}
+
+export const CreateCouponDtoTypeEnum = {
+    Percentage: 'Percentage',
+    Flat: 'Flat'
+} as const;
+
+export type CreateCouponDtoTypeEnum = typeof CreateCouponDtoTypeEnum[keyof typeof CreateCouponDtoTypeEnum];
+export const CreateCouponDtoApplicableToEnum = {
+    All: 'all',
+    SpecificProducts: 'specific_products',
+    SpecificCategories: 'specific_categories'
+} as const;
+
+export type CreateCouponDtoApplicableToEnum = typeof CreateCouponDtoApplicableToEnum[keyof typeof CreateCouponDtoApplicableToEnum];
+
+export interface CreateOfferDto {
+    /**
+     * Offer name
+     */
+    'name': string;
+    /**
+     * Type of discount
+     */
+    'type': CreateOfferDtoTypeEnum;
+    /**
+     * Discount value (percentage or flat amount)
+     */
+    'discount': number;
+    /**
+     * Offer start date
+     */
+    'startDate': string;
+    /**
+     * Offer end date
+     */
+    'endDate': string;
+    /**
+     * Minimum purchase amount required
+     */
+    'minPurchaseAmount': number;
+    /**
+     * Maximum discount amount (for percentage offers)
+     */
+    'maxDiscount'?: number;
+    /**
+     * Priority (higher number = higher priority)
+     */
+    'priority': number;
+    /**
+     * Category IDs this offer applies to
+     */
+    'categories'?: Array<string>;
+    /**
+     * Product IDs this offer applies to
+     */
+    'products'?: Array<string>;
+    /**
+     * Whether offer can be combined with coupons
+     */
+    'isStackable': boolean;
+    /**
+     * Offer description for users
+     */
+    'description'?: string;
+}
+
+export const CreateOfferDtoTypeEnum = {
+    Percentage: 'Percentage',
+    Flat: 'Flat'
+} as const;
+
+export type CreateOfferDtoTypeEnum = typeof CreateOfferDtoTypeEnum[keyof typeof CreateOfferDtoTypeEnum];
+
+export interface CreatePaymentDto {
+    /**
+     * Order ID for which to create payment
+     */
+    'orderId': string;
+}
+export interface CreatePaymentResponseDto {
+    /**
+     * Razorpay order ID
+     */
+    'id': string;
+    /**
+     * Entity type
+     */
+    'entity': string;
+    /**
+     * Amount in paise
+     */
+    'amount': number;
+    /**
+     * Currency code
+     */
+    'currency': string;
+    /**
+     * Receipt identifier
+     */
+    'receipt': string;
+    /**
+     * Order status
+     */
+    'status': string;
 }
 export interface CreateProductDto {
     /**
@@ -163,10 +979,6 @@ export interface CreateProductDto {
 }
 export interface CreateVariantDto {
     /**
-     * SKU (Stock Keeping Unit) - must be unique across all variants
-     */
-    'sku': string;
-    /**
      * Variant name (e.g., size, weight, color)
      */
     'variantName': string;
@@ -187,14 +999,66 @@ export interface CreateVariantDto {
      */
     'sellerProfileId'?: string;
     /**
-     * Image URL for this specific variant
+     * Additional attributes (e.g., weight, organic flag)
      */
-    'imageUrl'?: string;
+    'attributes'?: object;
+}
+export interface CustomerInfoResponseDto {
+    /**
+     * Customer profile ID
+     */
+    'customerId': string;
+    /**
+     * Customer name
+     */
+    'customerName'?: string | null;
+    /**
+     * Customer email
+     */
+    'customerEmail'?: string | null;
+    /**
+     * Customer phone
+     */
+    'customerPhone'?: string | null;
+}
+export interface CustomerOrderControllerGetMyOrders200Response {
+    'message': string;
+    'data': Array<OrderResponseDto>;
+}
+export interface CustomerOrderControllerGetOrderById200Response {
+    'message': string;
+    'data': OrderResponseDto;
 }
 export interface CustomerProfileDto {
     'id': string;
     'name'?: string;
-    'cartId'?: string;
+    'profilePicture'?: string;
+}
+export interface DashboardStatsDto {
+    /**
+     * Total revenue
+     */
+    'totalRevenue': number;
+    /**
+     * Total orders
+     */
+    'totalOrders': number;
+    /**
+     * Total customers
+     */
+    'totalCustomers'?: number;
+    /**
+     * Total products sold
+     */
+    'totalProductsSold': number;
+    /**
+     * Average order value
+     */
+    'averageOrderValue': number;
+    /**
+     * Total discount given
+     */
+    'totalDiscount': number;
 }
 export interface FeedControllerGetFeed200Response {
     'message': string;
@@ -204,6 +1068,24 @@ export interface ForbiddenErrorDto {
     'statusCode': number;
     'message': string;
     'error': string;
+}
+export interface ForgotPasswordDto {
+    /**
+     * Email or phone number
+     */
+    'identifier': string;
+}
+export interface GenerateBannerUploadUrlDto {
+    /**
+     * Original filename for the banner image
+     */
+    'fileName': string;
+}
+export interface GenerateProfilePictureUploadUrlDto {
+    /**
+     * File name for the profile picture
+     */
+    'fileName': string;
 }
 export interface GetCategoryProductFeedResponseDto {
     /**
@@ -269,7 +1151,7 @@ export interface LoginWithGoogleDto {
     'idToken': string;
 }
 export interface MeResponseDto {
-    'userId': string;
+    'id': string;
     'email'?: string;
     'role': MeResponseDtoRoleEnum;
     'status': MeResponseDtoStatusEnum;
@@ -300,6 +1182,270 @@ export interface NotFoundErrorDto {
     'message': string;
     'error': string;
 }
+export interface OfferControllerGetActiveOffers200Response {
+    'message': string;
+    'data': Array<OfferResponseDto>;
+}
+export interface OfferControllerGetOffer200Response {
+    'message': string;
+    'data': OfferResponseDto;
+}
+export interface OfferResponseDto {
+    /**
+     * Offer ID
+     */
+    'id': string;
+    /**
+     * Offer name
+     */
+    'name': string;
+    /**
+     * Discount type
+     */
+    'type': OfferResponseDtoTypeEnum;
+    /**
+     * Discount value
+     */
+    'discount': number;
+    /**
+     * Minimum purchase amount required
+     */
+    'minPurchaseAmount': number;
+    /**
+     * Maximum discount amount
+     */
+    'maxDiscount'?: number;
+    /**
+     * Priority (higher = more important)
+     */
+    'priority': number;
+    /**
+     * Offer start date
+     */
+    'startDate': string;
+    /**
+     * Offer end date
+     */
+    'endDate': string;
+    /**
+     * Offer status
+     */
+    'status': OfferResponseDtoStatusEnum;
+    /**
+     * Can be stacked with coupons
+     */
+    'isStackable': boolean;
+    /**
+     * Applicable category IDs
+     */
+    'categories': Array<string>;
+    /**
+     * Applicable product IDs
+     */
+    'products': Array<string>;
+    /**
+     * Offer description
+     */
+    'description'?: string;
+    /**
+     * Whether offer is currently active
+     */
+    'isActive': boolean;
+    /**
+     * Creation timestamp
+     */
+    'createdAt': string;
+    /**
+     * Last update timestamp
+     */
+    'updatedAt': string;
+}
+
+export const OfferResponseDtoTypeEnum = {
+    Percentage: 'Percentage',
+    Flat: 'Flat'
+} as const;
+
+export type OfferResponseDtoTypeEnum = typeof OfferResponseDtoTypeEnum[keyof typeof OfferResponseDtoTypeEnum];
+export const OfferResponseDtoStatusEnum = {
+    Active: 'active',
+    Inactive: 'inactive',
+    Expired: 'expired'
+} as const;
+
+export type OfferResponseDtoStatusEnum = typeof OfferResponseDtoStatusEnum[keyof typeof OfferResponseDtoStatusEnum];
+
+export interface OrderItemResponseDto {
+    /**
+     * Product ID
+     */
+    'productId': string;
+    /**
+     * Product name
+     */
+    'productName': string;
+    /**
+     * Variant ID
+     */
+    'variantId': string;
+    /**
+     * Variant name
+     */
+    'variantName': string;
+    /**
+     * Quantity ordered
+     */
+    'quantity': number;
+    /**
+     * Base price per item
+     */
+    'basePrice': number;
+    /**
+     * Discount percentage applied
+     */
+    'discountPercent': number;
+    /**
+     * Final price per item after discount
+     */
+    'finalPrice': number;
+    /**
+     * Total price for this item
+     */
+    'totalPrice': number;
+    /**
+     * Product variant attributes
+     */
+    'attributes': object;
+    /**
+     * Product image URL
+     */
+    'imageUrl': string | null;
+}
+export interface OrderResponseDto {
+    /**
+     * Order ID
+     */
+    'id': string;
+    /**
+     * Order number
+     */
+    'orderNumber': string;
+    /**
+     * Customer ID
+     */
+    'customerId': string;
+    /**
+     * Customer information
+     */
+    'customer'?: CustomerInfoResponseDto;
+    /**
+     * Order items
+     */
+    'items': Array<OrderItemResponseDto>;
+    /**
+     * Subtotal amount
+     */
+    'subtotal': number;
+    /**
+     * Discount amount
+     */
+    'discount': number;
+    /**
+     * Coupon discount amount
+     */
+    'couponDiscount': number;
+    /**
+     * Offer discount amount
+     */
+    'offerDiscount': number;
+    /**
+     * Shipping charge
+     */
+    'shippingCharge': number;
+    /**
+     * Tax amount
+     */
+    'tax': number;
+    /**
+     * Total amount
+     */
+    'total': number;
+    /**
+     * Applied coupon code
+     */
+    'appliedCouponCode': string | null;
+    /**
+     * Applied offer IDs
+     */
+    'appliedOfferIds': Array<string>;
+    /**
+     * Shipping address JSON
+     */
+    'shippingAddress': object;
+    /**
+     * Payment method
+     */
+    'paymentMethod': string | null;
+    /**
+     * Payment status
+     */
+    'paymentStatus': OrderResponseDtoPaymentStatusEnum;
+    /**
+     * Order status
+     */
+    'orderStatus': OrderResponseDtoOrderStatusEnum;
+    /**
+     * Order metadata
+     */
+    'metadata': object;
+    /**
+     * Cancel reason
+     */
+    'cancelReason': string | null;
+    /**
+     * Refund amount
+     */
+    'refundAmount': number | null;
+    /**
+     * Order placed date
+     */
+    'placedAt': string;
+    /**
+     * Delivered date
+     */
+    'deliveredAt': string | null;
+    /**
+     * Cancelled date
+     */
+    'cancelledAt': string | null;
+    /**
+     * Last updated date
+     */
+    'updatedAt': string;
+}
+
+export const OrderResponseDtoPaymentStatusEnum = {
+    Pending: 'pending',
+    Paid: 'paid',
+    Failed: 'failed',
+    Refunded: 'refunded'
+} as const;
+
+export type OrderResponseDtoPaymentStatusEnum = typeof OrderResponseDtoPaymentStatusEnum[keyof typeof OrderResponseDtoPaymentStatusEnum];
+export const OrderResponseDtoOrderStatusEnum = {
+    Pending: 'pending',
+    Processing: 'processing',
+    Shipping: 'shipping',
+    Delivered: 'delivered',
+    Canceled: 'canceled',
+    ReturnRequested: 'return_requested',
+    ReturnApproved: 'return_approved',
+    ReturnRejected: 'return_rejected',
+    Returned: 'returned'
+} as const;
+
+export type OrderResponseDtoOrderStatusEnum = typeof OrderResponseDtoOrderStatusEnum[keyof typeof OrderResponseDtoOrderStatusEnum];
+
 export interface PaginationMetaDto {
     /**
      * Current page number
@@ -322,22 +1468,69 @@ export interface PaginationMetaDto {
      */
     'hasPrevPage': boolean;
 }
-export interface ProductControllerCreate201Response {
+export interface PaymentControllerCreatePayment200Response {
+    'message': string;
+    'data': CreatePaymentResponseDto;
+}
+export interface PaymentControllerVerifyPayment200Response {
+    'message': string;
+    'data': VerifyPaymentResponseDto;
+}
+export interface ProductControllerUpdate200Response {
     'message': string;
     'data': ProductResponseDto;
 }
-export interface ProductControllerFindAll200Response {
-    'message': string;
-    'data': Array<ProductResponseDto>;
+export interface ProductDetailDto {
     /**
-     * Pagination metadata
+     * Product ID
      */
-    'meta': PaginationMetaDto;
+    'id': string;
+    /**
+     * Product name
+     */
+    'name': string;
+    /**
+     * Product description
+     */
+    'description': string;
+    /**
+     * Brand name
+     */
+    'brand'?: string;
+    /**
+     * Product status (catalog lifecycle)
+     */
+    'status': ProductDetailDtoStatusEnum;
+    /**
+     * Whether product is active in catalog
+     */
+    'isActive': boolean;
+    /**
+     * Category details
+     */
+    'category': CategoryNestedDto;
+    /**
+     * All available variants with images
+     */
+    'variants': Array<VariantResponseDto>;
+    /**
+     * Product creation date
+     */
+    'createdAt': string;
+    /**
+     * Product last update date
+     */
+    'updatedAt': string;
 }
-export interface ProductControllerGetProductWithVariants200Response {
-    'message': string;
-    'data': ProductWithVariantsResponseDto;
-}
+
+export const ProductDetailDtoStatusEnum = {
+    Active: 'active',
+    Inactive: 'inactive',
+    Discontinued: 'discontinued'
+} as const;
+
+export type ProductDetailDtoStatusEnum = typeof ProductDetailDtoStatusEnum[keyof typeof ProductDetailDtoStatusEnum];
+
 export interface ProductDto {
     /**
      * The unique identifier of the product
@@ -348,13 +1541,29 @@ export interface ProductDto {
      */
     'name': string;
     /**
-     * The price of the product
+     * The category of the product
      */
-    'price': number;
+    'category': CategoryResponseDto;
     /**
-     * The discount percentage of the product
+     * The variant of the product
      */
-    'discountPercentage'?: number;
+    'variant': ProductVariantDto;
+}
+export interface ProductPublicControllerFindAll200Response {
+    'message': string;
+    'data': Array<ProductWithVariantPreviewDto>;
+    /**
+     * Pagination metadata
+     */
+    'meta': PaginationMetaDto;
+}
+export interface ProductPublicControllerFindOne200Response {
+    'message': string;
+    'data': ProductWithVariantsResponseDto;
+}
+export interface ProductPublicControllerGetProductWithVariants200Response {
+    'message': string;
+    'data': ProductDetailDto;
 }
 export interface ProductResponseDto {
     /**
@@ -376,7 +1585,7 @@ export interface ProductResponseDto {
     /**
      * Brand name
      */
-    'brand'?: object | null;
+    'brand'?: string;
     /**
      * Product status (catalog lifecycle)
      */
@@ -407,15 +1616,192 @@ export const ProductResponseDtoStatusEnum = {
 
 export type ProductResponseDtoStatusEnum = typeof ProductResponseDtoStatusEnum[keyof typeof ProductResponseDtoStatusEnum];
 
+export interface ProductVariantDetailDto {
+    /**
+     * Product variant ID
+     */
+    'id': string;
+    /**
+     * Variant name (e.g., \"500g\", \"1kg\", \"Red-M\")
+     */
+    'variantName': string;
+    /**
+     * Price of the variant
+     */
+    'price': number;
+    /**
+     * Discount percentage
+     */
+    'discountPercent': number;
+    /**
+     * Final price after discount
+     */
+    'finalPrice': number;
+    /**
+     * Stock available
+     */
+    'stock': number;
+    /**
+     * Variant status
+     */
+    'status': string;
+    /**
+     * Product ID
+     */
+    'productId': string;
+    /**
+     * Product name
+     */
+    'productName': string;
+    /**
+     * Product description
+     */
+    'productDescription': string;
+    /**
+     * Product brand
+     */
+    'productBrand': object | null;
+    /**
+     * Variant image URL
+     */
+    'imageUrl': string;
+}
+export interface ProductVariantDto {
+    /**
+     * The unique identifier of the product variant
+     */
+    'id': string;
+    /**
+     * The name of the product variant
+     */
+    'variantName': string;
+    /**
+     * The price of the product variant
+     */
+    'price': number;
+    /**
+     * The discount percentage of the product variant
+     */
+    'discountPercentage'?: number;
+    /**
+     * The available stock quantity of the product variant
+     */
+    'stock': number;
+    /**
+     * The URL of the product variant image
+     */
+    'imageUrl': string;
+}
+export interface ProductWithVariantPreviewDto {
+    /**
+     * Product ID
+     */
+    'id': string;
+    /**
+     * Product name
+     */
+    'name': string;
+    /**
+     * Brand name
+     */
+    'brand'?: string;
+    /**
+     * Category details
+     */
+    'category': CategoryNestedDto;
+    /**
+     * Featured/first variant for quick preview
+     */
+    'variant': VariantPreviewDto;
+}
 export interface ProductWithVariantsResponseDto {
     /**
-     * Product catalog information
+     * Product ID
      */
-    'product': ProductResponseDto;
+    'id': string;
+    /**
+     * Product name
+     */
+    'name': string;
+    /**
+     * Product description
+     */
+    'description': string;
+    /**
+     * Category ID
+     */
+    'categoryId': string;
+    /**
+     * Brand name
+     */
+    'brand'?: string;
+    /**
+     * Product status (catalog lifecycle)
+     */
+    'status': ProductWithVariantsResponseDtoStatusEnum;
+    /**
+     * Whether product is active in catalog
+     */
+    'isActive': boolean;
+    /**
+     * Whether product is in catalog (not deleted/discontinued)
+     */
+    'isInCatalog': boolean;
+    /**
+     * Product creation date
+     */
+    'createdAt': string;
+    /**
+     * Product last update date
+     */
+    'updatedAt': string;
+    /**
+     * Category details
+     */
+    'category': CategoryNestedDto;
     /**
      * Sellable variants of the product
      */
     'variants': Array<VariantResponseDto>;
+}
+
+export const ProductWithVariantsResponseDtoStatusEnum = {
+    Active: 'active',
+    Inactive: 'inactive',
+    Discontinued: 'discontinued'
+} as const;
+
+export type ProductWithVariantsResponseDtoStatusEnum = typeof ProductWithVariantsResponseDtoStatusEnum[keyof typeof ProductWithVariantsResponseDtoStatusEnum];
+
+export interface ProfilePictureUploadResponseDto {
+    /**
+     * Storage provider (cloudinary or azure)
+     */
+    'provider': string;
+    /**
+     * Upload URL
+     */
+    'uploadUrl': string;
+    /**
+     * HTTP method to use for upload
+     */
+    'method': string;
+    /**
+     * Additional fields required for upload (for Cloudinary)
+     */
+    'fields'?: object;
+    /**
+     * Read URL for the uploaded file (for Azure)
+     */
+    'readUrl'?: string;
+}
+export interface RecentOrderDto {
+    'id': string;
+    'orderNumber': string;
+    'total': number;
+    'orderStatus': string;
+    'placedAt': string;
+    'customerName'?: object | null;
 }
 export interface RegisterDto {
     /**
@@ -431,17 +1817,158 @@ export interface RegisterDto {
      */
     'password': string;
 }
+export interface ReorderBannersDto {
+    /**
+     * Array of banner IDs with their new order positions
+     */
+    'banners': Array<BannerOrderItemDto>;
+}
 export interface RequestOTPDto {
     /**
      * Email or phone number
      */
     'identifier': string;
 }
+export interface ResetPasswordDto {
+    /**
+     * Email or phone number
+     */
+    'identifier': string;
+    /**
+     * OTP code (4 digits)
+     */
+    'otp': string;
+    /**
+     * New password (min 6 characters)
+     */
+    'newPassword': string;
+}
+export interface SalesReportItemDto {
+    /**
+     * Date or period identifier
+     */
+    'date': object | null;
+    /**
+     * Start date of the period
+     */
+    'startDate': object | null;
+    /**
+     * End date of the period
+     */
+    'endDate': object | null;
+    /**
+     * Total number of orders
+     */
+    'totalOrders': number;
+    /**
+     * Total sales amount
+     */
+    'totalSales': number;
+    /**
+     * Total discount applied
+     */
+    'totalDiscountApplied': number;
+    /**
+     * Net sales after discounts
+     */
+    'netSales': number;
+    /**
+     * Total items sold
+     */
+    'totalItemsSold': number;
+}
+export interface SaveProfilePictureDto {
+    /**
+     * URL of the uploaded profile picture
+     */
+    'url': string;
+}
+export interface SaveVariantImageDto {
+    /**
+     * Cloudinary public ID returned after upload
+     */
+    'publicId': string;
+    /**
+     * Image URL returned from Cloudinary
+     */
+    'url': string;
+}
+export interface SellerDashboardResponseDto {
+    'stats': DashboardStatsDto;
+    'recentOrders': Array<RecentOrderDto>;
+    'topProducts': Array<TopProductDto>;
+}
+export interface SellerProductControllerGetSellerProducts200Response {
+    'message': string;
+    'data': Array<ProductWithVariantsResponseDto>;
+    /**
+     * Pagination metadata
+     */
+    'meta': PaginationMetaDto;
+}
 export interface SellerProfileDto {
     'id': string;
     'storeName': string;
     'isVerified': boolean;
 }
+export interface TopProductDto {
+    'productId': string;
+    'productName': string;
+    'totalSold': number;
+    'revenue': number;
+}
+export interface TransactionResponseDto {
+    /**
+     * Transaction ID
+     */
+    'id': string;
+    /**
+     * Transaction amount
+     */
+    'amount': number;
+    /**
+     * Transaction type
+     */
+    'type': TransactionResponseDtoTypeEnum;
+    /**
+     * Transaction status
+     */
+    'status': TransactionResponseDtoStatusEnum;
+    /**
+     * Transaction description
+     */
+    'description': string | null;
+    /**
+     * External reference
+     */
+    'reference': string | null;
+    /**
+     * Associated order ID
+     */
+    'orderId': string | null;
+    /**
+     * Transaction date
+     */
+    'createdAt': string;
+}
+
+export const TransactionResponseDtoTypeEnum = {
+    Credit: 'credit',
+    Debit: 'debit',
+    Refund: 'refund',
+    Cashback: 'cashback'
+} as const;
+
+export type TransactionResponseDtoTypeEnum = typeof TransactionResponseDtoTypeEnum[keyof typeof TransactionResponseDtoTypeEnum];
+export const TransactionResponseDtoStatusEnum = {
+    Pending: 'pending',
+    Completed: 'completed',
+    Failed: 'failed',
+    Reversed: 'reversed'
+} as const;
+
+export type TransactionResponseDtoStatusEnum = typeof TransactionResponseDtoStatusEnum[keyof typeof TransactionResponseDtoStatusEnum];
+
 export interface UnauthorizedErrorDto {
     'statusCode': number;
     'message': string;
@@ -477,15 +2004,31 @@ export interface UpdateAddressDto {
      */
     'isPrimary'?: boolean;
 }
+export interface UpdateBannerDto {
+    /**
+     * URL of the banner image
+     */
+    'imageUrl'?: string;
+    /**
+     * Whether the banner is active
+     */
+    'isActive'?: boolean;
+}
+export interface UpdateCartItemDto {
+    /**
+     * New quantity for the cart item
+     */
+    'quantity': number;
+}
 export interface UpdateCategoryDto {
     /**
      * Category name
      */
     'name'?: string;
     /**
-     * Category description
+     * Category status (e.g., active, inactive)
      */
-    'description'?: object;
+    'status'?: UpdateCategoryDtoStatusEnum;
     /**
      * Category image URL
      */
@@ -495,6 +2038,158 @@ export interface UpdateCategoryDto {
      */
     'parentId'?: object;
 }
+
+export const UpdateCategoryDtoStatusEnum = {
+    Active: 'active',
+    Inactive: 'inactive'
+} as const;
+
+export type UpdateCategoryDtoStatusEnum = typeof UpdateCategoryDtoStatusEnum[keyof typeof UpdateCategoryDtoStatusEnum];
+
+export interface UpdateCouponDto {
+    /**
+     * Unique coupon code
+     */
+    'code'?: string;
+    /**
+     * Type of discount
+     */
+    'type'?: UpdateCouponDtoTypeEnum;
+    /**
+     * Discount value
+     */
+    'discount'?: number;
+    /**
+     * Minimum cart amount
+     */
+    'minAmount'?: number;
+    /**
+     * Maximum discount amount
+     */
+    'maxDiscount'?: number;
+    /**
+     * Start date
+     */
+    'startDate'?: string;
+    /**
+     * End date
+     */
+    'endDate'?: string;
+    /**
+     * Total usage limit
+     */
+    'usageLimit'?: number;
+    /**
+     * Max usage per user
+     */
+    'maxUsagePerUser'?: number;
+    /**
+     * Applicability scope
+     */
+    'applicableTo'?: UpdateCouponDtoApplicableToEnum;
+    /**
+     * Stackable with offers
+     */
+    'isStackable'?: boolean;
+    /**
+     * Coupon description
+     */
+    'description'?: string;
+}
+
+export const UpdateCouponDtoTypeEnum = {
+    Percentage: 'Percentage',
+    Flat: 'Flat'
+} as const;
+
+export type UpdateCouponDtoTypeEnum = typeof UpdateCouponDtoTypeEnum[keyof typeof UpdateCouponDtoTypeEnum];
+export const UpdateCouponDtoApplicableToEnum = {
+    All: 'all',
+    SpecificProducts: 'specific_products',
+    SpecificCategories: 'specific_categories'
+} as const;
+
+export type UpdateCouponDtoApplicableToEnum = typeof UpdateCouponDtoApplicableToEnum[keyof typeof UpdateCouponDtoApplicableToEnum];
+
+export interface UpdateOfferDto {
+    /**
+     * Offer name
+     */
+    'name'?: string;
+    /**
+     * Type of discount
+     */
+    'type'?: UpdateOfferDtoTypeEnum;
+    /**
+     * Discount value
+     */
+    'discount'?: number;
+    /**
+     * Start date
+     */
+    'startDate'?: string;
+    /**
+     * End date
+     */
+    'endDate'?: string;
+    /**
+     * Minimum purchase amount
+     */
+    'minPurchaseAmount'?: number;
+    /**
+     * Maximum discount amount
+     */
+    'maxDiscount'?: number;
+    /**
+     * Priority
+     */
+    'priority'?: number;
+    /**
+     * Category IDs
+     */
+    'categories'?: Array<string>;
+    /**
+     * Product IDs
+     */
+    'products'?: Array<string>;
+    /**
+     * Stackable with coupons
+     */
+    'isStackable'?: boolean;
+    /**
+     * Offer description
+     */
+    'description'?: string;
+}
+
+export const UpdateOfferDtoTypeEnum = {
+    Percentage: 'Percentage',
+    Flat: 'Flat'
+} as const;
+
+export type UpdateOfferDtoTypeEnum = typeof UpdateOfferDtoTypeEnum[keyof typeof UpdateOfferDtoTypeEnum];
+
+export interface UpdateOrderStatusDto {
+    /**
+     * New order status
+     */
+    'status': UpdateOrderStatusDtoStatusEnum;
+}
+
+export const UpdateOrderStatusDtoStatusEnum = {
+    Pending: 'pending',
+    Processing: 'processing',
+    Shipping: 'shipping',
+    Delivered: 'delivered',
+    Canceled: 'canceled',
+    ReturnRequested: 'return_requested',
+    ReturnApproved: 'return_approved',
+    ReturnRejected: 'return_rejected',
+    Returned: 'returned'
+} as const;
+
+export type UpdateOrderStatusDtoStatusEnum = typeof UpdateOrderStatusDtoStatusEnum[keyof typeof UpdateOrderStatusDtoStatusEnum];
+
 export interface UpdateProductDto {
     /**
      * Product name
@@ -525,6 +2220,21 @@ export const UpdateProductDtoStatusEnum = {
 } as const;
 
 export type UpdateProductDtoStatusEnum = typeof UpdateProductDtoStatusEnum[keyof typeof UpdateProductDtoStatusEnum];
+
+export interface UpdateProductStatusDto {
+    /**
+     * New product status
+     */
+    'status': UpdateProductStatusDtoStatusEnum;
+}
+
+export const UpdateProductStatusDtoStatusEnum = {
+    Active: 'active',
+    Inactive: 'inactive',
+    Discontinued: 'discontinued'
+} as const;
+
+export type UpdateProductStatusDtoStatusEnum = typeof UpdateProductStatusDtoStatusEnum[keyof typeof UpdateProductStatusDtoStatusEnum];
 
 export interface UpdateUserDto {
     /**
@@ -602,9 +2312,9 @@ export interface UpdateVariantDto {
      */
     'sellerProfileId'?: object | null;
     /**
-     * Image URL for this variant
+     * Additional attributes (e.g., weight, organic flag)
      */
-    'imageUrl'?: object | null;
+    'attributes'?: object;
 }
 
 export const UpdateVariantDtoStatusEnum = {
@@ -634,6 +2344,58 @@ export const UpdateVariantStockDtoActionEnum = {
 
 export type UpdateVariantStockDtoActionEnum = typeof UpdateVariantStockDtoActionEnum[keyof typeof UpdateVariantStockDtoActionEnum];
 
+export interface UploadUrlResponseDto {
+    /**
+     * Storage provider
+     */
+    'provider': string;
+    /**
+     * Upload URL
+     */
+    'uploadUrl': string;
+    /**
+     * HTTP method to use for upload
+     */
+    'method': string;
+    /**
+     * Additional fields required for upload (for cloudinary)
+     */
+    'fields'?: object;
+    /**
+     * Read URL for the uploaded file (for azure)
+     */
+    'readUrl'?: string;
+}
+export interface UploadVariantImageResponseDto {
+    /**
+     * Image storage provider
+     */
+    'provider': UploadVariantImageResponseDtoProviderEnum;
+    /**
+     * URL of the storage bucket to upload the image to
+     */
+    'uploadUrl': string;
+    /**
+     * HTTP method to use for upload
+     */
+    'method': string;
+    /**
+     * URL to read/access the uploaded image
+     */
+    'readUrl'?: string;
+    /**
+     * Additional fields required for the upload
+     */
+    'fields'?: object;
+}
+
+export const UploadVariantImageResponseDtoProviderEnum = {
+    Cloudinary: 'cloudinary',
+    Azure: 'azure'
+} as const;
+
+export type UploadVariantImageResponseDtoProviderEnum = typeof UploadVariantImageResponseDtoProviderEnum[keyof typeof UploadVariantImageResponseDtoProviderEnum];
+
 export interface UserControllerFindAll200Response {
     'message': string;
     'data': Array<UserResponseDto>;
@@ -641,6 +2403,10 @@ export interface UserControllerFindAll200Response {
      * Pagination metadata
      */
     'meta': PaginationMetaDto;
+}
+export interface UserControllerGenerateProfilePictureUploadUrl201Response {
+    'message': string;
+    'data': ProfilePictureUploadResponseDto;
 }
 export interface UserControllerGetMe200Response {
     'message': string;
@@ -652,8 +2418,14 @@ export interface UserControllerUpdate200Response {
 }
 export interface UserResponseDto {
     'id': string;
-    'email'?: object;
-    'phone'?: object;
+    /**
+     * Email address of the user. Optional if the user registered with phone number.
+     */
+    'email'?: string | null;
+    /**
+     * Phone number of the user. Optional if the user registered with email address.
+     */
+    'phone': string | null;
     'role': UserResponseDtoRoleEnum;
     'status': UserResponseDtoStatusEnum;
     'createdAt': string;
@@ -675,6 +2447,40 @@ export const UserResponseDtoStatusEnum = {
 
 export type UserResponseDtoStatusEnum = typeof UserResponseDtoStatusEnum[keyof typeof UserResponseDtoStatusEnum];
 
+export interface ValidateBalanceDto {
+    /**
+     * Amount to validate against wallet balance
+     */
+    'amount': number;
+}
+export interface ValidateBalanceResponseDto {
+    /**
+     * Whether wallet has sufficient balance
+     */
+    'isValid': boolean;
+    /**
+     * Current wallet balance
+     */
+    'currentBalance': number;
+    /**
+     * Required amount for the operation
+     */
+    'requiredAmount': number;
+    /**
+     * Shortfall amount (0 if sufficient balance)
+     */
+    'shortfall': number;
+}
+export interface ValidateCouponDto {
+    /**
+     * Coupon code to validate
+     */
+    'code': string;
+    /**
+     * Current cart total amount
+     */
+    'cartTotal': number;
+}
 export interface VariantControllerCreateVariant201Response {
     'message': string;
     'data': VariantResponseDto;
@@ -682,6 +2488,44 @@ export interface VariantControllerCreateVariant201Response {
 export interface VariantControllerGetVariantsByProduct200Response {
     'message': string;
     'data': Array<VariantResponseDto>;
+}
+export interface VariantControllerUploadVariantImage201Response {
+    'message': string;
+    'data': UploadVariantImageResponseDto;
+}
+export interface VariantPreviewDto {
+    /**
+     * Variant ID
+     */
+    'id': string;
+    /**
+     * Variant name
+     */
+    'variantName': string;
+    /**
+     * Base price
+     */
+    'price': number;
+    /**
+     * Discount percentage
+     */
+    'discountPercent': number;
+    /**
+     * Final price after discount
+     */
+    'finalPrice': number;
+    /**
+     * Stock quantity
+     */
+    'stock': number;
+    /**
+     * Single image URL (first image)
+     */
+    'imageUrl': string;
+    /**
+     * Whether variant is available for purchase
+     */
+    'availableForPurchase': boolean;
 }
 export interface VariantResponseDto {
     /**
@@ -692,10 +2536,6 @@ export interface VariantResponseDto {
      * Product ID
      */
     'productId': string;
-    /**
-     * SKU (Stock Keeping Unit)
-     */
-    'sku': string;
     /**
      * Variant name
      */
@@ -741,9 +2581,9 @@ export interface VariantResponseDto {
      */
     'attributes'?: object | null;
     /**
-     * Image URL
+     * Image URLs (array of strings, max 6)
      */
-    'imageUrl'?: object | null;
+    'images': Array<string>;
     /**
      * Creation date
      */
@@ -771,6 +2611,98 @@ export interface VerifyOTPDto {
      * OTP code (4 digits)
      */
     'otp': string;
+}
+export interface VerifyPaymentDto {
+    /**
+     * Razorpay order ID
+     */
+    'razorpay_order_id': string;
+    /**
+     * Razorpay payment ID
+     */
+    'razorpay_payment_id': string;
+    /**
+     * Razorpay signature for verification
+     */
+    'razorpay_signature': string;
+    /**
+     * Our internal order ID
+     */
+    'orderId': string;
+}
+export interface VerifyPaymentResponseDto {
+    /**
+     * Payment verification success message
+     */
+    'message': string;
+    /**
+     * Order ID
+     */
+    'orderId': string;
+}
+export interface WalletControllerAddMoney201Response {
+    'message': string;
+    'data': AddMoneyResponseDto;
+}
+export interface WalletControllerGetTransactions200Response {
+    'message': string;
+    'data': WalletTransactionsResponseDto;
+}
+export interface WalletControllerGetWallet200Response {
+    'message': string;
+    'data': WalletResponseDto;
+}
+export interface WalletControllerValidateBalance200Response {
+    'message': string;
+    'data': ValidateBalanceResponseDto;
+}
+export interface WalletResponseDto {
+    /**
+     * Wallet ID
+     */
+    'id': string;
+    /**
+     * Customer ID
+     */
+    'customerId': string;
+    /**
+     * Current wallet balance
+     */
+    'balance': number;
+    /**
+     * Currency code
+     */
+    'currency': string;
+    /**
+     * Whether the wallet is active
+     */
+    'isActive': boolean;
+    /**
+     * Wallet creation date
+     */
+    'createdAt': string;
+    /**
+     * Wallet last update date
+     */
+    'updatedAt': string;
+}
+export interface WalletTransactionsResponseDto {
+    /**
+     * List of transactions
+     */
+    'transactions': Array<TransactionResponseDto>;
+    /**
+     * Total number of transactions
+     */
+    'total': number;
+    /**
+     * Number of transactions returned
+     */
+    'limit': number;
+    /**
+     * Offset from start
+     */
+    'offset': number;
 }
 
 /**
@@ -837,6 +2769,40 @@ export const AddressesApiAxiosParamCreator = function (configuration?: Configura
             }
 
             const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieves all addresses associated with the authenticated user
+         * @summary Get my addresses
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addressControllerFind: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/addresses`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -934,6 +2900,18 @@ export const AddressesApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Retrieves all addresses associated with the authenticated user
+         * @summary Get my addresses
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async addressControllerFind(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AddressControllerFind200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addressControllerFind(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AddressesApi.addressControllerFind']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Updates an existing address for the authenticated user
          * @summary Update address
          * @param {string} id Address UUID
@@ -977,6 +2955,15 @@ export const AddressesApiFactory = function (configuration?: Configuration, base
             return localVarFp.addressControllerDelete(id, options).then((request) => request(axios, basePath));
         },
         /**
+         * Retrieves all addresses associated with the authenticated user
+         * @summary Get my addresses
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addressControllerFind(options?: RawAxiosRequestConfig): AxiosPromise<AddressControllerFind200Response> {
+            return localVarFp.addressControllerFind(options).then((request) => request(axios, basePath));
+        },
+        /**
          * Updates an existing address for the authenticated user
          * @summary Update address
          * @param {string} id Address UUID
@@ -1017,6 +3004,16 @@ export class AddressesApi extends BaseAPI {
     }
 
     /**
+     * Retrieves all addresses associated with the authenticated user
+     * @summary Get my addresses
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public addressControllerFind(options?: RawAxiosRequestConfig) {
+        return AddressesApiFp(this.configuration).addressControllerFind(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Updates an existing address for the authenticated user
      * @summary Update address
      * @param {string} id Address UUID
@@ -1032,10 +3029,2307 @@ export class AddressesApi extends BaseAPI {
 
 
 /**
+ * AdminBannersApi - axios parameter creator
+ */
+export const AdminBannersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Create a new banner for the homepage
+         * @summary Create a new banner
+         * @param {CreateBannerDto} createBannerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerCreate: async (createBannerDto: CreateBannerDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createBannerDto' is not null or undefined
+            assertParamExists('adminBannerControllerCreate', 'createBannerDto', createBannerDto)
+            const localVarPath = `/api/admin/banners`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createBannerDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Permanently delete a banner
+         * @summary Delete a banner
+         * @param {string} id Banner ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerDelete: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminBannerControllerDelete', 'id', id)
+            const localVarPath = `/api/admin/banners/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve all banners (including inactive) for admin management
+         * @summary Get all banners
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerFindAll: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/banners`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve a specific banner by its ID
+         * @summary Get banner by ID
+         * @param {string} id Banner ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminBannerControllerFindOne', 'id', id)
+            const localVarPath = `/api/admin/banners/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Generate a presigned URL for client-side banner image upload to Cloudinary
+         * @summary Generate presigned upload URL
+         * @param {GenerateBannerUploadUrlDto} generateBannerUploadUrlDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerGenerateUploadUrl: async (generateBannerUploadUrlDto: GenerateBannerUploadUrlDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'generateBannerUploadUrlDto' is not null or undefined
+            assertParamExists('adminBannerControllerGenerateUploadUrl', 'generateBannerUploadUrlDto', generateBannerUploadUrlDto)
+            const localVarPath = `/api/admin/banners/generate-upload-url`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(generateBannerUploadUrlDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update the display order of multiple banners at once (for drag and drop)
+         * @summary Reorder banners
+         * @param {ReorderBannersDto} reorderBannersDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerReorder: async (reorderBannersDto: ReorderBannersDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'reorderBannersDto' is not null or undefined
+            assertParamExists('adminBannerControllerReorder', 'reorderBannersDto', reorderBannersDto)
+            const localVarPath = `/api/admin/banners/reorder`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(reorderBannersDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update an existing banner (image URL or active status)
+         * @summary Update a banner
+         * @param {string} id Banner ID
+         * @param {UpdateBannerDto} updateBannerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerUpdate: async (id: string, updateBannerDto: UpdateBannerDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminBannerControllerUpdate', 'id', id)
+            // verify required parameter 'updateBannerDto' is not null or undefined
+            assertParamExists('adminBannerControllerUpdate', 'updateBannerDto', updateBannerDto)
+            const localVarPath = `/api/admin/banners/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateBannerDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AdminBannersApi - functional programming interface
+ */
+export const AdminBannersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AdminBannersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Create a new banner for the homepage
+         * @summary Create a new banner
+         * @param {CreateBannerDto} createBannerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerCreate(createBannerDto: CreateBannerDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminBannerControllerCreate201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerCreate(createBannerDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Permanently delete a banner
+         * @summary Delete a banner
+         * @param {string} id Banner ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerDelete(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerDelete(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve all banners (including inactive) for admin management
+         * @summary Get all banners
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerFindAll(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BannerControllerFindAll200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerFindAll(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve a specific banner by its ID
+         * @summary Get banner by ID
+         * @param {string} id Banner ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminBannerControllerCreate201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Generate a presigned URL for client-side banner image upload to Cloudinary
+         * @summary Generate presigned upload URL
+         * @param {GenerateBannerUploadUrlDto} generateBannerUploadUrlDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerGenerateUploadUrl(generateBannerUploadUrlDto: GenerateBannerUploadUrlDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminBannerControllerGenerateUploadUrl201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerGenerateUploadUrl(generateBannerUploadUrlDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerGenerateUploadUrl']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update the display order of multiple banners at once (for drag and drop)
+         * @summary Reorder banners
+         * @param {ReorderBannersDto} reorderBannersDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerReorder(reorderBannersDto: ReorderBannersDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerReorder(reorderBannersDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerReorder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update an existing banner (image URL or active status)
+         * @summary Update a banner
+         * @param {string} id Banner ID
+         * @param {UpdateBannerDto} updateBannerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminBannerControllerUpdate(id: string, updateBannerDto: UpdateBannerDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminBannerControllerCreate201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminBannerControllerUpdate(id, updateBannerDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminBannersApi.adminBannerControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AdminBannersApi - factory interface
+ */
+export const AdminBannersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AdminBannersApiFp(configuration)
+    return {
+        /**
+         * Create a new banner for the homepage
+         * @summary Create a new banner
+         * @param {CreateBannerDto} createBannerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerCreate(createBannerDto: CreateBannerDto, options?: RawAxiosRequestConfig): AxiosPromise<AdminBannerControllerCreate201Response> {
+            return localVarFp.adminBannerControllerCreate(createBannerDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Permanently delete a banner
+         * @summary Delete a banner
+         * @param {string} id Banner ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerDelete(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminBannerControllerDelete(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve all banners (including inactive) for admin management
+         * @summary Get all banners
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerFindAll(options?: RawAxiosRequestConfig): AxiosPromise<BannerControllerFindAll200Response> {
+            return localVarFp.adminBannerControllerFindAll(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve a specific banner by its ID
+         * @summary Get banner by ID
+         * @param {string} id Banner ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<AdminBannerControllerCreate201Response> {
+            return localVarFp.adminBannerControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Generate a presigned URL for client-side banner image upload to Cloudinary
+         * @summary Generate presigned upload URL
+         * @param {GenerateBannerUploadUrlDto} generateBannerUploadUrlDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerGenerateUploadUrl(generateBannerUploadUrlDto: GenerateBannerUploadUrlDto, options?: RawAxiosRequestConfig): AxiosPromise<AdminBannerControllerGenerateUploadUrl201Response> {
+            return localVarFp.adminBannerControllerGenerateUploadUrl(generateBannerUploadUrlDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update the display order of multiple banners at once (for drag and drop)
+         * @summary Reorder banners
+         * @param {ReorderBannersDto} reorderBannersDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerReorder(reorderBannersDto: ReorderBannersDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminBannerControllerReorder(reorderBannersDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update an existing banner (image URL or active status)
+         * @summary Update a banner
+         * @param {string} id Banner ID
+         * @param {UpdateBannerDto} updateBannerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminBannerControllerUpdate(id: string, updateBannerDto: UpdateBannerDto, options?: RawAxiosRequestConfig): AxiosPromise<AdminBannerControllerCreate201Response> {
+            return localVarFp.adminBannerControllerUpdate(id, updateBannerDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AdminBannersApi - object-oriented interface
+ */
+export class AdminBannersApi extends BaseAPI {
+    /**
+     * Create a new banner for the homepage
+     * @summary Create a new banner
+     * @param {CreateBannerDto} createBannerDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerCreate(createBannerDto: CreateBannerDto, options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerCreate(createBannerDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Permanently delete a banner
+     * @summary Delete a banner
+     * @param {string} id Banner ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerDelete(id: string, options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerDelete(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve all banners (including inactive) for admin management
+     * @summary Get all banners
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerFindAll(options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerFindAll(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve a specific banner by its ID
+     * @summary Get banner by ID
+     * @param {string} id Banner ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Generate a presigned URL for client-side banner image upload to Cloudinary
+     * @summary Generate presigned upload URL
+     * @param {GenerateBannerUploadUrlDto} generateBannerUploadUrlDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerGenerateUploadUrl(generateBannerUploadUrlDto: GenerateBannerUploadUrlDto, options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerGenerateUploadUrl(generateBannerUploadUrlDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update the display order of multiple banners at once (for drag and drop)
+     * @summary Reorder banners
+     * @param {ReorderBannersDto} reorderBannersDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerReorder(reorderBannersDto: ReorderBannersDto, options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerReorder(reorderBannersDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update an existing banner (image URL or active status)
+     * @summary Update a banner
+     * @param {string} id Banner ID
+     * @param {UpdateBannerDto} updateBannerDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminBannerControllerUpdate(id: string, updateBannerDto: UpdateBannerDto, options?: RawAxiosRequestConfig) {
+        return AdminBannersApiFp(this.configuration).adminBannerControllerUpdate(id, updateBannerDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * AdminCouponsApi - axios parameter creator
+ */
+export const AdminCouponsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Activate a coupon to make it available for use
+         * @summary Activate coupon
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerActivate: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminCouponControllerActivate', 'id', id)
+            const localVarPath = `/api/admin/coupons/{id}/activate`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Create a new discount coupon with usage limits and validation rules
+         * @summary Create new coupon
+         * @param {CreateCouponDto} createCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerCreate: async (createCouponDto: CreateCouponDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createCouponDto' is not null or undefined
+            assertParamExists('adminCouponControllerCreate', 'createCouponDto', createCouponDto)
+            const localVarPath = `/api/admin/coupons`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createCouponDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Deactivate a coupon to prevent further use
+         * @summary Deactivate coupon
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerDeactivate: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminCouponControllerDeactivate', 'id', id)
+            const localVarPath = `/api/admin/coupons/{id}/deactivate`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve all coupons with pagination
+         * @summary Get all coupons
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerFindAll: async (page?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/coupons`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve detailed information about a specific coupon
+         * @summary Get coupon by ID
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminCouponControllerFindOne', 'id', id)
+            const localVarPath = `/api/admin/coupons/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve analytics and performance metrics for all coupons including usage stats, revenue impact, and top performers
+         * @summary Get coupon performance analytics
+         * @param {string} [startDate] Start date for analytics period (ISO format)
+         * @param {string} [endDate] End date for analytics period (ISO format)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerGetCouponAnalytics: async (startDate?: string, endDate?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/coupons/analytics/performance`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (startDate !== undefined) {
+                localVarQueryParameter['startDate'] = startDate;
+            }
+
+            if (endDate !== undefined) {
+                localVarQueryParameter['endDate'] = endDate;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve detailed usage history for a specific coupon
+         * @summary Get coupon usage history
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerGetUsageHistory: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminCouponControllerGetUsageHistory', 'id', id)
+            const localVarPath = `/api/admin/coupons/{id}/usage`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update coupon details and configuration
+         * @summary Update coupon
+         * @param {string} id Coupon ID
+         * @param {UpdateCouponDto} updateCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerUpdate: async (id: string, updateCouponDto: UpdateCouponDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminCouponControllerUpdate', 'id', id)
+            // verify required parameter 'updateCouponDto' is not null or undefined
+            assertParamExists('adminCouponControllerUpdate', 'updateCouponDto', updateCouponDto)
+            const localVarPath = `/api/admin/coupons/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCouponDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AdminCouponsApi - functional programming interface
+ */
+export const AdminCouponsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AdminCouponsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Activate a coupon to make it available for use
+         * @summary Activate coupon
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerActivate(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerActivate(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerActivate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Create a new discount coupon with usage limits and validation rules
+         * @summary Create new coupon
+         * @param {CreateCouponDto} createCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerCreate(createCouponDto: CreateCouponDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerGetCouponByCode200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerCreate(createCouponDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Deactivate a coupon to prevent further use
+         * @summary Deactivate coupon
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerDeactivate(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerDeactivate(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerDeactivate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve all coupons with pagination
+         * @summary Get all coupons
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerFindAll(page?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerGetAvailableCoupons200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerFindAll(page, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve detailed information about a specific coupon
+         * @summary Get coupon by ID
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerGetCouponByCode200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve analytics and performance metrics for all coupons including usage stats, revenue impact, and top performers
+         * @summary Get coupon performance analytics
+         * @param {string} [startDate] Start date for analytics period (ISO format)
+         * @param {string} [endDate] End date for analytics period (ISO format)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerGetCouponAnalytics(startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerGetCouponAnalytics(startDate, endDate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerGetCouponAnalytics']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve detailed usage history for a specific coupon
+         * @summary Get coupon usage history
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerGetUsageHistory(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminCouponControllerGetUsageHistory200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerGetUsageHistory(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerGetUsageHistory']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update coupon details and configuration
+         * @summary Update coupon
+         * @param {string} id Coupon ID
+         * @param {UpdateCouponDto} updateCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminCouponControllerUpdate(id: string, updateCouponDto: UpdateCouponDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerGetCouponByCode200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminCouponControllerUpdate(id, updateCouponDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminCouponsApi.adminCouponControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AdminCouponsApi - factory interface
+ */
+export const AdminCouponsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AdminCouponsApiFp(configuration)
+    return {
+        /**
+         * Activate a coupon to make it available for use
+         * @summary Activate coupon
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerActivate(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminCouponControllerActivate(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Create a new discount coupon with usage limits and validation rules
+         * @summary Create new coupon
+         * @param {CreateCouponDto} createCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerCreate(createCouponDto: CreateCouponDto, options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerGetCouponByCode200Response> {
+            return localVarFp.adminCouponControllerCreate(createCouponDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Deactivate a coupon to prevent further use
+         * @summary Deactivate coupon
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerDeactivate(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminCouponControllerDeactivate(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve all coupons with pagination
+         * @summary Get all coupons
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerFindAll(page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerGetAvailableCoupons200Response> {
+            return localVarFp.adminCouponControllerFindAll(page, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve detailed information about a specific coupon
+         * @summary Get coupon by ID
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerGetCouponByCode200Response> {
+            return localVarFp.adminCouponControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve analytics and performance metrics for all coupons including usage stats, revenue impact, and top performers
+         * @summary Get coupon performance analytics
+         * @param {string} [startDate] Start date for analytics period (ISO format)
+         * @param {string} [endDate] End date for analytics period (ISO format)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerGetCouponAnalytics(startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminCouponControllerGetCouponAnalytics(startDate, endDate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve detailed usage history for a specific coupon
+         * @summary Get coupon usage history
+         * @param {string} id Coupon ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerGetUsageHistory(id: string, options?: RawAxiosRequestConfig): AxiosPromise<AdminCouponControllerGetUsageHistory200Response> {
+            return localVarFp.adminCouponControllerGetUsageHistory(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update coupon details and configuration
+         * @summary Update coupon
+         * @param {string} id Coupon ID
+         * @param {UpdateCouponDto} updateCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminCouponControllerUpdate(id: string, updateCouponDto: UpdateCouponDto, options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerGetCouponByCode200Response> {
+            return localVarFp.adminCouponControllerUpdate(id, updateCouponDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AdminCouponsApi - object-oriented interface
+ */
+export class AdminCouponsApi extends BaseAPI {
+    /**
+     * Activate a coupon to make it available for use
+     * @summary Activate coupon
+     * @param {string} id Coupon ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerActivate(id: string, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerActivate(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Create a new discount coupon with usage limits and validation rules
+     * @summary Create new coupon
+     * @param {CreateCouponDto} createCouponDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerCreate(createCouponDto: CreateCouponDto, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerCreate(createCouponDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Deactivate a coupon to prevent further use
+     * @summary Deactivate coupon
+     * @param {string} id Coupon ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerDeactivate(id: string, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerDeactivate(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve all coupons with pagination
+     * @summary Get all coupons
+     * @param {number} [page] Page number
+     * @param {number} [limit] Items per page
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerFindAll(page?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerFindAll(page, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve detailed information about a specific coupon
+     * @summary Get coupon by ID
+     * @param {string} id Coupon ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve analytics and performance metrics for all coupons including usage stats, revenue impact, and top performers
+     * @summary Get coupon performance analytics
+     * @param {string} [startDate] Start date for analytics period (ISO format)
+     * @param {string} [endDate] End date for analytics period (ISO format)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerGetCouponAnalytics(startDate?: string, endDate?: string, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerGetCouponAnalytics(startDate, endDate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve detailed usage history for a specific coupon
+     * @summary Get coupon usage history
+     * @param {string} id Coupon ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerGetUsageHistory(id: string, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerGetUsageHistory(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update coupon details and configuration
+     * @summary Update coupon
+     * @param {string} id Coupon ID
+     * @param {UpdateCouponDto} updateCouponDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminCouponControllerUpdate(id: string, updateCouponDto: UpdateCouponDto, options?: RawAxiosRequestConfig) {
+        return AdminCouponsApiFp(this.configuration).adminCouponControllerUpdate(id, updateCouponDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * AdminOffersApi - axios parameter creator
+ */
+export const AdminOffersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Activate an offer to make it available
+         * @summary Activate offer
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerActivate: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminOfferControllerActivate', 'id', id)
+            const localVarPath = `/api/admin/offers/{id}/activate`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Create a new promotional offer with priority and applicability rules
+         * @summary Create new offer
+         * @param {CreateOfferDto} createOfferDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerCreate: async (createOfferDto: CreateOfferDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createOfferDto' is not null or undefined
+            assertParamExists('adminOfferControllerCreate', 'createOfferDto', createOfferDto)
+            const localVarPath = `/api/admin/offers`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createOfferDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Deactivate an offer to prevent it from being applied
+         * @summary Deactivate offer
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerDeactivate: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminOfferControllerDeactivate', 'id', id)
+            const localVarPath = `/api/admin/offers/{id}/deactivate`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve all offers with pagination
+         * @summary Get all offers
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerFindAll: async (page?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/offers`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve detailed information about a specific offer
+         * @summary Get offer by ID
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminOfferControllerFindOne', 'id', id)
+            const localVarPath = `/api/admin/offers/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update offer details and configuration
+         * @summary Update offer
+         * @param {string} id Offer ID
+         * @param {UpdateOfferDto} updateOfferDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerUpdate: async (id: string, updateOfferDto: UpdateOfferDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminOfferControllerUpdate', 'id', id)
+            // verify required parameter 'updateOfferDto' is not null or undefined
+            assertParamExists('adminOfferControllerUpdate', 'updateOfferDto', updateOfferDto)
+            const localVarPath = `/api/admin/offers/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateOfferDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AdminOffersApi - functional programming interface
+ */
+export const AdminOffersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AdminOffersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Activate an offer to make it available
+         * @summary Activate offer
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOfferControllerActivate(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOfferControllerActivate(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOffersApi.adminOfferControllerActivate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Create a new promotional offer with priority and applicability rules
+         * @summary Create new offer
+         * @param {CreateOfferDto} createOfferDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOfferControllerCreate(createOfferDto: CreateOfferDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetOffer200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOfferControllerCreate(createOfferDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOffersApi.adminOfferControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Deactivate an offer to prevent it from being applied
+         * @summary Deactivate offer
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOfferControllerDeactivate(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOfferControllerDeactivate(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOffersApi.adminOfferControllerDeactivate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve all offers with pagination
+         * @summary Get all offers
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOfferControllerFindAll(page?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetActiveOffers200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOfferControllerFindAll(page, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOffersApi.adminOfferControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve detailed information about a specific offer
+         * @summary Get offer by ID
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOfferControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetOffer200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOfferControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOffersApi.adminOfferControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update offer details and configuration
+         * @summary Update offer
+         * @param {string} id Offer ID
+         * @param {UpdateOfferDto} updateOfferDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOfferControllerUpdate(id: string, updateOfferDto: UpdateOfferDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetOffer200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOfferControllerUpdate(id, updateOfferDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOffersApi.adminOfferControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AdminOffersApi - factory interface
+ */
+export const AdminOffersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AdminOffersApiFp(configuration)
+    return {
+        /**
+         * Activate an offer to make it available
+         * @summary Activate offer
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerActivate(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminOfferControllerActivate(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Create a new promotional offer with priority and applicability rules
+         * @summary Create new offer
+         * @param {CreateOfferDto} createOfferDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerCreate(createOfferDto: CreateOfferDto, options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetOffer200Response> {
+            return localVarFp.adminOfferControllerCreate(createOfferDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Deactivate an offer to prevent it from being applied
+         * @summary Deactivate offer
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerDeactivate(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminOfferControllerDeactivate(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve all offers with pagination
+         * @summary Get all offers
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerFindAll(page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetActiveOffers200Response> {
+            return localVarFp.adminOfferControllerFindAll(page, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve detailed information about a specific offer
+         * @summary Get offer by ID
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetOffer200Response> {
+            return localVarFp.adminOfferControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update offer details and configuration
+         * @summary Update offer
+         * @param {string} id Offer ID
+         * @param {UpdateOfferDto} updateOfferDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOfferControllerUpdate(id: string, updateOfferDto: UpdateOfferDto, options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetOffer200Response> {
+            return localVarFp.adminOfferControllerUpdate(id, updateOfferDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AdminOffersApi - object-oriented interface
+ */
+export class AdminOffersApi extends BaseAPI {
+    /**
+     * Activate an offer to make it available
+     * @summary Activate offer
+     * @param {string} id Offer ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOfferControllerActivate(id: string, options?: RawAxiosRequestConfig) {
+        return AdminOffersApiFp(this.configuration).adminOfferControllerActivate(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Create a new promotional offer with priority and applicability rules
+     * @summary Create new offer
+     * @param {CreateOfferDto} createOfferDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOfferControllerCreate(createOfferDto: CreateOfferDto, options?: RawAxiosRequestConfig) {
+        return AdminOffersApiFp(this.configuration).adminOfferControllerCreate(createOfferDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Deactivate an offer to prevent it from being applied
+     * @summary Deactivate offer
+     * @param {string} id Offer ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOfferControllerDeactivate(id: string, options?: RawAxiosRequestConfig) {
+        return AdminOffersApiFp(this.configuration).adminOfferControllerDeactivate(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve all offers with pagination
+     * @summary Get all offers
+     * @param {number} [page] Page number
+     * @param {number} [limit] Items per page
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOfferControllerFindAll(page?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return AdminOffersApiFp(this.configuration).adminOfferControllerFindAll(page, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve detailed information about a specific offer
+     * @summary Get offer by ID
+     * @param {string} id Offer ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOfferControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return AdminOffersApiFp(this.configuration).adminOfferControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update offer details and configuration
+     * @summary Update offer
+     * @param {string} id Offer ID
+     * @param {UpdateOfferDto} updateOfferDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOfferControllerUpdate(id: string, updateOfferDto: UpdateOfferDto, options?: RawAxiosRequestConfig) {
+        return AdminOffersApiFp(this.configuration).adminOfferControllerUpdate(id, updateOfferDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * AdminOrdersApi - axios parameter creator
+ */
+export const AdminOrdersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Retrieve all orders with optional filtering
+         * @summary Get all orders
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {AdminOrderControllerGetAllOrdersStatusEnum} [status] Filter by order status
+         * @param {string} [customerId] Filter by customer ID
+         * @param {string} [startDate] Filter from date (ISO string)
+         * @param {string} [endDate] Filter to date (ISO string)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOrderControllerGetAllOrders: async (page?: number, limit?: number, status?: AdminOrderControllerGetAllOrdersStatusEnum, customerId?: string, startDate?: string, endDate?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/orders`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (customerId !== undefined) {
+                localVarQueryParameter['customerId'] = customerId;
+            }
+
+            if (startDate !== undefined) {
+                localVarQueryParameter['startDate'] = startDate;
+            }
+
+            if (endDate !== undefined) {
+                localVarQueryParameter['endDate'] = endDate;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve detailed information about a specific order
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOrderControllerGetOrderById: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminOrderControllerGetOrderById', 'id', id)
+            const localVarPath = `/api/admin/orders/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update the status of an order
+         * @summary Update order status
+         * @param {string} id Order ID
+         * @param {UpdateOrderStatusDto} updateOrderStatusDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOrderControllerUpdateOrderStatus: async (id: string, updateOrderStatusDto: UpdateOrderStatusDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminOrderControllerUpdateOrderStatus', 'id', id)
+            // verify required parameter 'updateOrderStatusDto' is not null or undefined
+            assertParamExists('adminOrderControllerUpdateOrderStatus', 'updateOrderStatusDto', updateOrderStatusDto)
+            const localVarPath = `/api/admin/orders/{id}/status`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateOrderStatusDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AdminOrdersApi - functional programming interface
+ */
+export const AdminOrdersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AdminOrdersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Retrieve all orders with optional filtering
+         * @summary Get all orders
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {AdminOrderControllerGetAllOrdersStatusEnum} [status] Filter by order status
+         * @param {string} [customerId] Filter by customer ID
+         * @param {string} [startDate] Filter from date (ISO string)
+         * @param {string} [endDate] Filter to date (ISO string)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOrderControllerGetAllOrders(page?: number, limit?: number, status?: AdminOrderControllerGetAllOrdersStatusEnum, customerId?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetMyOrders200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOrderControllerGetAllOrders(page, limit, status, customerId, startDate, endDate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOrdersApi.adminOrderControllerGetAllOrders']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve detailed information about a specific order
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetOrderById200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOrderControllerGetOrderById(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOrdersApi.adminOrderControllerGetOrderById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update the status of an order
+         * @summary Update order status
+         * @param {string} id Order ID
+         * @param {UpdateOrderStatusDto} updateOrderStatusDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminOrderControllerUpdateOrderStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetOrderById200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminOrderControllerUpdateOrderStatus(id, updateOrderStatusDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminOrdersApi.adminOrderControllerUpdateOrderStatus']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AdminOrdersApi - factory interface
+ */
+export const AdminOrdersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AdminOrdersApiFp(configuration)
+    return {
+        /**
+         * Retrieve all orders with optional filtering
+         * @summary Get all orders
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {AdminOrderControllerGetAllOrdersStatusEnum} [status] Filter by order status
+         * @param {string} [customerId] Filter by customer ID
+         * @param {string} [startDate] Filter from date (ISO string)
+         * @param {string} [endDate] Filter to date (ISO string)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOrderControllerGetAllOrders(page?: number, limit?: number, status?: AdminOrderControllerGetAllOrdersStatusEnum, customerId?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetMyOrders200Response> {
+            return localVarFp.adminOrderControllerGetAllOrders(page, limit, status, customerId, startDate, endDate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve detailed information about a specific order
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetOrderById200Response> {
+            return localVarFp.adminOrderControllerGetOrderById(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update the status of an order
+         * @summary Update order status
+         * @param {string} id Order ID
+         * @param {UpdateOrderStatusDto} updateOrderStatusDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminOrderControllerUpdateOrderStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetOrderById200Response> {
+            return localVarFp.adminOrderControllerUpdateOrderStatus(id, updateOrderStatusDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AdminOrdersApi - object-oriented interface
+ */
+export class AdminOrdersApi extends BaseAPI {
+    /**
+     * Retrieve all orders with optional filtering
+     * @summary Get all orders
+     * @param {number} [page] Page number
+     * @param {number} [limit] Items per page
+     * @param {AdminOrderControllerGetAllOrdersStatusEnum} [status] Filter by order status
+     * @param {string} [customerId] Filter by customer ID
+     * @param {string} [startDate] Filter from date (ISO string)
+     * @param {string} [endDate] Filter to date (ISO string)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOrderControllerGetAllOrders(page?: number, limit?: number, status?: AdminOrderControllerGetAllOrdersStatusEnum, customerId?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig) {
+        return AdminOrdersApiFp(this.configuration).adminOrderControllerGetAllOrders(page, limit, status, customerId, startDate, endDate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve detailed information about a specific order
+     * @summary Get order by ID
+     * @param {string} id Order ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig) {
+        return AdminOrdersApiFp(this.configuration).adminOrderControllerGetOrderById(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update the status of an order
+     * @summary Update order status
+     * @param {string} id Order ID
+     * @param {UpdateOrderStatusDto} updateOrderStatusDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminOrderControllerUpdateOrderStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig) {
+        return AdminOrdersApiFp(this.configuration).adminOrderControllerUpdateOrderStatus(id, updateOrderStatusDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const AdminOrderControllerGetAllOrdersStatusEnum = {
+    Pending: 'pending',
+    Processing: 'processing',
+    Shipping: 'shipping',
+    Delivered: 'delivered',
+    Canceled: 'canceled',
+    ReturnRequested: 'return_requested',
+    ReturnApproved: 'return_approved',
+    ReturnRejected: 'return_rejected',
+    Returned: 'returned'
+} as const;
+export type AdminOrderControllerGetAllOrdersStatusEnum = typeof AdminOrderControllerGetAllOrdersStatusEnum[keyof typeof AdminOrderControllerGetAllOrdersStatusEnum];
+
+
+/**
+ * AnalyticsApi - axios parameter creator
+ */
+export const AnalyticsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Get admin dashboard analytics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        analyticsControllerGetAdminDashboard: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/analytics/admin-dashboard`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get sales report with date filtering
+         * @param {AnalyticsControllerGetSalesReportTimeframeEnum} timeframe Timeframe for grouping sales data
+         * @param {string} startDate Start date in YYYY-MM-DD format
+         * @param {string} endDate End date in YYYY-MM-DD format
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        analyticsControllerGetSalesReport: async (timeframe: AnalyticsControllerGetSalesReportTimeframeEnum, startDate: string, endDate: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'timeframe' is not null or undefined
+            assertParamExists('analyticsControllerGetSalesReport', 'timeframe', timeframe)
+            // verify required parameter 'startDate' is not null or undefined
+            assertParamExists('analyticsControllerGetSalesReport', 'startDate', startDate)
+            // verify required parameter 'endDate' is not null or undefined
+            assertParamExists('analyticsControllerGetSalesReport', 'endDate', endDate)
+            const localVarPath = `/api/analytics/sales-report`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (timeframe !== undefined) {
+                localVarQueryParameter['timeframe'] = timeframe;
+            }
+
+            if (startDate !== undefined) {
+                localVarQueryParameter['startDate'] = startDate;
+            }
+
+            if (endDate !== undefined) {
+                localVarQueryParameter['endDate'] = endDate;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get seller dashboard analytics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        analyticsControllerGetSellerDashboard: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/analytics/seller-dashboard`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AnalyticsApi - functional programming interface
+ */
+export const AnalyticsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = AnalyticsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Get admin dashboard analytics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async analyticsControllerGetAdminDashboard(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AnalyticsControllerGetAdminDashboard200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.analyticsControllerGetAdminDashboard(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AnalyticsApi.analyticsControllerGetAdminDashboard']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get sales report with date filtering
+         * @param {AnalyticsControllerGetSalesReportTimeframeEnum} timeframe Timeframe for grouping sales data
+         * @param {string} startDate Start date in YYYY-MM-DD format
+         * @param {string} endDate End date in YYYY-MM-DD format
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async analyticsControllerGetSalesReport(timeframe: AnalyticsControllerGetSalesReportTimeframeEnum, startDate: string, endDate: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AnalyticsControllerGetSalesReport200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.analyticsControllerGetSalesReport(timeframe, startDate, endDate, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AnalyticsApi.analyticsControllerGetSalesReport']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get seller dashboard analytics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async analyticsControllerGetSellerDashboard(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AnalyticsControllerGetSellerDashboard200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.analyticsControllerGetSellerDashboard(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AnalyticsApi.analyticsControllerGetSellerDashboard']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * AnalyticsApi - factory interface
+ */
+export const AnalyticsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = AnalyticsApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Get admin dashboard analytics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        analyticsControllerGetAdminDashboard(options?: RawAxiosRequestConfig): AxiosPromise<AnalyticsControllerGetAdminDashboard200Response> {
+            return localVarFp.analyticsControllerGetAdminDashboard(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get sales report with date filtering
+         * @param {AnalyticsControllerGetSalesReportTimeframeEnum} timeframe Timeframe for grouping sales data
+         * @param {string} startDate Start date in YYYY-MM-DD format
+         * @param {string} endDate End date in YYYY-MM-DD format
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        analyticsControllerGetSalesReport(timeframe: AnalyticsControllerGetSalesReportTimeframeEnum, startDate: string, endDate: string, options?: RawAxiosRequestConfig): AxiosPromise<AnalyticsControllerGetSalesReport200Response> {
+            return localVarFp.analyticsControllerGetSalesReport(timeframe, startDate, endDate, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get seller dashboard analytics
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        analyticsControllerGetSellerDashboard(options?: RawAxiosRequestConfig): AxiosPromise<AnalyticsControllerGetSellerDashboard200Response> {
+            return localVarFp.analyticsControllerGetSellerDashboard(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * AnalyticsApi - object-oriented interface
+ */
+export class AnalyticsApi extends BaseAPI {
+    /**
+     * 
+     * @summary Get admin dashboard analytics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public analyticsControllerGetAdminDashboard(options?: RawAxiosRequestConfig) {
+        return AnalyticsApiFp(this.configuration).analyticsControllerGetAdminDashboard(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get sales report with date filtering
+     * @param {AnalyticsControllerGetSalesReportTimeframeEnum} timeframe Timeframe for grouping sales data
+     * @param {string} startDate Start date in YYYY-MM-DD format
+     * @param {string} endDate End date in YYYY-MM-DD format
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public analyticsControllerGetSalesReport(timeframe: AnalyticsControllerGetSalesReportTimeframeEnum, startDate: string, endDate: string, options?: RawAxiosRequestConfig) {
+        return AnalyticsApiFp(this.configuration).analyticsControllerGetSalesReport(timeframe, startDate, endDate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get seller dashboard analytics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public analyticsControllerGetSellerDashboard(options?: RawAxiosRequestConfig) {
+        return AnalyticsApiFp(this.configuration).analyticsControllerGetSellerDashboard(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const AnalyticsControllerGetSalesReportTimeframeEnum = {
+    Daily: 'daily',
+    Weekly: 'weekly',
+    Monthly: 'monthly',
+    Yearly: 'yearly'
+} as const;
+export type AnalyticsControllerGetSalesReportTimeframeEnum = typeof AnalyticsControllerGetSalesReportTimeframeEnum[keyof typeof AnalyticsControllerGetSalesReportTimeframeEnum];
+
+
+/**
  * AuthenticationApi - axios parameter creator
  */
 export const AuthenticationApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * Change password for authenticated user
+         * @summary Change password
+         * @param {ChangePasswordDto} changePasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerChangePassword: async (changePasswordDto: ChangePasswordDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'changePasswordDto' is not null or undefined
+            assertParamExists('authControllerChangePassword', 'changePasswordDto', changePasswordDto)
+            const localVarPath = `/api/auth/password/change`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(changePasswordDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Request OTP for password reset
+         * @summary Forgot password
+         * @param {ForgotPasswordDto} forgotPasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerForgotPassword: async (forgotPasswordDto: ForgotPasswordDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'forgotPasswordDto' is not null or undefined
+            assertParamExists('authControllerForgotPassword', 'forgotPasswordDto', forgotPasswordDto)
+            const localVarPath = `/api/auth/password/forgot`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(forgotPasswordDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * Authenticate user with password or OTP
          * @summary Login with password or OTP
@@ -1237,6 +5531,41 @@ export const AuthenticationApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
+         * Reset password using OTP
+         * @summary Reset password
+         * @param {ResetPasswordDto} resetPasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerResetPassword: async (resetPasswordDto: ResetPasswordDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'resetPasswordDto' is not null or undefined
+            assertParamExists('authControllerResetPassword', 'resetPasswordDto', resetPasswordDto)
+            const localVarPath = `/api/auth/password/reset`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(resetPasswordDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Verify OTP code
          * @summary Verify OTP
          * @param {VerifyOTPDto} verifyOTPDto 
@@ -1280,6 +5609,32 @@ export const AuthenticationApiAxiosParamCreator = function (configuration?: Conf
 export const AuthenticationApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = AuthenticationApiAxiosParamCreator(configuration)
     return {
+        /**
+         * Change password for authenticated user
+         * @summary Change password
+         * @param {ChangePasswordDto} changePasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authControllerChangePassword(changePasswordDto: ChangePasswordDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authControllerChangePassword(changePasswordDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationApi.authControllerChangePassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Request OTP for password reset
+         * @summary Forgot password
+         * @param {ForgotPasswordDto} forgotPasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authControllerForgotPassword(forgotPasswordDto: ForgotPasswordDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authControllerForgotPassword(forgotPasswordDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationApi.authControllerForgotPassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
         /**
          * Authenticate user with password or OTP
          * @summary Login with password or OTP
@@ -1357,6 +5712,19 @@ export const AuthenticationApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Reset password using OTP
+         * @summary Reset password
+         * @param {ResetPasswordDto} resetPasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async authControllerResetPassword(resetPasswordDto: ResetPasswordDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authControllerResetPassword(resetPasswordDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationApi.authControllerResetPassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Verify OTP code
          * @summary Verify OTP
          * @param {VerifyOTPDto} verifyOTPDto 
@@ -1378,6 +5746,26 @@ export const AuthenticationApiFp = function(configuration?: Configuration) {
 export const AuthenticationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = AuthenticationApiFp(configuration)
     return {
+        /**
+         * Change password for authenticated user
+         * @summary Change password
+         * @param {ChangePasswordDto} changePasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerChangePassword(changePasswordDto: ChangePasswordDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.authControllerChangePassword(changePasswordDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Request OTP for password reset
+         * @summary Forgot password
+         * @param {ForgotPasswordDto} forgotPasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerForgotPassword(forgotPasswordDto: ForgotPasswordDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.authControllerForgotPassword(forgotPasswordDto, options).then((request) => request(axios, basePath));
+        },
         /**
          * Authenticate user with password or OTP
          * @summary Login with password or OTP
@@ -1437,6 +5825,16 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
             return localVarFp.authControllerRequestOTP(requestOTPDto, options).then((request) => request(axios, basePath));
         },
         /**
+         * Reset password using OTP
+         * @summary Reset password
+         * @param {ResetPasswordDto} resetPasswordDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerResetPassword(resetPasswordDto: ResetPasswordDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.authControllerResetPassword(resetPasswordDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Verify OTP code
          * @summary Verify OTP
          * @param {VerifyOTPDto} verifyOTPDto 
@@ -1453,6 +5851,28 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
  * AuthenticationApi - object-oriented interface
  */
 export class AuthenticationApi extends BaseAPI {
+    /**
+     * Change password for authenticated user
+     * @summary Change password
+     * @param {ChangePasswordDto} changePasswordDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public authControllerChangePassword(changePasswordDto: ChangePasswordDto, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).authControllerChangePassword(changePasswordDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Request OTP for password reset
+     * @summary Forgot password
+     * @param {ForgotPasswordDto} forgotPasswordDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public authControllerForgotPassword(forgotPasswordDto: ForgotPasswordDto, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).authControllerForgotPassword(forgotPasswordDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * Authenticate user with password or OTP
      * @summary Login with password or OTP
@@ -1518,6 +5938,17 @@ export class AuthenticationApi extends BaseAPI {
     }
 
     /**
+     * Reset password using OTP
+     * @summary Reset password
+     * @param {ResetPasswordDto} resetPasswordDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public authControllerResetPassword(resetPasswordDto: ResetPasswordDto, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).authControllerResetPassword(resetPasswordDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Verify OTP code
      * @summary Verify OTP
      * @param {VerifyOTPDto} verifyOTPDto 
@@ -1526,6 +5957,642 @@ export class AuthenticationApi extends BaseAPI {
      */
     public authControllerVerifyOTP(verifyOTPDto: VerifyOTPDto, options?: RawAxiosRequestConfig) {
         return AuthenticationApiFp(this.configuration).authControllerVerifyOTP(verifyOTPDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * BannersApi - axios parameter creator
+ */
+export const BannersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Retrieve all active banners for display on the homepage
+         * @summary Get active banners
+         * @param {boolean} [activeOnly] Filter to show only active banners (default: true for public)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        bannerControllerFindAll: async (activeOnly?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/banners`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (activeOnly !== undefined) {
+                localVarQueryParameter['activeOnly'] = activeOnly;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * BannersApi - functional programming interface
+ */
+export const BannersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = BannersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Retrieve all active banners for display on the homepage
+         * @summary Get active banners
+         * @param {boolean} [activeOnly] Filter to show only active banners (default: true for public)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async bannerControllerFindAll(activeOnly?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BannerControllerFindAll200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.bannerControllerFindAll(activeOnly, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BannersApi.bannerControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * BannersApi - factory interface
+ */
+export const BannersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = BannersApiFp(configuration)
+    return {
+        /**
+         * Retrieve all active banners for display on the homepage
+         * @summary Get active banners
+         * @param {boolean} [activeOnly] Filter to show only active banners (default: true for public)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        bannerControllerFindAll(activeOnly?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<BannerControllerFindAll200Response> {
+            return localVarFp.bannerControllerFindAll(activeOnly, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * BannersApi - object-oriented interface
+ */
+export class BannersApi extends BaseAPI {
+    /**
+     * Retrieve all active banners for display on the homepage
+     * @summary Get active banners
+     * @param {boolean} [activeOnly] Filter to show only active banners (default: true for public)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public bannerControllerFindAll(activeOnly?: boolean, options?: RawAxiosRequestConfig) {
+        return BannersApiFp(this.configuration).bannerControllerFindAll(activeOnly, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * CartApi - axios parameter creator
+ */
+export const CartApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Add item to cart
+         * @param {AddItemToCartDto} addItemToCartDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerAddItem: async (addItemToCartDto: AddItemToCartDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'addItemToCartDto' is not null or undefined
+            assertParamExists('cartControllerAddItem', 'addItemToCartDto', addItemToCartDto)
+            const localVarPath = `/api/cart/items`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(addItemToCartDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Validate and apply a coupon code to the cart
+         * @summary Apply coupon to cart
+         * @param {ApplyCouponDto} applyCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerApplyCoupon: async (applyCouponDto: ApplyCouponDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'applyCouponDto' is not null or undefined
+            assertParamExists('cartControllerApplyCoupon', 'applyCouponDto', applyCouponDto)
+            const localVarPath = `/api/cart/apply-coupon`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(applyCouponDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Clear all items from cart
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerClearCart: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/cart/clear`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get user cart with product details
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerGetCart: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/cart`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Calculate cart pricing including active offers and optional coupon discount. Returns complete breakdown of all discounts.
+         * @summary Get cart pricing with offers and optional coupon
+         * @param {string} [couponCode] Coupon code to apply for pricing calculation
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerGetCartPricing: async (couponCode?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/cart/pricing`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (couponCode !== undefined) {
+                localVarQueryParameter['couponCode'] = couponCode;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Remove item from cart
+         * @param {string} itemId Cart item ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerRemoveItem: async (itemId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemId' is not null or undefined
+            assertParamExists('cartControllerRemoveItem', 'itemId', itemId)
+            const localVarPath = `/api/cart/items/{itemId}`
+                .replace(`{${"itemId"}}`, encodeURIComponent(String(itemId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update cart item quantity
+         * @param {string} itemId Cart item ID
+         * @param {UpdateCartItemDto} updateCartItemDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerUpdateItem: async (itemId: string, updateCartItemDto: UpdateCartItemDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemId' is not null or undefined
+            assertParamExists('cartControllerUpdateItem', 'itemId', itemId)
+            // verify required parameter 'updateCartItemDto' is not null or undefined
+            assertParamExists('cartControllerUpdateItem', 'updateCartItemDto', updateCartItemDto)
+            const localVarPath = `/api/cart/items/{itemId}`
+                .replace(`{${"itemId"}}`, encodeURIComponent(String(itemId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCartItemDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CartApi - functional programming interface
+ */
+export const CartApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CartApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Add item to cart
+         * @param {AddItemToCartDto} addItemToCartDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cartControllerAddItem(addItemToCartDto: AddItemToCartDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CartControllerAddItem201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cartControllerAddItem(addItemToCartDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CartApi.cartControllerAddItem']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Validate and apply a coupon code to the cart
+         * @summary Apply coupon to cart
+         * @param {ApplyCouponDto} applyCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cartControllerApplyCoupon(applyCouponDto: ApplyCouponDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cartControllerApplyCoupon(applyCouponDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CartApi.cartControllerApplyCoupon']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Clear all items from cart
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cartControllerClearCart(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cartControllerClearCart(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CartApi.cartControllerClearCart']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get user cart with product details
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cartControllerGetCart(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CartControllerGetCart200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cartControllerGetCart(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CartApi.cartControllerGetCart']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Calculate cart pricing including active offers and optional coupon discount. Returns complete breakdown of all discounts.
+         * @summary Get cart pricing with offers and optional coupon
+         * @param {string} [couponCode] Coupon code to apply for pricing calculation
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cartControllerGetCartPricing(couponCode?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CartControllerGetCartPricing200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cartControllerGetCartPricing(couponCode, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CartApi.cartControllerGetCartPricing']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Remove item from cart
+         * @param {string} itemId Cart item ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cartControllerRemoveItem(itemId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cartControllerRemoveItem(itemId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CartApi.cartControllerRemoveItem']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update cart item quantity
+         * @param {string} itemId Cart item ID
+         * @param {UpdateCartItemDto} updateCartItemDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cartControllerUpdateItem(itemId: string, updateCartItemDto: UpdateCartItemDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CartControllerAddItem201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cartControllerUpdateItem(itemId, updateCartItemDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CartApi.cartControllerUpdateItem']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * CartApi - factory interface
+ */
+export const CartApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CartApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Add item to cart
+         * @param {AddItemToCartDto} addItemToCartDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerAddItem(addItemToCartDto: AddItemToCartDto, options?: RawAxiosRequestConfig): AxiosPromise<CartControllerAddItem201Response> {
+            return localVarFp.cartControllerAddItem(addItemToCartDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Validate and apply a coupon code to the cart
+         * @summary Apply coupon to cart
+         * @param {ApplyCouponDto} applyCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerApplyCoupon(applyCouponDto: ApplyCouponDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.cartControllerApplyCoupon(applyCouponDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Clear all items from cart
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerClearCart(options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.cartControllerClearCart(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get user cart with product details
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerGetCart(options?: RawAxiosRequestConfig): AxiosPromise<CartControllerGetCart200Response> {
+            return localVarFp.cartControllerGetCart(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Calculate cart pricing including active offers and optional coupon discount. Returns complete breakdown of all discounts.
+         * @summary Get cart pricing with offers and optional coupon
+         * @param {string} [couponCode] Coupon code to apply for pricing calculation
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerGetCartPricing(couponCode?: string, options?: RawAxiosRequestConfig): AxiosPromise<CartControllerGetCartPricing200Response> {
+            return localVarFp.cartControllerGetCartPricing(couponCode, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Remove item from cart
+         * @param {string} itemId Cart item ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerRemoveItem(itemId: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.cartControllerRemoveItem(itemId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update cart item quantity
+         * @param {string} itemId Cart item ID
+         * @param {UpdateCartItemDto} updateCartItemDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cartControllerUpdateItem(itemId: string, updateCartItemDto: UpdateCartItemDto, options?: RawAxiosRequestConfig): AxiosPromise<CartControllerAddItem201Response> {
+            return localVarFp.cartControllerUpdateItem(itemId, updateCartItemDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * CartApi - object-oriented interface
+ */
+export class CartApi extends BaseAPI {
+    /**
+     * 
+     * @summary Add item to cart
+     * @param {AddItemToCartDto} addItemToCartDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public cartControllerAddItem(addItemToCartDto: AddItemToCartDto, options?: RawAxiosRequestConfig) {
+        return CartApiFp(this.configuration).cartControllerAddItem(addItemToCartDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Validate and apply a coupon code to the cart
+     * @summary Apply coupon to cart
+     * @param {ApplyCouponDto} applyCouponDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public cartControllerApplyCoupon(applyCouponDto: ApplyCouponDto, options?: RawAxiosRequestConfig) {
+        return CartApiFp(this.configuration).cartControllerApplyCoupon(applyCouponDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Clear all items from cart
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public cartControllerClearCart(options?: RawAxiosRequestConfig) {
+        return CartApiFp(this.configuration).cartControllerClearCart(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get user cart with product details
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public cartControllerGetCart(options?: RawAxiosRequestConfig) {
+        return CartApiFp(this.configuration).cartControllerGetCart(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Calculate cart pricing including active offers and optional coupon discount. Returns complete breakdown of all discounts.
+     * @summary Get cart pricing with offers and optional coupon
+     * @param {string} [couponCode] Coupon code to apply for pricing calculation
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public cartControllerGetCartPricing(couponCode?: string, options?: RawAxiosRequestConfig) {
+        return CartApiFp(this.configuration).cartControllerGetCartPricing(couponCode, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Remove item from cart
+     * @param {string} itemId Cart item ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public cartControllerRemoveItem(itemId: string, options?: RawAxiosRequestConfig) {
+        return CartApiFp(this.configuration).cartControllerRemoveItem(itemId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update cart item quantity
+     * @param {string} itemId Cart item ID
+     * @param {UpdateCartItemDto} updateCartItemDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public cartControllerUpdateItem(itemId: string, updateCartItemDto: UpdateCartItemDto, options?: RawAxiosRequestConfig) {
+        return CartApiFp(this.configuration).cartControllerUpdateItem(itemId, updateCartItemDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1608,7 +6675,7 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
         /**
          * Retrieves a single category by its ID
          * @summary Get category by ID
-         * @param {string} id Category UUID
+         * @param {string} id Category CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1642,7 +6709,7 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
         /**
          * Deletes a category. Only admins can delete categories.
          * @summary Delete category
-         * @param {string} id Category UUID
+         * @param {string} id Category CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1680,7 +6747,7 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
         /**
          * Updates an existing category. Only admins can update categories.
          * @summary Update category
-         * @param {string} id Category UUID
+         * @param {string} id Category CUID
          * @param {UpdateCategoryDto} updateCategoryDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1757,7 +6824,7 @@ export const CategoriesApiFp = function(configuration?: Configuration) {
         /**
          * Retrieves a single category by its ID
          * @summary Get category by ID
-         * @param {string} id Category UUID
+         * @param {string} id Category CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1770,7 +6837,7 @@ export const CategoriesApiFp = function(configuration?: Configuration) {
         /**
          * Deletes a category. Only admins can delete categories.
          * @summary Delete category
-         * @param {string} id Category UUID
+         * @param {string} id Category CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1783,7 +6850,7 @@ export const CategoriesApiFp = function(configuration?: Configuration) {
         /**
          * Updates an existing category. Only admins can update categories.
          * @summary Update category
-         * @param {string} id Category UUID
+         * @param {string} id Category CUID
          * @param {UpdateCategoryDto} updateCategoryDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1825,7 +6892,7 @@ export const CategoriesApiFactory = function (configuration?: Configuration, bas
         /**
          * Retrieves a single category by its ID
          * @summary Get category by ID
-         * @param {string} id Category UUID
+         * @param {string} id Category CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1835,7 +6902,7 @@ export const CategoriesApiFactory = function (configuration?: Configuration, bas
         /**
          * Deletes a category. Only admins can delete categories.
          * @summary Delete category
-         * @param {string} id Category UUID
+         * @param {string} id Category CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1845,7 +6912,7 @@ export const CategoriesApiFactory = function (configuration?: Configuration, bas
         /**
          * Updates an existing category. Only admins can update categories.
          * @summary Update category
-         * @param {string} id Category UUID
+         * @param {string} id Category CUID
          * @param {UpdateCategoryDto} updateCategoryDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1884,7 +6951,7 @@ export class CategoriesApi extends BaseAPI {
     /**
      * Retrieves a single category by its ID
      * @summary Get category by ID
-     * @param {string} id Category UUID
+     * @param {string} id Category CUID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -1895,7 +6962,7 @@ export class CategoriesApi extends BaseAPI {
     /**
      * Deletes a category. Only admins can delete categories.
      * @summary Delete category
-     * @param {string} id Category UUID
+     * @param {string} id Category CUID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -1906,13 +6973,435 @@ export class CategoriesApi extends BaseAPI {
     /**
      * Updates an existing category. Only admins can update categories.
      * @summary Update category
-     * @param {string} id Category UUID
+     * @param {string} id Category CUID
      * @param {UpdateCategoryDto} updateCategoryDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     public categoryControllerUpdate(id: string, updateCategoryDto: UpdateCategoryDto, options?: RawAxiosRequestConfig) {
         return CategoriesApiFp(this.configuration).categoryControllerUpdate(id, updateCategoryDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * CheckoutApi - axios parameter creator
+ */
+export const CheckoutApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Creates an order with pricing snapshot. Revalidates coupon, records usage, and clears cart if source is CART.
+         * @summary Commit checkout and create order
+         * @param {CheckoutCommitDto} checkoutCommitDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkoutControllerCommitCheckout: async (checkoutCommitDto: CheckoutCommitDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'checkoutCommitDto' is not null or undefined
+            assertParamExists('checkoutControllerCommitCheckout', 'checkoutCommitDto', checkoutCommitDto)
+            const localVarPath = `/api/checkout/commit`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(checkoutCommitDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get pricing breakdown for checkout without committing. Validates coupon if provided. Safe to call multiple times.
+         * @summary Preview checkout pricing
+         * @param {CheckoutPreviewDto} checkoutPreviewDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkoutControllerPreviewCheckout: async (checkoutPreviewDto: CheckoutPreviewDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'checkoutPreviewDto' is not null or undefined
+            assertParamExists('checkoutControllerPreviewCheckout', 'checkoutPreviewDto', checkoutPreviewDto)
+            const localVarPath = `/api/checkout/preview`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(checkoutPreviewDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CheckoutApi - functional programming interface
+ */
+export const CheckoutApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CheckoutApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Creates an order with pricing snapshot. Revalidates coupon, records usage, and clears cart if source is CART.
+         * @summary Commit checkout and create order
+         * @param {CheckoutCommitDto} checkoutCommitDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async checkoutControllerCommitCheckout(checkoutCommitDto: CheckoutCommitDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CheckoutControllerCommitCheckout201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.checkoutControllerCommitCheckout(checkoutCommitDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CheckoutApi.checkoutControllerCommitCheckout']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Get pricing breakdown for checkout without committing. Validates coupon if provided. Safe to call multiple times.
+         * @summary Preview checkout pricing
+         * @param {CheckoutPreviewDto} checkoutPreviewDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async checkoutControllerPreviewCheckout(checkoutPreviewDto: CheckoutPreviewDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CheckoutControllerPreviewCheckout200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.checkoutControllerPreviewCheckout(checkoutPreviewDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CheckoutApi.checkoutControllerPreviewCheckout']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * CheckoutApi - factory interface
+ */
+export const CheckoutApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CheckoutApiFp(configuration)
+    return {
+        /**
+         * Creates an order with pricing snapshot. Revalidates coupon, records usage, and clears cart if source is CART.
+         * @summary Commit checkout and create order
+         * @param {CheckoutCommitDto} checkoutCommitDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkoutControllerCommitCheckout(checkoutCommitDto: CheckoutCommitDto, options?: RawAxiosRequestConfig): AxiosPromise<CheckoutControllerCommitCheckout201Response> {
+            return localVarFp.checkoutControllerCommitCheckout(checkoutCommitDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get pricing breakdown for checkout without committing. Validates coupon if provided. Safe to call multiple times.
+         * @summary Preview checkout pricing
+         * @param {CheckoutPreviewDto} checkoutPreviewDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkoutControllerPreviewCheckout(checkoutPreviewDto: CheckoutPreviewDto, options?: RawAxiosRequestConfig): AxiosPromise<CheckoutControllerPreviewCheckout200Response> {
+            return localVarFp.checkoutControllerPreviewCheckout(checkoutPreviewDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * CheckoutApi - object-oriented interface
+ */
+export class CheckoutApi extends BaseAPI {
+    /**
+     * Creates an order with pricing snapshot. Revalidates coupon, records usage, and clears cart if source is CART.
+     * @summary Commit checkout and create order
+     * @param {CheckoutCommitDto} checkoutCommitDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public checkoutControllerCommitCheckout(checkoutCommitDto: CheckoutCommitDto, options?: RawAxiosRequestConfig) {
+        return CheckoutApiFp(this.configuration).checkoutControllerCommitCheckout(checkoutCommitDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get pricing breakdown for checkout without committing. Validates coupon if provided. Safe to call multiple times.
+     * @summary Preview checkout pricing
+     * @param {CheckoutPreviewDto} checkoutPreviewDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public checkoutControllerPreviewCheckout(checkoutPreviewDto: CheckoutPreviewDto, options?: RawAxiosRequestConfig) {
+        return CheckoutApiFp(this.configuration).checkoutControllerPreviewCheckout(checkoutPreviewDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * CouponsApi - axios parameter creator
+ */
+export const CouponsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Returns all active coupons that the user can still use based on per-user usage limits
+         * @summary Get available coupons for user
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        couponControllerGetAvailableCoupons: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/coupons/available`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve coupon details by code
+         * @summary Get coupon by code
+         * @param {string} code Coupon code
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        couponControllerGetCouponByCode: async (code: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'code' is not null or undefined
+            assertParamExists('couponControllerGetCouponByCode', 'code', code)
+            const localVarPath = `/api/coupons/code/{code}`
+                .replace(`{${"code"}}`, encodeURIComponent(String(code)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Validates if a coupon can be applied to the cart with given total. Returns discount amount if valid.
+         * @summary Validate coupon for cart
+         * @param {ValidateCouponDto} validateCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        couponControllerValidateCoupon: async (validateCouponDto: ValidateCouponDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'validateCouponDto' is not null or undefined
+            assertParamExists('couponControllerValidateCoupon', 'validateCouponDto', validateCouponDto)
+            const localVarPath = `/api/coupons/validate`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(validateCouponDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CouponsApi - functional programming interface
+ */
+export const CouponsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CouponsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Returns all active coupons that the user can still use based on per-user usage limits
+         * @summary Get available coupons for user
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async couponControllerGetAvailableCoupons(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerGetAvailableCoupons200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.couponControllerGetAvailableCoupons(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CouponsApi.couponControllerGetAvailableCoupons']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve coupon details by code
+         * @summary Get coupon by code
+         * @param {string} code Coupon code
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async couponControllerGetCouponByCode(code: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerGetCouponByCode200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.couponControllerGetCouponByCode(code, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CouponsApi.couponControllerGetCouponByCode']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Validates if a coupon can be applied to the cart with given total. Returns discount amount if valid.
+         * @summary Validate coupon for cart
+         * @param {ValidateCouponDto} validateCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async couponControllerValidateCoupon(validateCouponDto: ValidateCouponDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CouponControllerValidateCoupon200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.couponControllerValidateCoupon(validateCouponDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CouponsApi.couponControllerValidateCoupon']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * CouponsApi - factory interface
+ */
+export const CouponsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CouponsApiFp(configuration)
+    return {
+        /**
+         * Returns all active coupons that the user can still use based on per-user usage limits
+         * @summary Get available coupons for user
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        couponControllerGetAvailableCoupons(options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerGetAvailableCoupons200Response> {
+            return localVarFp.couponControllerGetAvailableCoupons(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve coupon details by code
+         * @summary Get coupon by code
+         * @param {string} code Coupon code
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        couponControllerGetCouponByCode(code: string, options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerGetCouponByCode200Response> {
+            return localVarFp.couponControllerGetCouponByCode(code, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Validates if a coupon can be applied to the cart with given total. Returns discount amount if valid.
+         * @summary Validate coupon for cart
+         * @param {ValidateCouponDto} validateCouponDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        couponControllerValidateCoupon(validateCouponDto: ValidateCouponDto, options?: RawAxiosRequestConfig): AxiosPromise<CouponControllerValidateCoupon200Response> {
+            return localVarFp.couponControllerValidateCoupon(validateCouponDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * CouponsApi - object-oriented interface
+ */
+export class CouponsApi extends BaseAPI {
+    /**
+     * Returns all active coupons that the user can still use based on per-user usage limits
+     * @summary Get available coupons for user
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public couponControllerGetAvailableCoupons(options?: RawAxiosRequestConfig) {
+        return CouponsApiFp(this.configuration).couponControllerGetAvailableCoupons(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve coupon details by code
+     * @summary Get coupon by code
+     * @param {string} code Coupon code
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public couponControllerGetCouponByCode(code: string, options?: RawAxiosRequestConfig) {
+        return CouponsApiFp(this.configuration).couponControllerGetCouponByCode(code, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Validates if a coupon can be applied to the cart with given total. Returns discount amount if valid.
+     * @summary Validate coupon for cart
+     * @param {ValidateCouponDto} validateCouponDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public couponControllerValidateCoupon(validateCouponDto: ValidateCouponDto, options?: RawAxiosRequestConfig) {
+        return CouponsApiFp(this.configuration).couponControllerValidateCoupon(validateCouponDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -2007,6 +7496,681 @@ export class FeedsApi extends BaseAPI {
      */
     public feedControllerGetFeed(options?: RawAxiosRequestConfig) {
         return FeedsApiFp(this.configuration).feedControllerGetFeed(options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * OffersApi - axios parameter creator
+ */
+export const OffersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Returns all currently active offers sorted by priority
+         * @summary Get all active offers
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offerControllerGetActiveOffers: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/offers`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve detailed information about a specific offer
+         * @summary Get offer by ID
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offerControllerGetOffer: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('offerControllerGetOffer', 'id', id)
+            const localVarPath = `/api/offers/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Returns all active offers applicable to a specific product, sorted by priority
+         * @summary Get offers for product
+         * @param {string} productId Product ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offerControllerGetProductOffers: async (productId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'productId' is not null or undefined
+            assertParamExists('offerControllerGetProductOffers', 'productId', productId)
+            const localVarPath = `/api/offers/product/{productId}`
+                .replace(`{${"productId"}}`, encodeURIComponent(String(productId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * OffersApi - functional programming interface
+ */
+export const OffersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = OffersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Returns all currently active offers sorted by priority
+         * @summary Get all active offers
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async offerControllerGetActiveOffers(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetActiveOffers200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.offerControllerGetActiveOffers(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OffersApi.offerControllerGetActiveOffers']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve detailed information about a specific offer
+         * @summary Get offer by ID
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async offerControllerGetOffer(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetOffer200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.offerControllerGetOffer(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OffersApi.offerControllerGetOffer']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Returns all active offers applicable to a specific product, sorted by priority
+         * @summary Get offers for product
+         * @param {string} productId Product ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async offerControllerGetProductOffers(productId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OfferControllerGetActiveOffers200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.offerControllerGetProductOffers(productId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OffersApi.offerControllerGetProductOffers']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * OffersApi - factory interface
+ */
+export const OffersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = OffersApiFp(configuration)
+    return {
+        /**
+         * Returns all currently active offers sorted by priority
+         * @summary Get all active offers
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offerControllerGetActiveOffers(options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetActiveOffers200Response> {
+            return localVarFp.offerControllerGetActiveOffers(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve detailed information about a specific offer
+         * @summary Get offer by ID
+         * @param {string} id Offer ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offerControllerGetOffer(id: string, options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetOffer200Response> {
+            return localVarFp.offerControllerGetOffer(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Returns all active offers applicable to a specific product, sorted by priority
+         * @summary Get offers for product
+         * @param {string} productId Product ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offerControllerGetProductOffers(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<OfferControllerGetActiveOffers200Response> {
+            return localVarFp.offerControllerGetProductOffers(productId, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * OffersApi - object-oriented interface
+ */
+export class OffersApi extends BaseAPI {
+    /**
+     * Returns all currently active offers sorted by priority
+     * @summary Get all active offers
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public offerControllerGetActiveOffers(options?: RawAxiosRequestConfig) {
+        return OffersApiFp(this.configuration).offerControllerGetActiveOffers(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve detailed information about a specific offer
+     * @summary Get offer by ID
+     * @param {string} id Offer ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public offerControllerGetOffer(id: string, options?: RawAxiosRequestConfig) {
+        return OffersApiFp(this.configuration).offerControllerGetOffer(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Returns all active offers applicable to a specific product, sorted by priority
+     * @summary Get offers for product
+     * @param {string} productId Product ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public offerControllerGetProductOffers(productId: string, options?: RawAxiosRequestConfig) {
+        return OffersApiFp(this.configuration).offerControllerGetProductOffers(productId, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * OrdersCustomerApi - axios parameter creator
+ */
+export const OrdersCustomerApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Cancel an order if it is still cancellable
+         * @summary Cancel order
+         * @param {string} id Order ID
+         * @param {CancelOrderDto} cancelOrderDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        customerOrderControllerCancelOrder: async (id: string, cancelOrderDto: CancelOrderDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('customerOrderControllerCancelOrder', 'id', id)
+            // verify required parameter 'cancelOrderDto' is not null or undefined
+            assertParamExists('customerOrderControllerCancelOrder', 'cancelOrderDto', cancelOrderDto)
+            const localVarPath = `/api/orders/{id}/cancel`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(cancelOrderDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve all orders for the authenticated customer
+         * @summary Get my orders
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        customerOrderControllerGetMyOrders: async (page?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/orders/my-orders`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve a specific order by its ID
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        customerOrderControllerGetOrderById: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('customerOrderControllerGetOrderById', 'id', id)
+            const localVarPath = `/api/orders/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * OrdersCustomerApi - functional programming interface
+ */
+export const OrdersCustomerApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = OrdersCustomerApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Cancel an order if it is still cancellable
+         * @summary Cancel order
+         * @param {string} id Order ID
+         * @param {CancelOrderDto} cancelOrderDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async customerOrderControllerCancelOrder(id: string, cancelOrderDto: CancelOrderDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetOrderById200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.customerOrderControllerCancelOrder(id, cancelOrderDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrdersCustomerApi.customerOrderControllerCancelOrder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve all orders for the authenticated customer
+         * @summary Get my orders
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async customerOrderControllerGetMyOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetMyOrders200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.customerOrderControllerGetMyOrders(page, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrdersCustomerApi.customerOrderControllerGetMyOrders']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve a specific order by its ID
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async customerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetOrderById200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.customerOrderControllerGetOrderById(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['OrdersCustomerApi.customerOrderControllerGetOrderById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * OrdersCustomerApi - factory interface
+ */
+export const OrdersCustomerApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = OrdersCustomerApiFp(configuration)
+    return {
+        /**
+         * Cancel an order if it is still cancellable
+         * @summary Cancel order
+         * @param {string} id Order ID
+         * @param {CancelOrderDto} cancelOrderDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        customerOrderControllerCancelOrder(id: string, cancelOrderDto: CancelOrderDto, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetOrderById200Response> {
+            return localVarFp.customerOrderControllerCancelOrder(id, cancelOrderDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve all orders for the authenticated customer
+         * @summary Get my orders
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        customerOrderControllerGetMyOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetMyOrders200Response> {
+            return localVarFp.customerOrderControllerGetMyOrders(page, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve a specific order by its ID
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        customerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetOrderById200Response> {
+            return localVarFp.customerOrderControllerGetOrderById(id, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * OrdersCustomerApi - object-oriented interface
+ */
+export class OrdersCustomerApi extends BaseAPI {
+    /**
+     * Cancel an order if it is still cancellable
+     * @summary Cancel order
+     * @param {string} id Order ID
+     * @param {CancelOrderDto} cancelOrderDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public customerOrderControllerCancelOrder(id: string, cancelOrderDto: CancelOrderDto, options?: RawAxiosRequestConfig) {
+        return OrdersCustomerApiFp(this.configuration).customerOrderControllerCancelOrder(id, cancelOrderDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve all orders for the authenticated customer
+     * @summary Get my orders
+     * @param {number} [page] Page number
+     * @param {number} [limit] Items per page
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public customerOrderControllerGetMyOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return OrdersCustomerApiFp(this.configuration).customerOrderControllerGetMyOrders(page, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve a specific order by its ID
+     * @summary Get order by ID
+     * @param {string} id Order ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public customerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig) {
+        return OrdersCustomerApiFp(this.configuration).customerOrderControllerGetOrderById(id, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * PaymentApi - axios parameter creator
+ */
+export const PaymentApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Creates a Razorpay order for the given order ID
+         * @summary Create Razorpay payment order
+         * @param {CreatePaymentDto} createPaymentDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        paymentControllerCreatePayment: async (createPaymentDto: CreatePaymentDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createPaymentDto' is not null or undefined
+            assertParamExists('paymentControllerCreatePayment', 'createPaymentDto', createPaymentDto)
+            const localVarPath = `/api/payment/create`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createPaymentDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Verifies the Razorpay payment and updates order status
+         * @summary Verify Razorpay payment
+         * @param {VerifyPaymentDto} verifyPaymentDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        paymentControllerVerifyPayment: async (verifyPaymentDto: VerifyPaymentDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'verifyPaymentDto' is not null or undefined
+            assertParamExists('paymentControllerVerifyPayment', 'verifyPaymentDto', verifyPaymentDto)
+            const localVarPath = `/api/payment/verify`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(verifyPaymentDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * PaymentApi - functional programming interface
+ */
+export const PaymentApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PaymentApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Creates a Razorpay order for the given order ID
+         * @summary Create Razorpay payment order
+         * @param {CreatePaymentDto} createPaymentDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async paymentControllerCreatePayment(createPaymentDto: CreatePaymentDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaymentControllerCreatePayment200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.paymentControllerCreatePayment(createPaymentDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PaymentApi.paymentControllerCreatePayment']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Verifies the Razorpay payment and updates order status
+         * @summary Verify Razorpay payment
+         * @param {VerifyPaymentDto} verifyPaymentDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async paymentControllerVerifyPayment(verifyPaymentDto: VerifyPaymentDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaymentControllerVerifyPayment200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.paymentControllerVerifyPayment(verifyPaymentDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PaymentApi.paymentControllerVerifyPayment']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * PaymentApi - factory interface
+ */
+export const PaymentApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PaymentApiFp(configuration)
+    return {
+        /**
+         * Creates a Razorpay order for the given order ID
+         * @summary Create Razorpay payment order
+         * @param {CreatePaymentDto} createPaymentDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        paymentControllerCreatePayment(createPaymentDto: CreatePaymentDto, options?: RawAxiosRequestConfig): AxiosPromise<PaymentControllerCreatePayment200Response> {
+            return localVarFp.paymentControllerCreatePayment(createPaymentDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Verifies the Razorpay payment and updates order status
+         * @summary Verify Razorpay payment
+         * @param {VerifyPaymentDto} verifyPaymentDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        paymentControllerVerifyPayment(verifyPaymentDto: VerifyPaymentDto, options?: RawAxiosRequestConfig): AxiosPromise<PaymentControllerVerifyPayment200Response> {
+            return localVarFp.paymentControllerVerifyPayment(verifyPaymentDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * PaymentApi - object-oriented interface
+ */
+export class PaymentApi extends BaseAPI {
+    /**
+     * Creates a Razorpay order for the given order ID
+     * @summary Create Razorpay payment order
+     * @param {CreatePaymentDto} createPaymentDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public paymentControllerCreatePayment(createPaymentDto: CreatePaymentDto, options?: RawAxiosRequestConfig) {
+        return PaymentApiFp(this.configuration).paymentControllerCreatePayment(createPaymentDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Verifies the Razorpay payment and updates order status
+     * @summary Verify Razorpay payment
+     * @param {VerifyPaymentDto} verifyPaymentDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public paymentControllerVerifyPayment(verifyPaymentDto: VerifyPaymentDto, options?: RawAxiosRequestConfig) {
+        return PaymentApiFp(this.configuration).paymentControllerVerifyPayment(verifyPaymentDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -2175,6 +8339,48 @@ export const ProductVariantsApiAxiosParamCreator = function (configuration?: Con
             };
         },
         /**
+         * Deletes an image associated with a variant.
+         * @summary Delete variant image
+         * @param {string} variantId Variant UUID
+         * @param {number} position 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        variantControllerDeleteVariantImage: async (variantId: string, position: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'variantId' is not null or undefined
+            assertParamExists('variantControllerDeleteVariantImage', 'variantId', variantId)
+            // verify required parameter 'position' is not null or undefined
+            assertParamExists('variantControllerDeleteVariantImage', 'position', position)
+            const localVarPath = `/api/products/variants/{variantId}/images/{position}`
+                .replace(`{${"variantId"}}`, encodeURIComponent(String(variantId)))
+                .replace(`{${"position"}}`, encodeURIComponent(String(position)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Retrieves detailed information about a specific variant.
          * @summary Get variant by ID
          * @param {string} variantId Variant UUID
@@ -2211,7 +8417,7 @@ export const ProductVariantsApiAxiosParamCreator = function (configuration?: Con
         /**
          * Returns all variants (sizes, types) available for a product.
          * @summary List all variants for a product
-         * @param {string} productId Product UUID
+         * @param {string} productId Product CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -2236,6 +8442,49 @@ export const ProductVariantsApiAxiosParamCreator = function (configuration?: Con
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Saves the uploaded image information to the variant.
+         * @summary Save variant image
+         * @param {string} variantId Variant UUID
+         * @param {SaveVariantImageDto} saveVariantImageDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        variantControllerSaveVariantImage: async (variantId: string, saveVariantImageDto: SaveVariantImageDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'variantId' is not null or undefined
+            assertParamExists('variantControllerSaveVariantImage', 'variantId', variantId)
+            // verify required parameter 'saveVariantImageDto' is not null or undefined
+            assertParamExists('variantControllerSaveVariantImage', 'saveVariantImageDto', saveVariantImageDto)
+            const localVarPath = `/api/products/variants/{variantId}/images/save`
+                .replace(`{${"variantId"}}`, encodeURIComponent(String(variantId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(saveVariantImageDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2328,6 +8577,44 @@ export const ProductVariantsApiAxiosParamCreator = function (configuration?: Con
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Uploads an image for a variant and associates it.
+         * @summary Upload variant image
+         * @param {string} variantId Variant CUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        variantControllerUploadVariantImage: async (variantId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'variantId' is not null or undefined
+            assertParamExists('variantControllerUploadVariantImage', 'variantId', variantId)
+            const localVarPath = `/api/products/variants/{variantId}/images`
+                .replace(`{${"variantId"}}`, encodeURIComponent(String(variantId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -2391,6 +8678,20 @@ export const ProductVariantsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Deletes an image associated with a variant.
+         * @summary Delete variant image
+         * @param {string} variantId Variant UUID
+         * @param {number} position 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async variantControllerDeleteVariantImage(variantId: string, position: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.variantControllerDeleteVariantImage(variantId, position, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductVariantsApi.variantControllerDeleteVariantImage']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Retrieves detailed information about a specific variant.
          * @summary Get variant by ID
          * @param {string} variantId Variant UUID
@@ -2406,7 +8707,7 @@ export const ProductVariantsApiFp = function(configuration?: Configuration) {
         /**
          * Returns all variants (sizes, types) available for a product.
          * @summary List all variants for a product
-         * @param {string} productId Product UUID
+         * @param {string} productId Product CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -2414,6 +8715,20 @@ export const ProductVariantsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.variantControllerGetVariantsByProduct(productId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductVariantsApi.variantControllerGetVariantsByProduct']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Saves the uploaded image information to the variant.
+         * @summary Save variant image
+         * @param {string} variantId Variant UUID
+         * @param {SaveVariantImageDto} saveVariantImageDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async variantControllerSaveVariantImage(variantId: string, saveVariantImageDto: SaveVariantImageDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.variantControllerSaveVariantImage(variantId, saveVariantImageDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductVariantsApi.variantControllerSaveVariantImage']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2442,6 +8757,19 @@ export const ProductVariantsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.variantControllerUpdateVariant(variantId, updateVariantDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductVariantsApi.variantControllerUpdateVariant']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Uploads an image for a variant and associates it.
+         * @summary Upload variant image
+         * @param {string} variantId Variant CUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async variantControllerUploadVariantImage(variantId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VariantControllerUploadVariantImage201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.variantControllerUploadVariantImage(variantId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductVariantsApi.variantControllerUploadVariantImage']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -2495,6 +8823,17 @@ export const ProductVariantsApiFactory = function (configuration?: Configuration
             return localVarFp.variantControllerDeleteVariant(variantId, options).then((request) => request(axios, basePath));
         },
         /**
+         * Deletes an image associated with a variant.
+         * @summary Delete variant image
+         * @param {string} variantId Variant UUID
+         * @param {number} position 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        variantControllerDeleteVariantImage(variantId: string, position: number, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.variantControllerDeleteVariantImage(variantId, position, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Retrieves detailed information about a specific variant.
          * @summary Get variant by ID
          * @param {string} variantId Variant UUID
@@ -2507,12 +8846,23 @@ export const ProductVariantsApiFactory = function (configuration?: Configuration
         /**
          * Returns all variants (sizes, types) available for a product.
          * @summary List all variants for a product
-         * @param {string} productId Product UUID
+         * @param {string} productId Product CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         variantControllerGetVariantsByProduct(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<VariantControllerGetVariantsByProduct200Response> {
             return localVarFp.variantControllerGetVariantsByProduct(productId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Saves the uploaded image information to the variant.
+         * @summary Save variant image
+         * @param {string} variantId Variant UUID
+         * @param {SaveVariantImageDto} saveVariantImageDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        variantControllerSaveVariantImage(variantId: string, saveVariantImageDto: SaveVariantImageDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.variantControllerSaveVariantImage(variantId, saveVariantImageDto, options).then((request) => request(axios, basePath));
         },
         /**
          * Dedicated endpoint for stock management. Supports set, add, and reduce operations.
@@ -2535,6 +8885,16 @@ export const ProductVariantsApiFactory = function (configuration?: Configuration
          */
         variantControllerUpdateVariant(variantId: string, updateVariantDto: UpdateVariantDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
             return localVarFp.variantControllerUpdateVariant(variantId, updateVariantDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Uploads an image for a variant and associates it.
+         * @summary Upload variant image
+         * @param {string} variantId Variant CUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        variantControllerUploadVariantImage(variantId: string, options?: RawAxiosRequestConfig): AxiosPromise<VariantControllerUploadVariantImage201Response> {
+            return localVarFp.variantControllerUploadVariantImage(variantId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -2589,6 +8949,18 @@ export class ProductVariantsApi extends BaseAPI {
     }
 
     /**
+     * Deletes an image associated with a variant.
+     * @summary Delete variant image
+     * @param {string} variantId Variant UUID
+     * @param {number} position 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public variantControllerDeleteVariantImage(variantId: string, position: number, options?: RawAxiosRequestConfig) {
+        return ProductVariantsApiFp(this.configuration).variantControllerDeleteVariantImage(variantId, position, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Retrieves detailed information about a specific variant.
      * @summary Get variant by ID
      * @param {string} variantId Variant UUID
@@ -2602,12 +8974,24 @@ export class ProductVariantsApi extends BaseAPI {
     /**
      * Returns all variants (sizes, types) available for a product.
      * @summary List all variants for a product
-     * @param {string} productId Product UUID
+     * @param {string} productId Product CUID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     public variantControllerGetVariantsByProduct(productId: string, options?: RawAxiosRequestConfig) {
         return ProductVariantsApiFp(this.configuration).variantControllerGetVariantsByProduct(productId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Saves the uploaded image information to the variant.
+     * @summary Save variant image
+     * @param {string} variantId Variant UUID
+     * @param {SaveVariantImageDto} saveVariantImageDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public variantControllerSaveVariantImage(variantId: string, saveVariantImageDto: SaveVariantImageDto, options?: RawAxiosRequestConfig) {
+        return ProductVariantsApiFp(this.configuration).variantControllerSaveVariantImage(variantId, saveVariantImageDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2633,6 +9017,17 @@ export class ProductVariantsApi extends BaseAPI {
     public variantControllerUpdateVariant(variantId: string, updateVariantDto: UpdateVariantDto, options?: RawAxiosRequestConfig) {
         return ProductVariantsApiFp(this.configuration).variantControllerUpdateVariant(variantId, updateVariantDto, options).then((request) => request(this.axios, this.basePath));
     }
+
+    /**
+     * Uploads an image for a variant and associates it.
+     * @summary Upload variant image
+     * @param {string} variantId Variant CUID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public variantControllerUploadVariantImage(variantId: string, options?: RawAxiosRequestConfig) {
+        return ProductVariantsApiFp(this.configuration).variantControllerUploadVariantImage(variantId, options).then((request) => request(this.axios, this.basePath));
+    }
 }
 
 
@@ -2642,330 +9037,6 @@ export class ProductVariantsApi extends BaseAPI {
  */
 export const ProductsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
-        /**
-         * Makes product visible in catalog.
-         * @summary Activate product
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerActivateProduct: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'id' is not null or undefined
-            assertParamExists('productControllerActivateProduct', 'id', id)
-            const localVarPath = `/api/products/{id}/activate`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearer required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Creates a product catalog entry. This is NOT sellable yet - you must add variants to make it purchasable.
-         * @summary Create new product (catalog entry)
-         * @param {CreateProductDto} createProductDto 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerCreate: async (createProductDto: CreateProductDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'createProductDto' is not null or undefined
-            assertParamExists('productControllerCreate', 'createProductDto', createProductDto)
-            const localVarPath = `/api/products`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearer required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(createProductDto, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Hides product from catalog.
-         * @summary Deactivate product
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerDeactivateProduct: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'id' is not null or undefined
-            assertParamExists('productControllerDeactivateProduct', 'id', id)
-            const localVarPath = `/api/products/{id}/deactivate`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearer required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Soft deletes product. Admin only.
-         * @summary Delete product (soft delete)
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerDeleteProduct: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'id' is not null or undefined
-            assertParamExists('productControllerDeleteProduct', 'id', id)
-            const localVarPath = `/api/products/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearer required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Permanently removes product. ONE-WAY operation.
-         * @summary Discontinue product (permanent)
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerDiscontinueProduct: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'id' is not null or undefined
-            assertParamExists('productControllerDiscontinueProduct', 'id', id)
-            const localVarPath = `/api/products/{id}/discontinue`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearer required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Retrieves paginated list of products with optional filtering.
-         * @summary List all products (with pagination)
-         * @param {number} [page] Page number
-         * @param {number} [limit] Number of items per page
-         * @param {string} [search] Search term for product name or description
-         * @param {string} [categoryId] Filter by category ID
-         * @param {string} [status] Filter by product status
-         * @param {ProductControllerFindAllSortByEnum} [sortBy] Sort by field
-         * @param {ProductControllerFindAllSortOrderEnum} [sortOrder] Sort order
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerFindAll: async (page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: ProductControllerFindAllSortByEnum, sortOrder?: ProductControllerFindAllSortOrderEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/products`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (limit !== undefined) {
-                localVarQueryParameter['limit'] = limit;
-            }
-
-            if (search !== undefined) {
-                localVarQueryParameter['search'] = search;
-            }
-
-            if (categoryId !== undefined) {
-                localVarQueryParameter['categoryId'] = categoryId;
-            }
-
-            if (status !== undefined) {
-                localVarQueryParameter['status'] = status;
-            }
-
-            if (sortBy !== undefined) {
-                localVarQueryParameter['sortBy'] = sortBy;
-            }
-
-            if (sortOrder !== undefined) {
-                localVarQueryParameter['sortOrder'] = sortOrder;
-            }
-
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Retrieves detailed product information.
-         * @summary Get product by ID
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'id' is not null or undefined
-            assertParamExists('productControllerFindOne', 'id', id)
-            const localVarPath = `/api/products/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Returns product details along with all variants. Useful for product detail pages.
-         * @summary Get product with all variants
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerGetProductWithVariants: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'id' is not null or undefined
-            assertParamExists('productControllerGetProductWithVariants', 'id', id)
-            const localVarPath = `/api/products/{id}/with-variants`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
         /**
          * Updates catalog information only. Does NOT affect pricing or stock.
          * @summary Update product information
@@ -3019,116 +9090,6 @@ export const ProductsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = ProductsApiAxiosParamCreator(configuration)
     return {
         /**
-         * Makes product visible in catalog.
-         * @summary Activate product
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async productControllerActivateProduct(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.productControllerActivateProduct(id, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productControllerActivateProduct']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Creates a product catalog entry. This is NOT sellable yet - you must add variants to make it purchasable.
-         * @summary Create new product (catalog entry)
-         * @param {CreateProductDto} createProductDto 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async productControllerCreate(createProductDto: CreateProductDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductControllerCreate201Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.productControllerCreate(createProductDto, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productControllerCreate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Hides product from catalog.
-         * @summary Deactivate product
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async productControllerDeactivateProduct(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.productControllerDeactivateProduct(id, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productControllerDeactivateProduct']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Soft deletes product. Admin only.
-         * @summary Delete product (soft delete)
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async productControllerDeleteProduct(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.productControllerDeleteProduct(id, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productControllerDeleteProduct']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Permanently removes product. ONE-WAY operation.
-         * @summary Discontinue product (permanent)
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async productControllerDiscontinueProduct(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.productControllerDiscontinueProduct(id, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productControllerDiscontinueProduct']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Retrieves paginated list of products with optional filtering.
-         * @summary List all products (with pagination)
-         * @param {number} [page] Page number
-         * @param {number} [limit] Number of items per page
-         * @param {string} [search] Search term for product name or description
-         * @param {string} [categoryId] Filter by category ID
-         * @param {string} [status] Filter by product status
-         * @param {ProductControllerFindAllSortByEnum} [sortBy] Sort by field
-         * @param {ProductControllerFindAllSortOrderEnum} [sortOrder] Sort order
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async productControllerFindAll(page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: ProductControllerFindAllSortByEnum, sortOrder?: ProductControllerFindAllSortOrderEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductControllerFindAll200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.productControllerFindAll(page, limit, search, categoryId, status, sortBy, sortOrder, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productControllerFindAll']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Retrieves detailed product information.
-         * @summary Get product by ID
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async productControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductControllerCreate201Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.productControllerFindOne(id, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productControllerFindOne']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Returns product details along with all variants. Useful for product detail pages.
-         * @summary Get product with all variants
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async productControllerGetProductWithVariants(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductControllerGetProductWithVariants200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.productControllerGetProductWithVariants(id, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productControllerGetProductWithVariants']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
          * Updates catalog information only. Does NOT affect pricing or stock.
          * @summary Update product information
          * @param {string} id Product UUID
@@ -3136,7 +9097,7 @@ export const ProductsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productControllerUpdate(id: string, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductControllerCreate201Response>> {
+        async productControllerUpdate(id: string, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductControllerUpdate200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productControllerUpdate(id, updateProductDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productControllerUpdate']?.[localVarOperationServerIndex]?.url;
@@ -3152,92 +9113,6 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
     const localVarFp = ProductsApiFp(configuration)
     return {
         /**
-         * Makes product visible in catalog.
-         * @summary Activate product
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerActivateProduct(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
-            return localVarFp.productControllerActivateProduct(id, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Creates a product catalog entry. This is NOT sellable yet - you must add variants to make it purchasable.
-         * @summary Create new product (catalog entry)
-         * @param {CreateProductDto} createProductDto 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerCreate(createProductDto: CreateProductDto, options?: RawAxiosRequestConfig): AxiosPromise<ProductControllerCreate201Response> {
-            return localVarFp.productControllerCreate(createProductDto, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Hides product from catalog.
-         * @summary Deactivate product
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerDeactivateProduct(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
-            return localVarFp.productControllerDeactivateProduct(id, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Soft deletes product. Admin only.
-         * @summary Delete product (soft delete)
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerDeleteProduct(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
-            return localVarFp.productControllerDeleteProduct(id, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Permanently removes product. ONE-WAY operation.
-         * @summary Discontinue product (permanent)
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerDiscontinueProduct(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
-            return localVarFp.productControllerDiscontinueProduct(id, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Retrieves paginated list of products with optional filtering.
-         * @summary List all products (with pagination)
-         * @param {number} [page] Page number
-         * @param {number} [limit] Number of items per page
-         * @param {string} [search] Search term for product name or description
-         * @param {string} [categoryId] Filter by category ID
-         * @param {string} [status] Filter by product status
-         * @param {ProductControllerFindAllSortByEnum} [sortBy] Sort by field
-         * @param {ProductControllerFindAllSortOrderEnum} [sortOrder] Sort order
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerFindAll(page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: ProductControllerFindAllSortByEnum, sortOrder?: ProductControllerFindAllSortOrderEnum, options?: RawAxiosRequestConfig): AxiosPromise<ProductControllerFindAll200Response> {
-            return localVarFp.productControllerFindAll(page, limit, search, categoryId, status, sortBy, sortOrder, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Retrieves detailed product information.
-         * @summary Get product by ID
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<ProductControllerCreate201Response> {
-            return localVarFp.productControllerFindOne(id, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Returns product details along with all variants. Useful for product detail pages.
-         * @summary Get product with all variants
-         * @param {string} id Product UUID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        productControllerGetProductWithVariants(id: string, options?: RawAxiosRequestConfig): AxiosPromise<ProductControllerGetProductWithVariants200Response> {
-            return localVarFp.productControllerGetProductWithVariants(id, options).then((request) => request(axios, basePath));
-        },
-        /**
          * Updates catalog information only. Does NOT affect pricing or stock.
          * @summary Update product information
          * @param {string} id Product UUID
@@ -3245,7 +9120,7 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productControllerUpdate(id: string, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig): AxiosPromise<ProductControllerCreate201Response> {
+        productControllerUpdate(id: string, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig): AxiosPromise<ProductControllerUpdate200Response> {
             return localVarFp.productControllerUpdate(id, updateProductDto, options).then((request) => request(axios, basePath));
         },
     };
@@ -3255,100 +9130,6 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
  * ProductsApi - object-oriented interface
  */
 export class ProductsApi extends BaseAPI {
-    /**
-     * Makes product visible in catalog.
-     * @summary Activate product
-     * @param {string} id Product UUID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public productControllerActivateProduct(id: string, options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).productControllerActivateProduct(id, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Creates a product catalog entry. This is NOT sellable yet - you must add variants to make it purchasable.
-     * @summary Create new product (catalog entry)
-     * @param {CreateProductDto} createProductDto 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public productControllerCreate(createProductDto: CreateProductDto, options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).productControllerCreate(createProductDto, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Hides product from catalog.
-     * @summary Deactivate product
-     * @param {string} id Product UUID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public productControllerDeactivateProduct(id: string, options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).productControllerDeactivateProduct(id, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Soft deletes product. Admin only.
-     * @summary Delete product (soft delete)
-     * @param {string} id Product UUID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public productControllerDeleteProduct(id: string, options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).productControllerDeleteProduct(id, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Permanently removes product. ONE-WAY operation.
-     * @summary Discontinue product (permanent)
-     * @param {string} id Product UUID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public productControllerDiscontinueProduct(id: string, options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).productControllerDiscontinueProduct(id, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Retrieves paginated list of products with optional filtering.
-     * @summary List all products (with pagination)
-     * @param {number} [page] Page number
-     * @param {number} [limit] Number of items per page
-     * @param {string} [search] Search term for product name or description
-     * @param {string} [categoryId] Filter by category ID
-     * @param {string} [status] Filter by product status
-     * @param {ProductControllerFindAllSortByEnum} [sortBy] Sort by field
-     * @param {ProductControllerFindAllSortOrderEnum} [sortOrder] Sort order
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public productControllerFindAll(page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: ProductControllerFindAllSortByEnum, sortOrder?: ProductControllerFindAllSortOrderEnum, options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).productControllerFindAll(page, limit, search, categoryId, status, sortBy, sortOrder, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Retrieves detailed product information.
-     * @summary Get product by ID
-     * @param {string} id Product UUID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public productControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).productControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Returns product details along with all variants. Useful for product detail pages.
-     * @summary Get product with all variants
-     * @param {string} id Product UUID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public productControllerGetProductWithVariants(id: string, options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).productControllerGetProductWithVariants(id, options).then((request) => request(this.axios, this.basePath));
-    }
-
     /**
      * Updates catalog information only. Does NOT affect pricing or stock.
      * @summary Update product information
@@ -3362,17 +9143,1268 @@ export class ProductsApi extends BaseAPI {
     }
 }
 
-export const ProductControllerFindAllSortByEnum = {
+
+
+/**
+ * ProductsAdminApi - axios parameter creator
+ */
+export const ProductsAdminApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Admin permanently discontinues a product. ONE-WAY operation.
+         * @summary Discontinue product (permanent)
+         * @param {string} id Product CUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminProductControllerDiscontinueProduct: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminProductControllerDiscontinueProduct', 'id', id)
+            const localVarPath = `/api/admin/products/{id}/discontinue`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieves all products with all statuses for admin governance.
+         * @summary Get all products (admin)
+         * @param {number} [page] Page number
+         * @param {number} [limit] Number of items per page
+         * @param {string} [search] Search term for product name or description
+         * @param {string} [categoryId] Filter by category ID
+         * @param {string} [status] Filter by product status
+         * @param {AdminProductControllerGetAdminProductsSortByEnum} [sortBy] Sort by field
+         * @param {AdminProductControllerGetAdminProductsSortOrderEnum} [sortOrder] Sort order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminProductControllerGetAdminProducts: async (page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: AdminProductControllerGetAdminProductsSortByEnum, sortOrder?: AdminProductControllerGetAdminProductsSortOrderEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/products`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            if (categoryId !== undefined) {
+                localVarQueryParameter['categoryId'] = categoryId;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (sortOrder !== undefined) {
+                localVarQueryParameter['sortOrder'] = sortOrder;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Admin changes product status for governance.
+         * @summary Update product status
+         * @param {string} id Product CUID
+         * @param {UpdateProductStatusDto} updateProductStatusDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminProductControllerUpdateProductStatus: async (id: string, updateProductStatusDto: UpdateProductStatusDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('adminProductControllerUpdateProductStatus', 'id', id)
+            // verify required parameter 'updateProductStatusDto' is not null or undefined
+            assertParamExists('adminProductControllerUpdateProductStatus', 'updateProductStatusDto', updateProductStatusDto)
+            const localVarPath = `/api/admin/products/{id}/status`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateProductStatusDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProductsAdminApi - functional programming interface
+ */
+export const ProductsAdminApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProductsAdminApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Admin permanently discontinues a product. ONE-WAY operation.
+         * @summary Discontinue product (permanent)
+         * @param {string} id Product CUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminProductControllerDiscontinueProduct(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminProductControllerDiscontinueProduct(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsAdminApi.adminProductControllerDiscontinueProduct']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieves all products with all statuses for admin governance.
+         * @summary Get all products (admin)
+         * @param {number} [page] Page number
+         * @param {number} [limit] Number of items per page
+         * @param {string} [search] Search term for product name or description
+         * @param {string} [categoryId] Filter by category ID
+         * @param {string} [status] Filter by product status
+         * @param {AdminProductControllerGetAdminProductsSortByEnum} [sortBy] Sort by field
+         * @param {AdminProductControllerGetAdminProductsSortOrderEnum} [sortOrder] Sort order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminProductControllerGetAdminProducts(page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: AdminProductControllerGetAdminProductsSortByEnum, sortOrder?: AdminProductControllerGetAdminProductsSortOrderEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AdminProductControllerGetAdminProducts200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminProductControllerGetAdminProducts(page, limit, search, categoryId, status, sortBy, sortOrder, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsAdminApi.adminProductControllerGetAdminProducts']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Admin changes product status for governance.
+         * @summary Update product status
+         * @param {string} id Product CUID
+         * @param {UpdateProductStatusDto} updateProductStatusDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminProductControllerUpdateProductStatus(id: string, updateProductStatusDto: UpdateProductStatusDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminProductControllerUpdateProductStatus(id, updateProductStatusDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsAdminApi.adminProductControllerUpdateProductStatus']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProductsAdminApi - factory interface
+ */
+export const ProductsAdminApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProductsAdminApiFp(configuration)
+    return {
+        /**
+         * Admin permanently discontinues a product. ONE-WAY operation.
+         * @summary Discontinue product (permanent)
+         * @param {string} id Product CUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminProductControllerDiscontinueProduct(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminProductControllerDiscontinueProduct(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieves all products with all statuses for admin governance.
+         * @summary Get all products (admin)
+         * @param {number} [page] Page number
+         * @param {number} [limit] Number of items per page
+         * @param {string} [search] Search term for product name or description
+         * @param {string} [categoryId] Filter by category ID
+         * @param {string} [status] Filter by product status
+         * @param {AdminProductControllerGetAdminProductsSortByEnum} [sortBy] Sort by field
+         * @param {AdminProductControllerGetAdminProductsSortOrderEnum} [sortOrder] Sort order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminProductControllerGetAdminProducts(page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: AdminProductControllerGetAdminProductsSortByEnum, sortOrder?: AdminProductControllerGetAdminProductsSortOrderEnum, options?: RawAxiosRequestConfig): AxiosPromise<AdminProductControllerGetAdminProducts200Response> {
+            return localVarFp.adminProductControllerGetAdminProducts(page, limit, search, categoryId, status, sortBy, sortOrder, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Admin changes product status for governance.
+         * @summary Update product status
+         * @param {string} id Product CUID
+         * @param {UpdateProductStatusDto} updateProductStatusDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminProductControllerUpdateProductStatus(id: string, updateProductStatusDto: UpdateProductStatusDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.adminProductControllerUpdateProductStatus(id, updateProductStatusDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ProductsAdminApi - object-oriented interface
+ */
+export class ProductsAdminApi extends BaseAPI {
+    /**
+     * Admin permanently discontinues a product. ONE-WAY operation.
+     * @summary Discontinue product (permanent)
+     * @param {string} id Product CUID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminProductControllerDiscontinueProduct(id: string, options?: RawAxiosRequestConfig) {
+        return ProductsAdminApiFp(this.configuration).adminProductControllerDiscontinueProduct(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieves all products with all statuses for admin governance.
+     * @summary Get all products (admin)
+     * @param {number} [page] Page number
+     * @param {number} [limit] Number of items per page
+     * @param {string} [search] Search term for product name or description
+     * @param {string} [categoryId] Filter by category ID
+     * @param {string} [status] Filter by product status
+     * @param {AdminProductControllerGetAdminProductsSortByEnum} [sortBy] Sort by field
+     * @param {AdminProductControllerGetAdminProductsSortOrderEnum} [sortOrder] Sort order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminProductControllerGetAdminProducts(page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: AdminProductControllerGetAdminProductsSortByEnum, sortOrder?: AdminProductControllerGetAdminProductsSortOrderEnum, options?: RawAxiosRequestConfig) {
+        return ProductsAdminApiFp(this.configuration).adminProductControllerGetAdminProducts(page, limit, search, categoryId, status, sortBy, sortOrder, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Admin changes product status for governance.
+     * @summary Update product status
+     * @param {string} id Product CUID
+     * @param {UpdateProductStatusDto} updateProductStatusDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminProductControllerUpdateProductStatus(id: string, updateProductStatusDto: UpdateProductStatusDto, options?: RawAxiosRequestConfig) {
+        return ProductsAdminApiFp(this.configuration).adminProductControllerUpdateProductStatus(id, updateProductStatusDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const AdminProductControllerGetAdminProductsSortByEnum = {
     Name: 'name',
     Price: 'price',
     CreatedAt: 'createdAt'
 } as const;
-export type ProductControllerFindAllSortByEnum = typeof ProductControllerFindAllSortByEnum[keyof typeof ProductControllerFindAllSortByEnum];
-export const ProductControllerFindAllSortOrderEnum = {
+export type AdminProductControllerGetAdminProductsSortByEnum = typeof AdminProductControllerGetAdminProductsSortByEnum[keyof typeof AdminProductControllerGetAdminProductsSortByEnum];
+export const AdminProductControllerGetAdminProductsSortOrderEnum = {
     Asc: 'asc',
     Desc: 'desc'
 } as const;
-export type ProductControllerFindAllSortOrderEnum = typeof ProductControllerFindAllSortOrderEnum[keyof typeof ProductControllerFindAllSortOrderEnum];
+export type AdminProductControllerGetAdminProductsSortOrderEnum = typeof AdminProductControllerGetAdminProductsSortOrderEnum[keyof typeof AdminProductControllerGetAdminProductsSortOrderEnum];
+
+
+/**
+ * ProductsPublicApi - axios parameter creator
+ */
+export const ProductsPublicApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Retrieves paginated list of ACTIVE products with first variant and category. Perfect for homepage/listing pages. Public endpoint.
+         * @summary Browse marketplace products with preview
+         * @param {number} [page] Page number
+         * @param {number} [limit] Number of items per page
+         * @param {string} [search] Search term for product name or description
+         * @param {string} [categoryId] Filter by category ID
+         * @param {string} [status] Filter by product status
+         * @param {ProductPublicControllerFindAllSortByEnum} [sortBy] Sort by field
+         * @param {ProductPublicControllerFindAllSortOrderEnum} [sortOrder] Sort order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productPublicControllerFindAll: async (page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: ProductPublicControllerFindAllSortByEnum, sortOrder?: ProductPublicControllerFindAllSortOrderEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/products`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            if (categoryId !== undefined) {
+                localVarQueryParameter['categoryId'] = categoryId;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (sortOrder !== undefined) {
+                localVarQueryParameter['sortOrder'] = sortOrder;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieves a single product by ID with category populated. Public endpoint.
+         * @summary Get product details with category
+         * @param {string} id Product UUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productPublicControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('productPublicControllerFindOne', 'id', id)
+            const localVarPath = `/api/products/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieves complete product details with category and all variants with images. Perfect for product detail pages. Public endpoint.
+         * @summary Get product with all variants and category
+         * @param {string} id Product UUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productPublicControllerGetProductWithVariants: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('productPublicControllerGetProductWithVariants', 'id', id)
+            const localVarPath = `/api/products/{id}/with-variants`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProductsPublicApi - functional programming interface
+ */
+export const ProductsPublicApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProductsPublicApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Retrieves paginated list of ACTIVE products with first variant and category. Perfect for homepage/listing pages. Public endpoint.
+         * @summary Browse marketplace products with preview
+         * @param {number} [page] Page number
+         * @param {number} [limit] Number of items per page
+         * @param {string} [search] Search term for product name or description
+         * @param {string} [categoryId] Filter by category ID
+         * @param {string} [status] Filter by product status
+         * @param {ProductPublicControllerFindAllSortByEnum} [sortBy] Sort by field
+         * @param {ProductPublicControllerFindAllSortOrderEnum} [sortOrder] Sort order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async productPublicControllerFindAll(page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: ProductPublicControllerFindAllSortByEnum, sortOrder?: ProductPublicControllerFindAllSortOrderEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductPublicControllerFindAll200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productPublicControllerFindAll(page, limit, search, categoryId, status, sortBy, sortOrder, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsPublicApi.productPublicControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieves a single product by ID with category populated. Public endpoint.
+         * @summary Get product details with category
+         * @param {string} id Product UUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async productPublicControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductPublicControllerFindOne200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productPublicControllerFindOne(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsPublicApi.productPublicControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieves complete product details with category and all variants with images. Perfect for product detail pages. Public endpoint.
+         * @summary Get product with all variants and category
+         * @param {string} id Product UUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async productPublicControllerGetProductWithVariants(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductPublicControllerGetProductWithVariants200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productPublicControllerGetProductWithVariants(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsPublicApi.productPublicControllerGetProductWithVariants']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProductsPublicApi - factory interface
+ */
+export const ProductsPublicApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProductsPublicApiFp(configuration)
+    return {
+        /**
+         * Retrieves paginated list of ACTIVE products with first variant and category. Perfect for homepage/listing pages. Public endpoint.
+         * @summary Browse marketplace products with preview
+         * @param {number} [page] Page number
+         * @param {number} [limit] Number of items per page
+         * @param {string} [search] Search term for product name or description
+         * @param {string} [categoryId] Filter by category ID
+         * @param {string} [status] Filter by product status
+         * @param {ProductPublicControllerFindAllSortByEnum} [sortBy] Sort by field
+         * @param {ProductPublicControllerFindAllSortOrderEnum} [sortOrder] Sort order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productPublicControllerFindAll(page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: ProductPublicControllerFindAllSortByEnum, sortOrder?: ProductPublicControllerFindAllSortOrderEnum, options?: RawAxiosRequestConfig): AxiosPromise<ProductPublicControllerFindAll200Response> {
+            return localVarFp.productPublicControllerFindAll(page, limit, search, categoryId, status, sortBy, sortOrder, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieves a single product by ID with category populated. Public endpoint.
+         * @summary Get product details with category
+         * @param {string} id Product UUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productPublicControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<ProductPublicControllerFindOne200Response> {
+            return localVarFp.productPublicControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieves complete product details with category and all variants with images. Perfect for product detail pages. Public endpoint.
+         * @summary Get product with all variants and category
+         * @param {string} id Product UUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productPublicControllerGetProductWithVariants(id: string, options?: RawAxiosRequestConfig): AxiosPromise<ProductPublicControllerGetProductWithVariants200Response> {
+            return localVarFp.productPublicControllerGetProductWithVariants(id, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ProductsPublicApi - object-oriented interface
+ */
+export class ProductsPublicApi extends BaseAPI {
+    /**
+     * Retrieves paginated list of ACTIVE products with first variant and category. Perfect for homepage/listing pages. Public endpoint.
+     * @summary Browse marketplace products with preview
+     * @param {number} [page] Page number
+     * @param {number} [limit] Number of items per page
+     * @param {string} [search] Search term for product name or description
+     * @param {string} [categoryId] Filter by category ID
+     * @param {string} [status] Filter by product status
+     * @param {ProductPublicControllerFindAllSortByEnum} [sortBy] Sort by field
+     * @param {ProductPublicControllerFindAllSortOrderEnum} [sortOrder] Sort order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public productPublicControllerFindAll(page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: ProductPublicControllerFindAllSortByEnum, sortOrder?: ProductPublicControllerFindAllSortOrderEnum, options?: RawAxiosRequestConfig) {
+        return ProductsPublicApiFp(this.configuration).productPublicControllerFindAll(page, limit, search, categoryId, status, sortBy, sortOrder, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieves a single product by ID with category populated. Public endpoint.
+     * @summary Get product details with category
+     * @param {string} id Product UUID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public productPublicControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return ProductsPublicApiFp(this.configuration).productPublicControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieves complete product details with category and all variants with images. Perfect for product detail pages. Public endpoint.
+     * @summary Get product with all variants and category
+     * @param {string} id Product UUID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public productPublicControllerGetProductWithVariants(id: string, options?: RawAxiosRequestConfig) {
+        return ProductsPublicApiFp(this.configuration).productPublicControllerGetProductWithVariants(id, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const ProductPublicControllerFindAllSortByEnum = {
+    Name: 'name',
+    Price: 'price',
+    CreatedAt: 'createdAt'
+} as const;
+export type ProductPublicControllerFindAllSortByEnum = typeof ProductPublicControllerFindAllSortByEnum[keyof typeof ProductPublicControllerFindAllSortByEnum];
+export const ProductPublicControllerFindAllSortOrderEnum = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+export type ProductPublicControllerFindAllSortOrderEnum = typeof ProductPublicControllerFindAllSortOrderEnum[keyof typeof ProductPublicControllerFindAllSortOrderEnum];
+
+
+/**
+ * ProductsSellerApi - axios parameter creator
+ */
+export const ProductsSellerApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Seller activates their product to make it visible in marketplace.
+         * @summary Activate product
+         * @param {string} id Product UUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerProductControllerActivateProduct: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('sellerProductControllerActivateProduct', 'id', id)
+            const localVarPath = `/api/seller/products/{id}/activate`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Seller creates a new product catalog entry.
+         * @summary Create new product
+         * @param {CreateProductDto} createProductDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerProductControllerCreate: async (createProductDto: CreateProductDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createProductDto' is not null or undefined
+            assertParamExists('sellerProductControllerCreate', 'createProductDto', createProductDto)
+            const localVarPath = `/api/seller/products`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createProductDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Seller deactivates their product to hide it from marketplace.
+         * @summary Deactivate product
+         * @param {string} id Product UUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerProductControllerDeactivateProduct: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('sellerProductControllerDeactivateProduct', 'id', id)
+            const localVarPath = `/api/seller/products/{id}/deactivate`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieves all products owned by the seller. Shows all statuses.
+         * @summary Get seller products
+         * @param {number} [page] Page number
+         * @param {number} [limit] Number of items per page
+         * @param {string} [search] Search term for product name or description
+         * @param {string} [categoryId] Filter by category ID
+         * @param {string} [status] Filter by product status
+         * @param {SellerProductControllerGetSellerProductsSortByEnum} [sortBy] Sort by field
+         * @param {SellerProductControllerGetSellerProductsSortOrderEnum} [sortOrder] Sort order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerProductControllerGetSellerProducts: async (page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: SellerProductControllerGetSellerProductsSortByEnum, sortOrder?: SellerProductControllerGetSellerProductsSortOrderEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/seller/products`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            if (categoryId !== undefined) {
+                localVarQueryParameter['categoryId'] = categoryId;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (sortOrder !== undefined) {
+                localVarQueryParameter['sortOrder'] = sortOrder;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Seller updates their own product information.
+         * @summary Update product
+         * @param {string} id Product UUID
+         * @param {UpdateProductDto} updateProductDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerProductControllerUpdate: async (id: string, updateProductDto: UpdateProductDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('sellerProductControllerUpdate', 'id', id)
+            // verify required parameter 'updateProductDto' is not null or undefined
+            assertParamExists('sellerProductControllerUpdate', 'updateProductDto', updateProductDto)
+            const localVarPath = `/api/seller/products/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateProductDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProductsSellerApi - functional programming interface
+ */
+export const ProductsSellerApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProductsSellerApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Seller activates their product to make it visible in marketplace.
+         * @summary Activate product
+         * @param {string} id Product UUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sellerProductControllerActivateProduct(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sellerProductControllerActivateProduct(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsSellerApi.sellerProductControllerActivateProduct']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Seller creates a new product catalog entry.
+         * @summary Create new product
+         * @param {CreateProductDto} createProductDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sellerProductControllerCreate(createProductDto: CreateProductDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductControllerUpdate200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sellerProductControllerCreate(createProductDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsSellerApi.sellerProductControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Seller deactivates their product to hide it from marketplace.
+         * @summary Deactivate product
+         * @param {string} id Product UUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sellerProductControllerDeactivateProduct(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sellerProductControllerDeactivateProduct(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsSellerApi.sellerProductControllerDeactivateProduct']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieves all products owned by the seller. Shows all statuses.
+         * @summary Get seller products
+         * @param {number} [page] Page number
+         * @param {number} [limit] Number of items per page
+         * @param {string} [search] Search term for product name or description
+         * @param {string} [categoryId] Filter by category ID
+         * @param {string} [status] Filter by product status
+         * @param {SellerProductControllerGetSellerProductsSortByEnum} [sortBy] Sort by field
+         * @param {SellerProductControllerGetSellerProductsSortOrderEnum} [sortOrder] Sort order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sellerProductControllerGetSellerProducts(page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: SellerProductControllerGetSellerProductsSortByEnum, sortOrder?: SellerProductControllerGetSellerProductsSortOrderEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SellerProductControllerGetSellerProducts200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sellerProductControllerGetSellerProducts(page, limit, search, categoryId, status, sortBy, sortOrder, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsSellerApi.sellerProductControllerGetSellerProducts']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Seller updates their own product information.
+         * @summary Update product
+         * @param {string} id Product UUID
+         * @param {UpdateProductDto} updateProductDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sellerProductControllerUpdate(id: string, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductControllerUpdate200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sellerProductControllerUpdate(id, updateProductDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsSellerApi.sellerProductControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProductsSellerApi - factory interface
+ */
+export const ProductsSellerApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProductsSellerApiFp(configuration)
+    return {
+        /**
+         * Seller activates their product to make it visible in marketplace.
+         * @summary Activate product
+         * @param {string} id Product UUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerProductControllerActivateProduct(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.sellerProductControllerActivateProduct(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Seller creates a new product catalog entry.
+         * @summary Create new product
+         * @param {CreateProductDto} createProductDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerProductControllerCreate(createProductDto: CreateProductDto, options?: RawAxiosRequestConfig): AxiosPromise<ProductControllerUpdate200Response> {
+            return localVarFp.sellerProductControllerCreate(createProductDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Seller deactivates their product to hide it from marketplace.
+         * @summary Deactivate product
+         * @param {string} id Product UUID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerProductControllerDeactivateProduct(id: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.sellerProductControllerDeactivateProduct(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieves all products owned by the seller. Shows all statuses.
+         * @summary Get seller products
+         * @param {number} [page] Page number
+         * @param {number} [limit] Number of items per page
+         * @param {string} [search] Search term for product name or description
+         * @param {string} [categoryId] Filter by category ID
+         * @param {string} [status] Filter by product status
+         * @param {SellerProductControllerGetSellerProductsSortByEnum} [sortBy] Sort by field
+         * @param {SellerProductControllerGetSellerProductsSortOrderEnum} [sortOrder] Sort order
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerProductControllerGetSellerProducts(page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: SellerProductControllerGetSellerProductsSortByEnum, sortOrder?: SellerProductControllerGetSellerProductsSortOrderEnum, options?: RawAxiosRequestConfig): AxiosPromise<SellerProductControllerGetSellerProducts200Response> {
+            return localVarFp.sellerProductControllerGetSellerProducts(page, limit, search, categoryId, status, sortBy, sortOrder, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Seller updates their own product information.
+         * @summary Update product
+         * @param {string} id Product UUID
+         * @param {UpdateProductDto} updateProductDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerProductControllerUpdate(id: string, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig): AxiosPromise<ProductControllerUpdate200Response> {
+            return localVarFp.sellerProductControllerUpdate(id, updateProductDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ProductsSellerApi - object-oriented interface
+ */
+export class ProductsSellerApi extends BaseAPI {
+    /**
+     * Seller activates their product to make it visible in marketplace.
+     * @summary Activate product
+     * @param {string} id Product UUID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sellerProductControllerActivateProduct(id: string, options?: RawAxiosRequestConfig) {
+        return ProductsSellerApiFp(this.configuration).sellerProductControllerActivateProduct(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Seller creates a new product catalog entry.
+     * @summary Create new product
+     * @param {CreateProductDto} createProductDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sellerProductControllerCreate(createProductDto: CreateProductDto, options?: RawAxiosRequestConfig) {
+        return ProductsSellerApiFp(this.configuration).sellerProductControllerCreate(createProductDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Seller deactivates their product to hide it from marketplace.
+     * @summary Deactivate product
+     * @param {string} id Product UUID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sellerProductControllerDeactivateProduct(id: string, options?: RawAxiosRequestConfig) {
+        return ProductsSellerApiFp(this.configuration).sellerProductControllerDeactivateProduct(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieves all products owned by the seller. Shows all statuses.
+     * @summary Get seller products
+     * @param {number} [page] Page number
+     * @param {number} [limit] Number of items per page
+     * @param {string} [search] Search term for product name or description
+     * @param {string} [categoryId] Filter by category ID
+     * @param {string} [status] Filter by product status
+     * @param {SellerProductControllerGetSellerProductsSortByEnum} [sortBy] Sort by field
+     * @param {SellerProductControllerGetSellerProductsSortOrderEnum} [sortOrder] Sort order
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sellerProductControllerGetSellerProducts(page?: number, limit?: number, search?: string, categoryId?: string, status?: string, sortBy?: SellerProductControllerGetSellerProductsSortByEnum, sortOrder?: SellerProductControllerGetSellerProductsSortOrderEnum, options?: RawAxiosRequestConfig) {
+        return ProductsSellerApiFp(this.configuration).sellerProductControllerGetSellerProducts(page, limit, search, categoryId, status, sortBy, sortOrder, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Seller updates their own product information.
+     * @summary Update product
+     * @param {string} id Product UUID
+     * @param {UpdateProductDto} updateProductDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sellerProductControllerUpdate(id: string, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig) {
+        return ProductsSellerApiFp(this.configuration).sellerProductControllerUpdate(id, updateProductDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+export const SellerProductControllerGetSellerProductsSortByEnum = {
+    Name: 'name',
+    Price: 'price',
+    CreatedAt: 'createdAt'
+} as const;
+export type SellerProductControllerGetSellerProductsSortByEnum = typeof SellerProductControllerGetSellerProductsSortByEnum[keyof typeof SellerProductControllerGetSellerProductsSortByEnum];
+export const SellerProductControllerGetSellerProductsSortOrderEnum = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+export type SellerProductControllerGetSellerProductsSortOrderEnum = typeof SellerProductControllerGetSellerProductsSortOrderEnum[keyof typeof SellerProductControllerGetSellerProductsSortOrderEnum];
+
+
+/**
+ * SellerOrdersApi - axios parameter creator
+ */
+export const SellerOrdersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Retrieve detailed information about a specific order (if it contains seller products)
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerOrderControllerGetOrderById: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('sellerOrderControllerGetOrderById', 'id', id)
+            const localVarPath = `/api/seller/orders/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieve orders that contain products sold by this seller
+         * @summary Get orders containing my products
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerOrderControllerGetSellerOrders: async (page?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/seller/orders`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * SellerOrdersApi - functional programming interface
+ */
+export const SellerOrdersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = SellerOrdersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Retrieve detailed information about a specific order (if it contains seller products)
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sellerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetOrderById200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sellerOrderControllerGetOrderById(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SellerOrdersApi.sellerOrderControllerGetOrderById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieve orders that contain products sold by this seller
+         * @summary Get orders containing my products
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sellerOrderControllerGetSellerOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerOrderControllerGetMyOrders200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sellerOrderControllerGetSellerOrders(page, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SellerOrdersApi.sellerOrderControllerGetSellerOrders']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * SellerOrdersApi - factory interface
+ */
+export const SellerOrdersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = SellerOrdersApiFp(configuration)
+    return {
+        /**
+         * Retrieve detailed information about a specific order (if it contains seller products)
+         * @summary Get order by ID
+         * @param {string} id Order ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetOrderById200Response> {
+            return localVarFp.sellerOrderControllerGetOrderById(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieve orders that contain products sold by this seller
+         * @summary Get orders containing my products
+         * @param {number} [page] Page number
+         * @param {number} [limit] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sellerOrderControllerGetSellerOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<CustomerOrderControllerGetMyOrders200Response> {
+            return localVarFp.sellerOrderControllerGetSellerOrders(page, limit, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * SellerOrdersApi - object-oriented interface
+ */
+export class SellerOrdersApi extends BaseAPI {
+    /**
+     * Retrieve detailed information about a specific order (if it contains seller products)
+     * @summary Get order by ID
+     * @param {string} id Order ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sellerOrderControllerGetOrderById(id: string, options?: RawAxiosRequestConfig) {
+        return SellerOrdersApiFp(this.configuration).sellerOrderControllerGetOrderById(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve orders that contain products sold by this seller
+     * @summary Get orders containing my products
+     * @param {number} [page] Page number
+     * @param {number} [limit] Items per page
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sellerOrderControllerGetSellerOrders(page?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return SellerOrdersApiFp(this.configuration).sellerOrderControllerGetSellerOrders(page, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
 
 
 /**
@@ -3437,7 +10469,7 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         /**
          * Retrieves a single user by ID. Admin only.
          * @summary Get user by ID
-         * @param {string} id User UUID
+         * @param {string} id User CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3473,6 +10505,45 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
+         * Generates presigned upload credentials for client-side profile picture upload to Cloudinary
+         * @summary Generate presigned URL for profile picture upload
+         * @param {GenerateProfilePictureUploadUrlDto} generateProfilePictureUploadUrlDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        userControllerGenerateProfilePictureUploadUrl: async (generateProfilePictureUploadUrlDto: GenerateProfilePictureUploadUrlDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'generateProfilePictureUploadUrlDto' is not null or undefined
+            assertParamExists('userControllerGenerateProfilePictureUploadUrl', 'generateProfilePictureUploadUrlDto', generateProfilePictureUploadUrlDto)
+            const localVarPath = `/api/users/profile-picture/generate-upload-url`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(generateProfilePictureUploadUrlDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Retrieves the authenticated user profile
          * @summary Get current user profile
          * @param {*} [options] Override http request option.
@@ -3500,6 +10571,45 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Saves the profile picture URL after successful upload to storage
+         * @summary Save profile picture URL
+         * @param {SaveProfilePictureDto} saveProfilePictureDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        userControllerSaveProfilePicture: async (saveProfilePictureDto: SaveProfilePictureDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'saveProfilePictureDto' is not null or undefined
+            assertParamExists('userControllerSaveProfilePicture', 'saveProfilePictureDto', saveProfilePictureDto)
+            const localVarPath = `/api/users/profile-picture`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(saveProfilePictureDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -3548,7 +10658,7 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         /**
          * Updates user account status. Admin only.
          * @summary Update user status
-         * @param {string} id User UUID
+         * @param {string} id User CUID
          * @param {UpdateUserStatusDto} updateUserStatusDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3616,7 +10726,7 @@ export const UsersApiFp = function(configuration?: Configuration) {
         /**
          * Retrieves a single user by ID. Admin only.
          * @summary Get user by ID
-         * @param {string} id User UUID
+         * @param {string} id User CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3624,6 +10734,19 @@ export const UsersApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.userControllerFindOne(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.userControllerFindOne']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Generates presigned upload credentials for client-side profile picture upload to Cloudinary
+         * @summary Generate presigned URL for profile picture upload
+         * @param {GenerateProfilePictureUploadUrlDto} generateProfilePictureUploadUrlDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto: GenerateProfilePictureUploadUrlDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserControllerGenerateProfilePictureUploadUrl201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.userControllerGenerateProfilePictureUploadUrl']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3636,6 +10759,19 @@ export const UsersApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.userControllerGetMe(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.userControllerGetMe']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Saves the profile picture URL after successful upload to storage
+         * @summary Save profile picture URL
+         * @param {SaveProfilePictureDto} saveProfilePictureDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async userControllerSaveProfilePicture(saveProfilePictureDto: SaveProfilePictureDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageOnlyResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.userControllerSaveProfilePicture(saveProfilePictureDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.userControllerSaveProfilePicture']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3654,7 +10790,7 @@ export const UsersApiFp = function(configuration?: Configuration) {
         /**
          * Updates user account status. Admin only.
          * @summary Update user status
-         * @param {string} id User UUID
+         * @param {string} id User CUID
          * @param {UpdateUserStatusDto} updateUserStatusDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3690,12 +10826,22 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
         /**
          * Retrieves a single user by ID. Admin only.
          * @summary Get user by ID
-         * @param {string} id User UUID
+         * @param {string} id User CUID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         userControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<UserControllerUpdate200Response> {
             return localVarFp.userControllerFindOne(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Generates presigned upload credentials for client-side profile picture upload to Cloudinary
+         * @summary Generate presigned URL for profile picture upload
+         * @param {GenerateProfilePictureUploadUrlDto} generateProfilePictureUploadUrlDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto: GenerateProfilePictureUploadUrlDto, options?: RawAxiosRequestConfig): AxiosPromise<UserControllerGenerateProfilePictureUploadUrl201Response> {
+            return localVarFp.userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto, options).then((request) => request(axios, basePath));
         },
         /**
          * Retrieves the authenticated user profile
@@ -3705,6 +10851,16 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
          */
         userControllerGetMe(options?: RawAxiosRequestConfig): AxiosPromise<UserControllerGetMe200Response> {
             return localVarFp.userControllerGetMe(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Saves the profile picture URL after successful upload to storage
+         * @summary Save profile picture URL
+         * @param {SaveProfilePictureDto} saveProfilePictureDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        userControllerSaveProfilePicture(saveProfilePictureDto: SaveProfilePictureDto, options?: RawAxiosRequestConfig): AxiosPromise<MessageOnlyResponse> {
+            return localVarFp.userControllerSaveProfilePicture(saveProfilePictureDto, options).then((request) => request(axios, basePath));
         },
         /**
          * Updates the authenticated user profile
@@ -3719,7 +10875,7 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
         /**
          * Updates user account status. Admin only.
          * @summary Update user status
-         * @param {string} id User UUID
+         * @param {string} id User CUID
          * @param {UpdateUserStatusDto} updateUserStatusDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3751,12 +10907,23 @@ export class UsersApi extends BaseAPI {
     /**
      * Retrieves a single user by ID. Admin only.
      * @summary Get user by ID
-     * @param {string} id User UUID
+     * @param {string} id User CUID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     public userControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
         return UsersApiFp(this.configuration).userControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Generates presigned upload credentials for client-side profile picture upload to Cloudinary
+     * @summary Generate presigned URL for profile picture upload
+     * @param {GenerateProfilePictureUploadUrlDto} generateProfilePictureUploadUrlDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto: GenerateProfilePictureUploadUrlDto, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3767,6 +10934,17 @@ export class UsersApi extends BaseAPI {
      */
     public userControllerGetMe(options?: RawAxiosRequestConfig) {
         return UsersApiFp(this.configuration).userControllerGetMe(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Saves the profile picture URL after successful upload to storage
+     * @summary Save profile picture URL
+     * @param {SaveProfilePictureDto} saveProfilePictureDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public userControllerSaveProfilePicture(saveProfilePictureDto: SaveProfilePictureDto, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).userControllerSaveProfilePicture(saveProfilePictureDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3783,7 +10961,7 @@ export class UsersApi extends BaseAPI {
     /**
      * Updates user account status. Admin only.
      * @summary Update user status
-     * @param {string} id User UUID
+     * @param {string} id User CUID
      * @param {UpdateUserStatusDto} updateUserStatusDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -3799,5 +10977,441 @@ export const UserControllerFindAllStatusEnum = {
     Disabled: 'disabled'
 } as const;
 export type UserControllerFindAllStatusEnum = typeof UserControllerFindAllStatusEnum[keyof typeof UserControllerFindAllStatusEnum];
+
+
+/**
+ * WalletApi - axios parameter creator
+ */
+export const WalletApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Adds funds to the customer wallet.
+         * @summary Add money to wallet
+         * @param {AddMoneyDto} addMoneyDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerAddMoney: async (addMoneyDto: AddMoneyDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'addMoneyDto' is not null or undefined
+            assertParamExists('walletControllerAddMoney', 'addMoneyDto', addMoneyDto)
+            const localVarPath = `/api/wallet/add-money`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(addMoneyDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieves transaction history for the wallet with pagination.
+         * @summary Get wallet transactions
+         * @param {number} [limit] Number of transactions to retrieve
+         * @param {number} [offset] Offset for pagination
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerGetTransactions: async (limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/wallet/transactions`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Retrieves wallet information for the authenticated customer. Creates wallet if not exists.
+         * @summary Get wallet
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerGetWallet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/wallet`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Checks if wallet has sufficient balance for the given amount.
+         * @summary Validate wallet balance
+         * @param {ValidateBalanceDto} validateBalanceDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerValidateBalance: async (validateBalanceDto: ValidateBalanceDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'validateBalanceDto' is not null or undefined
+            assertParamExists('walletControllerValidateBalance', 'validateBalanceDto', validateBalanceDto)
+            const localVarPath = `/api/wallet/validate-balance`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(validateBalanceDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * WalletApi - functional programming interface
+ */
+export const WalletApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = WalletApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Adds funds to the customer wallet.
+         * @summary Add money to wallet
+         * @param {AddMoneyDto} addMoneyDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async walletControllerAddMoney(addMoneyDto: AddMoneyDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletControllerAddMoney201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.walletControllerAddMoney(addMoneyDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletApi.walletControllerAddMoney']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieves transaction history for the wallet with pagination.
+         * @summary Get wallet transactions
+         * @param {number} [limit] Number of transactions to retrieve
+         * @param {number} [offset] Offset for pagination
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async walletControllerGetTransactions(limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletControllerGetTransactions200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.walletControllerGetTransactions(limit, offset, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletApi.walletControllerGetTransactions']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Retrieves wallet information for the authenticated customer. Creates wallet if not exists.
+         * @summary Get wallet
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async walletControllerGetWallet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletControllerGetWallet200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.walletControllerGetWallet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletApi.walletControllerGetWallet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Checks if wallet has sufficient balance for the given amount.
+         * @summary Validate wallet balance
+         * @param {ValidateBalanceDto} validateBalanceDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async walletControllerValidateBalance(validateBalanceDto: ValidateBalanceDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<WalletControllerValidateBalance200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.walletControllerValidateBalance(validateBalanceDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WalletApi.walletControllerValidateBalance']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * WalletApi - factory interface
+ */
+export const WalletApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = WalletApiFp(configuration)
+    return {
+        /**
+         * Adds funds to the customer wallet.
+         * @summary Add money to wallet
+         * @param {AddMoneyDto} addMoneyDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerAddMoney(addMoneyDto: AddMoneyDto, options?: RawAxiosRequestConfig): AxiosPromise<WalletControllerAddMoney201Response> {
+            return localVarFp.walletControllerAddMoney(addMoneyDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieves transaction history for the wallet with pagination.
+         * @summary Get wallet transactions
+         * @param {number} [limit] Number of transactions to retrieve
+         * @param {number} [offset] Offset for pagination
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerGetTransactions(limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<WalletControllerGetTransactions200Response> {
+            return localVarFp.walletControllerGetTransactions(limit, offset, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Retrieves wallet information for the authenticated customer. Creates wallet if not exists.
+         * @summary Get wallet
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerGetWallet(options?: RawAxiosRequestConfig): AxiosPromise<WalletControllerGetWallet200Response> {
+            return localVarFp.walletControllerGetWallet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Checks if wallet has sufficient balance for the given amount.
+         * @summary Validate wallet balance
+         * @param {ValidateBalanceDto} validateBalanceDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        walletControllerValidateBalance(validateBalanceDto: ValidateBalanceDto, options?: RawAxiosRequestConfig): AxiosPromise<WalletControllerValidateBalance200Response> {
+            return localVarFp.walletControllerValidateBalance(validateBalanceDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * WalletApi - object-oriented interface
+ */
+export class WalletApi extends BaseAPI {
+    /**
+     * Adds funds to the customer wallet.
+     * @summary Add money to wallet
+     * @param {AddMoneyDto} addMoneyDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public walletControllerAddMoney(addMoneyDto: AddMoneyDto, options?: RawAxiosRequestConfig) {
+        return WalletApiFp(this.configuration).walletControllerAddMoney(addMoneyDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieves transaction history for the wallet with pagination.
+     * @summary Get wallet transactions
+     * @param {number} [limit] Number of transactions to retrieve
+     * @param {number} [offset] Offset for pagination
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public walletControllerGetTransactions(limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
+        return WalletApiFp(this.configuration).walletControllerGetTransactions(limit, offset, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieves wallet information for the authenticated customer. Creates wallet if not exists.
+     * @summary Get wallet
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public walletControllerGetWallet(options?: RawAxiosRequestConfig) {
+        return WalletApiFp(this.configuration).walletControllerGetWallet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Checks if wallet has sufficient balance for the given amount.
+     * @summary Validate wallet balance
+     * @param {ValidateBalanceDto} validateBalanceDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public walletControllerValidateBalance(validateBalanceDto: ValidateBalanceDto, options?: RawAxiosRequestConfig) {
+        return WalletApiFp(this.configuration).walletControllerValidateBalance(validateBalanceDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * WebhooksApi - axios parameter creator
+ */
+export const WebhooksApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Process payment confirmation webhooks from Razorpay
+         * @summary Handle Razorpay webhook
+         * @param {string} xRazorpaySignature 
+         * @param {string} xRazorpaySignature2 Webhook signature for verification
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        webhookControllerHandleRazorpayWebhook: async (xRazorpaySignature: string, xRazorpaySignature2: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'xRazorpaySignature' is not null or undefined
+            assertParamExists('webhookControllerHandleRazorpayWebhook', 'xRazorpaySignature', xRazorpaySignature)
+            // verify required parameter 'xRazorpaySignature2' is not null or undefined
+            assertParamExists('webhookControllerHandleRazorpayWebhook', 'xRazorpaySignature2', xRazorpaySignature2)
+            const localVarPath = `/api/webhooks/razorpay`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            if (xRazorpaySignature != null) {
+                localVarHeaderParameter['x-razorpay-signature'] = String(xRazorpaySignature);
+            }
+            if (xRazorpaySignature2 != null) {
+                localVarHeaderParameter['X-Razorpay-Signature'] = String(xRazorpaySignature2);
+            }
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * WebhooksApi - functional programming interface
+ */
+export const WebhooksApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = WebhooksApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Process payment confirmation webhooks from Razorpay
+         * @summary Handle Razorpay webhook
+         * @param {string} xRazorpaySignature 
+         * @param {string} xRazorpaySignature2 Webhook signature for verification
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async webhookControllerHandleRazorpayWebhook(xRazorpaySignature: string, xRazorpaySignature2: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.webhookControllerHandleRazorpayWebhook(xRazorpaySignature, xRazorpaySignature2, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WebhooksApi.webhookControllerHandleRazorpayWebhook']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * WebhooksApi - factory interface
+ */
+export const WebhooksApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = WebhooksApiFp(configuration)
+    return {
+        /**
+         * Process payment confirmation webhooks from Razorpay
+         * @summary Handle Razorpay webhook
+         * @param {string} xRazorpaySignature 
+         * @param {string} xRazorpaySignature2 Webhook signature for verification
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        webhookControllerHandleRazorpayWebhook(xRazorpaySignature: string, xRazorpaySignature2: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.webhookControllerHandleRazorpayWebhook(xRazorpaySignature, xRazorpaySignature2, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * WebhooksApi - object-oriented interface
+ */
+export class WebhooksApi extends BaseAPI {
+    /**
+     * Process payment confirmation webhooks from Razorpay
+     * @summary Handle Razorpay webhook
+     * @param {string} xRazorpaySignature 
+     * @param {string} xRazorpaySignature2 Webhook signature for verification
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public webhookControllerHandleRazorpayWebhook(xRazorpaySignature: string, xRazorpaySignature2: string, options?: RawAxiosRequestConfig) {
+        return WebhooksApiFp(this.configuration).webhookControllerHandleRazorpayWebhook(xRazorpaySignature, xRazorpaySignature2, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
 
 

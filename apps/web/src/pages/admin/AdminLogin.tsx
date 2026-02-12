@@ -2,12 +2,12 @@ import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { Eye, EyeOff } from 'lucide-react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { catchError } from '@/types/error';
-import { useAppDispatch } from '@/app/store';
+import { fetchUser } from '@/store/auth/authSlice';
 import { AuthService } from '@/services/auth.service';
-import { AuthState, fetchUser } from '@/features/auth/authSlice';
+import { RootState, useAppDispatch } from '@/store/store';
 
 interface LoginFormInputs {
   email: string;
@@ -19,8 +19,9 @@ const AdminLogin: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const [error, setError] = React.useState<string>('');
+
   const isAuthenticated = useSelector(
-    (state: { auth: AuthState }) => state.auth.isAuthenticated
+    (state: RootState) => state.auth.isAuthenticated
   );
 
   useEffect(() => {

@@ -9,10 +9,10 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { AppModule } from '@/app.module';
 import { Logger } from '@/shared/logger/winston-logger';
+import { setupSwagger } from '@/shared/config/swagger.config';
 import { GlobalExceptionFilter } from '@/shared/filters/http-exception.filter';
 
 export async function setupApp(): Promise<INestApplication> {
@@ -57,29 +57,7 @@ export async function setupApp(): Promise<INestApplication> {
 
   app.useGlobalFilters(new GlobalExceptionFilter());
 
-  const config = new DocumentBuilder()
-    .setTitle('Cloudberry API')
-    .setDescription('API documentation for the Cloudberry E-commerce Api')
-    .setVersion('1.0')
-    .addServer('http://localhost:4000', 'Local Server')
-    .setContact(
-      'Rahil K',
-      'https://www.linkedin.com/in/rahil234/',
-      'rahilsardar234@gmail.com',
-    )
-    .addBearerAuth()
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-
-  SwaggerModule.setup('api/docs', app, document, {
-    ui: true,
-    swaggerOptions: {},
-  });
-
-  SwaggerModule.setup('api/docs-json', app, document, {
-    ui: false,
-  });
+  setupSwagger(app);
 
   return app;
 }

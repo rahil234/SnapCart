@@ -6,14 +6,14 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
-**userId** | **string** |  | [default to undefined]
+**customerId** | **string** |  | [default to undefined]
 **isPrimary** | **boolean** |  | [default to undefined]
-**houseNo** | **object** |  | [optional] [default to undefined]
-**street** | **object** |  | [optional] [default to undefined]
-**city** | **object** |  | [optional] [default to undefined]
-**state** | **object** |  | [optional] [default to undefined]
-**country** | **object** |  | [optional] [default to undefined]
-**pincode** | **object** |  | [optional] [default to undefined]
+**houseNo** | **string** |  | [optional] [default to undefined]
+**street** | **string** |  | [optional] [default to undefined]
+**city** | **string** |  | [optional] [default to undefined]
+**state** | **string** |  | [optional] [default to undefined]
+**country** | **string** |  | [optional] [default to undefined]
+**pincode** | **string** |  | [optional] [default to undefined]
 **createdAt** | **string** |  | [default to undefined]
 **updatedAt** | **string** |  | [default to undefined]
 
@@ -24,7 +24,7 @@ import { AddressResponseDto } from './api';
 
 const instance: AddressResponseDto = {
     id,
-    userId,
+    customerId,
     isPrimary,
     houseNo,
     street,

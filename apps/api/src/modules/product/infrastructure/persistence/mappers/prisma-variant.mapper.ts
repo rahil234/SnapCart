@@ -1,9 +1,15 @@
-import { ProductVariant, VariantStatus } from '@/modules/product/domain/entities/product-variant.entity';
+import {
+  ProductVariant,
+  VariantStatus,
+} from '@/modules/product/domain/entities/product-variant.entity';
 import { Prisma } from '@prisma/client';
 
 export class PrismaVariantMapper {
   // DB → Domain
   static toDomain(raw: any): ProductVariant {
+    // Map images URLs from the images relation (VariantImage table)
+    const imageUrls = raw.images ? raw.images.map((img: any) => img.url) : [];
+
     return ProductVariant.from(
       raw.id,
       raw.productId,
@@ -17,7 +23,7 @@ export class PrismaVariantMapper {
       raw.isDeleted,
       raw.sellerProfileId,
       raw.attributes as Record<string, any> | null,
-      raw.imageUrl,
+      imageUrls,
       raw.createdAt,
       raw.updatedAt,
     );
@@ -30,7 +36,6 @@ export class PrismaVariantMapper {
     return {
       id: variant.getId(),
       productId: variant.getProductId(),
-      sku: variant.getSku(),
       variantName: variant.getVariantName(),
       price: variant.getPrice(),
       discountPercent: variant.getDiscountPercent(),
@@ -39,13 +44,12 @@ export class PrismaVariantMapper {
       isActive: variant.getIsActive(),
       isDeleted: variant.getIsDeleted(),
       sellerProfileId: variant.getSellerProfileId(),
-      // Handle Prisma JSON type properly
-      attributes: attributes === null
-        ? Prisma.JsonNull
-        : attributes === undefined
-        ? Prisma.DbNull
-        : attributes,
-      imageUrl: variant.getImageUrl(),
+      attributes:
+        attributes === null
+          ? Prisma.JsonNull
+          : attributes === undefined
+            ? Prisma.DbNull
+            : attributes,
       createdAt: variant.createdAt,
       updatedAt: variant.updatedAt,
     };

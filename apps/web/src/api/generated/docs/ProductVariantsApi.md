@@ -8,10 +8,13 @@ All URIs are relative to *http://localhost:4000*
 |[**variantControllerCreateVariant**](#variantcontrollercreatevariant) | **POST** /api/products/{productId}/variants | Add variant to product|
 |[**variantControllerDeactivateVariant**](#variantcontrollerdeactivatevariant) | **PATCH** /api/products/variants/{variantId}/deactivate | Deactivate variant|
 |[**variantControllerDeleteVariant**](#variantcontrollerdeletevariant) | **DELETE** /api/products/variants/{variantId} | Delete variant (soft delete)|
+|[**variantControllerDeleteVariantImage**](#variantcontrollerdeletevariantimage) | **DELETE** /api/products/variants/{variantId}/images/{position} | Delete variant image|
 |[**variantControllerGetVariant**](#variantcontrollergetvariant) | **GET** /api/products/variants/{variantId} | Get variant by ID|
 |[**variantControllerGetVariantsByProduct**](#variantcontrollergetvariantsbyproduct) | **GET** /api/products/{productId}/variants | List all variants for a product|
+|[**variantControllerSaveVariantImage**](#variantcontrollersavevariantimage) | **POST** /api/products/variants/{variantId}/images/save | Save variant image|
 |[**variantControllerUpdateStock**](#variantcontrollerupdatestock) | **PATCH** /api/products/variants/{variantId}/stock | Update variant stock|
 |[**variantControllerUpdateVariant**](#variantcontrollerupdatevariant) | **PATCH** /api/products/variants/{variantId} | Update variant details|
+|[**variantControllerUploadVariantImage**](#variantcontrolleruploadvariantimage) | **POST** /api/products/variants/{variantId}/images | Upload variant image|
 
 # **variantControllerActivateVariant**
 > MessageOnlyResponse variantControllerActivateVariant()
@@ -242,6 +245,65 @@ const { status, data } = await apiInstance.variantControllerDeleteVariant(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **variantControllerDeleteVariantImage**
+> MessageOnlyResponse variantControllerDeleteVariantImage()
+
+Deletes an image associated with a variant.
+
+### Example
+
+```typescript
+import {
+    ProductVariantsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProductVariantsApi(configuration);
+
+let variantId: string; //Variant UUID (default to undefined)
+let position: number; // (default to undefined)
+
+const { status, data } = await apiInstance.variantControllerDeleteVariantImage(
+    variantId,
+    position
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **variantId** | [**string**] | Variant UUID | defaults to undefined|
+| **position** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**MessageOnlyResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Image deleted successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**401** | Authentication required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**404** | Variant not found |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **variantControllerGetVariant**
 > VariantControllerCreateVariant201Response variantControllerGetVariant()
 
@@ -312,7 +374,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ProductVariantsApi(configuration);
 
-let productId: string; //Product UUID (default to undefined)
+let productId: string; //Product CUID (default to undefined)
 
 const { status, data } = await apiInstance.variantControllerGetVariantsByProduct(
     productId
@@ -323,7 +385,7 @@ const { status, data } = await apiInstance.variantControllerGetVariantsByProduct
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **productId** | [**string**] | Product UUID | defaults to undefined|
+| **productId** | [**string**] | Product CUID | defaults to undefined|
 
 
 ### Return type
@@ -346,6 +408,66 @@ No authorization required
 |**200** | Variants retrieved successfully |  -  |
 |**400** | Invalid input data or validation failed |  -  |
 |**404** | Product not found |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **variantControllerSaveVariantImage**
+> MessageOnlyResponse variantControllerSaveVariantImage(saveVariantImageDto)
+
+Saves the uploaded image information to the variant.
+
+### Example
+
+```typescript
+import {
+    ProductVariantsApi,
+    Configuration,
+    SaveVariantImageDto
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProductVariantsApi(configuration);
+
+let variantId: string; //Variant UUID (default to undefined)
+let saveVariantImageDto: SaveVariantImageDto; //
+
+const { status, data } = await apiInstance.variantControllerSaveVariantImage(
+    variantId,
+    saveVariantImageDto
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **saveVariantImageDto** | **SaveVariantImageDto**|  | |
+| **variantId** | [**string**] | Variant UUID | defaults to undefined|
+
+
+### Return type
+
+**MessageOnlyResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Image saved successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**401** | Authentication required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**404** | Variant not found |  -  |
 |**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -462,6 +584,62 @@ const { status, data } = await apiInstance.variantControllerUpdateVariant(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Variant updated successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**401** | Authentication required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**404** | Variant not found |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **variantControllerUploadVariantImage**
+> VariantControllerUploadVariantImage201Response variantControllerUploadVariantImage()
+
+Uploads an image for a variant and associates it.
+
+### Example
+
+```typescript
+import {
+    ProductVariantsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new ProductVariantsApi(configuration);
+
+let variantId: string; //Variant CUID (default to undefined)
+
+const { status, data } = await apiInstance.variantControllerUploadVariantImage(
+    variantId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **variantId** | [**string**] | Variant CUID | defaults to undefined|
+
+
+### Return type
+
+**VariantControllerUploadVariantImage201Response**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | Image uploaded successfully |  -  |
 |**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
 |**403** | Insufficient permissions |  -  |

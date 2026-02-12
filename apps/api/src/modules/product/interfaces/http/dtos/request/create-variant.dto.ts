@@ -1,4 +1,11 @@
-import { IsString, IsNumber, IsOptional, IsObject, Min, Max, IsUrl } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsObject,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 
@@ -6,24 +13,14 @@ import { Transform, Type } from 'class-transformer';
  * Create Variant DTO
  *
  * Creates a sellable unit for a product.
- * This is what customers actually purchase.
+ * Images should be added via separate /images endpoint after creation.
  */
 export class CreateVariantDto {
-  @ApiProperty({
-    description: 'SKU (Stock Keeping Unit) - must be unique across all variants',
-    example: 'BAS-1KG-001',
-    minLength: 1,
-    maxLength: 50
-  })
-  @IsString()
-  @Transform(({ value }) => value?.trim())
-  sku: string;
-
   @ApiProperty({
     description: 'Variant name (e.g., size, weight, color)',
     example: '1kg',
     minLength: 1,
-    maxLength: 100
+    maxLength: 100,
   })
   @IsString()
   @Transform(({ value }) => value?.trim())
@@ -31,8 +28,8 @@ export class CreateVariantDto {
 
   @ApiProperty({
     description: 'Price (base price before discount)',
-    example: 120.00,
-    minimum: 0.01
+    example: 120.0,
+    minimum: 0.01,
   })
   @IsNumber()
   @Min(0.01, { message: 'Price must be greater than 0' })
@@ -42,7 +39,7 @@ export class CreateVariantDto {
   @ApiProperty({
     description: 'Stock quantity',
     example: 100,
-    minimum: 0
+    minimum: 0,
   })
   @IsNumber()
   @Min(0, { message: 'Stock cannot be negative' })
@@ -54,7 +51,7 @@ export class CreateVariantDto {
     example: 10,
     minimum: 0,
     maximum: 100,
-    default: 0
+    default: 0,
   })
   @IsOptional()
   @IsNumber()
@@ -65,18 +62,17 @@ export class CreateVariantDto {
 
   @ApiPropertyOptional({
     description: 'Seller profile ID (who sells this variant)',
-    example: '123e4567-e89b-12d3-a456-426614174000'
+    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @IsOptional()
   @IsString()
   sellerProfileId?: string;
 
   @ApiPropertyOptional({
-    description: 'Image URL for this specific variant',
-    example: 'https://example.com/images/basmati-1kg.jpg'
+    description: 'Additional attributes (e.g., weight, organic flag)',
+    example: { weight: '1kg', organic: true },
   })
   @IsOptional()
-  @IsString()
-  @IsUrl()
-  imageUrl?: string;
+  @IsObject()
+  attributes?: Record<string, any>;
 }

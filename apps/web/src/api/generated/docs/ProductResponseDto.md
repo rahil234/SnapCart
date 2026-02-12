@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **name** | **string** | Product name | [default to undefined]
 **description** | **string** | Product description | [default to undefined]
 **categoryId** | **string** | Category ID | [default to undefined]
-**brand** | **object** | Brand name | [optional] [default to undefined]
+**brand** | **string** | Brand name | [optional] [default to undefined]
 **status** | **string** | Product status (catalog lifecycle) | [default to undefined]
 **isActive** | **boolean** | Whether product is active in catalog | [default to undefined]
 **isInCatalog** | **boolean** | Whether product is in catalog (not deleted/discontinued) | [default to undefined]

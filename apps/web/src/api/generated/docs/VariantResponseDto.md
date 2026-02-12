@@ -7,7 +7,6 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** | Variant ID | [default to undefined]
 **productId** | **string** | Product ID | [default to undefined]
-**sku** | **string** | SKU (Stock Keeping Unit) | [default to undefined]
 **variantName** | **string** | Variant name | [default to undefined]
 **price** | **number** | Base price | [default to undefined]
 **discountPercent** | **number** | Discount percentage | [default to undefined]
@@ -19,7 +18,7 @@ Name | Type | Description | Notes
 **availableForPurchase** | **boolean** | Whether variant is available for purchase | [default to undefined]
 **sellerProfileId** | **object** | Seller profile ID | [optional] [default to undefined]
 **attributes** | **object** | Additional attributes | [optional] [default to undefined]
-**imageUrl** | **object** | Image URL | [optional] [default to undefined]
+**images** | **Array&lt;string&gt;** | Image URLs (array of strings, max 6) | [default to undefined]
 **createdAt** | **string** | Creation date | [default to undefined]
 **updatedAt** | **string** | Last update date | [default to undefined]
 
@@ -31,7 +30,6 @@ import { VariantResponseDto } from './api';
 const instance: VariantResponseDto = {
     id,
     productId,
-    sku,
     variantName,
     price,
     discountPercent,
@@ -43,7 +41,7 @@ const instance: VariantResponseDto = {
     availableForPurchase,
     sellerProfileId,
     attributes,
-    imageUrl,
+    images,
     createdAt,
     updatedAt,
 };

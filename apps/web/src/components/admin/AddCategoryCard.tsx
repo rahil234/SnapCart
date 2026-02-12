@@ -1,167 +1,98 @@
-import { X } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import React, { useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
 import {
-  useGetCategories,
-  useAddCategory,
-} from '@/hooks/category.hooks';
-import { catchError } from '@/types/error';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { useAddCategoryMutation } from '@/hooks/categories/use-add-category-mutation.hook';
 
-interface AddCategoryFormInputs {
-  category: string;
-  subcategoryName: string;
-  newCategoryName?: string;
-}
+type AddCategoryFormInputs = {
+  name: string;
+};
 
-const AddCategoryCard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const [isAddingMainCategory, setIsAddingMainCategory] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+type AddCategoryCardProps = {
+  open: boolean;
+  onClose: () => void;
+};
 
-  const { data: categories } = useGetCategories();
-  const addCategoryMutation = useAddCategory();
+const AddCategoryCard: React.FC<AddCategoryCardProps> = ({ open, onClose }) => {
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const addCategoryMutation = useAddCategoryMutation();
 
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
+    reset,
+    formState: { errors, isSubmitting },
   } = useForm<AddCategoryFormInputs>();
 
-  const selectedCategory = watch('category');
-
-  useEffect(() => {
-    if (selectedCategory === 'add_new') {
-      setIsAddingMainCategory(true);
-    } else {
-      setIsAddingMainCategory(false);
-    }
-  }, [selectedCategory]);
-
   const onSubmit: SubmitHandler<AddCategoryFormInputs> = async data => {
-    setError(null);
+    setServerError(null);
 
-    try {
-      if (isAddingMainCategory) {
-        const formData = {
-          name: data.newCategoryName,
-          parent: null,
-        };
-        await addCategoryMutation.mutateAsync(formData as any);
-      } else {
-        const formData = {
-          name: data.subcategoryName,
-          parent: data.category,
-        };
-        await addCategoryMutation.mutateAsync(formData as any);
-      }
-      onClose();
-    } catch (error) {
-      setError((error as catchError).response.data.message);
+    const { error } = await addCategoryMutation.mutateAsync(data);
+
+    if (error) {
+      setServerError(error.message || 'Failed to add category');
+      return;
     }
-  };
 
-  const handleTrim = (field: keyof AddCategoryFormInputs) => {
-    const value = watch(field);
-    if (value) {
-      setValue(field, value.trim());
-    }
+    reset();
+    onClose();
   };
-
-  if (!categories) {
-    return null;
-  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Add Category</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <X />
-          </button>
-        </div>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <p className="text-red-500 text-sm h-[25px] text-center">
-            {error && error}
-          </p>
-          <div className="mb-4">
-            <label className="block text-gray-700">Category</label>
-            <select
-              {...register('category', {
-                required: 'Main category is required',
-              })}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-            >
-              <option value="">Select a category</option>
-              {categories.map(category => (
-                <option key={category._id} value={category._id}>
-                  {category.name}
-                </option>
-              ))}
-              <option value="add_new">Add a new category</option>
-            </select>
-            {errors.category && (
-              <p className="mt-2 text-sm text-red-600">
-                {errors.category.message}
-              </p>
-            )}
-          </div>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add Category</DialogTitle>
+        </DialogHeader>
 
-          {isAddingMainCategory && (
-            <div className="mb-4">
-              <label className="block text-gray-700">New Category name</label>
-              <input
-                {...register('newCategoryName', {
-                  required: 'New category name is required',
-                  validate: value =>
-                    (value?.trim() ?? '') !== '' ||
-                    'New category name cannot be empty',
-                })}
-                onBlur={() => handleTrim('newCategoryName')}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm mt-2"
-              />
-              {errors.newCategoryName && (
-                <p className="mt-2 text-sm text-red-600">
-                  {errors.newCategoryName.message}
-                </p>
-              )}
-            </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {serverError && (
+            <p className="text-sm text-red-600 text-center">{serverError}</p>
           )}
 
-          <div className="mb-4">
-            <label className="block text-gray-700">Subcategory name</label>
-            <input
-              {...register('subcategoryName', {
-                required: 'Subcategory are required',
-                validate: value =>
-                  value.trim() !== '' || 'Subcategory cannot be empty',
+          <div className="space-y-2">
+            <Label htmlFor="name">Category name</Label>
+            <Input
+              id="name"
+              placeholder="e.g. Vegetables"
+              {...register('name', {
+                required: 'Category name is required',
+                minLength: {
+                  value: 2,
+                  message: 'Category name must be at least 2 characters',
+                },
               })}
-              onBlur={() => handleTrim('subcategoryName')}
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
             />
-            {errors.subcategoryName && (
-              <p className="mt-2 text-sm text-red-600">
-                {errors.subcategoryName.message}
-              </p>
+            {errors.name && (
+              <p className="text-sm text-red-600">{errors.name.message}</p>
             )}
           </div>
 
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className="bg-green-500 text-white px-4 py-2 rounded-lg"
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isSubmitting}
             >
-              Add Category
-            </button>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Adding...' : 'Add Category'}
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

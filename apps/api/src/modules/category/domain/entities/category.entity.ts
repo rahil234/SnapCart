@@ -1,9 +1,10 @@
-import { v4 as uuid } from 'uuid';
+import cuid from '@paralleldrive/cuid2';
 
 export class Category {
   private constructor(
-    public readonly id: string,
-    private name: string,
+    public readonly _id: string,
+    private _name: string,
+    private _status: 'active' | 'inactive',
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {}
@@ -14,33 +15,45 @@ export class Category {
       throw new Error('Category name cannot be empty');
     }
 
-    return new Category(uuid(), name, new Date(), new Date());
+    return new Category(
+      cuid.createId(),
+      name,
+      'active',
+      new Date(),
+      new Date(),
+    );
   }
 
-  // Factory method for reconstructing from persistence
   static from(
     id: string,
     name: string,
+    status: 'active' | 'inactive',
     createdAt: Date,
     updatedAt: Date,
   ): Category {
-    return new Category(id, name, createdAt, updatedAt);
+    return new Category(id, name, status, createdAt, updatedAt);
   }
 
-  // Business methods
-  updateName(newName: string): void {
+  set name(newName: string) {
     if (!newName || newName.trim().length === 0) {
       throw new Error('Category name cannot be empty');
     }
-    this.name = newName;
+    this._name = newName;
   }
 
-  // Getters
-  getId(): string {
-    return this.id;
+  get id(): string {
+    return this._id;
   }
 
-  getName(): string {
-    return this.name;
+  get name(): string {
+    return this._name;
+  }
+
+  get status(): 'active' | 'inactive' {
+    return this._status;
+  }
+
+  set status(newStatus: 'active' | 'inactive') {
+    this._status = newStatus;
   }
 }

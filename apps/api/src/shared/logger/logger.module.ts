@@ -1,15 +1,17 @@
 import { Global, Module } from '@nestjs/common';
 
-import { Logger } from '@/shared/logger/winston-logger';
+import { ConsoleLoggerFactory } from '@/shared/logger/console-logger.factory';
+
+export const LOGGER_FACTORY = 'LOGGER_FACTORY';
 
 @Global()
 @Module({
   providers: [
     {
-      provide: 'Logger',
-      useValue: Logger,
+      provide: LOGGER_FACTORY,
+      useClass: ConsoleLoggerFactory,
     },
   ],
-  exports: ['Logger'],
+  exports: [LOGGER_FACTORY],
 })
 export class LoggerModule {}

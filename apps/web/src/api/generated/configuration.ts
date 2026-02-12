@@ -1,7 +1,7 @@
 /* tslint:disable */
 /**
- * Cloudberry API
- * API documentation for the Cloudberry E-commerce Api
+ * Snapcart API
+ * API documentation for the Snapcart Quick e-Commerce platform
  *
  * The version of the OpenAPI document: 1.0
  * Contact: rahilsardar234@gmail.com

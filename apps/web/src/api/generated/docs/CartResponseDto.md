@@ -5,9 +5,14 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** | Unique identifier for the cart | [default to undefined]
-**count** | **number** | Total number of items in the cart | [default to undefined]
-**items** | [**Array&lt;CartItemResponseDto&gt;**](CartItemResponseDto.md) | List of items in the cart | [default to undefined]
+**id** | **string** | Cart ID | [default to undefined]
+**userId** | **string** | User ID | [default to undefined]
+**items** | [**Array&lt;CartItemResponseDto&gt;**](CartItemResponseDto.md) | Cart items | [default to undefined]
+**totalItems** | **number** | Total number of items (sum of all quantities) | [default to undefined]
+**uniqueItemsCount** | **number** | Number of unique items | [default to undefined]
+**isEmpty** | **boolean** | Whether the cart is empty | [default to undefined]
+**createdAt** | **string** | Created at timestamp | [default to undefined]
+**updatedAt** | **string** | Updated at timestamp | [default to undefined]
 
 ## Example
 
@@ -16,8 +21,13 @@ import { CartResponseDto } from './api';
 
 const instance: CartResponseDto = {
     id,
-    count,
+    userId,
     items,
+    totalItems,
+    uniqueItemsCount,
+    isEmpty,
+    createdAt,
+    updatedAt,
 };
 ```
 

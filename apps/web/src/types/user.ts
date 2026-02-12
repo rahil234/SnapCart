@@ -1,8 +1,25 @@
-export interface IUser {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
+import { Address } from '@/types';
+
+export interface SellerProfile {
+  id: string;
+  storeName: string;
+  isVerified: boolean;
+}
+
+export interface CustomerProfile {
+  id: string;
+  name?: string;
+  cartId?: string;
   profilePicture?: string;
-  addresses: any[]; // Replace 'any' with a more specific type if you have one for Address
+  addresses?: Address[];
+}
+
+export interface User {
+  id: string;
+  email?: string;
+  phone?: string;
+  sellerProfile?: SellerProfile;
+  customerProfile?: CustomerProfile;
+  role: 'CUSTOMER' | 'SELLER' | 'ADMIN';
+  status: 'active' | 'suspended' | 'disabled';
 }

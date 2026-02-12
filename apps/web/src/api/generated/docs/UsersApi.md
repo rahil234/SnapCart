@@ -6,7 +6,9 @@ All URIs are relative to *http://localhost:4000*
 |------------- | ------------- | -------------|
 |[**userControllerFindAll**](#usercontrollerfindall) | **GET** /api/users | Get all users|
 |[**userControllerFindOne**](#usercontrollerfindone) | **GET** /api/users/{id} | Get user by ID|
+|[**userControllerGenerateProfilePictureUploadUrl**](#usercontrollergenerateprofilepictureuploadurl) | **POST** /api/users/profile-picture/generate-upload-url | Generate presigned URL for profile picture upload|
 |[**userControllerGetMe**](#usercontrollergetme) | **GET** /api/users/me | Get current user profile|
+|[**userControllerSaveProfilePicture**](#usercontrollersaveprofilepicture) | **POST** /api/users/profile-picture | Save profile picture URL|
 |[**userControllerUpdate**](#usercontrollerupdate) | **PATCH** /api/users | Update current user|
 |[**userControllerUpdateStatus**](#usercontrollerupdatestatus) | **PATCH** /api/users/{id}/status | Update user status|
 
@@ -90,7 +92,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UsersApi(configuration);
 
-let id: string; //User UUID (default to undefined)
+let id: string; //User CUID (default to undefined)
 
 const { status, data } = await apiInstance.userControllerFindOne(
     id
@@ -101,7 +103,7 @@ const { status, data } = await apiInstance.userControllerFindOne(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] | User UUID | defaults to undefined|
+| **id** | [**string**] | User CUID | defaults to undefined|
 
 
 ### Return type
@@ -126,6 +128,62 @@ const { status, data } = await apiInstance.userControllerFindOne(
 |**401** | Authentication required |  -  |
 |**403** | Insufficient permissions |  -  |
 |**404** | User not found |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **userControllerGenerateProfilePictureUploadUrl**
+> UserControllerGenerateProfilePictureUploadUrl201Response userControllerGenerateProfilePictureUploadUrl(generateProfilePictureUploadUrlDto)
+
+Generates presigned upload credentials for client-side profile picture upload to Cloudinary
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration,
+    GenerateProfilePictureUploadUrlDto
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let generateProfilePictureUploadUrlDto: GenerateProfilePictureUploadUrlDto; //
+
+const { status, data } = await apiInstance.userControllerGenerateProfilePictureUploadUrl(
+    generateProfilePictureUploadUrlDto
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **generateProfilePictureUploadUrlDto** | **GenerateProfilePictureUploadUrlDto**|  | |
+
+
+### Return type
+
+**UserControllerGenerateProfilePictureUploadUrl201Response**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | Upload URL generated successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**401** | Authentication required |  -  |
+|**403** | Insufficient permissions |  -  |
 |**500** | Internal server error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -171,6 +229,62 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | User profile fetched successfully |  -  |
+|**400** | Invalid input data or validation failed |  -  |
+|**401** | Authentication required |  -  |
+|**403** | Insufficient permissions |  -  |
+|**500** | Internal server error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **userControllerSaveProfilePicture**
+> MessageOnlyResponse userControllerSaveProfilePicture(saveProfilePictureDto)
+
+Saves the profile picture URL after successful upload to storage
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration,
+    SaveProfilePictureDto
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+let saveProfilePictureDto: SaveProfilePictureDto; //
+
+const { status, data } = await apiInstance.userControllerSaveProfilePicture(
+    saveProfilePictureDto
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **saveProfilePictureDto** | **SaveProfilePictureDto**|  | |
+
+
+### Return type
+
+**MessageOnlyResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Profile picture saved successfully |  -  |
 |**400** | Invalid input data or validation failed |  -  |
 |**401** | Authentication required |  -  |
 |**403** | Insufficient permissions |  -  |
@@ -251,7 +365,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UsersApi(configuration);
 
-let id: string; //User UUID (default to undefined)
+let id: string; //User CUID (default to undefined)
 let updateUserStatusDto: UpdateUserStatusDto; //
 
 const { status, data } = await apiInstance.userControllerUpdateStatus(
@@ -265,7 +379,7 @@ const { status, data } = await apiInstance.userControllerUpdateStatus(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **updateUserStatusDto** | **UpdateUserStatusDto**|  | |
-| **id** | [**string**] | User UUID | defaults to undefined|
+| **id** | [**string**] | User CUID | defaults to undefined|
 
 
 ### Return type

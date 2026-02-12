@@ -1,9 +1,9 @@
-import { v4 as uuid } from 'uuid';
+import cuid from '@paralleldrive/cuid2';
 
 export class Address {
   private constructor(
     public readonly id: string,
-    private userId: string,
+    private customerId: string,
     private isPrimary: boolean,
     private houseNo: string | null,
     private street: string | null,
@@ -17,7 +17,7 @@ export class Address {
 
   // Factory method for creating new addresses
   static create(
-    userId: string,
+    customerId: string,
     houseNo: string | null,
     street: string | null,
     city: string | null,
@@ -27,8 +27,8 @@ export class Address {
     isPrimary: boolean = false,
   ): Address {
     return new Address(
-      uuid(),
-      userId,
+      cuid.createId(),
+      customerId,
       isPrimary,
       houseNo,
       street,
@@ -44,7 +44,7 @@ export class Address {
   // Factory method for reconstructing from persistence
   static from(
     id: string,
-    userId: string,
+    customerId: string,
     isPrimary: boolean,
     houseNo: string | null,
     street: string | null,
@@ -57,7 +57,7 @@ export class Address {
   ): Address {
     return new Address(
       id,
-      userId,
+      customerId,
       isPrimary,
       houseNo,
       street,
@@ -100,8 +100,8 @@ export class Address {
     return this.id;
   }
 
-  getUserId(): string {
-    return this.userId;
+  getCustomerId(): string {
+    return this.customerId;
   }
 
   getIsPrimary(): boolean {

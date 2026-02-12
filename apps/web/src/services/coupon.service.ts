@@ -1,15 +1,30 @@
-import { CouponApi } from '@/api/generated';
+import {
+  AdminCouponsApi,
+  CouponsApi,
+  CreateCouponDto,
+  UpdateCouponDto,
+  ValidateCouponDto,
+} from '@/api/generated';
+import { apiClient } from '@/api/axios';
 import { apiConfig } from '@/api/client';
-import { ICoupon } from '@/types/coupon';
+import { handleRequest } from '@/api/utils/handleRequest';
 
-const couponApi = new CouponApi(apiConfig);
+const couponsApi = new CouponsApi(apiConfig, undefined, apiClient);
+const adminCouponsApi = new AdminCouponsApi(apiConfig, undefined, apiClient);
 
 export const CouponService = {
-  getCoupons: () => couponApi.couponControllerFindAll(),
-  addCoupon: (coupon: ICoupon) => couponApi.couponControllerCreate(coupon),
-  updateCoupon: (coupon: ICoupon) =>
-    couponApi.couponControllerUpdateCoupon(coupon._id, coupon),
-  getAvailableCoupons: () => couponApi.couponControllerFindAvailable(),
-  applyCoupon: (applyCouponDto: any) =>
-    couponApi.couponControllerApply(applyCouponDto),
+  getAvailableCoupons: () =>
+    handleRequest(() => couponsApi.couponControllerGetAvailableCoupons()),
+  getCouponByCode: (code: string) =>
+    handleRequest(() => couponsApi.couponControllerGetCouponByCode(code)),
+  getAdminCoupons: () =>
+    handleRequest(() => adminCouponsApi.adminCouponControllerFindAll()),
+  createCoupon: (coupon: CreateCouponDto) =>
+    handleRequest(() => adminCouponsApi.adminCouponControllerCreate(coupon)),
+  updateCoupon: (id: string, coupon: UpdateCouponDto) =>
+    handleRequest(() =>
+      adminCouponsApi.adminCouponControllerUpdate(id, coupon)
+    ),
+  validateCoupon: (coupon: ValidateCouponDto) =>
+    handleRequest(() => couponsApi.couponControllerValidateCoupon(coupon)),
 };

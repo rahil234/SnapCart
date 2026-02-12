@@ -8,10 +8,7 @@ async function bootstrap() {
   const app = await setupApp();
 
   const configService = app.get(ConfigService);
-
   const port = configService.getOrThrow<number>('PORT');
-
-  const logger = app.get('Logger') as typeof Logger;
 
   await app.listen(port).then((value: Server) => {
     const serverAddress = JSON.parse(JSON.stringify(value.address())) as {
@@ -20,7 +17,9 @@ async function bootstrap() {
       address: string;
     };
 
-    logger.log(`Server Started Listening: ${serverAddress.port}`);
+    Logger.log(
+      `Server Started Listening: ${serverAddress.address}:${serverAddress.port}`,
+    );
   });
 }
 

@@ -1,6 +1,8 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, RedisClientOptions } from 'redis';
+import { LOGGER_FACTORY } from '@/shared/logger/logger.module';
+import { LoggerFactory } from '@/shared/logger/logger-factory.interface';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
 
@@ -8,10 +10,14 @@ type SocketOptions = RedisClientOptions['socket'];
 
 const redisProvider: Provider = {
   provide: REDIS_CLIENT,
-  inject: [ConfigService],
-  useFactory: async (configService: ConfigService) => {
+  inject: [ConfigService, LOGGER_FACTORY],
+  useFactory: async (
+    configService: ConfigService,
+    loggerFactory: LoggerFactory,
+  ) => {
     const REDIS_URL = configService.getOrThrow<string>('REDIS_URL');
-    const NODE_ENV = configService.getOrThrow<string>('NODE_ENV');
+
+    const logger = loggerFactory.create('RedisProvider');
 
     const reconnectStrategy = (retries: number) => {
       const jitter = Math.floor(Math.random() * 100);
@@ -21,17 +27,11 @@ const redisProvider: Provider = {
       return delay + jitter;
     };
 
-    const socket: SocketOptions =
-      NODE_ENV === 'production'
-        ? {
-            tls: true,
-            reconnectStrategy,
-          }
-        : {
-            tls: false,
-            keepAlive: true,
-            reconnectStrategy,
-          };
+    const socket: SocketOptions = {
+      tls: false,
+      keepAlive: true,
+      reconnectStrategy,
+    };
 
     const client = createClient({
       url: REDIS_URL,
@@ -39,27 +39,27 @@ const redisProvider: Provider = {
     });
 
     client.on('error', (err) => {
-      console.error('Redis error:', err);
+      logger.error('Redis error:', err);
     });
 
     client.on('connect', () => {
-      console.log('Redis connected');
+      logger.log('Redis connected');
     });
 
     client.on('ready', () => {
-      console.log('Redis ready');
+      logger.log('Redis ready');
     });
 
     client.on('reconnecting', () => {
-      console.warn('Redis reconnecting...');
+      logger.warn('Redis reconnecting...');
     });
 
     client.on('end', () => {
-      console.warn('Redis connection closed');
+      logger.warn('Redis connection closed');
     });
 
     await client.connect().catch((err) => {
-      console.error('Initial Redis connection failed:', err);
+      logger.error('Initial Redis connection failed:', err);
     });
 
     return client;

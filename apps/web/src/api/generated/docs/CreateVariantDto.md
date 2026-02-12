@@ -5,13 +5,12 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**sku** | **string** | SKU (Stock Keeping Unit) - must be unique across all variants | [default to undefined]
 **variantName** | **string** | Variant name (e.g., size, weight, color) | [default to undefined]
 **price** | **number** | Price (base price before discount) | [default to undefined]
 **stock** | **number** | Stock quantity | [default to undefined]
 **discountPercent** | **number** | Discount percentage (0-100) | [optional] [default to 0]
 **sellerProfileId** | **string** | Seller profile ID (who sells this variant) | [optional] [default to undefined]
-**imageUrl** | **string** | Image URL for this specific variant | [optional] [default to undefined]
+**attributes** | **object** | Additional attributes (e.g., weight, organic flag) | [optional] [default to undefined]
 
 ## Example
 
@@ -19,13 +18,12 @@ Name | Type | Description | Notes
 import { CreateVariantDto } from './api';
 
 const instance: CreateVariantDto = {
-    sku,
     variantName,
     price,
     stock,
     discountPercent,
     sellerProfileId,
-    imageUrl,
+    attributes,
 };
 ```
 

@@ -1,5 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { SalesService } from '@/services/sales.service';
+import 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+import { DateRange } from 'react-day-picker';
+import { Download, Filter } from 'lucide-react';
+import React, { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -9,7 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Download, Filter } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -19,54 +25,60 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import ExcelJS from 'exceljs';
-import { saveAs } from 'file-saver';
+import { AnalyticsService } from '@/services/analytics.service';
+import DatePickerWithRange from '@/components/ui/DatePickerWithRange';
+import {
+  AnalyticsControllerGetSalesReportTimeframeEnum,
+  SalesReportItemDto,
+} from '@/api/generated';
 
 interface jsPDFWithAutoTable extends jsPDF {
   autoTable: (options: object) => void;
 }
 
-interface SalesData {
-  _id: string | null;
-  totalOrders: number;
-  totalSales: number;
-  totalDiscountApplied: number;
-  netSales: number;
-  totalItemsSold: number;
-  date: string | null;
-  startDate: string | null;
-  endDate: string | null;
-}
-
 function SellerSalesReport() {
-  const [salesData, setSalesData] = useState<SalesData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [timeframe, setTimeframe] = useState('daily');
-  const [startDate, setStartDate] = useState<string>('2020-01-01');
-  const [endDate, setEndDate] = useState<string>('2024-12-31');
+  const [timeframe, setTimeframe] =
+    useState<AnalyticsControllerGetSalesReportTimeframeEnum>(
+      AnalyticsControllerGetSalesReportTimeframeEnum.Daily
+    );
+  const [startDate, setStartDate] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
+  const [endDate, setEndDate] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
 
-  useEffect(() => {
-    (async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await SalesService.fetchSalesData(
-          timeframe,
-          startDate,
-          endDate
-        );
-        setSalesData(data);
-      } catch (err) {
-        console.error(err);
-        setError('Failed to fetch sales data');
-      } finally {
-        setIsLoading(false);
-      }
-    })();
-  }, [timeframe, startDate, endDate]);
+  const queryClient = useQueryClient();
+
+  const {
+    data: salesData,
+    isLoading,
+    error,
+  } = useQuery<SalesReportItemDto[]>({
+    queryKey: ['seller-sales-report', timeframe, startDate, endDate],
+    queryFn: () =>
+      AnalyticsService.getSalesReport(timeframe, startDate, endDate),
+  });
+
+  const fetchSalesReport = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: ['seller-sales-report'],
+    });
+  };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error || !salesData) return <div>Error: {String(error)}</div>;
+
+  const handleDateChange = (range: DateRange | undefined) => {
+    if (range?.from && range?.to) {
+      setStartDate(range.from.toISOString().split('T')[0]);
+      setEndDate(range.to.toISOString().split('T')[0]);
+    }
+  };
+
+  const handleApplyFilter = async () => {
+    await fetchSalesReport();
+  };
 
   const totalOrders = salesData.reduce(
     (sum, sale) => sum + sale.totalOrders,
@@ -85,11 +97,11 @@ function SellerSalesReport() {
     doc.text(`Total Orders: ${totalOrders}`, 14, 25);
     doc.text(`Total Sales: ₹${totalSales.toFixed(2)}`, 14, 32);
     doc.text(`Total Items Sold: ${totalItemsSold}`, 14, 39);
-    doc.text(`Date Range: ${startDate} to ${endDate}`, 14, 53);
+    doc.text(`Date Range: ${startDate} to ${endDate}`, 14, 46);
 
     const tableColumn = ['Date', 'Orders', 'Sales', 'Items Sold', 'Net Sales'];
     const tableRows = salesData.map(sale => [
-      sale.date || 'N/A',
+      sale.date ? String(sale.date) : 'N/A',
       sale.totalOrders,
       `₹${sale.totalSales.toFixed(2)}`,
       sale.totalItemsSold,
@@ -99,7 +111,7 @@ function SellerSalesReport() {
     doc.autoTable({
       head: [tableColumn],
       body: tableRows,
-      startY: 60,
+      startY: 53,
     });
 
     doc.save('sales_report.pdf');
@@ -120,7 +132,7 @@ function SellerSalesReport() {
 
     salesData.forEach(sale => {
       worksheet.addRow([
-        sale.date || 'N/A',
+        sale.date ? String(sale.date) : 'N/A',
         sale.totalOrders,
         sale.totalSales.toFixed(2),
         sale.totalDiscountApplied.toFixed(2),
@@ -143,8 +155,6 @@ function SellerSalesReport() {
     });
     saveAs(blob, 'sales_report.xlsx');
   };
-
-  if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
@@ -166,40 +176,54 @@ function SellerSalesReport() {
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
             <Label htmlFor="timeframe">Timeframe</Label>
-            <Select value={timeframe} onValueChange={setTimeframe}>
+            <Select
+              value={timeframe}
+              onValueChange={value =>
+                setTimeframe(
+                  value as AnalyticsControllerGetSalesReportTimeframeEnum
+                )
+              }
+            >
               <SelectTrigger id="timeframe">
                 <SelectValue placeholder="Select timeframe" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="daily">Daily</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="yearly">Yearly</SelectItem>
+                <SelectItem
+                  value={AnalyticsControllerGetSalesReportTimeframeEnum.Daily}
+                >
+                  Daily
+                </SelectItem>
+                <SelectItem
+                  value={AnalyticsControllerGetSalesReportTimeframeEnum.Weekly}
+                >
+                  Weekly
+                </SelectItem>
+                <SelectItem
+                  value={AnalyticsControllerGetSalesReportTimeframeEnum.Monthly}
+                >
+                  Monthly
+                </SelectItem>
+                <SelectItem
+                  value={AnalyticsControllerGetSalesReportTimeframeEnum.Yearly}
+                >
+                  Yearly
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="startDate">Start Date</Label>
-            <input
-              type="date"
-              id="startDate"
-              value={startDate}
-              onChange={e => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="endDate">End Date</Label>
-            <input
-              type="date"
-              id="endDate"
-              value={endDate}
-              onChange={e => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md"
+            <Label htmlFor="dateRange">Date Range</Label>
+            <DatePickerWithRange
+              disabled={date => date > new Date()}
+              initialDate={{
+                from: new Date(startDate),
+                to: new Date(endDate),
+              }}
+              onDateChange={handleDateChange}
             />
           </div>
           <div className="flex items-end">
-            <Button onClick={() => {}} className="w-full">
+            <Button onClick={handleApplyFilter} className="w-full">
               <Filter className="mr-2 h-4 w-4" />
               Apply Filters
             </Button>
@@ -239,6 +263,7 @@ function SellerSalesReport() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Date</TableHead>
                 <TableHead>Orders</TableHead>
                 <TableHead>Sales</TableHead>
                 <TableHead>Discount</TableHead>
@@ -248,17 +273,14 @@ function SellerSalesReport() {
             </TableHeader>
             <TableBody>
               {salesData.map((sale, index) => (
-                <React.Fragment key={sale._id || index}>
-                  <TableRow key={sale._id || index}>
-                    <TableCell>{sale.totalOrders}</TableCell>
-                    <TableCell>₹{sale.totalSales.toFixed(2)}</TableCell>
-                    <TableCell>
-                      ₹{sale.totalDiscountApplied.toFixed(2)}
-                    </TableCell>
-                    <TableCell>₹{sale.netSales.toFixed(2)}</TableCell>
-                    <TableCell>{sale.totalItemsSold}</TableCell>
-                  </TableRow>
-                </React.Fragment>
+                <TableRow key={index}>
+                  <TableCell>{sale.date ? String(sale.date) : 'N/A'}</TableCell>
+                  <TableCell>{sale.totalOrders}</TableCell>
+                  <TableCell>₹{sale.totalSales.toFixed(2)}</TableCell>
+                  <TableCell>₹{sale.totalDiscountApplied.toFixed(2)}</TableCell>
+                  <TableCell>₹{sale.netSales.toFixed(2)}</TableCell>
+                  <TableCell>{sale.totalItemsSold}</TableCell>
+                </TableRow>
               ))}
             </TableBody>
           </Table>

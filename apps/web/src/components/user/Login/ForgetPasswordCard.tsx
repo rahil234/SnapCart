@@ -1,20 +1,31 @@
 import React, { useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+
 import InputField from '@/components/ui/InputField';
-import { UserService } from '@/services/user.service';
-import { catchError } from 'shared/types';
+import { AuthService } from '@/services/auth.service';
 
 interface ForgotPasswordInputs {
   email: string;
 }
 
 interface ForgotPasswordCardProps {
-  setEmail: (email: string) => void
-  setActiveTab: (tab: 'login' | 'signup' | 'forgotPassword' | 'verifyOtp' | 'forgot-verify' | 'new-password') => void;
+  setEmail: (email: string) => void;
+  setActiveTab: (
+    tab:
+      | 'login'
+      | 'signup'
+      | 'forgotPassword'
+      | 'verifyOtp'
+      | 'forgot-verify'
+      | 'new-password'
+  ) => void;
 }
 
-export default function ForgotPasswordCard({ setEmail, setActiveTab }: ForgotPasswordCardProps) {
+export default function ForgotPasswordCard({
+  setEmail,
+  setActiveTab,
+}: ForgotPasswordCardProps) {
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -23,15 +34,15 @@ export default function ForgotPasswordCard({ setEmail, setActiveTab }: ForgotPas
     formState: { errors },
   } = useForm<ForgotPasswordInputs>();
 
-  const onSubmit: SubmitHandler<ForgotPasswordInputs> = async (data) => {
+  const onSubmit: SubmitHandler<ForgotPasswordInputs> = async data => {
     try {
       setError(null);
-      await UserService.forgotPassword(data.email);
+      await AuthService.forgotPassword({ identifier: data.email });
       setEmail(data.email);
       setActiveTab('forgot-verify');
     } catch (error) {
       console.error('error', error);
-      setError((error as catchError).response?.data?.message || 'An error occurred. Please try again.');
+      setError('An error occurred. Please try again.');
     }
   };
 
@@ -47,8 +58,13 @@ export default function ForgotPasswordCard({ setEmail, setActiveTab }: ForgotPas
       </header>
       <div className="flex flex-col justify-center items-center px-8 pb-4">
         <div className="w-full">
-          <h2 className="text-2xl font-bold mb-6 text-center">Forgot Password</h2>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4">
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            Forgot Password
+          </h2>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col space-y-4"
+          >
             <p className="text-red-500 text-sm h-[5px] text-center">
               {error && error}
             </p>

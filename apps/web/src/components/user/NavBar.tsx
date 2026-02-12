@@ -1,21 +1,20 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router';
 import { useSelector } from 'react-redux';
-import { Button } from '@/components/ui/button';
 import { CircleUserRound } from 'lucide-react';
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { useLocation, useNavigate } from 'react-router';
+import React, { useContext, useEffect, useState } from 'react';
+
+import { RootState } from '@/store/store';
 import { Input } from '@/components/ui/input';
 import { UIContext } from '@/context/UIContext';
-import { AuthState } from '@/features/auth/authSlice';
+import { Button } from '@/components/ui/button';
 import { AvatarFallback } from '@radix-ui/react-avatar';
-
-const imageUrl = import.meta.env.VITE_IMAGE_URL + '/profiles/';
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
 
 const NavBar = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const { isAuthenticated, user } = useSelector(
-    (state: { auth: AuthState }) => state.auth
+    (state: RootState) => state.auth
   );
   const { showLoginOverlay, toggleCartOverlay, toggleProfileOverlay } =
     useContext(UIContext);
@@ -62,7 +61,7 @@ const NavBar = () => {
             >
               <Avatar className="w-8 h-8">
                 <AvatarImage
-                  src={imageUrl + user?.profilePicture}
+                  src={user?.customerProfile?.profilePicture}
                   alt="Profile picture"
                 />
                 <AvatarFallback>
@@ -70,7 +69,7 @@ const NavBar = () => {
                 </AvatarFallback>
               </Avatar>
               <span className="w-full text-nowrap text-md font-medium">
-                {user?.firstName}
+                {user?.customerProfile?.name}
               </span>
             </div>
           ) : (

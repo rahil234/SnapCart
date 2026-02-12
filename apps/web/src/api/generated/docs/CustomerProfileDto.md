@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
 **name** | **string** |  | [optional] [default to undefined]
-**cartId** | **string** |  | [optional] [default to undefined]
+**profilePicture** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -17,7 +17,7 @@ import { CustomerProfileDto } from './api';
 const instance: CustomerProfileDto = {
     id,
     name,
-    cartId,
+    profilePicture,
 };
 ```
 

@@ -1,6 +1,16 @@
+import 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+import { DateRange } from 'react-day-picker';
+import { Download, Filter } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { SalesService } from '@/services/sales.service';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+import {
+  AnalyticsControllerGetSalesReportTimeframeEnum,
+  SalesReportItemDto,
+} from '@/api/generated';
 import {
   Table,
   TableBody,
@@ -9,8 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Download, Filter } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -19,32 +27,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import ExcelJS from 'exceljs';
-import { saveAs } from 'file-saver';
+import { Button } from '@/components/ui/button';
+import { AnalyticsService } from '@/services/analytics.service';
 import DatePickerWithRange from '@/components/ui/DatePickerWithRange';
-import { DateRange } from 'react-day-picker';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface jsPDFWithAutoTable extends jsPDF {
   autoTable: (options: object) => void;
 }
 
-interface SalesData {
-  _id: string | null;
-  totalOrders: number;
-  totalSales: number;
-  totalDiscountApplied: number;
-  netSales: number;
-  totalItemsSold: number;
-  date: string | null;
-  startDate: string | null;
-  endDate: string | null;
-}
-
 export default function SalesReport() {
-  const [timeframe, setTimeframe] = useState('daily');
+  const [timeframe, setTimeframe] =
+    useState<AnalyticsControllerGetSalesReportTimeframeEnum>(
+      AnalyticsControllerGetSalesReportTimeframeEnum.Daily
+    );
   const [startDate, setStartDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
@@ -58,10 +54,10 @@ export default function SalesReport() {
     data: salesData,
     isLoading,
     error,
-  } = useQuery<SalesData[]>({
-    queryKey: ['sales'],
-    queryFn: async () =>
-      await SalesService.fetchSalesData(timeframe, startDate, endDate),
+  } = useQuery<SalesReportItemDto[]>({
+    queryKey: ['admin-sales-report', timeframe, startDate, endDate],
+    queryFn: () =>
+      AnalyticsService.getSalesReport(timeframe, startDate, endDate),
   });
 
   useEffect(() => {
@@ -69,7 +65,9 @@ export default function SalesReport() {
   }, [salesData]);
 
   const fetchSalesReport = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['sales'] });
+    await queryClient.invalidateQueries({
+      queryKey: ['admin-sales-report'],
+    });
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -87,34 +85,31 @@ export default function SalesReport() {
   };
 
   const totalOrders = salesData.reduce(
-    (sum, sale) => sum + sale.totalOrders,
+    (sum: number, sale: SalesReportItemDto) => sum + sale.totalOrders,
     0
   );
-  const totalSales = salesData.reduce((sum, sale) => sum + sale.totalSales, 0);
+  const totalSales = salesData.reduce(
+    (sum: number, sale: SalesReportItemDto) => sum + sale.totalSales,
+    0
+  );
   const totalItemsSold = salesData.reduce(
-    (sum, sale) => sum + sale.totalItemsSold,
+    (sum: number, sale: SalesReportItemDto) => sum + sale.totalItemsSold,
     0
   );
 
   const downloadPDF = () => {
     const doc = new jsPDF() as jsPDFWithAutoTable;
 
-    // Embed and use the font
-    // doc.addFileToVFS('Roboto-Regular-normal.ts', robotoRegular);
-    // doc.addFont('Roboto-Regular-normal.ttf', 'Roboto', 'normal');
-    // doc.setFont('Roboto');
-
-    doc.text('₹ Test', 10, 10);
     doc.text('Sales Report', 14, 15);
     doc.setFontSize(11);
     doc.text(`Total Orders: ${totalOrders}`, 14, 25);
     doc.text(`Total Sales: ₹${totalSales.toFixed(2)}`, 14, 32);
     doc.text(`Total Items Sold: ${totalItemsSold}`, 14, 39);
-    doc.text(`Date Range: ${startDate} to ${endDate}`, 14, 53);
+    doc.text(`Date Range: ${startDate} to ${endDate}`, 14, 46);
 
     const tableColumn = ['Date', 'Orders', 'Sales', 'Items Sold', 'Net Sales'];
     const tableRows = salesData.map(sale => [
-      sale.date || 'N/A',
+      sale.date ? String(sale.date) : 'N/A',
       sale.totalOrders,
       `₹${sale.totalSales.toFixed(2)}`,
       sale.totalItemsSold,
@@ -124,7 +119,7 @@ export default function SalesReport() {
     doc.autoTable({
       head: [tableColumn],
       body: tableRows,
-      startY: 60,
+      startY: 53,
     });
 
     doc.save('sales_report.pdf');
@@ -145,7 +140,7 @@ export default function SalesReport() {
 
     salesData.forEach(sale => {
       worksheet.addRow([
-        sale.date || 'N/A',
+        sale.date ? String(sale.date) : 'N/A',
         sale.totalOrders,
         sale.totalSales.toFixed(2),
         sale.totalDiscountApplied.toFixed(2),
@@ -188,15 +183,38 @@ export default function SalesReport() {
         <div className="mb-6 flex gap-4 items-end w-full">
           <div className="space-y-2 w-[130px]">
             <Label htmlFor="timeframe">Timeframe</Label>
-            <Select value={timeframe} onValueChange={setTimeframe}>
+            <Select
+              value={timeframe}
+              onValueChange={value =>
+                setTimeframe(
+                  value as AnalyticsControllerGetSalesReportTimeframeEnum
+                )
+              }
+            >
               <SelectTrigger id="timeframe">
                 <SelectValue placeholder="Select timeframe" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="daily">Daily</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="yearly">Yearly</SelectItem>
+                <SelectItem
+                  value={AnalyticsControllerGetSalesReportTimeframeEnum.Daily}
+                >
+                  Daily
+                </SelectItem>
+                <SelectItem
+                  value={AnalyticsControllerGetSalesReportTimeframeEnum.Weekly}
+                >
+                  Weekly
+                </SelectItem>
+                <SelectItem
+                  value={AnalyticsControllerGetSalesReportTimeframeEnum.Monthly}
+                >
+                  Monthly
+                </SelectItem>
+                <SelectItem
+                  value={AnalyticsControllerGetSalesReportTimeframeEnum.Yearly}
+                >
+                  Yearly
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -261,19 +279,15 @@ export default function SalesReport() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {salesData.map((sale, index) => (
-                <React.Fragment key={sale._id || index}>
-                  <TableRow key={sale._id || index}>
-                    <TableCell>{sale.date?.toString()}</TableCell>
-                    <TableCell>{sale.totalOrders}</TableCell>
-                    <TableCell>₹{sale.totalSales.toFixed(2)}</TableCell>
-                    <TableCell>
-                      ₹{sale.totalDiscountApplied.toFixed(2)}
-                    </TableCell>
-                    <TableCell>₹{sale.netSales.toFixed(2)}</TableCell>
-                    <TableCell>{sale.totalItemsSold}</TableCell>
-                  </TableRow>
-                </React.Fragment>
+              {salesData.map((sale: SalesReportItemDto, index: number) => (
+                <TableRow key={index}>
+                  <TableCell>{sale.date ? String(sale.date) : 'N/A'}</TableCell>
+                  <TableCell>{sale.totalOrders}</TableCell>
+                  <TableCell>₹{sale.totalSales.toFixed(2)}</TableCell>
+                  <TableCell>₹{sale.totalDiscountApplied.toFixed(2)}</TableCell>
+                  <TableCell>₹{sale.netSales.toFixed(2)}</TableCell>
+                  <TableCell>{sale.totalItemsSold}</TableCell>
+                </TableRow>
               ))}
             </TableBody>
           </Table>

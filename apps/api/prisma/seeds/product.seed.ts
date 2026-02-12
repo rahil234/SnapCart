@@ -9,19 +9,16 @@ export const products = [
     variants: [
       {
         variantName: '500 ml',
-        sku: 'ORG-MILK-500ML',
         stock: 40,
         price: 35,
       },
       {
         variantName: '1 L',
-        sku: 'ORG-MILK-1L',
         stock: 60,
         price: 65,
       },
       {
         variantName: '2 L',
-        sku: 'ORG-MILK-2L',
         stock: 30,
         price: 120,
       },
@@ -37,13 +34,11 @@ export const products = [
     variants: [
       {
         variantName: 'Lemon – 500 ml',
-        sku: 'SPARK-WATER-LEMON-500',
         stock: 100,
         price: 30,
       },
       {
         variantName: 'Mint – 500 ml',
-        sku: 'SPARK-WATER-MINT-500',
         stock: 80,
         price: 30,
       },
@@ -59,7 +54,6 @@ export const products = [
     variants: [
       {
         variantName: '40 g',
-        sku: 'MILK-CHOCO-40G',
         stock: 150,
         price: 45,
       },
@@ -96,8 +90,8 @@ export async function seedProducts(prisma: PrismaClient) {
       data: product.variants.map((variant) => ({
         productId: createdProduct.id,
         variantName: variant.variantName,
-        sku: variant.sku,
         stock: variant.stock,
+        sellerProfileId: sellerProfile.id,
         price: variant.price,
         createdAt: new Date(),
         updatedAt: new Date(),

@@ -3,17 +3,15 @@ import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 
 import { LoginWithGoogleCommand } from '../login-with-google.command';
 import { UserRepository } from '@/modules/user/domain/repositories/user.repository';
-import { CustomerProfileRepository } from '@/modules/user/domain/repositories/customer-profile.repository';
 
 import { UserRole } from '@/modules/user/domain/enums';
 import { AuthMethod } from '@/modules/auth/domain/enums';
 import { User } from '@/modules/user/domain/entities/user.entity';
-import { CustomerProfile } from '@/modules/user/domain/entities/customer-profile.entity';
 
 import {
   UserLoggedInEvent,
   UserRegisteredEvent,
-} from '@/modules/auth/domain/events';
+} from '@/shared/events/auth.events';
 import {
   GoogleAuthService,
   TokenService,
@@ -33,8 +31,6 @@ export class LoginWithGoogleHandler implements ICommandHandler<
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
-    @Inject('CustomerProfileRepository')
-    private readonly customerProfileRepository: CustomerProfileRepository,
     @Inject('GoogleAuthService')
     private readonly googleAuthService: GoogleAuthService,
     @Inject('TokenService')
@@ -60,13 +56,6 @@ export class LoginWithGoogleHandler implements ICommandHandler<
       // Create a new user
       user = User.create(googleUser.email, null, null, UserRole.CUSTOMER);
       user = await this.userRepository.save(user);
-
-      // Create customer profile
-      const customerProfile = CustomerProfile.create(
-        user.id,
-        googleUser.name ?? null,
-      );
-      await this.customerProfileRepository.save(customerProfile);
 
       isNewUser = true;
 

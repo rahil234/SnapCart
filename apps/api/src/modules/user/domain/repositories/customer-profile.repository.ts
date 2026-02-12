@@ -1,6 +1,6 @@
 import { CustomerProfile } from '@/modules/user/domain/entities';
 
-export interface CustomerProfileRepository {
+export interface CustomerRepository {
   save(profile: CustomerProfile): Promise<CustomerProfile>;
   update(profile: CustomerProfile): Promise<CustomerProfile>;
   findById(id: string): Promise<CustomerProfile | null>;

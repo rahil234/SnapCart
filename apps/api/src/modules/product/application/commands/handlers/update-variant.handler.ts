@@ -1,5 +1,6 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
 import { UpdateVariantCommand } from '../update-variant.command';
 import { ProductRepository } from '@/modules/product/domain/repositories/product.repository';
 
@@ -8,7 +9,6 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantComman
   constructor(
     @Inject('ProductRepository')
     private readonly productRepository: ProductRepository,
-    private readonly eventBus: EventBus,
   ) {}
 
   async execute(command: UpdateVariantCommand): Promise<void> {
@@ -18,11 +18,8 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantComman
       price,
       discountPercent,
       stock,
-      status,
       isActive,
-      sellerProfileId,
       attributes,
-      imageUrl,
     } = command;
 
     const variant = await this.productRepository.findVariantById(variantId);
@@ -30,9 +27,9 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantComman
       throw new NotFoundException(`Variant with ID ${variantId} not found`);
     }
 
-    // Update details
-    if (variantName !== undefined || attributes !== undefined || imageUrl !== undefined) {
-      variant.updateDetails(variantName, attributes, imageUrl);
+    // Update details (images managed separately)
+    if (variantName !== undefined || attributes !== undefined) {
+      variant.updateDetails(variantName, attributes);
     }
 
     // Update pricing
@@ -53,15 +50,6 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantComman
       variant.updateStock(stock);
     }
 
-    // Update seller
-    if (sellerProfileId !== undefined) {
-      if (sellerProfileId === null) {
-        variant.removeSeller();
-      } else {
-        variant.assignSeller(sellerProfileId);
-      }
-    }
-
     // Update status/activation
     if (isActive !== undefined) {
       if (isActive) {
@@ -71,17 +59,7 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantComman
       }
     }
 
-    // Note: status is typically auto-managed by business logic,
-    // but can be explicitly set if needed
-    if (status !== undefined) {
-      // Direct status update (use with caution)
-      // In most cases, use activate/deactivate methods instead
-    }
-
     // Persist aggregate
     await this.productRepository.updateVariant(variant);
-
-    // TODO: Emit event
-    // await this.eventBus.publish(new VariantUpdatedEvent(...));
   }
 }

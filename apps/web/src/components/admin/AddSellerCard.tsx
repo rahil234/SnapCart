@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { SellerService } from '@/services/seller.service';
-import { catchError } from '@/types/error';
 
 interface AddSellerCardProps {
   onClose: () => void;
@@ -27,14 +25,10 @@ const AddSellerCard: React.FC<AddSellerCardProps> = ({ onClose }) => {
 
   const handleAddSeller: SubmitHandler<FormValues> = async data => {
     try {
-      await SellerService.addSeller(data);
+      // await SellerService.addSeller(data);
       onClose();
     } catch (error) {
-      console.error(
-        'Failed to add seller:',
-        (error as catchError).response?.data?.message ||
-          (error as catchError).message
-      );
+      console.error('Failed to add seller:', error);
       setFormError('Failed to add seller. Please try again.');
     }
   };

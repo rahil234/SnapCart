@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { ScrollRestoration, useNavigate, useParams } from 'react-router';
 
 import ProductCard from '@/components/user/ProductCard';
-import { useGetProductsByCategoryId } from '@/hooks/product.hooks';
+import { useGetProductsByCategoryId } from '@/hooks/products/use-get-product-by-category-id.hook';
 
 function CategoryPage() {
   const { category: categoryId } = useParams<{ category: string }>();
@@ -18,7 +18,7 @@ function CategoryPage() {
     data: products = [],
     isLoading,
     isError,
-  } = useGetProductsByCategoryId(categoryId!);
+  } = useGetProductsByCategoryId(categoryId!, { enabled: !!categoryId });
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -38,7 +38,7 @@ function CategoryPage() {
       <main className="px-4 mx-auto py-8">
         <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-7 gap-4">
           {products.map(product => (
-            <ProductCard key={product._id} product={product} />
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </main>

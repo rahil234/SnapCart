@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
-import { Plus, Trash2, Edit2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Edit2, Plus, Trash2 } from 'lucide-react';
+import { useFieldArray, useForm } from 'react-hook-form';
 
 import {
   Dialog,
@@ -12,32 +12,38 @@ import {
 import { Address } from '@/types/address';
 import { catchError } from '@/types/error';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import AddressForm from '@/components/user/AddressForm';
+import { Card, CardContent } from '@/components/ui/card';
 import { AddressService } from '@/services/address.service';
 import { ProfileFormValues } from '@/pages/user/MyAccount/Profile';
+import { useGetAddresses } from '@/hooks/addresses/useGetAddresses';
 
-function AddressesSection({
-  addresses: initialAddresses,
-}: {
-  addresses: Address[];
-}) {
+function AddressesSection() {
   const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
   const [editingAddressIndex, setEditingAddressIndex] = useState<number | null>(
     null
   );
   const [error, setError] = useState<string | null>(null);
 
-  const { control } = useForm<ProfileFormValues>({
+  const { data: addresses, isLoading, isError } = useGetAddresses();
+
+  const { control, reset } = useForm<ProfileFormValues>({
     defaultValues: {
-      addresses: initialAddresses,
+      addresses: [],
     },
   });
 
   const { fields, append, remove, update } = useFieldArray({
     control,
     name: 'addresses',
+    keyName: 'fieldId',
   });
+
+  useEffect(() => {
+    if (addresses) {
+      reset({ addresses });
+    }
+  }, [addresses, reset]);
 
   const handleAddAddress = async (address: Address) => {
     try {
@@ -51,8 +57,17 @@ function AddressesSection({
   };
 
   const handleEditAddress = async (index: number, address: Address) => {
-    await AddressService.updateAddress(fields[index].id, address);
-    update(index, address);
+    const { data, error } = await AddressService.updateAddress(
+      fields[index].id,
+      address
+    );
+
+    if (error) {
+      setError(error.response.data.message);
+      return;
+    }
+
+    update(index, data);
     setEditingAddressIndex(null);
     setIsAddressDialogOpen(false);
   };
@@ -63,6 +78,14 @@ function AddressesSection({
       remove(index);
     }
   };
+
+  if (isLoading) {
+    return <p>Loading addresses...</p>;
+  }
+
+  if (isError) {
+    return <p>Error loading addresses. Please try again later.</p>;
+  }
 
   return (
     <div>
@@ -80,7 +103,7 @@ function AddressesSection({
               <strong>State:</strong> {field.state}
             </p>
             <p>
-              <strong>Pin Code:</strong> {field.pinCode}
+              <strong>Pin Code:</strong> {field.pincode}
             </p>
             <div className="mt-2 flex justify-end space-x-2">
               <Button

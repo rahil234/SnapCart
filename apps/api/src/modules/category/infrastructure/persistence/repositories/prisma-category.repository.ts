@@ -12,7 +12,11 @@ export class PrismaCategoryRepository implements CategoryRepository {
   async save(category: Category): Promise<Category> {
     const data = PrismaCategoryMapper.toPersistence(category);
 
-    const doc = await this.prisma.category.create({ data });
+    const doc = await this.prisma.category.upsert({
+      where: { id: category.id },
+      create: data,
+      update: data,
+    });
 
     return PrismaCategoryMapper.toDomain(doc);
   }

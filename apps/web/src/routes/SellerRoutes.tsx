@@ -1,12 +1,13 @@
 import React from 'react';
 import { Navigate } from 'react-router';
+
+import ComingSoon from '@/pages/admin/ComingSoon';
 import SellerLayout from '@/Layouts/SellerLayout';
-import SellerDashboard from '@/pages/seller/SellerDashboard';
 import SellerLogin from '@/pages/seller/SellerLogin';
 import ProtectedRoute from '@/routes/ProtectedRoute';
-import ComingSoon from '@/pages/admin/ComingSoon';
 import SellerOrders from '@/pages/seller/SellerOrders';
 import SellerProducts from '@/pages/seller/SellerProducts';
+import SellerDashboard from '@/pages/seller/SellerDashboard';
 import SellerSalesReport from '@/pages/seller/SellerSalesReport';
 
 const SellerRoutes = [
@@ -23,11 +24,12 @@ const SellerRoutes = [
         ),
         children: [
           { path: '', element: <Navigate to="/seller/dashboard" /> },
-          // { path: 'dashboard', element: <SellerDashboard /> },
+          { path: 'dashboard', element: <SellerDashboard /> },
+          { path: 'dashboard', element: <Navigate to="/seller/products" /> },
           { path: 'inbox', element: <ComingSoon /> },
           { path: 'products', element: <SellerProducts /> },
-          // { path: 'orders', element: <SellerOrders /> },
-          // { path: 'sales-report', element: <SellerSalesReport /> },
+          { path: 'orders', element: <SellerOrders /> },
+          { path: 'sales-report', element: <SellerSalesReport /> },
           { path: 'settings', element: <ComingSoon /> },
         ],
       },

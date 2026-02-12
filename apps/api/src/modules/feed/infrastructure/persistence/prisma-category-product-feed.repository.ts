@@ -1,14 +1,22 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '@/shared/prisma/prisma.service';
+import { CategoryProductFeedItem } from '@/modules/feed/application/queries/results';
 import { CategoryProductFeedRepository } from '@/modules/feed/application/repositories/category-product-feed.repository';
 
 @Injectable()
 export class PrismaCategoryProductFeedRepository implements CategoryProductFeedRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findFeed(maxCategories: number, maxProductsPerCategory: number) {
+  async findFeed(
+    maxCategories: number,
+    maxProductsPerCategory: number,
+  ): Promise<CategoryProductFeedItem[]> {
     const categories = await this.prisma.category.findMany({
+      where: {
+        status: 'active',
+        products: { some: { status: 'active', isDeleted: false } },
+      },
       take: maxCategories,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -25,8 +33,16 @@ export class PrismaCategoryProductFeedRepository implements CategoryProductFeedR
                 isActive: true,
                 isDeleted: false,
               },
-              take: 1, // Get first available variant for display
-              orderBy: { price: 'asc' }, // Show cheapest variant first
+              include: {
+                images: {
+                  select: {
+                    url: true,
+                    position: true,
+                  },
+                },
+              },
+              take: 1, // Get the first available variant for display
+              orderBy: { price: 'asc' }, // Show the cheapest variant first
             },
           },
         },
@@ -43,17 +59,19 @@ export class PrismaCategoryProductFeedRepository implements CategoryProductFeedR
         return {
           id: p.id,
           name: p.name,
-          description: p.description,
-          brand: p.brand,
-          // Include variant info for pricing
-          price: firstVariant?.price || 0,
-          discountPercent: firstVariant?.discountPercent || 0,
-          variantId: firstVariant?.id,
-          variantName: firstVariant?.variantName,
-          inStock: firstVariant?.stock > 0,
-          createdAt: p.createdAt,
-          updatedAt: p.updatedAt,
-        };
+          category: {
+            id: c.id,
+            name: c.name,
+          },
+          variant: {
+            id: firstVariant.id,
+            name: firstVariant.variantName,
+            price: firstVariant.price,
+            discountPercent: firstVariant.discountPercent,
+            images: firstVariant.images.map((img) => img.url),
+            stock: firstVariant.stock,
+          },
+        } satisfies CategoryProductFeedItem['products'][number];
       }),
     }));
   }

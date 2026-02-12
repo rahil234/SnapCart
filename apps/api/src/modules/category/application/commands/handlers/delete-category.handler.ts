@@ -15,7 +15,6 @@ export class DeleteCategoryHandler implements ICommandHandler<DeleteCategoryComm
   async execute(command: DeleteCategoryCommand): Promise<void> {
     const { id } = command;
 
-    // Find existing category
     const category = await this.categoryRepository.findById(id);
     if (!category) {
       throw new NotFoundException(`Category with ID ${id} not found`);
@@ -26,10 +25,7 @@ export class DeleteCategoryHandler implements ICommandHandler<DeleteCategoryComm
 
     // Emit domain event
     await this.eventBus.publish(
-      new CategoryDeletedEvent(
-        category.id,
-        category.getName(),
-      ),
+      new CategoryDeletedEvent(category.id, category.name),
     );
   }
 }

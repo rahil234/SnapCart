@@ -1,59 +1,51 @@
 import React from 'react';
 import { toast } from 'sonner';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { IOffer } from '@/types/offer';
+import { Offer } from '@/types/offer';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { OfferService } from '@/services/offer.service';
+import { useAddOffer } from '@/hooks/offers/use-add-offer.hook';
+import { useEditOffer } from '@/hooks/offers/use-edit-offer.hook';
 
 interface OfferFormProps {
-  offer?: IOffer;
+  offer?: Offer;
   onClose: () => void;
 }
 
 const OfferForm: React.FC<OfferFormProps> = ({ offer, onClose }) => {
-  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<IOffer>({
-    defaultValues: offer || {},
+  } = useForm<Offer>({
+    defaultValues: offer,
   });
 
-  const mutation = useMutation({
-    mutationFn: (data: IOffer) => {
-      return offer
-        ? OfferService.updateOffer(offer._id, data)
-        : OfferService.addOffer(data);
-    },
-    onSuccess: () => {
-      toast.success(offer ? 'Offer updated' : 'Offer added');
-      queryClient.invalidateQueries({ queryKey: ['admin-offers'] });
-      onClose();
-    },
-    onError: () => {
-      toast.error('An error occurred');
-    },
-  });
+  const addMutation = useAddOffer();
+  const editMutation = useEditOffer();
 
-  const onSubmit: SubmitHandler<IOffer> = data => {
-    mutation.mutate(data);
+  const onSubmit: SubmitHandler<Offer> = async data => {
+    const { error } = await addMutation.mutateAsync(data);
+    if (error) {
+      toast.error('Failed to save offer. Please try again.');
+      return;
+    }
+    toast.success('Offer saved successfully!');
+    onClose();
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
-        <Label htmlFor="title">Offer Name</Label>
+        <Label htmlFor="name">Offer Name</Label>
         <Input
-          id="title"
-          {...register('title', { required: 'Offer name is required' })}
+          id="name"
+          {...register('name', { required: 'Offer name is required' })}
         />
-        {errors.title && (
-          <p className="text-red-500 text-sm">{errors.title.message}</p>
+        {errors.name && (
+          <p className="text-red-500 text-sm">{errors.name.message}</p>
         )}
       </div>
       <div>
@@ -68,6 +60,27 @@ const OfferForm: React.FC<OfferFormProps> = ({ offer, onClose }) => {
         />
         {errors.discount && (
           <p className="text-red-500 text-sm">{errors.discount.message}</p>
+        )}
+      </div>
+      {/* Type Field */}
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="type" className="text-right">
+          Type
+        </Label>
+        <select
+          className="border outline-black border-gray-400 rounded-md p-2 col-span-3"
+          {...register('type', {
+            required: 'Type is required ',
+          })}
+        >
+          <option>Select Offer Type</option>
+          <option value="Percentage">Percentage</option>
+          <option value="Flat">Flat Amount</option>
+        </select>
+        {errors.type && (
+          <span className="text-red-500 text-xs col-span-4 justify-self-end">
+            {errors.type.message}
+          </span>
         )}
       </div>
       <div>
@@ -86,18 +99,23 @@ const OfferForm: React.FC<OfferFormProps> = ({ offer, onClose }) => {
         <Input
           id="expiryDate"
           type="date"
-          {...register('expiryDate', { required: 'End date is required' })}
+          {...register('endDate', { required: 'End date is required' })}
         />
-        {errors.expiryDate && (
-          <p className="text-red-500 text-sm">{errors.expiryDate.message}</p>
+        {errors.endDate && (
+          <p className="text-red-500 text-sm">{errors.endDate.message}</p>
         )}
       </div>
       <div className="flex justify-end space-x-2">
         <Button type="button" variant="ghost" onClick={onClose}>
           Cancel
         </Button>
-        <Button type="submit" disabled={mutation.isPending}>
-          {mutation.isPending ? 'Saving...' : 'Save'}
+        <Button
+          type="submit"
+          disabled={addMutation.isPending || editMutation.isPending}
+        >
+          {addMutation.isPending || editMutation.isPending
+            ? 'Saving...'
+            : 'Save'}
         </Button>
       </div>
     </form>

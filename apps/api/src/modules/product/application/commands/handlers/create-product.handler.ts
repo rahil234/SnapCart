@@ -4,6 +4,10 @@ import { CreateProductCommand } from '../create-product.command';
 import { ProductRepository } from '@/modules/product/domain/repositories/product.repository';
 import { Product } from '@/modules/product/domain/entities/product.entity';
 import { ProductCreatedEvent } from '@/modules/product/domain/events';
+import {
+  SELLER_IDENTITY_PORT,
+  SellerIdentityPort,
+} from '@/modules/product/application/ports/seller-identity.port';
 
 @CommandHandler(CreateProductCommand)
 export class CreateProductHandler implements ICommandHandler<CreateProductCommand> {
@@ -11,10 +15,15 @@ export class CreateProductHandler implements ICommandHandler<CreateProductComman
     @Inject('ProductRepository')
     private readonly productRepository: ProductRepository,
     private readonly eventBus: EventBus,
+    @Inject(SELLER_IDENTITY_PORT)
+    private readonly sellerIdentity: SellerIdentityPort,
   ) {}
 
   async execute(command: CreateProductCommand): Promise<Product> {
-    const { name, description, categoryId, brand } = command;
+    const { name, description, categoryId, brand, userId } = command;
+
+    const sellerProfileId =
+      await this.sellerIdentity.getSellerProfileId(userId);
 
     // Create domain entity using factory method (with business validation)
     const product = Product.create(
@@ -22,6 +31,7 @@ export class CreateProductHandler implements ICommandHandler<CreateProductComman
       description,
       categoryId,
       brand,
+      sellerProfileId,
     );
 
     // Persist the product

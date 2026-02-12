@@ -1,9 +1,9 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+
 import { UpdateCategoryCommand } from '../update-category.command';
-import { CategoryRepository } from '@/modules/category/domain/repositories/category.repository';
-import { Category } from '@/modules/category/domain/entities/category.entity';
 import { CategoryUpdatedEvent } from '@/modules/category/domain/events';
+import { CategoryRepository } from '@/modules/category/domain/repositories/category.repository';
 
 @CommandHandler(UpdateCategoryCommand)
 export class UpdateCategoryHandler implements ICommandHandler<UpdateCategoryCommand> {
@@ -13,33 +13,28 @@ export class UpdateCategoryHandler implements ICommandHandler<UpdateCategoryComm
     private readonly eventBus: EventBus,
   ) {}
 
-  async execute(command: UpdateCategoryCommand): Promise<Category> {
-    const { id, name } = command;
+  async execute(command: UpdateCategoryCommand) {
+    const { id, name, status } = command;
 
-    // Find existing category
+    // Find an existing category
     const category = await this.categoryRepository.findById(id);
     if (!category) {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }
 
-    const changes: Record<string, any> = {};
-
-    // Update category using business methods
     if (name !== undefined) {
-      category.updateName(name);
-      changes.name = name;
+      category.name = name;
+    }
+
+    if (status !== undefined) {
+      category.status = status;
     }
 
     // Persist the updated category
-    const updatedCategory = await this.categoryRepository.update(category);
+    const updatedCategory = await this.categoryRepository.save(category);
 
-    // Emit domain event
-    if (Object.keys(changes).length > 0) {
-      await this.eventBus.publish(
-        new CategoryUpdatedEvent(updatedCategory.id, changes),
-      );
-    }
-
-    return updatedCategory;
+    await this.eventBus.publish(
+      new CategoryUpdatedEvent(updatedCategory.id, category),
+    );
   }
 }

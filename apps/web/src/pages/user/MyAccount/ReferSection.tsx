@@ -1,32 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Share2, Gift, Users, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useState } from 'react';
+import { Check, Gift, Share2, Users } from 'lucide-react';
+
 import { useToast } from '@/hooks/use-toast';
-import { UserService } from '@/services/user.service';
-import { ImportMeta } from '@/types';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useGetReferralCode } from '@/hooks/users/use-get-referral-code.hook';
 
 const ReferSection = () => {
-  const [referralCode, setReferralCode] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    UserService.getReferralCode().then(res => {
-      setReferralCode(res.data.referralCode);
-      setIsLoading(false);
-    });
-  }, []);
+  const { data: referralCode, isLoading } = useGetReferralCode();
 
-  const referralLink =
-    (import.meta as unknown as ImportMeta).env.VITE_REFERRAL_LINK +
-    referralCode;
+  const referralLink = import.meta.env.VITE_REFERRAL_LINK + referralCode;
 
   console.log(referralLink);
-  const handleCopy = () => {
+
+  const handleCopy = async () => {
     try {
-      navigator.clipboard.writeText(referralLink);
+      await navigator.clipboard.writeText(referralLink);
       setIsCopied(true);
       toast({
         title: 'Copied!',

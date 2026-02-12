@@ -7,7 +7,7 @@ import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 
 import { LoginCommand } from '../login.command';
 import { AuthMethod } from '@/modules/auth/domain/enums';
-import { UserLoggedInEvent } from '@/modules/auth/domain/events';
+import { UserLoggedInEvent } from '@/shared/events/auth.events';
 import { OTPRepository } from '@/modules/auth/domain/repositories';
 import { UserRepository } from '@/modules/user/domain/repositories/user.repository';
 import {

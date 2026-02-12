@@ -25,7 +25,7 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
     const hasPrevPage = (query.page ?? 1) > 1;
 
     return {
-      products: result.products.map((p) => p.product),
+      products: result.products,
       meta: {
         page: query.page ?? 1,
         limit: query.limit ?? 10,

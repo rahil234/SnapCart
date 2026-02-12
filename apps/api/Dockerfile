@@ -5,8 +5,6 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-ENV DATABASE_URL=postgresql://user:password@localhost:5432/dbname
-
 # Copy only package files first -> better caching
 COPY package.json ./
 

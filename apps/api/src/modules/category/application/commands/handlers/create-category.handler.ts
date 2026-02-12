@@ -14,7 +14,7 @@ export class CreateCategoryHandler implements ICommandHandler<CreateCategoryComm
   ) {}
 
   async execute(command: CreateCategoryCommand): Promise<Category> {
-    const { name, description, imageUrl, parentId } = command;
+    const { name } = command;
 
     // Create domain entity using factory method (with business validation)
     const category = Category.create(name);
@@ -24,7 +24,7 @@ export class CreateCategoryHandler implements ICommandHandler<CreateCategoryComm
 
     // Emit domain event
     await this.eventBus.publish(
-      new CategoryCreatedEvent(createdCategory.id, createdCategory.getName()),
+      new CategoryCreatedEvent(createdCategory.id, createdCategory.name),
     );
 
     return createdCategory;
