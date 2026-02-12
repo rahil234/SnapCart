@@ -4,7 +4,7 @@ interface BannerItemProps {
 
 const BannerItem = ({ imageUrl }: BannerItemProps) => {
   return (
-    <div className="flex-shrink-0 w-full h-[180px] sm:h-[200px] md:h-[240px] lg:h-[280px] xl:h-[320px]">
+    <div className="w-full h-[173px] sm:h-[80px] md:h-[120px] lg:h-[150px] xl:h-[180px] 2xl:h-[200px]">
       {imageUrl ? (
         <img
           src={imageUrl}

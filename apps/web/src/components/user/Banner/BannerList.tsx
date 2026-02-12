@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { BannerResponse } from '@/services/banner.service';
 import BannerItem from '@/components/user/Banner/BannerItem';
@@ -10,134 +10,188 @@ interface BannerListProps {
 const BannerList = ({ banners }: BannerListProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(1);
+  const [isScrolling, setIsScrolling] = useState(false);
   const autoScrollInterval = useRef<NodeJS.Timeout | null>(null);
+  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Triple the banners for seamless infinite scrolling
-  const infiniteBanners = [...banners, ...banners, ...banners];
-
+  // Calculate items per view based on screen size
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container || banners.length <= 1) return;
-
-    // Auto-scroll every 4 seconds
-    autoScrollInterval.current = setInterval(() => {
-      setCurrentIndex((prevIndex) => {
-        const nextIndex = prevIndex + 1;
-        // Reset to a middle set when reaching the end
-        if (nextIndex >= banners.length * 2) {
-          // Jump back to the equivalent position in the middle set
-          container.scrollTo({
-            left: banners.length * container.clientWidth,
-            behavior: 'auto',
-          });
-          return banners.length;
-        }
-        return nextIndex;
-      });
-    }, 4000);
-
-    return () => {
-      if (autoScrollInterval.current) {
-        clearInterval(autoScrollInterval.current);
+    const updateItemsPerView = () => {
+      const width = window.innerWidth;
+      if (width >= 1280) {
+        setItemsPerView(3);
+      } else if (width >= 768) {
+        setItemsPerView(2);
+      } else {
+        setItemsPerView(1);
       }
     };
-  }, [banners.length]);
 
+    updateItemsPerView();
+    window.addEventListener('resize', updateItemsPerView);
+    return () => window.removeEventListener('resize', updateItemsPerView);
+  }, []);
+
+  const maxIndex = Math.max(0, banners.length - itemsPerView);
+
+  // Start auto-scroll
+  const startAutoScroll = useCallback(() => {
+    if (autoScrollInterval.current) {
+      clearInterval(autoScrollInterval.current);
+    }
+
+    if (banners.length > itemsPerView) {
+      autoScrollInterval.current = setInterval(() => {
+        setCurrentIndex(prevIndex => {
+          const nextIndex = prevIndex + 1;
+          return nextIndex > maxIndex ? 0 : nextIndex;
+        });
+      }, 4000);
+    }
+  }, [banners.length, itemsPerView, maxIndex]);
+
+  // Stop auto-scroll
+  const stopAutoScroll = useCallback(() => {
+    if (autoScrollInterval.current) {
+      clearInterval(autoScrollInterval.current);
+      autoScrollInterval.current = null;
+    }
+  }, []);
+
+  // Initial auto-scroll setup
+  useEffect(() => {
+    startAutoScroll();
+    return () => stopAutoScroll();
+  }, [startAutoScroll, stopAutoScroll]);
+
+  // Handle smooth scrolling to current index
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || isScrolling) return;
+
+    const containerWidth = container.clientWidth;
+    const gap = parseInt(getComputedStyle(container).gap) || 0;
+    let itemWidth;
+
+    if (itemsPerView === 1) {
+      itemWidth = containerWidth;
+    } else if (itemsPerView === 2) {
+      itemWidth = (containerWidth - gap) / 2;
+    } else {
+      itemWidth = (containerWidth - gap * 2) / 3;
+    }
+
+    const scrollLeft = currentIndex * (itemWidth + gap);
 
     container.scrollTo({
-      left: currentIndex * container.clientWidth,
+      left: scrollLeft,
       behavior: 'smooth',
     });
-  }, [currentIndex]);
+  }, [currentIndex, itemsPerView, isScrolling]);
 
-  // Handle manual scroll to maintain infinite effect
+  // Handle manual scroll detection
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || banners.length <= 1) return;
+    if (!container || banners.length <= itemsPerView) return;
 
     const handleScroll = () => {
-      const scrollLeft = container.scrollLeft;
-      const itemWidth = container.clientWidth;
-      const currentPos = Math.round(scrollLeft / itemWidth);
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
 
-      // If scrolled to the first set, jump to the middle set
-      if (currentPos <= 0) {
-        container.scrollTo({
-          left: banners.length * itemWidth,
-          behavior: 'auto',
-        });
-        setCurrentIndex(banners.length);
-      }
-      // If scrolled past the second set, jump back to the middle set
-      else if (currentPos >= banners.length * 2) {
-        container.scrollTo({
-          left: banners.length * itemWidth,
-          behavior: 'auto',
-        });
-        setCurrentIndex(banners.length);
-      }
+      setIsScrolling(true);
+      stopAutoScroll();
+
+      // Debounce scroll end detection
+      scrollTimeout.current = setTimeout(() => {
+        setIsScrolling(false);
+
+        // Calculate the current index based on scroll position
+        const containerWidth = container.clientWidth;
+        const gap = parseInt(getComputedStyle(container).gap) || 0;
+        let itemWidth;
+
+        if (itemsPerView === 1) {
+          itemWidth = containerWidth;
+        } else if (itemsPerView === 2) {
+          itemWidth = (containerWidth - gap) / 2;
+        } else {
+          itemWidth = (containerWidth - gap * 2) / 3;
+        }
+
+        const scrollLeft = container.scrollLeft;
+        const calculatedIndex = Math.round(scrollLeft / (itemWidth + gap));
+        const clampedIndex = Math.max(0, Math.min(calculatedIndex, maxIndex));
+
+        if (clampedIndex !== currentIndex) {
+          setCurrentIndex(clampedIndex);
+        }
+
+        // Restart auto-scroll after manual interaction
+        setTimeout(() => {
+          startAutoScroll();
+        }, 2000);
+      }, 150);
     };
 
-    container.addEventListener('scrollend', handleScroll);
-    return () => container.removeEventListener('scrollend', handleScroll);
-  }, [banners.length]);
-
-  // Initialize scroll position to middle set
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || banners.length <= 1) return;
-
-    // Start from the middle set for seamless infinite scrolling
-    container.scrollTo({
-      left: banners.length * container.clientWidth,
-      behavior: 'auto',
-    });
-    setCurrentIndex(banners.length);
-  }, [banners.length]);
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
+    };
+  }, [
+    banners.length,
+    itemsPerView,
+    maxIndex,
+    currentIndex,
+    startAutoScroll,
+    stopAutoScroll,
+  ]);
 
   if (banners.length === 0) return null;
 
   return (
-    <div className="w-full overflow-hidden mb-6 px-4 md:px-6 lg:px-8">
+    <div className="w-full overflow-hidden mb-6">
       <div
         ref={containerRef}
-        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+        className="flex gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
         style={{
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
         }}
       >
-        {infiniteBanners.map((banner, index) => (
+        {banners.map((banner, index) => (
           <div
             key={`${banner.id}-${index}`}
-            className="snap-center snap-always min-w-full"
+            className="snap-center snap-always flex-shrink-0 w-full md:w-[calc(50%-0.5rem)] xl:w-[calc(33.333%-1rem)]"
           >
             <BannerItem imageUrl={banner.imageUrl} />
           </div>
         ))}
       </div>
 
-      {/* Indicator dots */}
-      {banners.length > 1 && (
+      {/* Indicator dots - only show if there are more banners than visible */}
+      {banners.length > itemsPerView && (
         <div className="flex justify-center gap-2 mt-4">
-          {banners.map((_, index) => (
+          {Array.from({ length: maxIndex + 1 }, (_, index) => (
             <button
               key={index}
               onClick={() => {
-                setCurrentIndex(banners.length + index);
-                if (autoScrollInterval.current) {
-                  clearInterval(autoScrollInterval.current);
-                }
+                stopAutoScroll();
+                setCurrentIndex(index);
+                setTimeout(() => {
+                  startAutoScroll();
+                }, 2000);
               }}
               className={`h-2 rounded-full transition-all ${
-                (currentIndex % banners.length) === index
+                currentIndex === index
                   ? 'w-8 bg-blue-600'
                   : 'w-2 bg-gray-300 hover:bg-gray-400'
               }`}
-              aria-label={`Go to banner ${index + 1}`}
+              aria-label={`Go to banner set ${index + 1}`}
             />
           ))}
         </div>
