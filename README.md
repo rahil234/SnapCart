@@ -49,8 +49,7 @@ experience. It focuses on efficiency, scalability, and user satisfaction.
 
 ## Project Structure 📂
 
-This Project follows turbo monorepo structure, with separate folders for the frontend and backend applications. The root
-directory contains the docker-compose file for easy deployment.
+This Project follows [Turborepo](https://turborepo.dev/docs).
 
 ```bash
 snapcart/
@@ -96,10 +95,6 @@ docker compose up
 Full API documentation is available via Swagger UI:
 
 **Live API Docs**: [https://api.snapcart.live/api/docs](https://api.snapcart.live/api/docs)
-
-For programmatic access to the OpenAPI specification:
-
-**API JSON Schema**: [https://api.snapcart.live/api/docs-json](https://api.snapcart.live/api/docs-json)
 
 ---
 
