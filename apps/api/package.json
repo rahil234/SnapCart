@@ -13,7 +13,12 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main.js",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "migrate": "dotenv -e .env -- prisma migrate dev",
+    "migrate:deploy:staging": "dotenv -e .env.staging -- prisma migrate deploy",
+    "migrate:deploy:prod": "dotenv -e .env.production -- prisma migrate deploy",
+    "seed:staging": "dotenv -e .env.staging -- prisma db seed",
+    "seed:prod": "dotenv -e .env.production -- prisma db seed"
   },
   "dependencies": {
     "@azure/storage-blob": "^12.29.1",
@@ -29,7 +34,6 @@
     "@paralleldrive/cuid2": "^3.3.0",
     "@prisma/client": "^6.18.0",
     "@sendgrid/mail": "^8.1.6",
-    "axios": "^1.13.1",
     "bcrypt": "^6.0.0",
     "body-parser": "2.2.1",
     "class-transformer": "^0.5.1",
@@ -68,6 +72,8 @@
     "@types/streamifier": "^0.1.2",
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^8.3.4",
+    "dotenv": "^17.3.1",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
