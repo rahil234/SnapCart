@@ -5,6 +5,7 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "ignoreDeprecations": "6.0",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
