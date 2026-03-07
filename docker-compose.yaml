@@ -31,8 +31,6 @@ services:
     environment:
       - PORT=4000
       - TZ=Asia/Kolkata
-      - REDIS_URL=redis://redis:6379
-      - DATABASE_URL=postgresql://postgres.nqgvblytqowkzxwmrvtr:cGFzc3dvcmQK@aws-1-ap-south-1.pooler.supabase.com:5432/postgres
     volumes:
       - ./apps/api:/app/
       - /app/node_modules

@@ -11,6 +11,7 @@
     "experimentalDecorators": true,
     //    "strict": true,
     "sourceMap": true,
+    "rootDir": ".",
     "outDir": "dist",
     "incremental": true,
     "skipLibCheck": true,
@@ -22,5 +23,6 @@
     "paths": {
       "@/*": ["./src/*"]
     }
-  }
+  },
+  "include": ["src/**/*.ts"]
 }
