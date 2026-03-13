@@ -1,3 +1,14 @@
 {
-    "prisma.pinToPrisma6": true
+    "prisma.pinToPrisma6": true,
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "driver": "PostgreSQL",
+            "name": "docker",
+            "connectString": "postgres://postgres:postgres@localhost:5432"
+        }
+    ],
+    "postman.settings.dotenv-detection-notification-visibility": false
 }

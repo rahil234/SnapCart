@@ -31,6 +31,8 @@ services:
     environment:
       - PORT=4000
       - TZ=Asia/Kolkata
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/snapcart
+      - REDIS_URL=redis://redis:6379
     volumes:
       - ./apps/api:/app/
       - /app/node_modules
